@@ -31,6 +31,7 @@ void ConfigIO::init() {
 
    for (int i{}; i < CONFIG_FILE_COUNT; i++) {
       ::PathCombine(sConfigFile, pluginConfigDir, CONFIG_FILES[i].c_str());
+      CONFIG_FILE_PATHS[i] = std::wstring{ sConfigFile };
 
       if (!PathFileExists(sConfigFile)) {
          ::PathCombine(sDefaultsFile, sPluginDirectory, (sDefaultsPrefix + CONFIG_FILES[i]).c_str());
@@ -80,3 +81,19 @@ void ConfigIO::TokenizeW(LPCWSTR str, std::vector<int> &results, LPCWSTR delim) 
       results.emplace_back(std::stoi(istr));
    }
 }
+
+LPCWSTR ConfigIO::getMainIniFile()
+{
+   return CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+}
+
+LPCWSTR ConfigIO::getPreferencesIniFile()
+{
+   return CONFIG_FILE_PATHS[CONFIG_PREFS].c_str();
+}
+
+LPCWSTR ConfigIO::getBasicThemeIniFile()
+{
+   return CONFIG_FILE_PATHS[CONFIG_BASIC_THEME].c_str();
+}
+

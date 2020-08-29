@@ -32,7 +32,7 @@ public :
    virtual void display(bool toShow=true);
    void setParent(HWND parent2set);
    void loadPreferences();
-   void updatePanelFieldInfo();
+   void loadFileTypes();
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);

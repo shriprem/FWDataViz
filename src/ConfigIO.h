@@ -27,10 +27,14 @@ public:
    void TokenizeW(LPCWSTR str, std::vector<std::wstring> &results, LPCWSTR delim = L",");
    void TokenizeW(LPCWSTR str, std::vector<int> &results, LPCWSTR delim = L",");
 
+   LPCWSTR getMainIniFile();
+   LPCWSTR getPreferencesIniFile();
+   LPCWSTR getBasicThemeIniFile();
+
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
 
-   enum CONFIG_FILE_TYPES {
+   enum CF_TYPES {
       CONFIG_MAIN,
       CONFIG_PREFS,
       CONFIG_BASIC_THEME,
@@ -38,6 +42,7 @@ protected:
    };
 
    const std::wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini", L"VT_Basic.ini" };
+   std::wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
 };
 
 #endif //_PREFERENCES_INI_H

@@ -67,8 +67,9 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
    {
       case NPPN_BUFFERACTIVATED:
       {
-         if (_vizPanel.isVisible())
-            _vizPanel.updatePanelFieldInfo();
+         if (_vizPanel.isVisible()) {
+            //??
+         }
       }
       break;
 

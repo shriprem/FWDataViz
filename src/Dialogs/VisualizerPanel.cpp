@@ -42,7 +42,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       break;
 
    case WM_SETFOCUS:
-      updatePanelFieldInfo();
       break;
 
    default :
@@ -60,7 +59,8 @@ void VisualizerPanel::display(bool toShow) {
    DockingDlgInterface::display(toShow);
 
    if (toShow) {
-      //::SetFocus(::GetDlgItem(_hSelf, IDC_VISUALIZE_SELECT));
+      loadFileTypes();
+      ::SetFocus(::GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT));
    }
 };
 
@@ -71,7 +71,19 @@ void VisualizerPanel::setParent(HWND parent2set) {
 void VisualizerPanel::loadPreferences() {
 }
 
-void VisualizerPanel::updatePanelFieldInfo() {
+void VisualizerPanel::loadFileTypes() {
+   std::vector<std::wstring> fileTypes{};
+   std::unordered_map<std::wstring, std::wstring> ftMap;
+   HWND hFTList{ ::GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT) };
+
+   std::wstring fileTypeList{ _configIO.getConfigStringW(_configIO.getMainIniFile(), L"Base", L"FileTypes") };
+   _configIO.TokenizeW(fileTypeList.c_str(), fileTypes);
+
+   for (auto ft : fileTypes) {
+      std::wstring fileLabel{_configIO.getConfigStringW(_configIO.getMainIniFile(), ft.c_str(), L"FileLabel")};
+      ftMap[fileLabel] = ft;
+      ::SendMessageW(hFTList, CB_ADDSTRING, NULL, (LPARAM)fileLabel.c_str());
+   }
 }
 
 /// *** Private Functions: *** ///
