@@ -66,6 +66,12 @@
     <ClInclude Include="..\src\ConfigIO.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\NPP\Sci_Position.h">
+      <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\SciLexer.h">
+      <Filter>_NPP Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc">

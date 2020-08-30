@@ -139,8 +139,6 @@ void ToggleVisualizerPanel() {
 
 void ShowVisualizerPanel(bool show) {
    _vizPanel.display(show);
-   if (show)
-      _vizPanel.loadFileTypes();
 
    ::CheckMenuItem(::GetMenu(nppData._nppHandle), funcItem[INDEX_GOTO_PANEL]._cmdID,
                MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));

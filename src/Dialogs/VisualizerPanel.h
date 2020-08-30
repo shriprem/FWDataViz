@@ -35,8 +35,9 @@ public :
    virtual void display(bool toShow=true);
    void setParent(HWND parent2set);
    void loadFileTypes();
-   void visualizeFile();
    void syncListFileType();
+   void visualizeFile();
+   void visualizeClear();
 
 protected :
    HWND hFTList;

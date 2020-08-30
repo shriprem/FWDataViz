@@ -18,17 +18,21 @@
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-   case WM_COMMAND :
+   case WM_COMMAND:
       switch LOWORD(wParam) {
       case IDC_VIZPANEL_FILETYPE_SELECT:
          break;
 
-      case IDOK :
+      case IDOK:
          visualizeFile();
          break;
 
+      case IDC_VIZPANEL_CLEAR_BUTTON:
+         visualizeClear();
+         break;
+
       case IDCANCEL:
-      case IDCLOSE :
+      case IDCLOSE:
          setFocusOnEditor();
          ShowVisualizerPanel(false);
          break;
@@ -53,7 +57,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 }
 
 void VisualizerPanel::localize() {
-   //::SetDlgItemText(_hSelf, IDC_VISUALIZE_STATIC, GOLINECOL_LABEL_GOLINE);
+   //::SetDlgItemText(_hSelf, IDC_VIZPANEL_FILETYPE_LABEL, GOLINECOL_LABEL_GOLINE);
+   //::SetDlgItemText(_hSelf, IDOK, GOLINECOL_LABEL_GOLINE);
+   //::SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BUTTON, GOLINECOL_LABEL_GOLINE);
+   //::SetDlgItemText(_hSelf, IDCLOSE, GOLINECOL_LABEL_GOLINE);
 }
 
 void VisualizerPanel::display(bool toShow) {
@@ -63,6 +70,7 @@ void VisualizerPanel::display(bool toShow) {
    if (toShow) {
       loadFileTypes();
       ::SetFocus(hFTList);
+      syncListFileType();
    }
 };
 
@@ -96,27 +104,6 @@ void VisualizerPanel::loadFileTypes() {
    }
 }
 
-void VisualizerPanel::visualizeFile()
-{
-   HWND hScintilla = getCurrentScintilla();
-   if (!hScintilla)
-      return;
-
-   wchar_t fDesc[MAX_PATH];
-   LPCSTR descType;
-
-   ::SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
-   descType = mapFileDescToType[fDesc].c_str();
-
-   if (std::wstring{fDesc}.length() < 2) {
-      ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)"");
-      ::SendMessage(hScintilla, SCI_STYLECLEARALL, 0, 0);
-   }
-   else {
-      ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)descType);
-   }
-}
-
 void VisualizerPanel::syncListFileType()
 {
    HWND hScintilla = getCurrentScintilla();
@@ -131,6 +118,41 @@ void VisualizerPanel::syncListFileType()
 
    ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)
       ((::SendMessage(hFTList, CB_FINDSTRING, (WPARAM)0, (LPARAM)fDesc.c_str()) != CB_ERR) ? fDesc.c_str() : L"-"));
+}
+
+void VisualizerPanel::visualizeFile()
+{
+   HWND hScintilla = getCurrentScintilla();
+   if (!hScintilla)
+      return;
+
+   ::SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
+
+   wchar_t fDesc[MAX_PATH];
+   LPCSTR descType;
+
+   ::SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
+   descType = mapFileDescToType[fDesc].c_str();
+
+   if (std::wstring{fDesc}.length() < 2) {
+      visualizeClear();
+   }
+   else {
+      ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)descType);
+      //::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
+   }
+}
+
+void VisualizerPanel::visualizeClear()
+{
+   HWND hScintilla = getCurrentScintilla();
+   if (!hScintilla)
+      return;
+
+   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)L"");
+   ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
+   ::SendMessage(hScintilla, SCI_STYLECLEARALL, 0, 0);
+   syncListFileType();
 }
 
 /// *** Private Functions: *** ///
