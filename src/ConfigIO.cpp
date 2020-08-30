@@ -40,27 +40,18 @@ void ConfigIO::init() {
    }
 }
 
-std::wstring ConfigIO::getConfigStringW(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue) {
+std::wstring ConfigIO::getConfigString(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue) {
    const int bufSize{ 32000 };
    wchar_t ftBuf[bufSize];
-   DWORD retLen{};
+   DWORD retLen;
 
    retLen = GetPrivateProfileStringW(sectionName, keyName, defaultValue, ftBuf, bufSize, fileName);
 
    return std::wstring{ ftBuf };
 }
 
-int ConfigIO::getPref(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR key, int default) {
-   return ::GetPrivateProfileInt(sectionName, key, default, fileName);
-}
-
-void ConfigIO::setPref(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR key, int val) {
-   ::WritePrivateProfileString(sectionName, key, TO_LPCWSTR(val), fileName);
-}
-
-void ConfigIO::TokenizeW(LPCWSTR str, std::vector<std::wstring> &results, LPCWSTR delim) {
-   std::size_t nStart{}, nEnd{};
-   std::wstring text{ str };
+void ConfigIO::TokenizeW(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim) {
+   std::size_t nStart{}, nEnd;
 
    while ((nEnd = text.find(delim, nStart)) != std::wstring::npos) {
       if (nEnd > nStart) {
@@ -73,27 +64,21 @@ void ConfigIO::TokenizeW(LPCWSTR str, std::vector<std::wstring> &results, LPCWST
    }
 }
 
-void ConfigIO::TokenizeW(LPCWSTR str, std::vector<int> &results, LPCWSTR delim) {
-   std::vector<std::wstring> interims{};
-   TokenizeW(str, interims, delim);
+void ConfigIO::TokenizeInt(const std::wstring &text, std::vector<int> &results, LPCWSTR delim) {
+   std::vector<std::wstring> interims;
+   TokenizeW(text, interims, delim);
 
    for (auto istr : interims) {
       results.emplace_back(std::stoi(istr));
    }
 }
 
-LPCWSTR ConfigIO::getMainIniFile()
+std::string ConfigIO::WideToNarrow(const std::wstring& wStr)
+{
+   return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
+}
+
+LPCWSTR ConfigIO::FWDataVizIniFile()
 {
    return CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
 }
-
-LPCWSTR ConfigIO::getPreferencesIniFile()
-{
-   return CONFIG_FILE_PATHS[CONFIG_PREFS].c_str();
-}
-
-LPCWSTR ConfigIO::getBasicThemeIniFile()
-{
-   return CONFIG_FILE_PATHS[CONFIG_BASIC_THEME].c_str();
-}
-

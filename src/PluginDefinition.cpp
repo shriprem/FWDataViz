@@ -130,7 +130,7 @@ void ToggleVisualizerPanel() {
 
          ::SendMessage(nppData._nppHandle, NPPM_DMMREGASDCKDLG, 0, (LPARAM)& data);
 
-         //??if (_configIO.allPrefs.language != LANG_ENGLISH)
+         if (_configIO.language != LANG_ENGLISH)
             _vizPanel.localize();
       }
    }
@@ -140,15 +140,10 @@ void ToggleVisualizerPanel() {
 void ShowVisualizerPanel(bool show) {
    _vizPanel.display(show);
    if (show)
-      _vizPanel.loadPreferences();
+      _vizPanel.loadFileTypes();
 
    ::CheckMenuItem(::GetMenu(nppData._nppHandle), funcItem[INDEX_GOTO_PANEL]._cmdID,
                MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));
-}
-
-void VisualizerDlgLoadPreferences() {
-   if (_vizPanel.isVisible())
-      _vizPanel.loadPreferences();
 }
 
 void ShowAboutDialog() {

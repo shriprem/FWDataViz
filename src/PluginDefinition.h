@@ -40,7 +40,6 @@ HWND createToolTip(HWND hDlg, int toolID, LPWSTR pTitle, LPWSTR pMessage);
 // Plugin Command Functions
 void ToggleVisualizerPanel();
 void ShowVisualizerPanel(bool show);
-void VisualizerDlgLoadPreferences();
 
 void ShowAboutDialog();
 

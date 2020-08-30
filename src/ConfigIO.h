@@ -4,6 +4,8 @@
 #define _PREFERENCES_INI_H
 
 #include "NPP/PluginInterface.h"
+#include <codecvt>
+#include <locale>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -20,16 +22,14 @@ const int CONFIG_STR_MAX_LEN = 100;
 
 class ConfigIO {
 public:
+   int language = LANG_ENGLISH;
    void init();
-   std::wstring getConfigStringW(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"");
-   int getPref(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR key, int default);
-   void setPref(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR key, int val);
-   void TokenizeW(LPCWSTR str, std::vector<std::wstring> &results, LPCWSTR delim = L",");
-   void TokenizeW(LPCWSTR str, std::vector<int> &results, LPCWSTR delim = L",");
+   std::wstring getConfigString(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"");
+   void TokenizeW(const std::wstring &text, std::vector<std::wstring>& results, LPCWSTR delim=L",");
+   void TokenizeInt(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");
+   std::string WideToNarrow(const std::wstring& wStr);
 
-   LPCWSTR getMainIniFile();
-   LPCWSTR getPreferencesIniFile();
-   LPCWSTR getBasicThemeIniFile();
+   LPCWSTR FWDataVizIniFile();
 
 protected:
    TCHAR pluginConfigDir[MAX_PATH];

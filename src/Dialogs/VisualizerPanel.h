@@ -26,15 +26,20 @@ static bool idemPotentKey {FALSE};
 class VisualizerPanel : public DockingDlgInterface {
 public :
    int instance_id{ 0 };
+   std::unordered_map<std::wstring, std::string> mapFileDescToType;
+   std::unordered_map<std::string, std::wstring> mapFileTypeToDesc;
+
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
 
    void localize();
    virtual void display(bool toShow=true);
    void setParent(HWND parent2set);
-   void loadPreferences();
    void loadFileTypes();
+   void visualizeFile();
+   void syncListFileType();
 
 protected :
+   HWND hFTList;
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
 
    static HWND getCurrentScintilla();

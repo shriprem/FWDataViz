@@ -20,10 +20,11 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
    switch (message) {
    case WM_COMMAND :
       switch LOWORD(wParam) {
-      //case IDC_VISUALIZE_SELECT:
-      //   break;
+      case IDC_VIZPANEL_FILETYPE_SELECT:
+         break;
 
       case IDOK :
+         visualizeFile();
          break;
 
       case IDCANCEL:
@@ -57,10 +58,11 @@ void VisualizerPanel::localize() {
 
 void VisualizerPanel::display(bool toShow) {
    DockingDlgInterface::display(toShow);
+   hFTList = ::GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
 
    if (toShow) {
       loadFileTypes();
-      ::SetFocus(::GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT));
+      ::SetFocus(hFTList);
    }
 };
 
@@ -68,22 +70,67 @@ void VisualizerPanel::setParent(HWND parent2set) {
    _hParent = parent2set;
 };
 
-void VisualizerPanel::loadPreferences() {
-}
-
 void VisualizerPanel::loadFileTypes() {
-   std::vector<std::wstring> fileTypes{};
-   std::unordered_map<std::wstring, std::wstring> ftMap;
-   HWND hFTList{ ::GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT) };
+   std::vector<std::wstring> fileTypes;
+   std::wstring fileTypeList;
 
-   std::wstring fileTypeList{ _configIO.getConfigStringW(_configIO.getMainIniFile(), L"Base", L"FileTypes") };
-   _configIO.TokenizeW(fileTypeList.c_str(), fileTypes);
+   fileTypeList = _configIO.getConfigString(_configIO.FWDataVizIniFile(), L"Base", L"FileTypes");
+   _configIO.TokenizeW(fileTypeList, fileTypes);
 
-   for (auto ft : fileTypes) {
-      std::wstring fileLabel{_configIO.getConfigStringW(_configIO.getMainIniFile(), ft.c_str(), L"FileLabel")};
-      ftMap[fileLabel] = ft;
+   mapFileDescToType.clear();
+   mapFileTypeToDesc.clear();
+
+   ::SendMessageW(hFTList, CB_RESETCONTENT, NULL, NULL);
+   ::SendMessageW(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
+
+   for (auto fType : fileTypes) {
+      std::string fTypeAnsi;
+      std::wstring fileLabel;
+
+      fTypeAnsi = _configIO.WideToNarrow(fType);
+      fileLabel = _configIO.getConfigString(_configIO.FWDataVizIniFile(), fType.c_str(), L"FileLabel");
+
+      mapFileDescToType[fileLabel] = fTypeAnsi;
+      mapFileTypeToDesc[fTypeAnsi] = fileLabel;
       ::SendMessageW(hFTList, CB_ADDSTRING, NULL, (LPARAM)fileLabel.c_str());
    }
+}
+
+void VisualizerPanel::visualizeFile()
+{
+   HWND hScintilla = getCurrentScintilla();
+   if (!hScintilla)
+      return;
+
+   wchar_t fDesc[MAX_PATH];
+   LPCSTR descType;
+
+   ::SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
+   descType = mapFileDescToType[fDesc].c_str();
+
+   if (std::wstring{fDesc}.length() < 2) {
+      ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)"");
+      ::SendMessage(hScintilla, SCI_STYLECLEARALL, 0, 0);
+   }
+   else {
+      ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)descType);
+   }
+}
+
+void VisualizerPanel::syncListFileType()
+{
+   HWND hScintilla = getCurrentScintilla();
+   if (!hScintilla)
+      return;
+
+   char fType[MAX_PATH];
+   std::wstring fDesc;
+
+   ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)fType);
+   fDesc = mapFileTypeToDesc[std::string{ fType }];
+
+   ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)
+      ((::SendMessage(hFTList, CB_FINDSTRING, (WPARAM)0, (LPARAM)fDesc.c_str()) != CB_ERR) ? fDesc.c_str() : L"-"));
 }
 
 /// *** Private Functions: *** ///
