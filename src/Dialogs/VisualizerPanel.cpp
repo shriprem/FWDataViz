@@ -83,7 +83,7 @@ void VisualizerPanel::loadFileTypes() {
    std::wstring fileTypeList;
 
    fileTypeList = _configIO.getConfigString(_configIO.FWDataVizIniFile(), L"Base", L"FileTypes");
-   _configIO.TokenizeW(fileTypeList, fileTypes);
+   _configIO.Tokenize(fileTypeList, fileTypes);
 
    mapFileDescToType.clear();
    mapFileTypeToDesc.clear();

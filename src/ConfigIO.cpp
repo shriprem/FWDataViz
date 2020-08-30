@@ -50,7 +50,7 @@ std::wstring ConfigIO::getConfigString(LPCWSTR fileName, LPCWSTR sectionName, LP
    return std::wstring{ ftBuf };
 }
 
-void ConfigIO::TokenizeW(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim) {
+void ConfigIO::Tokenize(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim) {
    std::size_t nStart{}, nEnd;
 
    while ((nEnd = text.find(delim, nStart)) != std::wstring::npos) {
@@ -64,9 +64,9 @@ void ConfigIO::TokenizeW(const std::wstring &text, std::vector<std::wstring> &re
    }
 }
 
-void ConfigIO::TokenizeInt(const std::wstring &text, std::vector<int> &results, LPCWSTR delim) {
+void ConfigIO::Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim) {
    std::vector<std::wstring> interims;
-   TokenizeW(text, interims, delim);
+   Tokenize(text, interims, delim);
 
    for (auto istr : interims) {
       results.emplace_back(std::stoi(istr));

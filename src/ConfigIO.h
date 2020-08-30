@@ -11,12 +11,6 @@
 #include <vector>
 #include <Windows.h>
 
-
-#define TO_STR(str) std::to_string(str)
-#define TO_WSTR(str) std::to_wstring(str)
-#define TO_LPCSTR(str) std::to_string(str).c_str()
-#define TO_LPCWSTR(str) std::to_wstring(str).c_str()
-
 extern NppData nppData;
 const int CONFIG_STR_MAX_LEN = 100;
 
@@ -25,8 +19,8 @@ public:
    int language = LANG_ENGLISH;
    void init();
    std::wstring getConfigString(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"");
-   void TokenizeW(const std::wstring &text, std::vector<std::wstring>& results, LPCWSTR delim=L",");
-   void TokenizeInt(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");
+   void Tokenize(const std::wstring &text, std::vector<std::wstring>& results, LPCWSTR delim=L",");
+   void Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");
    std::string WideToNarrow(const std::wstring& wStr);
 
    LPCWSTR FWDataVizIniFile();
