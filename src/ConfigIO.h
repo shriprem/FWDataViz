@@ -21,7 +21,8 @@ public:
    std::wstring getConfigString(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"");
    void Tokenize(const std::wstring &text, std::vector<std::wstring>& results, LPCWSTR delim=L",");
    void Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");
-   std::string WideToNarrow(const std::wstring& wStr);
+   std::wstring NarrowToWide(const std::string &str);
+   std::string WideToNarrow(const std::wstring &wStr);
 
    LPCWSTR FWDataVizIniFile();
 

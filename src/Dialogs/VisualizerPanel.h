@@ -26,8 +26,8 @@ static bool idemPotentKey {FALSE};
 class VisualizerPanel : public DockingDlgInterface {
 public :
    int instance_id{ 0 };
-   std::unordered_map<std::wstring, std::string> mapFileDescToType;
-   std::unordered_map<std::string, std::wstring> mapFileTypeToDesc;
+   std::unordered_map<std::wstring, std::wstring> mapFileDescToType;
+   std::unordered_map<std::wstring, std::wstring> mapFileTypeToDesc;
 
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
 

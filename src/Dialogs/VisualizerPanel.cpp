@@ -95,11 +95,10 @@ void VisualizerPanel::loadFileTypes() {
       std::string fTypeAnsi;
       std::wstring fileLabel;
 
-      fTypeAnsi = _configIO.WideToNarrow(fType);
       fileLabel = _configIO.getConfigString(_configIO.FWDataVizIniFile(), fType.c_str(), L"FileLabel");
 
-      mapFileDescToType[fileLabel] = fTypeAnsi;
-      mapFileTypeToDesc[fTypeAnsi] = fileLabel;
+      mapFileDescToType[fileLabel] = fType;
+      mapFileTypeToDesc[fType] = fileLabel;
       ::SendMessageW(hFTList, CB_ADDSTRING, NULL, (LPARAM)fileLabel.c_str());
    }
 }
@@ -114,7 +113,7 @@ void VisualizerPanel::syncListFileType()
    std::wstring fDesc;
 
    ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)fType);
-   fDesc = mapFileTypeToDesc[std::string{ fType }];
+   fDesc = mapFileTypeToDesc[_configIO.NarrowToWide(std::string{ fType })];
 
    ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)
       ((::SendMessage(hFTList, CB_FINDSTRING, (WPARAM)0, (LPARAM)fDesc.c_str()) != CB_ERR) ? fDesc.c_str() : L"-"));
@@ -129,17 +128,17 @@ void VisualizerPanel::visualizeFile()
    ::SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
 
    wchar_t fDesc[MAX_PATH];
-   LPCSTR descType;
+   std::string sDesc;
 
    ::SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
-   descType = mapFileDescToType[fDesc].c_str();
+   sDesc =  _configIO.WideToNarrow(mapFileDescToType[fDesc]);
 
    if (std::wstring{fDesc}.length() < 2) {
       visualizeClear();
    }
    else {
-      ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)descType);
-      //::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
+      ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)sDesc.c_str());
+      //??::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
    }
 }
 
