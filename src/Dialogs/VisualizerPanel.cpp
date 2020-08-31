@@ -137,13 +137,14 @@ void VisualizerPanel::visualizeFile()
    ::SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
    sDesc =  _configIO.WideToNarrow(mapFileDescToType[fDesc]);
 
-   if (std::wstring{fDesc}.length() < 2) {
+   if (sDesc.length() < 2) {
       clearVisualize();
       return;
    }
 
-   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)sDesc.c_str());
    ::SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
+   ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
+   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)sDesc.c_str());
 
    loadStyles();
    setStyles();
