@@ -208,17 +208,16 @@ int VisualizerPanel::loadStyles()
       _configIO.getStyleBool((sPrefix + L"Italics").c_str(), styleSet[i].italics);
    }
 
-
-   #if FW_DEBUG
+   #if FW_DEBUG_LOAD_STYLES
    wchar_t test[500];
 
    styleCount = styleSet.size();
    for (int i{}; i < styleCount; i++) {
-      swprintf(test, 500, L"C0%i_Back = %i,%i,%i\n C0%i_Fore = %i,%i,%i\n C0%i_Bold = %s\nC0%i_Italics = %s\n",
-         i, styleSet[i].backColor[0], styleSet[i].backColor[1], styleSet[i].backColor[2],
-         i, styleSet[i].foreColor[0], styleSet[i].foreColor[1], styleSet[i].foreColor[2],
-         i, (styleSet[i].bold) ? L"Y" : L"N",
-         i, (styleSet[i].italics) ? L"Y" : L"N");
+      swprintf(test, 500, L"C0%i_Back = %i\n C0%i_Fore = %i\n C0%i_Bold = %i\nC0%i_Italics = %i\n",
+         i, styleSet[i].backColor,
+         i, styleSet[i].foreColor,
+         i, styleSet[i].bold,
+         i, styleSet[i].italics);
       ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
    }
    #endif
@@ -231,6 +230,9 @@ int VisualizerPanel::setStyles()
    HWND hScintilla = getCurrentScintilla();
    if (!hScintilla)
       return -1;
+
+   if (currentStyleTheme.length() < 1)
+      return 0;
 
    if (::SendMessage(hScintilla, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
       return 0;
@@ -250,7 +252,21 @@ int VisualizerPanel::setStyles()
    }
 
    ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
-   ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)0, NULL);
+
+   #if FW_DEBUG_SET_STYLES
+      wchar_t test[500];
+      int back, fore, bold, italics;
+
+      for (int i{-1}; i < styleCount; i++) {
+         back = ::SendMessage(hScintilla, SCI_STYLEGETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+         fore = ::SendMessage(hScintilla, SCI_STYLEGETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+         bold = ::SendMessage(hScintilla, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+         italics = ::SendMessage(hScintilla, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+
+         swprintf(test, 500, L"C0%i_STYLES = %i,%i,%i,%i\n",i, back, fore, bold, italics);
+         ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
+      }
+   #endif
 
    return styleCount;
 }

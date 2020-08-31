@@ -99,25 +99,21 @@ std::wstring ConfigIO::getStyleValue(LPCWSTR styleName)
    return getConfigString(L"Styles", styleName, L"", themeConfigFile);
 }
 
-void ConfigIO::getStyleColor(LPCWSTR styleName, int *color)
+void ConfigIO::getStyleColor(LPCWSTR styleName, int &color)
 {
    std::vector<int> rgb;
 
    Tokenize(getStyleValue(styleName), rgb);
 
    if (rgb.size() >= 3) {
-      color[0] = rgb[0];
-      color[1] = rgb[1];
-      color[2] = rgb[2];
+      color = rgb[0] | (rgb[1] << 8) | (rgb[2] << 16);
    }
    else {
-      color[0] = 0;
-      color[1] = 0;
-      color[2] = 0;
+      color = 0;
    }
 }
 
-void ConfigIO::getStyleBool(LPCWSTR styleName, bool &var)
+void ConfigIO::getStyleBool(LPCWSTR styleName, int &var)
 {
-   var = (getStyleValue(styleName).compare(L"Y") == 0);
+   var = (getStyleValue(styleName).compare(L"Y") == 0) ? 1 : 0;
 }

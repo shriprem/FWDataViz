@@ -25,8 +25,8 @@ public:
 
    void setThemeFilePath(const std::wstring theme=L"VT_Basic");
    std::wstring getStyleValue(LPCWSTR styleName);
-   void getStyleColor(LPCWSTR styleName, int *color);
-   void getStyleBool(LPCWSTR styleName, bool &var);
+   void getStyleColor(LPCWSTR styleName, int &color);
+   void getStyleBool(LPCWSTR styleName, int &var);
 
    int language = LANG_ENGLISH;
 

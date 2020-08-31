@@ -18,7 +18,8 @@
 #include "../PluginDefinition.h"
 #include "../NPP/DockingDlgInterface.h"
 
-#define FW_DEBUG FALSE
+#define FW_DEBUG_LOAD_STYLES FALSE
+#define FW_DEBUG_SET_STYLES FALSE
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
 #define FW_STYLE_RANGE_START 101
@@ -55,10 +56,10 @@ protected :
    HWND hFTList;
 
    struct StyleInfo {
-      int backColor[3];
-      int foreColor[3];
-      bool bold;
-      bool italics;
+      int backColor;
+      int foreColor;
+      int bold;
+      int italics;
    };
 
    std::wstring currentStyleTheme{};
