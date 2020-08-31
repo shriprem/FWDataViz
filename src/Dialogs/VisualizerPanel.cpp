@@ -28,7 +28,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_CLEAR_BUTTON:
-         visualizeClear();
+         clearVisualize();
          break;
 
       case IDCANCEL:
@@ -131,8 +131,6 @@ void VisualizerPanel::visualizeFile()
    if (!hScintilla)
       return;
 
-   ::SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
-
    wchar_t fDesc[MAX_PATH];
    std::string sDesc;
 
@@ -140,15 +138,18 @@ void VisualizerPanel::visualizeFile()
    sDesc =  _configIO.WideToNarrow(mapFileDescToType[fDesc]);
 
    if (std::wstring{fDesc}.length() < 2) {
-      visualizeClear();
+      clearVisualize();
       return;
    }
 
    ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)sDesc.c_str());
-   initStyles();
+   ::SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
+
+   loadStyles();
+   setStyles();
 }
 
-void VisualizerPanel::visualizeClear()
+void VisualizerPanel::clearVisualize()
 {
    HWND hScintilla = getCurrentScintilla();
    if (!hScintilla)
@@ -160,27 +161,26 @@ void VisualizerPanel::visualizeClear()
    syncListFileType();
 }
 
-void VisualizerPanel::initStyles()
+int VisualizerPanel::loadStyles()
 {
    HWND hScintilla = getCurrentScintilla();
    if (!hScintilla)
-      return;
+      return -1;
 
    char fType[MAX_PATH];
    std::string fileType;
    std::wstring fileTheme;
-   int styleCount{};
 
    ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
 
    fileType = std::string{ fType };
    if (fileType.length() < 2) {
-      return;
+      return 0;
    }
 
    fileTheme = _configIO.getConfigString(_configIO.NarrowToWide(fileType).c_str(), L"FileTheme");
    if (fileTheme.compare(currentStyleTheme) == 0) {
-      return;
+      return 0;
    }
 
    _configIO.setThemeFilePath(fileTheme);
@@ -191,6 +191,7 @@ void VisualizerPanel::initStyles()
    _configIO.getStyleBool(L"EOL_Bold", styleEOL.bold);
    _configIO.getStyleBool(L"EOL_Italics", styleEOL.italics);
 
+   int styleCount{};
    wchar_t cPre[10];
    std::wstring sPrefix;
 
@@ -207,21 +208,51 @@ void VisualizerPanel::initStyles()
       _configIO.getStyleBool((sPrefix + L"Italics").c_str(), styleSet[i].italics);
    }
 
-   return;
+
+   #if FW_DEBUG
    wchar_t test[500];
-   for (int t{}; t < 12; t++) {
+
+   styleCount = styleSet.size();
+   for (int i{}; i < styleCount; i++) {
       swprintf(test, 500, L"C0%i_Back = %i,%i,%i\n C0%i_Fore = %i,%i,%i\n C0%i_Bold = %s\nC0%i_Italics = %s\n",
-         t, styleSet[t].backColor[0], styleSet[t].backColor[1], styleSet[t].backColor[2],
-         t, styleSet[t].foreColor[0], styleSet[t].foreColor[1], styleSet[t].foreColor[2],
-         t, (styleSet[t].bold) ? L"Y" : L"N",
-         t, (styleSet[t].italics) ? L"Y" : L"N");
+         i, styleSet[i].backColor[0], styleSet[i].backColor[1], styleSet[i].backColor[2],
+         i, styleSet[i].foreColor[0], styleSet[i].foreColor[1], styleSet[i].foreColor[2],
+         i, (styleSet[i].bold) ? L"Y" : L"N",
+         i, (styleSet[i].italics) ? L"Y" : L"N");
       ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
    }
+   #endif
+
+   return styleSet.size();
 }
 
-void VisualizerPanel::initScintilla()
+int VisualizerPanel::setStyles()
 {
-   //??::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
+   HWND hScintilla = getCurrentScintilla();
+   if (!hScintilla)
+      return -1;
+
+   if (::SendMessage(hScintilla, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
+      return 0;
+
+   ::SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.backColor);
+   ::SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.foreColor);
+   ::SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.bold);
+   ::SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.italics);
+
+   int styleCount(styleSet.size());
+
+   for (int i{}; i < styleCount; i++) {
+      ::SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].backColor);
+      ::SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].foreColor);
+      ::SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].bold);
+      ::SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].italics);
+   }
+
+   ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
+   ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)0, NULL);
+
+   return styleCount;
 }
 
 /// *** Private Functions: *** ///

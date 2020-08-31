@@ -18,8 +18,10 @@
 #include "../PluginDefinition.h"
 #include "../NPP/DockingDlgInterface.h"
 
+#define FW_DEBUG FALSE
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
+#define FW_STYLE_RANGE_START 101
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -40,9 +42,9 @@ public :
    void loadFileTypes();
    void syncListFileType();
    void visualizeFile();
-   void visualizeClear();
-   void initStyles();
-   void initScintilla();
+   void clearVisualize();
+   int loadStyles();
+   int setStyles();
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
