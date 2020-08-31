@@ -16,27 +16,31 @@ const int CONFIG_STR_MAX_LEN = 100;
 
 class ConfigIO {
 public:
-   int language = LANG_ENGLISH;
    void init();
-   std::wstring getConfigString(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"");
-   void Tokenize(const std::wstring &text, std::vector<std::wstring>& results, LPCWSTR delim=L",");
+   std::wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
+   void Tokenize(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim=L",");
    void Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");
    std::wstring NarrowToWide(const std::string &str);
    std::string WideToNarrow(const std::wstring &wStr);
 
-   LPCWSTR FWDataVizIniFile();
+   void setThemeFilePath(const std::wstring theme=L"VT_Basic");
+   std::wstring getStyleValue(LPCWSTR styleName);
+   void getStyleColor(LPCWSTR styleName, int *color);
+   void getStyleBool(LPCWSTR styleName, bool &var);
+
+   int language = LANG_ENGLISH;
 
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
+   TCHAR themeConfigFile[MAX_PATH];
 
    enum CF_TYPES {
       CONFIG_MAIN,
       CONFIG_PREFS,
-      CONFIG_BASIC_THEME,
       CONFIG_FILE_COUNT
    };
 
-   const std::wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini", L"VT_Basic.ini" };
+   const std::wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini"};
    std::wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
 };
 

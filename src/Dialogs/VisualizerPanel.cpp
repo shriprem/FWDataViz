@@ -82,7 +82,7 @@ void VisualizerPanel::loadFileTypes() {
    std::vector<std::wstring> fileTypes;
    std::wstring fileTypeList;
 
-   fileTypeList = _configIO.getConfigString(_configIO.FWDataVizIniFile(), L"Base", L"FileTypes");
+   fileTypeList = _configIO.getConfigString(L"Base", L"FileTypes");
    _configIO.Tokenize(fileTypeList, fileTypes);
 
    mapFileDescToType.clear();
@@ -95,7 +95,7 @@ void VisualizerPanel::loadFileTypes() {
       std::string fTypeAnsi;
       std::wstring fileLabel;
 
-      fileLabel = _configIO.getConfigString(_configIO.FWDataVizIniFile(), fType.c_str(), L"FileLabel");
+      fileLabel = _configIO.getConfigString(fType.c_str(), L"FileLabel");
 
       mapFileDescToType[fileLabel] = fType;
       mapFileTypeToDesc[fType] = fileLabel;
@@ -112,7 +112,13 @@ void VisualizerPanel::syncListFileType()
    char fType[MAX_PATH];
    std::wstring fDesc;
 
-   ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)fType);
+   ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
+
+   if (std::string{ fType }.length() < 2) {
+      ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)L"-");
+      return;
+   }
+
    fDesc = mapFileTypeToDesc[_configIO.NarrowToWide(std::string{ fType })];
 
    ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)
@@ -135,11 +141,11 @@ void VisualizerPanel::visualizeFile()
 
    if (std::wstring{fDesc}.length() < 2) {
       visualizeClear();
+      return;
    }
-   else {
-      ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)sDesc.c_str());
-      //??::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
-   }
+
+   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)sDesc.c_str());
+   initStyles();
 }
 
 void VisualizerPanel::visualizeClear()
@@ -148,10 +154,74 @@ void VisualizerPanel::visualizeClear()
    if (!hScintilla)
       return;
 
-   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)"FWVisualizerType", (LPARAM)L"");
+   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)L"");
    ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    ::SendMessage(hScintilla, SCI_STYLECLEARALL, 0, 0);
    syncListFileType();
+}
+
+void VisualizerPanel::initStyles()
+{
+   HWND hScintilla = getCurrentScintilla();
+   if (!hScintilla)
+      return;
+
+   char fType[MAX_PATH];
+   std::string fileType;
+   std::wstring fileTheme;
+   int styleCount{};
+
+   ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
+
+   fileType = std::string{ fType };
+   if (fileType.length() < 2) {
+      return;
+   }
+
+   fileTheme = _configIO.getConfigString(_configIO.NarrowToWide(fileType).c_str(), L"FileTheme");
+   if (fileTheme.compare(currentStyleTheme) == 0) {
+      return;
+   }
+
+   _configIO.setThemeFilePath(fileTheme);
+   currentStyleTheme = fileTheme;
+
+   _configIO.getStyleColor(L"EOL_Back", styleEOL.backColor);
+   _configIO.getStyleColor(L"EOL_Fore", styleEOL.foreColor);
+   _configIO.getStyleBool(L"EOL_Bold", styleEOL.bold);
+   _configIO.getStyleBool(L"EOL_Italics", styleEOL.italics);
+
+   wchar_t cPre[10];
+   std::wstring sPrefix;
+
+   styleCount = std::stoi (_configIO.getStyleValue(L"Count"));
+   styleSet.clear();
+   styleSet.resize(styleCount);
+
+   for (int i{}; i < styleCount; i++) {
+      swprintf(cPre, 10, L"C%02i_", i);
+      sPrefix = std::wstring(cPre);
+      _configIO.getStyleColor((sPrefix + L"Back").c_str(), styleSet[i].backColor);
+      _configIO.getStyleColor((sPrefix + L"Fore").c_str(), styleSet[i].foreColor);
+      _configIO.getStyleBool((sPrefix + L"Bold").c_str(), styleSet[i].bold);
+      _configIO.getStyleBool((sPrefix + L"Italics").c_str(), styleSet[i].italics);
+   }
+
+   return;
+   wchar_t test[500];
+   for (int t{}; t < 12; t++) {
+      swprintf(test, 500, L"C0%i_Back = %i,%i,%i\n C0%i_Fore = %i,%i,%i\n C0%i_Bold = %s\nC0%i_Italics = %s\n",
+         t, styleSet[t].backColor[0], styleSet[t].backColor[1], styleSet[t].backColor[2],
+         t, styleSet[t].foreColor[0], styleSet[t].foreColor[1], styleSet[t].foreColor[2],
+         t, (styleSet[t].bold) ? L"Y" : L"N",
+         t, (styleSet[t].italics) ? L"Y" : L"N");
+      ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
+   }
+}
+
+void VisualizerPanel::initScintilla()
+{
+   //??::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
 }
 
 /// *** Private Functions: *** ///

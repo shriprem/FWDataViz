@@ -18,6 +18,9 @@
 #include "../PluginDefinition.h"
 #include "../NPP/DockingDlgInterface.h"
 
+#define FW_DOC_FILE_TYPE "FWVisualizerType"
+#define FW_DOC_FILE_THEME "FWVisualizerTheme"
+
 extern NppData nppData;
 extern ConfigIO _configIO;
 
@@ -38,14 +41,27 @@ public :
    void syncListFileType();
    void visualizeFile();
    void visualizeClear();
+   void initStyles();
+   void initScintilla();
 
 protected :
-   HWND hFTList;
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
-
    static HWND getCurrentScintilla();
    static int setFocusOnEditor();
+
    char callTip[500];
+   HWND hFTList;
+
+   struct StyleInfo {
+      int backColor[3];
+      int foreColor[3];
+      bool bold;
+      bool italics;
+   };
+
+   std::wstring currentStyleTheme{};
+   StyleInfo styleEOL;
+   std::vector<StyleInfo> styleSet;
 };
 
 #endif //VISUALIZER_DLG_H

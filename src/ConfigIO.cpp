@@ -40,10 +40,14 @@ void ConfigIO::init() {
    }
 }
 
-std::wstring ConfigIO::getConfigString(LPCWSTR fileName, LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue) {
+std::wstring ConfigIO::getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName) {
    const int bufSize{ 32000 };
    wchar_t ftBuf[bufSize];
    DWORD retLen;
+
+   if (std::wstring{ fileName }.length() < 1) {
+      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+   }
 
    retLen = GetPrivateProfileStringW(sectionName, keyName, defaultValue, ftBuf, bufSize, fileName);
 
@@ -81,7 +85,39 @@ std::string ConfigIO::WideToNarrow(const std::wstring &wStr) {
    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
 }
 
-LPCWSTR ConfigIO::FWDataVizIniFile()
+void ConfigIO::setThemeFilePath(const std::wstring theme)
 {
-   return CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+   ::PathCombine(themeConfigFile, pluginConfigDir, (theme + std::wstring{ L".ini" }).c_str());
+}
+
+std::wstring ConfigIO::getStyleValue(LPCWSTR styleName)
+{
+   if (std::wstring{ themeConfigFile }.length() < 0) {
+      setThemeFilePath();
+   }
+
+   return getConfigString(L"Styles", styleName, L"", themeConfigFile);
+}
+
+void ConfigIO::getStyleColor(LPCWSTR styleName, int *color)
+{
+   std::vector<int> rgb;
+
+   Tokenize(getStyleValue(styleName), rgb);
+
+   if (rgb.size() >= 3) {
+      color[0] = rgb[0];
+      color[1] = rgb[1];
+      color[2] = rgb[2];
+   }
+   else {
+      color[0] = 0;
+      color[1] = 0;
+      color[2] = 0;
+   }
+}
+
+void ConfigIO::getStyleBool(LPCWSTR styleName, bool &var)
+{
+   var = (getStyleValue(styleName).compare(L"Y") == 0);
 }
