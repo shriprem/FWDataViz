@@ -180,8 +180,8 @@ int VisualizerPanel::loadStyles()
    _configIO.setThemeFilePath(fileTheme);
    currentStyleTheme = fileTheme;
 
-   _configIO.getStyleColor(L"EOL_Back", styleEOL.backColor);
-   _configIO.getStyleColor(L"EOL_Fore", styleEOL.foreColor);
+   _configIO.getStyleColor(L"EOL_Back", styleEOL.backColor, FALSE);
+   _configIO.getStyleColor(L"EOL_Fore", styleEOL.foreColor, TRUE);
    _configIO.getStyleBool(L"EOL_Bold", styleEOL.bold);
    _configIO.getStyleBool(L"EOL_Italics", styleEOL.italics);
 
@@ -189,15 +189,17 @@ int VisualizerPanel::loadStyles()
    wchar_t cPre[10];
    std::wstring sPrefix;
 
-   styleCount = std::stoi (_configIO.getStyleValue(L"Count"));
+   if (_configIO.getStyleValue(L"Count").length() > 0)
+      styleCount = std::stoi (_configIO.getStyleValue(L"Count"));
+
    styleSet.clear();
    styleSet.resize(styleCount);
 
    for (int i{}; i < styleCount; i++) {
       swprintf(cPre, 10, L"C%02i_", i);
       sPrefix = std::wstring(cPre);
-      _configIO.getStyleColor((sPrefix + L"Back").c_str(), styleSet[i].backColor);
-      _configIO.getStyleColor((sPrefix + L"Fore").c_str(), styleSet[i].foreColor);
+      _configIO.getStyleColor((sPrefix + L"Back").c_str(), styleSet[i].backColor, FALSE);
+      _configIO.getStyleColor((sPrefix + L"Fore").c_str(), styleSet[i].foreColor, TRUE);
       _configIO.getStyleBool((sPrefix + L"Bold").c_str(), styleSet[i].bold);
       _configIO.getStyleBool((sPrefix + L"Italics").c_str(), styleSet[i].italics);
    }
