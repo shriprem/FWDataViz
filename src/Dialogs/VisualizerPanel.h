@@ -31,10 +31,6 @@ static bool idemPotentKey {FALSE};
 
 class VisualizerPanel : public DockingDlgInterface {
 public :
-   int instance_id{ 0 };
-   std::unordered_map<std::wstring, std::wstring> mapFileDescToType;
-   std::unordered_map<std::wstring, std::wstring> mapFileTypeToDesc;
-
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
 
    void localize();
@@ -54,9 +50,12 @@ protected :
    void setDocFileType(HWND hScintilla, std::wstring fileType);
    static int setFocusOnEditor();
 
-   char callTip[500];
+   // File Type data
    HWND hFTList;
+   std::unordered_map<std::wstring, std::wstring> mapFileDescToType;
+   std::unordered_map<std::wstring, std::wstring> mapFileTypeToDesc;
 
+   // Styleset data
    struct StyleInfo {
       int backColor;
       int foreColor;
@@ -67,6 +66,9 @@ protected :
    std::wstring currentStyleTheme{};
    StyleInfo styleEOL;
    std::vector<StyleInfo> styleSet;
+
+   // Regex data
+
 };
 
 #endif //VISUALIZER_DLG_H

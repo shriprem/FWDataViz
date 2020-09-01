@@ -216,7 +216,7 @@ int VisualizerPanel::loadStyles()
    }
    #endif
 
-   return styleSet.size();
+   return static_cast<int>(styleSet.size());
 }
 
 int VisualizerPanel::setStyles()
@@ -235,7 +235,7 @@ int VisualizerPanel::setStyles()
    ::SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.bold);
    ::SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.italics);
 
-   int styleCount(styleSet.size());
+   int styleCount{ static_cast<int>(styleSet.size()) };
 
    for (int i{}; i < styleCount; i++) {
       ::SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].backColor);
