@@ -43,13 +43,15 @@ public :
    void loadFileTypes();
    void syncListFileType();
    void visualizeFile();
-   void clearVisualize();
+   void clearVisualize(bool sync=TRUE);
    int loadStyles();
    int setStyles();
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    static HWND getCurrentScintilla();
+   bool getDocFileType(HWND hScintilla, std::wstring &fileType);
+   void setDocFileType(HWND hScintilla, std::wstring fileType);
    static int setFocusOnEditor();
 
    char callTip[500];

@@ -105,21 +105,18 @@ void VisualizerPanel::loadFileTypes() {
 
 void VisualizerPanel::syncListFileType()
 {
-   HWND hScintilla = getCurrentScintilla();
-   if (!hScintilla)
-      return;
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
 
-   char fType[MAX_PATH];
+   std::wstring fileType;
    std::wstring fDesc;
 
-   ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
-
-   if (std::string{ fType }.length() < 2) {
+   if (!getDocFileType(hScintilla, fileType)) {
       ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)L"-");
       return;
    }
 
-   fDesc = mapFileTypeToDesc[_configIO.NarrowToWide(std::string{ fType })];
+   fDesc = mapFileTypeToDesc[fileType];
 
    ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)
       ((::SendMessage(hFTList, CB_FINDSTRING, (WPARAM)0, (LPARAM)fDesc.c_str()) != CB_ERR) ? fDesc.c_str() : L"-"));
@@ -127,15 +124,14 @@ void VisualizerPanel::syncListFileType()
 
 void VisualizerPanel::visualizeFile()
 {
-   HWND hScintilla = getCurrentScintilla();
-   if (!hScintilla)
-      return;
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
 
    wchar_t fDesc[MAX_PATH];
-   std::string sDesc;
+   std::wstring sDesc;
 
    ::SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
-   sDesc =  _configIO.WideToNarrow(mapFileDescToType[fDesc]);
+   sDesc =  mapFileDescToType[fDesc];
 
    if (sDesc.length() < 2) {
       clearVisualize();
@@ -143,43 +139,40 @@ void VisualizerPanel::visualizeFile()
    }
 
    ::SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
-   ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
-   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)sDesc.c_str());
 
+   clearVisualize(FALSE);
+   setDocFileType(hScintilla, sDesc);
    loadStyles();
    setStyles();
 }
 
-void VisualizerPanel::clearVisualize()
+void VisualizerPanel::clearVisualize(bool sync)
 {
-   HWND hScintilla = getCurrentScintilla();
-   if (!hScintilla)
-      return;
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
 
-   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)L"");
-   ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
-   ::SendMessage(hScintilla, SCI_STYLECLEARALL, 0, 0);
-   syncListFileType();
+   ::SendMessage(hScintilla, SCI_STYLECLEARALL, NULL, NULL);
+   ::SendMessage(hScintilla, SCI_STARTSTYLING, 0, NULL);
+   ::SendMessage(hScintilla, SCI_SETSTYLING,
+      ::SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
+
+   setDocFileType(hScintilla, L"");
+   if (sync) syncListFileType();
 }
 
 int VisualizerPanel::loadStyles()
 {
-   HWND hScintilla = getCurrentScintilla();
-   if (!hScintilla)
-      return -1;
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return -1;
 
-   char fType[MAX_PATH];
-   std::string fileType;
+   std::wstring fileType;
    std::wstring fileTheme;
 
-   ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
-
-   fileType = std::string{ fType };
-   if (fileType.length() < 2) {
+   if (!getDocFileType(hScintilla, fileType)) {
       return 0;
    }
 
-   fileTheme = _configIO.getConfigString(_configIO.NarrowToWide(fileType).c_str(), L"FileTheme");
+   fileTheme = _configIO.getConfigString(fileType.c_str(), L"FileTheme");
    if (fileTheme.compare(currentStyleTheme) == 0) {
       return 0;
    }
@@ -228,9 +221,8 @@ int VisualizerPanel::loadStyles()
 
 int VisualizerPanel::setStyles()
 {
-   HWND hScintilla = getCurrentScintilla();
-   if (!hScintilla)
-      return -1;
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return -1;
 
    if (currentStyleTheme.length() < 1)
       return 0;
@@ -282,8 +274,25 @@ HWND VisualizerPanel::getCurrentScintilla() {
    return (HWND)(which == 0) ? nppData._scintillaMainHandle : nppData._scintillaSecondHandle;
 }
 
+bool VisualizerPanel::getDocFileType(HWND hScintilla, std::wstring& fileType)
+{
+   char fType[MAX_PATH];
+
+   ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
+   fileType = _configIO.NarrowToWide(fType);
+
+   return (fileType.length() > 1);
+}
+
+void VisualizerPanel::setDocFileType(HWND hScintilla, std::wstring fileType)
+{
+   ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
+   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
+      (LPARAM)_configIO.WideToNarrow(fileType).c_str());
+}
+
 int VisualizerPanel::setFocusOnEditor() {
-   HWND hScintilla = getCurrentScintilla();
+   HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla)
       return -1;
 
