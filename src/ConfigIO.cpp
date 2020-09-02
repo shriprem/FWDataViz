@@ -57,11 +57,11 @@ std::wstring ConfigIO::getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPC
    return std::wstring{ ftBuf };
 }
 
-size_t ConfigIO::Tokenize(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim) {
+int ConfigIO::Tokenize(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim) {
    std::size_t nStart{}, nEnd;
 
    results.clear();
-   if (text.length() < 1) return results.size();
+   if (text.length() < 1) return 0;
 
    while ((nEnd = text.find(delim, nStart)) != std::wstring::npos) {
       if (nEnd > nStart)
@@ -73,21 +73,21 @@ size_t ConfigIO::Tokenize(const std::wstring &text, std::vector<std::wstring> &r
    if (nStart < text.length())
       results.emplace_back(text.substr(nStart));
 
-   return results.size();
+   return static_cast<int>(results.size());
 }
 
-size_t ConfigIO::Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim) {
+int ConfigIO::Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim) {
    std::vector<std::wstring> interims;
 
    results.clear();
-   if (text.length() < 1) return results.size();
+   if (text.length() < 1) return 0;
 
    Tokenize(text, interims, delim);
 
    for (auto istr : interims)
       results.emplace_back(std::stoi(istr));
 
-   return results.size();
+   return static_cast<int>(results.size());
 }
 
 std::wstring ConfigIO::NarrowToWide(const std::string &str) {

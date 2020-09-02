@@ -18,8 +18,8 @@ class ConfigIO {
 public:
    void init();
    std::wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
-   size_t Tokenize(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim=L",");
-   size_t Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");
+   int Tokenize(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim=L",");
+   int Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");
    std::wstring NarrowToWide(const std::string &str);
    std::string WideToNarrow(const std::wstring &wStr);
 

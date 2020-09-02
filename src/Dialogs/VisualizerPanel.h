@@ -17,9 +17,12 @@
 
 #include "../PluginDefinition.h"
 #include "../NPP/DockingDlgInterface.h"
+#include <regex>
 
 #define FW_DEBUG_LOAD_STYLES FALSE
 #define FW_DEBUG_SET_STYLES FALSE
+#define FW_DEBUG_LOAD_REGEX TRUE
+
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
 #define FW_STYLE_RANGE_START 101
@@ -42,6 +45,7 @@ public :
    void clearVisualize(bool sync=TRUE);
    int loadStyles();
    int setStyles();
+   int loadRegexedRecords();
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -68,7 +72,15 @@ protected :
    std::vector<StyleInfo> styleSet;
 
    // Regex data
+   std::wstring fwVizRegexed{};
 
+   struct FieldInfo {
+      std::vector<int> startPositions;
+      std::vector<int> fieldWidths;
+   };
+
+   std::vector<std::wregex> regexMarkers;
+   std::vector<FieldInfo> fieldInfoList;
 };
 
 #endif //VISUALIZER_DLG_H

@@ -144,6 +144,7 @@ void VisualizerPanel::visualizeFile()
    setDocFileType(hScintilla, sDesc);
    loadStyles();
    setStyles();
+   loadRegexedRecords();
 }
 
 void VisualizerPanel::clearVisualize(bool sync)
@@ -207,7 +208,6 @@ int VisualizerPanel::loadStyles()
    #if FW_DEBUG_LOAD_STYLES
    wchar_t test[500];
 
-   styleCount = styleSet.size();
    for (int i{}; i < styleCount; i++) {
       swprintf(test, 500, L"C0%i_Back = %i\n C0%i_Fore = %i\n C0%i_Bold = %i\nC0%i_Italics = %i\n",
          i, styleSet[i].backColor,
@@ -218,7 +218,7 @@ int VisualizerPanel::loadStyles()
    }
    #endif
 
-   return static_cast<int>(styleSet.size());
+   return styleCount;
 }
 
 int VisualizerPanel::setStyles()
@@ -264,6 +264,67 @@ int VisualizerPanel::setStyles()
    #endif
 
    return styleCount;
+}
+
+int VisualizerPanel::loadRegexedRecords()
+{
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return -1;
+
+   std::wstring fileType;
+   std::wstring recTypeList;
+   std::vector<std::wstring> recTypes;
+   int recTypeCount;
+
+   if (!getDocFileType(hScintilla, fileType)) {
+      regexMarkers.clear();
+      fieldInfoList.clear();
+      return 0;
+   }
+
+   if (fwVizRegexed.compare(fileType) != 0) {
+      regexMarkers.clear();
+      fieldInfoList.clear();
+   }
+
+   if (regexMarkers.size() > 0) {
+      return static_cast<int>(regexMarkers.size());
+   }
+
+   recTypeList = _configIO.getConfigString(fileType.c_str(), L"RecordTypes");
+   recTypeCount = _configIO.Tokenize(recTypeList, recTypes);
+
+   regexMarkers.resize(recTypeCount);
+   fieldInfoList.resize(recTypeCount);
+
+   for (int i{}; i < recTypeCount; i++) {
+      regexMarkers[i] = std::wregex{
+         _configIO.getConfigString(fileType.c_str(), (recTypes[i] + L"_Marker").c_str(), L".") };
+
+      std::wstring fieldWidthList;
+      std::vector<int> fieldWidths;
+      int fieldCount;
+
+      fieldWidthList = _configIO.getConfigString(fileType.c_str(), (recTypes[i] + L"_FieldWidths").c_str());
+      fieldCount = _configIO.Tokenize(fieldWidthList, fieldWidths);
+
+      fieldInfoList[i].fieldWidths.clear();
+      fieldInfoList[i].fieldWidths.resize(fieldCount);
+
+      fieldInfoList[i].startPositions.clear();
+      fieldInfoList[i].startPositions.resize(fieldCount);
+
+      for (int fnum{}, startPos{}; fnum < fieldCount; fnum++) {
+         fieldInfoList[i].startPositions[fnum] = startPos;
+         fieldInfoList[i].fieldWidths[fnum] = fieldWidths[fnum];
+
+         startPos += fieldWidths[fnum];
+      }
+   }
+
+   fwVizRegexed = fileType;
+
+   return recTypeCount;
 }
 
 /// *** Private Functions: *** ///
