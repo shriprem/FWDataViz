@@ -158,6 +158,8 @@ void VisualizerPanel::clearVisualize(bool sync)
       ::SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
 
    setDocFileType(hScintilla, L"");
+   clearRegexedRecords();
+
    if (sync) syncListFileType();
 }
 
@@ -205,7 +207,7 @@ int VisualizerPanel::loadStyles()
       _configIO.getStyleBool((sPrefix + L"Italics").c_str(), styleSet[i].italics);
    }
 
-   #if FW_DEBUG_LOAD_STYLES
+#if FW_DEBUG_LOAD_STYLES
    wchar_t test[500];
 
    for (int i{}; i < styleCount; i++) {
@@ -216,7 +218,7 @@ int VisualizerPanel::loadStyles()
          i, styleSet[i].italics);
       ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
    }
-   #endif
+#endif
 
    return styleCount;
 }
@@ -248,20 +250,20 @@ int VisualizerPanel::setStyles()
 
    ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
 
-   #if FW_DEBUG_SET_STYLES
-      wchar_t test[500];
-      int back, fore, bold, italics;
+#if FW_DEBUG_SET_STYLES
+   wchar_t test[500];
+   int back, fore, bold, italics;
 
-      for (int i{-1}; i < styleCount; i++) {
-         back = ::SendMessage(hScintilla, SCI_STYLEGETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-         fore = ::SendMessage(hScintilla, SCI_STYLEGETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-         bold = ::SendMessage(hScintilla, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-         italics = ::SendMessage(hScintilla, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+   for (int i{ -1 }; i < styleCount; i++) {
+      back = ::SendMessage(hScintilla, SCI_STYLEGETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      fore = ::SendMessage(hScintilla, SCI_STYLEGETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      bold = ::SendMessage(hScintilla, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      italics = ::SendMessage(hScintilla, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
 
-         swprintf(test, 500, L"C0%i_STYLES = %i,%i,%i,%i\n",i, back, fore, bold, italics);
-         ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
-      }
-   #endif
+      swprintf(test, 500, L"C0%i_STYLES = %i,%i,%i,%i\n", i, back, fore, bold, italics);
+      ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
+   }
+#endif
 
    return styleCount;
 }
@@ -277,14 +279,12 @@ int VisualizerPanel::loadRegexedRecords()
    int recTypeCount;
 
    if (!getDocFileType(hScintilla, fileType)) {
-      regexMarkers.clear();
-      fieldInfoList.clear();
+      clearRegexedRecords();
       return 0;
    }
 
    if (fwVizRegexed.compare(fileType) != 0) {
-      regexMarkers.clear();
-      fieldInfoList.clear();
+      clearRegexedRecords();
    }
 
    if (regexMarkers.size() > 0) {
@@ -324,6 +324,23 @@ int VisualizerPanel::loadRegexedRecords()
 
    fwVizRegexed = fileType;
 
+#if FW_DEBUG_LOAD_REGEX
+   int fieldCount;
+
+   for (int i{}; i < recTypeCount; i++) {
+      wchar_t test[2000];
+      swprintf(test, 2000, L"\n%s", (recTypes[i] + L"_FieldWidths =").c_str());
+      fieldCount = static_cast<int>(fieldInfoList[i].fieldWidths.size());
+
+      for (int j{}; j < fieldCount; j++) {
+         swprintf(test, 2000, L"%s (%i, %i),", test,
+            fieldInfoList[i].startPositions[j], fieldInfoList[i].fieldWidths[j]);
+      }
+
+      ::MessageBox(NULL, test, fwVizRegexed.c_str(), MB_OK);
+   }
+#endif
+
    return recTypeCount;
 }
 
@@ -360,4 +377,11 @@ int VisualizerPanel::setFocusOnEditor() {
       return -1;
 
    return (int)::SendMessage(hScintilla, SCI_GRABFOCUS, 0, 0);
-};
+}
+void VisualizerPanel::clearRegexedRecords()
+{
+   regexMarkers.clear();
+   fieldInfoList.clear();
+   fwVizRegexed = L"";
+}
+;

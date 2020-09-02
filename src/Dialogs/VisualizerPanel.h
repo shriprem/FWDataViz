@@ -21,7 +21,7 @@
 
 #define FW_DEBUG_LOAD_STYLES FALSE
 #define FW_DEBUG_SET_STYLES FALSE
-#define FW_DEBUG_LOAD_REGEX TRUE
+#define FW_DEBUG_LOAD_REGEX FALSE
 
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
@@ -53,6 +53,7 @@ protected :
    bool getDocFileType(HWND hScintilla, std::wstring &fileType);
    void setDocFileType(HWND hScintilla, std::wstring fileType);
    static int setFocusOnEditor();
+   void clearRegexedRecords();
 
    // File Type data
    HWND hFTList;
