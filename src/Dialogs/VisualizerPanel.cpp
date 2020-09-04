@@ -232,7 +232,7 @@ int VisualizerPanel::applyStyles() {
    ::SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.bold);
    ::SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.italics);
 
-   int styleCount{ static_cast<int>(styleSet.size()) };
+   const int styleCount{ static_cast<int>(styleSet.size()) };
 
    for (int i{}; i < styleCount; i++) {
       ::SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].backColor);
@@ -336,27 +336,28 @@ int VisualizerPanel::loadLexer() {
    return recTypeCount;
 }
 
-void VisualizerPanel::applyLexer(size_t currentPos) {
+void VisualizerPanel::applyLexer(size_t endLinePos) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
    std::wstring fileType;
    if (!getDocFileType(hScintilla, fileType)) return;
 
-   //const int styleCount{ static_cast<int>(styleSet.size()) };
    std::string eolMarker;
-   size_t eolMarkerLen, startLine, endLine, currentLine;
+   size_t eolMarkerLen, startLine, endLine;
 
    eolMarker =  _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
 
    startLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION,
       ::SendMessage(hScintilla, SCI_GETENDSTYLED, NULL, NULL), NULL);
-   endLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, currentPos, NULL);
+   endLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, endLinePos, NULL);
 
+   const size_t regexedCount{ regexMarkers.size() };
+   const size_t styleCount{ styleSet.size() };
    char lineText[FW_LINE_MAX_LENGTH];
    std::string recStartText;
-   size_t endPos, recStartPos;
+   size_t currentLine, currentPos, endPos, recStartPos{}, eolMarkerPos;
    bool newRec{ TRUE };
 
    currentLine = startLine;
@@ -377,9 +378,60 @@ void VisualizerPanel::applyLexer(size_t currentPos) {
 
       currentLine++;
 
-      //if (eolMarkerLen == 0 || std::string{ lineText }.e) {
+      if (eolMarkerLen == 0 ||
+         eolMarker.compare(lineText + std::strlen(lineText) - eolMarkerLen) == 0) {
+         newRec = TRUE;
+         eolMarkerPos = endPos - eolMarkerLen;
+      }
+      else if (currentLine < endLine) {
+         newRec = FALSE;
+         continue;
+      }
+      else {
+         eolMarkerPos = endPos;
+      }
 
-      //}
+      currentPos = recStartPos;
+
+      int colorOffset{};
+      size_t regexIndex{};
+
+      while (regexIndex < regexedCount) {
+         if (std::regex_match(recStartText, regexMarkers[regexIndex])) {
+            break;
+         }
+         regexIndex++;
+         colorOffset += 5;
+      }
+
+      if (regexIndex > regexedCount) {
+         continue;
+      }
+
+
+      const std::vector<int> &recFieldWidths{ fieldInfoList[regexIndex].fieldWidths };
+      const size_t fieldCount{ recFieldWidths.size() };
+      int unstyledLen{};
+
+      for (size_t i{}; i < fieldCount; i++) {
+         //::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+         unstyledLen = static_cast<int>(eolMarkerPos - eolMarkerLen);
+         currentPos += recFieldWidths[i];
+         //::SendMessage(hScintilla, SCI_LINEFROMPOSITION, (WPARAM)currentPos, NULL);
+         //continue;
+
+         if (recFieldWidths[i] < unstyledLen) {
+            //::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
+            //   FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
+         }
+         else {
+            //::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)unstyledLen,
+            //   FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
+
+            //::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, 0x1F);
+            //::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_RANGE_START);
+         }
+      }
    }
 }
 

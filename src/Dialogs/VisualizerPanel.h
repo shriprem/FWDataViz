@@ -49,7 +49,7 @@ public :
    int loadStyles();
    int applyStyles();
    int loadLexer();
-   void applyLexer(size_t currentPos);
+   void applyLexer(size_t endLinePos);
    void onStyleNeeded(SCNotification* notifyCode);
 
 protected :
