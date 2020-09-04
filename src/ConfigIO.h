@@ -17,6 +17,7 @@ const int CONFIG_STR_MAX_LEN = 100;
 class ConfigIO {
 public:
    void init();
+   std::string getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
    std::wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
    int Tokenize(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim=L",");
    int Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");

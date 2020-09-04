@@ -45,6 +45,11 @@ void ConfigIO::init() {
       (::SendMessage(nppData._nppHandle, NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
 }
 
+std::string ConfigIO::getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName)
+{
+   return WideToNarrow(getConfigString(sectionName, keyName, defaultValue, fileName));
+}
+
 std::wstring ConfigIO::getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName) {
    const int bufSize{ 32000 };
    wchar_t ftBuf[bufSize];
@@ -98,21 +103,18 @@ std::string ConfigIO::WideToNarrow(const std::wstring &wStr) {
    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
 }
 
-void ConfigIO::setThemeFilePath(const std::wstring theme)
-{
+void ConfigIO::setThemeFilePath(const std::wstring theme) {
    ::PathCombine(themeConfigFile, pluginConfigDir, (theme + std::wstring{ L".ini" }).c_str());
 }
 
-std::wstring ConfigIO::getStyleValue(LPCWSTR styleName)
-{
+std::wstring ConfigIO::getStyleValue(LPCWSTR styleName) {
    if (std::wstring{ themeConfigFile }.length() < 0)
       setThemeFilePath();
 
    return getConfigString(L"Styles", styleName, L"", themeConfigFile);
 }
 
-void ConfigIO::getStyleColor(LPCWSTR styleName, int &color, bool foreColor)
-{
+void ConfigIO::getStyleColor(LPCWSTR styleName, int &color, bool foreColor) {
    std::vector<int> rgb;
 
    Tokenize(getStyleValue(styleName), rgb);
@@ -123,8 +125,6 @@ void ConfigIO::getStyleColor(LPCWSTR styleName, int &color, bool foreColor)
       color = foreColor ? defaultForeColor : defaultBackColor;
 }
 
-void ConfigIO::getStyleBool(LPCWSTR styleName, int &var)
-{
+void ConfigIO::getStyleBool(LPCWSTR styleName, int &var) {
    var = (getStyleValue(styleName).compare(L"Y") == 0) ? 1 : 0;
 }
-

@@ -13,8 +13,6 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "VisualizerPanel.h"
-#include <time.h>
-#include <wchar.h>
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
@@ -103,8 +101,7 @@ void VisualizerPanel::loadFileTypes() {
    }
 }
 
-void VisualizerPanel::syncListFileType()
-{
+void VisualizerPanel::syncListFileType() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -122,8 +119,7 @@ void VisualizerPanel::syncListFileType()
       ((::SendMessage(hFTList, CB_FINDSTRING, (WPARAM)0, (LPARAM)fDesc.c_str()) != CB_ERR) ? fDesc.c_str() : L"-"));
 }
 
-void VisualizerPanel::visualizeFile()
-{
+void VisualizerPanel::visualizeFile() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -143,12 +139,11 @@ void VisualizerPanel::visualizeFile()
    clearVisualize(FALSE);
    setDocFileType(hScintilla, sDesc);
    loadStyles();
-   setStyles();
-   loadRegexedRecords();
+   applyStyles();
+   loadLexer();
 }
 
-void VisualizerPanel::clearVisualize(bool sync)
-{
+void VisualizerPanel::clearVisualize(bool sync) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -158,13 +153,12 @@ void VisualizerPanel::clearVisualize(bool sync)
       ::SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
 
    setDocFileType(hScintilla, L"");
-   clearRegexedRecords();
+   clearLexer();
 
    if (sync) syncListFileType();
 }
 
-int VisualizerPanel::loadStyles()
-{
+int VisualizerPanel::loadStyles() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
@@ -223,8 +217,7 @@ int VisualizerPanel::loadStyles()
    return styleCount;
 }
 
-int VisualizerPanel::setStyles()
-{
+int VisualizerPanel::applyStyles() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
@@ -268,8 +261,7 @@ int VisualizerPanel::setStyles()
    return styleCount;
 }
 
-int VisualizerPanel::loadRegexedRecords()
-{
+int VisualizerPanel::loadLexer() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
@@ -279,12 +271,12 @@ int VisualizerPanel::loadRegexedRecords()
    int recTypeCount;
 
    if (!getDocFileType(hScintilla, fileType)) {
-      clearRegexedRecords();
+      clearLexer();
       return 0;
    }
 
    if (fwVizRegexed.compare(fileType) != 0) {
-      clearRegexedRecords();
+      clearLexer();
    }
 
    if (regexMarkers.size() > 0) {
@@ -298,8 +290,8 @@ int VisualizerPanel::loadRegexedRecords()
    fieldInfoList.resize(recTypeCount);
 
    for (int i{}; i < recTypeCount; i++) {
-      regexMarkers[i] = std::wregex{
-         _configIO.getConfigString(fileType.c_str(), (recTypes[i] + L"_Marker").c_str(), L".") };
+      regexMarkers[i] = std::regex{
+         _configIO.getConfigStringA(fileType.c_str(), (recTypes[i] + L"_Marker").c_str(), L".") };
 
       std::wstring fieldWidthList;
       std::vector<int> fieldWidths;
@@ -344,6 +336,58 @@ int VisualizerPanel::loadRegexedRecords()
    return recTypeCount;
 }
 
+void VisualizerPanel::applyLexer(size_t currentPos) {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   std::wstring fileType;
+   if (!getDocFileType(hScintilla, fileType)) return;
+
+   //const int styleCount{ static_cast<int>(styleSet.size()) };
+   std::string eolMarker;
+   size_t eolMarkerLen, startLine, endLine, currentLine;
+
+   eolMarker =  _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
+   eolMarkerLen = eolMarker.length();
+
+   startLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION,
+      ::SendMessage(hScintilla, SCI_GETENDSTYLED, NULL, NULL), NULL);
+   endLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, currentPos, NULL);
+
+   char lineText[FW_LINE_MAX_LENGTH];
+   std::string recStartText;
+   size_t endPos, recStartPos;
+   bool newRec{ TRUE };
+
+   currentLine = startLine;
+
+   while (currentLine < endLine) {
+      if (::SendMessage(hScintilla, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
+         currentLine++;
+         continue;
+      }
+
+      ::SendMessage(hScintilla, SCI_GETLINE, (WPARAM)lineText, NULL);
+      endPos = ::SendMessage(hScintilla, SCI_GETLINEENDPOSITION, currentLine, NULL);
+
+      if (newRec) {
+         recStartPos = ::SendMessage(hScintilla, SCI_POSITIONFROMLINE, currentLine, NULL);
+         recStartText = lineText;
+      }
+
+      currentLine++;
+
+      //if (eolMarkerLen == 0 || std::string{ lineText }.e) {
+
+      //}
+   }
+}
+
+void VisualizerPanel::onStyleNeeded(SCNotification* notifyCode) {
+   if (loadLexer() > 0)
+      applyLexer(notifyCode->position);
+}
+
 /// *** Private Functions: *** ///
 
 HWND VisualizerPanel::getCurrentScintilla() {
@@ -354,8 +398,7 @@ HWND VisualizerPanel::getCurrentScintilla() {
    return (HWND)(which == 0) ? nppData._scintillaMainHandle : nppData._scintillaSecondHandle;
 }
 
-bool VisualizerPanel::getDocFileType(HWND hScintilla, std::wstring& fileType)
-{
+bool VisualizerPanel::getDocFileType(HWND hScintilla, std::wstring& fileType) {
    char fType[MAX_PATH];
 
    ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
@@ -364,8 +407,7 @@ bool VisualizerPanel::getDocFileType(HWND hScintilla, std::wstring& fileType)
    return (fileType.length() > 1);
 }
 
-void VisualizerPanel::setDocFileType(HWND hScintilla, std::wstring fileType)
-{
+void VisualizerPanel::setDocFileType(HWND hScintilla, std::wstring fileType) {
    ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
       (LPARAM)_configIO.WideToNarrow(fileType).c_str());
@@ -378,10 +420,8 @@ int VisualizerPanel::setFocusOnEditor() {
 
    return (int)::SendMessage(hScintilla, SCI_GRABFOCUS, 0, 0);
 }
-void VisualizerPanel::clearRegexedRecords()
-{
+void VisualizerPanel::clearLexer() {
    regexMarkers.clear();
    fieldInfoList.clear();
    fwVizRegexed = L"";
 }
-;

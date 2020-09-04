@@ -12,6 +12,8 @@
 //along with this program; if not, write to the Free Software
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+#pragma once
+
 #ifndef VISUALIZER_DLG_H
 #define VISUALIZER_DLG_H
 
@@ -26,6 +28,7 @@
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
 #define FW_STYLE_RANGE_START 101
+#define FW_LINE_MAX_LENGTH 32767
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -44,8 +47,10 @@ public :
    void visualizeFile();
    void clearVisualize(bool sync=TRUE);
    int loadStyles();
-   int setStyles();
-   int loadRegexedRecords();
+   int applyStyles();
+   int loadLexer();
+   void applyLexer(size_t currentPos);
+   void onStyleNeeded(SCNotification* notifyCode);
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -53,7 +58,7 @@ protected :
    bool getDocFileType(HWND hScintilla, std::wstring &fileType);
    void setDocFileType(HWND hScintilla, std::wstring fileType);
    static int setFocusOnEditor();
-   void clearRegexedRecords();
+   void clearLexer();
 
    // File Type data
    HWND hFTList;
@@ -80,7 +85,7 @@ protected :
       std::vector<int> fieldWidths;
    };
 
-   std::vector<std::wregex> regexMarkers;
+   std::vector<std::regex> regexMarkers;
    std::vector<FieldInfo> fieldInfoList;
 };
 

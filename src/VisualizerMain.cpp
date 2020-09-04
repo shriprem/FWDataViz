@@ -70,8 +70,15 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
          if (_vizPanel.isVisible()) {
             _vizPanel.syncListFileType();
             _vizPanel.loadStyles();
-            _vizPanel.setStyles();
+            _vizPanel.applyStyles();
+            _vizPanel.loadLexer();
          }
+      }
+      break;
+
+      case SCN_STYLENEEDED:
+      {
+         //_vizPanel.onStyleNeeded(notifyCode);
       }
       break;
 
