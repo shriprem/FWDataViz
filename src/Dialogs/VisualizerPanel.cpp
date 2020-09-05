@@ -141,6 +141,7 @@ void VisualizerPanel::visualizeFile() {
    loadStyles();
    applyStyles();
    loadLexer();
+   updateCurrentPage();
 
    //size_t startLine{ static_cast<size_t>(::SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL)) };
    //applyLexer(startLine, startLine + 10);
@@ -289,33 +290,32 @@ int VisualizerPanel::loadLexer() {
    recTypeList = _configIO.getConfigString(fileType.c_str(), L"RecordTypes");
    recTypeCount = _configIO.Tokenize(recTypeList, recTypes);
 
-   regexMarkers.resize(recTypeCount);
    fieldInfoList.resize(recTypeCount);
 
    for (int i{}; i < recTypeCount; i++) {
-      fieldInfoList[i].recLabel =
-         _configIO.getConfigString(fileType.c_str(), (recTypes[i] + L"_Label").c_str(), L".");
-      fieldInfoList[i].recMarker =
-         _configIO.getConfigStringA(fileType.c_str(), (recTypes[i] + L"_Marker").c_str(), L".");
+      std::wstring &REC = recTypes[i];
+      FieldInfo &FLD = fieldInfoList[i];
 
-      regexMarkers[i] = std::regex{ fieldInfoList[i].recMarker + ".*(\r\n|\n|\r)?" };
+      FLD.recLabel = _configIO.getConfigString(fileType.c_str(), (REC + L"_Label").c_str(), L".");
+      FLD.recMarker = _configIO.getConfigStringA(fileType.c_str(), (REC + L"_Marker").c_str(), L".");
+      FLD.regexMarker = std::regex{ FLD.recMarker + ".*(\r\n|\n|\r)?" };
 
       std::wstring fieldWidthList;
       std::vector<int> fieldWidths;
       int fieldCount;
 
-      fieldWidthList = _configIO.getConfigString(fileType.c_str(), (recTypes[i] + L"_FieldWidths").c_str());
+      fieldWidthList = _configIO.getConfigString(fileType.c_str(), (REC + L"_FieldWidths").c_str());
       fieldCount = _configIO.Tokenize(fieldWidthList, fieldWidths);
 
-      fieldInfoList[i].fieldWidths.clear();
-      fieldInfoList[i].fieldWidths.resize(fieldCount);
+      FLD.fieldWidths.clear();
+      FLD.fieldWidths.resize(fieldCount);
 
-      fieldInfoList[i].startPositions.clear();
-      fieldInfoList[i].startPositions.resize(fieldCount);
+      FLD.startPositions.clear();
+      FLD.startPositions.resize(fieldCount);
 
       for (int fnum{}, startPos{}; fnum < fieldCount; fnum++) {
-         fieldInfoList[i].startPositions[fnum] = startPos;
-         fieldInfoList[i].fieldWidths[fnum] = fieldWidths[fnum];
+         FLD.startPositions[fnum] = startPos;
+         FLD.fieldWidths[fnum] = fieldWidths[fnum];
 
          startPos += fieldWidths[fnum];
       }
@@ -324,14 +324,14 @@ int VisualizerPanel::loadLexer() {
       std::vector<std::wstring> fieldLabels;
       int labelCount;
 
-      fieldLabelList = _configIO.getConfigString(fileType.c_str(), (recTypes[i] + L"_FieldLabels").c_str());
+      fieldLabelList = _configIO.getConfigString(fileType.c_str(), (REC + L"_FieldLabels").c_str());
       labelCount = _configIO.Tokenize(fieldLabelList, fieldLabels);
 
-      fieldInfoList[i].fieldLabels.clear();
-      fieldInfoList[i].fieldLabels.resize(labelCount);
+      FLD.fieldLabels.clear();
+      FLD.fieldLabels.resize(labelCount);
 
       for (int lnum{}; lnum < labelCount; lnum++) {
-         fieldInfoList[i].fieldLabels[lnum] = fieldLabels[lnum];
+         FLD.fieldLabels[lnum] = fieldLabels[lnum];
       }
    }
 
@@ -342,16 +342,17 @@ int VisualizerPanel::loadLexer() {
 
    for (int i{}; i < recTypeCount; i++) {
       wchar_t test[2000];
+      std::wstring &REC = recTypes[i];
+      FieldInfo &FLD = fieldInfoList[i];
 
       swprintf(test, 2000, L"%s\nRec_Label = %s\nRec_Marker = %s\nFieldWidths=\n",
-         recTypes[i].c_str(), fieldInfoList[i].recLabel.c_str(),
-         _configIO.NarrowToWide(fieldInfoList[i].recMarker).c_str());
+         REC.c_str(), FLD.recLabel.c_str(), _configIO.NarrowToWide(FLD.recMarker).c_str());
 
-      fieldCount = static_cast<int>(fieldInfoList[i].fieldWidths.size());
+      fieldCount = static_cast<int>(FLD.fieldWidths.size());
 
       for (int j{}; j < fieldCount; j++) {
          swprintf(test, 2000, L"%s (%i, %i),", test,
-            fieldInfoList[i].startPositions[j], fieldInfoList[i].fieldWidths[j]);
+            FLD.startPositions[j], FLD.fieldWidths[j]);
       }
 
       ::MessageBox(NULL, test, fwVizRegexed.c_str(), MB_OK);
@@ -372,7 +373,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    std::string recStartText, eolMarker;
    size_t currentLine, currentPos, endPos, recStartPos{}, eolMarkerLen, eolMarkerPos;
 
-   const size_t regexedCount{ regexMarkers.size() };
+   const size_t regexedCount{ fieldInfoList.size() };
    const size_t styleCount{ styleSet.size() };
    bool newRec{ TRUE };
 
@@ -415,7 +416,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       size_t regexIndex{};
 
       while (regexIndex < regexedCount) {
-         if (std::regex_match(recStartText, regexMarkers[regexIndex])) {
+         if (std::regex_match(recStartText, fieldInfoList[regexIndex].regexMarker)) {
             break;
          }
          regexIndex++;
@@ -428,7 +429,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
       const std::vector<int> recFieldWidths{ fieldInfoList[regexIndex].fieldWidths };
       const size_t fieldCount{ recFieldWidths.size() };
-      int unstyledLen{};
+      int unstyledLen;
 
 #if FW_DEBUG_APPLY_LEXER
       wchar_t test[2000];
@@ -458,14 +459,14 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
             ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)unstyledLen,
                FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
 
-            ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, 0x1F);
+            ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
             ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_RANGE_START);
          }
       }
    }
 }
 
-void VisualizerPanel::onUpdateUI() {
+void VisualizerPanel::updateCurrentPage() {
    if (loadLexer() < 1) return;
 
    HWND hScintilla{ getCurrentScintilla() };
@@ -522,7 +523,6 @@ int VisualizerPanel::setFocusOnEditor() {
    return (int)::SendMessage(hScintilla, SCI_GRABFOCUS, 0, 0);
 }
 void VisualizerPanel::clearLexer() {
-   regexMarkers.clear();
    fieldInfoList.clear();
    fwVizRegexed = L"";
 }

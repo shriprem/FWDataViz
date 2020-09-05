@@ -51,7 +51,7 @@ public :
    int applyStyles();
    int loadLexer();
    void applyLexer(const size_t startLine, const size_t endLine);
-   void onUpdateUI();
+   void updateCurrentPage();
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -84,12 +84,12 @@ protected :
    struct FieldInfo {
       std::wstring recLabel;
       std::string recMarker;
+      std::regex regexMarker;
       std::vector<int> startPositions;
       std::vector<int> fieldWidths;
       std::vector<std::wstring> fieldLabels;
    };
 
-   std::vector<std::regex> regexMarkers;
    std::vector<FieldInfo> fieldInfoList;
 };
 
