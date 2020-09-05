@@ -77,8 +77,8 @@ void VisualizerPanel::setParent(HWND parent2set) {
 };
 
 void VisualizerPanel::loadFileTypes() {
-   std::vector<std::wstring> fileTypes;
-   std::wstring fileTypeList;
+   vector<wstring> fileTypes;
+   wstring fileTypeList;
 
    fileTypeList = _configIO.getConfigString(L"Base", L"FileTypes");
    _configIO.Tokenize(fileTypeList, fileTypes);
@@ -90,8 +90,8 @@ void VisualizerPanel::loadFileTypes() {
    ::SendMessageW(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
 
    for (auto fType : fileTypes) {
-      std::string fTypeAnsi;
-      std::wstring fileLabel;
+      string fTypeAnsi;
+      wstring fileLabel;
 
       fileLabel = _configIO.getConfigString(fType.c_str(), L"FileLabel");
 
@@ -105,8 +105,8 @@ void VisualizerPanel::syncListFileType() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   std::wstring fileType;
-   std::wstring fDesc;
+   wstring fileType;
+   wstring fDesc;
 
    if (!getDocFileType(hScintilla, fileType)) {
       ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)L"-");
@@ -124,7 +124,7 @@ void VisualizerPanel::visualizeFile() {
    if (!hScintilla) return;
 
    wchar_t fDesc[MAX_PATH];
-   std::wstring sDesc;
+   wstring sDesc;
 
    ::SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
    sDesc =  mapFileDescToType[fDesc];
@@ -138,10 +138,13 @@ void VisualizerPanel::visualizeFile() {
 
    clearVisualize(FALSE);
    setDocFileType(hScintilla, sDesc);
+
    loadStyles();
    applyStyles();
+
    loadLexer();
    updateCurrentPage();
+   setFocusOnEditor();
 
    //size_t startLine{ static_cast<size_t>(::SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL)) };
    //applyLexer(startLine, startLine + 10);
@@ -166,8 +169,8 @@ int VisualizerPanel::loadStyles() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
-   std::wstring fileType;
-   std::wstring fileTheme;
+   wstring fileType;
+   wstring fileTheme;
 
    if (!getDocFileType(hScintilla, fileType)) {
       return 0;
@@ -188,7 +191,7 @@ int VisualizerPanel::loadStyles() {
 
    int styleCount{};
    wchar_t cPre[10];
-   std::wstring sPrefix;
+   wstring sPrefix;
 
    if (_configIO.getStyleValue(L"Count").length() > 0)
       styleCount = std::stoi (_configIO.getStyleValue(L"Count"));
@@ -198,7 +201,7 @@ int VisualizerPanel::loadStyles() {
 
    for (int i{}; i < styleCount; i++) {
       swprintf(cPre, 10, L"C%02i_", i);
-      sPrefix = std::wstring(cPre);
+      sPrefix = wstring(cPre);
       _configIO.getStyleColor((sPrefix + L"Back").c_str(), styleSet[i].backColor, FALSE);
       _configIO.getStyleColor((sPrefix + L"Fore").c_str(), styleSet[i].foreColor, TRUE);
       _configIO.getStyleBool((sPrefix + L"Bold").c_str(), styleSet[i].bold);
@@ -269,9 +272,9 @@ int VisualizerPanel::loadLexer() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
-   std::wstring fileType;
-   std::wstring recTypeList;
-   std::vector<std::wstring> recTypes;
+   wstring fileType;
+   wstring recTypeList;
+   vector<wstring> recTypes;
    int recTypeCount;
 
    if (!getDocFileType(hScintilla, fileType)) {
@@ -293,15 +296,15 @@ int VisualizerPanel::loadLexer() {
    fieldInfoList.resize(recTypeCount);
 
    for (int i{}; i < recTypeCount; i++) {
-      std::wstring &REC = recTypes[i];
+      wstring &REC = recTypes[i];
       FieldInfo &FLD = fieldInfoList[i];
 
       FLD.recLabel = _configIO.getConfigString(fileType.c_str(), (REC + L"_Label").c_str(), L".");
       FLD.recMarker = _configIO.getConfigStringA(fileType.c_str(), (REC + L"_Marker").c_str(), L".");
-      FLD.regexMarker = std::regex{ FLD.recMarker + ".*(\r\n|\n|\r)?" };
+      FLD.regexMarker = regex{ FLD.recMarker + ".*(\r\n|\n|\r)?" };
 
-      std::wstring fieldWidthList;
-      std::vector<int> fieldWidths;
+      wstring fieldWidthList;
+      vector<int> fieldWidths;
       int fieldCount;
 
       fieldWidthList = _configIO.getConfigString(fileType.c_str(), (REC + L"_FieldWidths").c_str());
@@ -320,8 +323,8 @@ int VisualizerPanel::loadLexer() {
          startPos += fieldWidths[fnum];
       }
 
-      std::wstring fieldLabelList;
-      std::vector<std::wstring> fieldLabels;
+      wstring fieldLabelList;
+      vector<wstring> fieldLabels;
       int labelCount;
 
       fieldLabelList = _configIO.getConfigString(fileType.c_str(), (REC + L"_FieldLabels").c_str());
@@ -342,7 +345,7 @@ int VisualizerPanel::loadLexer() {
 
    for (int i{}; i < recTypeCount; i++) {
       wchar_t test[2000];
-      std::wstring &REC = recTypes[i];
+      wstring &REC = recTypes[i];
       FieldInfo &FLD = fieldInfoList[i];
 
       swprintf(test, 2000, L"%s\nRec_Label = %s\nRec_Marker = %s\nFieldWidths=\n",
@@ -366,12 +369,12 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   std::wstring fileType;
+   wstring fileType;
    if (!getDocFileType(hScintilla, fileType)) return;
 
-   char lineText[FW_LINE_MAX_LENGTH];
-   std::string recStartText, eolMarker;
-   size_t currentLine, currentPos, endPos, recStartPos{}, eolMarkerLen, eolMarkerPos;
+   char lineTextCStr[FW_LINE_MAX_LENGTH];
+   string lineText, recStartText{}, eolMarker;
+   size_t currentLine, currentPos, startPos, endPos, recStartPos{}, eolMarkerLen, eolMarkerPos;
 
    const size_t regexedCount{ fieldInfoList.size() };
    const size_t styleCount{ styleSet.size() };
@@ -387,18 +390,20 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          continue;
       }
 
-      ::SendMessage(hScintilla, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineText);
+      ::SendMessage(hScintilla, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
+      startPos = ::SendMessage(hScintilla, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = ::SendMessage(hScintilla, SCI_GETLINEENDPOSITION, currentLine, NULL);
+      lineText = string{ lineTextCStr }.substr(0, endPos - startPos);
 
       if (newRec) {
-         recStartPos = ::SendMessage(hScintilla, SCI_POSITIONFROMLINE, currentLine, NULL);
-         recStartText = std::string{ lineText }.substr(0, endPos - recStartPos);
+         recStartPos = startPos;
+         recStartText = lineText;
       }
 
       currentLine++;
 
       if (eolMarkerLen == 0 ||
-         eolMarker.compare(lineText + std::strlen(lineText) - eolMarkerLen) == 0) {
+         eolMarker.compare(lineText.substr(lineText.length() - eolMarkerLen)) == 0) {
          newRec = TRUE;
          eolMarkerPos = endPos - eolMarkerLen;
       }
@@ -416,7 +421,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       size_t regexIndex{};
 
       while (regexIndex < regexedCount) {
-         if (std::regex_match(recStartText, fieldInfoList[regexIndex].regexMarker)) {
+         if (regex_match(recStartText, fieldInfoList[regexIndex].regexMarker)) {
             break;
          }
          regexIndex++;
@@ -427,7 +432,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          continue;
       }
 
-      const std::vector<int> recFieldWidths{ fieldInfoList[regexIndex].fieldWidths };
+      const vector<int> recFieldWidths{ fieldInfoList[regexIndex].fieldWidths };
       const size_t fieldCount{ recFieldWidths.size() };
       int unstyledLen;
 
@@ -500,7 +505,7 @@ HWND VisualizerPanel::getCurrentScintilla() {
    return (HWND)(which == 0) ? nppData._scintillaMainHandle : nppData._scintillaSecondHandle;
 }
 
-bool VisualizerPanel::getDocFileType(HWND hScintilla, std::wstring& fileType) {
+bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
    char fType[MAX_PATH];
 
    ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
@@ -509,7 +514,7 @@ bool VisualizerPanel::getDocFileType(HWND hScintilla, std::wstring& fileType) {
    return (fileType.length() > 1);
 }
 
-void VisualizerPanel::setDocFileType(HWND hScintilla, std::wstring fileType) {
+void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
    ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
       (LPARAM)_configIO.WideToNarrow(fileType).c_str());

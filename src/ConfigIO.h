@@ -12,20 +12,23 @@
 #include <Windows.h>
 
 extern NppData nppData;
-const int CONFIG_STR_MAX_LEN = 100;
+
+using std::string;
+using std::wstring;
+using std::vector;
 
 class ConfigIO {
 public:
    void init();
-   std::string getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
-   std::wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
-   int Tokenize(const std::wstring &text, std::vector<std::wstring> &results, LPCWSTR delim=L",");
-   int Tokenize(const std::wstring &text, std::vector<int> &results, LPCWSTR delim = L",");
-   std::wstring NarrowToWide(const std::string &str);
-   std::string WideToNarrow(const std::wstring &wStr);
+   string getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
+   wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
+   int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
+   int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim = L",");
+   wstring NarrowToWide(const string &str);
+   string WideToNarrow(const wstring &wStr);
 
-   void setThemeFilePath(const std::wstring theme=L"VT_Basic");
-   std::wstring getStyleValue(LPCWSTR styleName);
+   void setThemeFilePath(const wstring theme=L"VT_Basic");
+   wstring getStyleValue(LPCWSTR styleName);
    void getStyleColor(LPCWSTR styleName, int &color, bool foreColor);
    void getStyleBool(LPCWSTR styleName, int &var);
 
@@ -42,8 +45,8 @@ protected:
       CONFIG_FILE_COUNT
    };
 
-   const std::wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini",L"VT_Basic.ini"};
-   std::wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
+   const wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini",L"VT_Basic.ini"};
+   wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
    int defaultBackColor{};
    int defaultForeColor{};
 };

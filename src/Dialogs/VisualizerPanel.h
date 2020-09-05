@@ -34,7 +34,10 @@
 extern NppData nppData;
 extern ConfigIO _configIO;
 
-static bool idemPotentKey {FALSE};
+using std::string;
+using std::wstring;
+using std::regex;
+using std::vector;
 
 class VisualizerPanel : public DockingDlgInterface {
 public :
@@ -56,15 +59,15 @@ public :
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    static HWND getCurrentScintilla();
-   bool getDocFileType(HWND hScintilla, std::wstring &fileType);
-   void setDocFileType(HWND hScintilla, std::wstring fileType);
+   bool getDocFileType(HWND hScintilla, wstring &fileType);
+   void setDocFileType(HWND hScintilla, wstring fileType);
    static int setFocusOnEditor();
    void clearLexer();
 
    // File Type data
    HWND hFTList;
-   std::unordered_map<std::wstring, std::wstring> mapFileDescToType;
-   std::unordered_map<std::wstring, std::wstring> mapFileTypeToDesc;
+   std::unordered_map<wstring, wstring> mapFileDescToType;
+   std::unordered_map<wstring, wstring> mapFileTypeToDesc;
 
    // Styleset data
    struct StyleInfo {
@@ -74,23 +77,23 @@ protected :
       int italics;
    };
 
-   std::wstring currentStyleTheme{};
+   wstring currentStyleTheme{};
    StyleInfo styleEOL;
-   std::vector<StyleInfo> styleSet;
+   vector<StyleInfo> styleSet;
 
    // Regex data
-   std::wstring fwVizRegexed{};
+   wstring fwVizRegexed{};
 
    struct FieldInfo {
-      std::wstring recLabel;
-      std::string recMarker;
-      std::regex regexMarker;
-      std::vector<int> startPositions;
-      std::vector<int> fieldWidths;
-      std::vector<std::wstring> fieldLabels;
+      wstring recLabel;
+      string recMarker;
+      regex regexMarker;
+      vector<int> startPositions;
+      vector<int> fieldWidths;
+      vector<wstring> fieldLabels;
    };
 
-   std::vector<FieldInfo> fieldInfoList;
+   vector<FieldInfo> fieldInfoList;
 };
 
 #endif //VISUALIZER_DLG_H
