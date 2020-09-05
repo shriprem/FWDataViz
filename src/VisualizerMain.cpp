@@ -76,9 +76,9 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
       }
       break;
 
-      case SCN_STYLENEEDED:
+      case SCN_UPDATEUI:
       {
-         _vizPanel.onStyleNeeded(notifyCode);
+         _vizPanel.onUpdateUI();
       }
       break;
 

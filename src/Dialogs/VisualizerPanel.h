@@ -24,6 +24,7 @@
 #define FW_DEBUG_LOAD_STYLES FALSE
 #define FW_DEBUG_SET_STYLES FALSE
 #define FW_DEBUG_LOAD_REGEX FALSE
+#define FW_DEBUG_APPLY_LEXER FALSE
 
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
@@ -49,8 +50,8 @@ public :
    int loadStyles();
    int applyStyles();
    int loadLexer();
-   void applyLexer(size_t endLinePos);
-   void onStyleNeeded(SCNotification* notifyCode);
+   void applyLexer(const size_t startLine, const size_t endLine);
+   void onUpdateUI();
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -81,8 +82,11 @@ protected :
    std::wstring fwVizRegexed{};
 
    struct FieldInfo {
+      std::wstring recLabel;
+      std::string recMarker;
       std::vector<int> startPositions;
       std::vector<int> fieldWidths;
+      std::vector<std::wstring> fieldLabels;
    };
 
    std::vector<std::regex> regexMarkers;

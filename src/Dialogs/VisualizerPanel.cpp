@@ -141,6 +141,9 @@ void VisualizerPanel::visualizeFile() {
    loadStyles();
    applyStyles();
    loadLexer();
+
+   //size_t startLine{ static_cast<size_t>(::SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL)) };
+   //applyLexer(startLine, startLine + 10);
 }
 
 void VisualizerPanel::clearVisualize(bool sync) {
@@ -279,8 +282,8 @@ int VisualizerPanel::loadLexer() {
       clearLexer();
    }
 
-   if (regexMarkers.size() > 0) {
-      return static_cast<int>(regexMarkers.size());
+   if (fieldInfoList.size() > 0) {
+      return static_cast<int>(fieldInfoList.size());
    }
 
    recTypeList = _configIO.getConfigString(fileType.c_str(), L"RecordTypes");
@@ -290,8 +293,12 @@ int VisualizerPanel::loadLexer() {
    fieldInfoList.resize(recTypeCount);
 
    for (int i{}; i < recTypeCount; i++) {
-      regexMarkers[i] = std::regex{
-         _configIO.getConfigStringA(fileType.c_str(), (recTypes[i] + L"_Marker").c_str(), L".") };
+      fieldInfoList[i].recLabel =
+         _configIO.getConfigString(fileType.c_str(), (recTypes[i] + L"_Label").c_str(), L".");
+      fieldInfoList[i].recMarker =
+         _configIO.getConfigStringA(fileType.c_str(), (recTypes[i] + L"_Marker").c_str(), L".");
+
+      regexMarkers[i] = std::regex{ fieldInfoList[i].recMarker + ".*(\r\n|\n|\r)?" };
 
       std::wstring fieldWidthList;
       std::vector<int> fieldWidths;
@@ -312,6 +319,20 @@ int VisualizerPanel::loadLexer() {
 
          startPos += fieldWidths[fnum];
       }
+
+      std::wstring fieldLabelList;
+      std::vector<std::wstring> fieldLabels;
+      int labelCount;
+
+      fieldLabelList = _configIO.getConfigString(fileType.c_str(), (recTypes[i] + L"_FieldLabels").c_str());
+      labelCount = _configIO.Tokenize(fieldLabelList, fieldLabels);
+
+      fieldInfoList[i].fieldLabels.clear();
+      fieldInfoList[i].fieldLabels.resize(labelCount);
+
+      for (int lnum{}; lnum < labelCount; lnum++) {
+         fieldInfoList[i].fieldLabels[lnum] = fieldLabels[lnum];
+      }
    }
 
    fwVizRegexed = fileType;
@@ -321,7 +342,11 @@ int VisualizerPanel::loadLexer() {
 
    for (int i{}; i < recTypeCount; i++) {
       wchar_t test[2000];
-      swprintf(test, 2000, L"\n%s", (recTypes[i] + L"_FieldWidths =").c_str());
+
+      swprintf(test, 2000, L"%s\nRec_Label = %s\nRec_Marker = %s\nFieldWidths=\n",
+         recTypes[i].c_str(), fieldInfoList[i].recLabel.c_str(),
+         _configIO.NarrowToWide(fieldInfoList[i].recMarker).c_str());
+
       fieldCount = static_cast<int>(fieldInfoList[i].fieldWidths.size());
 
       for (int j{}; j < fieldCount; j++) {
@@ -336,30 +361,23 @@ int VisualizerPanel::loadLexer() {
    return recTypeCount;
 }
 
-void VisualizerPanel::applyLexer(size_t endLinePos) {
+void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
    std::wstring fileType;
    if (!getDocFileType(hScintilla, fileType)) return;
 
-   std::string eolMarker;
-   size_t eolMarkerLen, startLine, endLine;
-
-   eolMarker =  _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
-   eolMarkerLen = eolMarker.length();
-
-   startLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION,
-      ::SendMessage(hScintilla, SCI_GETENDSTYLED, NULL, NULL), NULL);
-   endLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, endLinePos, NULL);
+   char lineText[FW_LINE_MAX_LENGTH];
+   std::string recStartText, eolMarker;
+   size_t currentLine, currentPos, endPos, recStartPos{}, eolMarkerLen, eolMarkerPos;
 
    const size_t regexedCount{ regexMarkers.size() };
    const size_t styleCount{ styleSet.size() };
-   char lineText[FW_LINE_MAX_LENGTH];
-   std::string recStartText;
-   size_t currentLine, currentPos, endPos, recStartPos{}, eolMarkerPos;
    bool newRec{ TRUE };
 
+   eolMarker =  _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
+   eolMarkerLen = eolMarker.length();
    currentLine = startLine;
 
    while (currentLine < endLine) {
@@ -368,12 +386,12 @@ void VisualizerPanel::applyLexer(size_t endLinePos) {
          continue;
       }
 
-      ::SendMessage(hScintilla, SCI_GETLINE, (WPARAM)lineText, NULL);
+      ::SendMessage(hScintilla, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineText);
       endPos = ::SendMessage(hScintilla, SCI_GETLINEENDPOSITION, currentLine, NULL);
 
       if (newRec) {
          recStartPos = ::SendMessage(hScintilla, SCI_POSITIONFROMLINE, currentLine, NULL);
-         recStartText = lineText;
+         recStartText = std::string{ lineText }.substr(0, endPos - recStartPos);
       }
 
       currentLine++;
@@ -404,40 +422,71 @@ void VisualizerPanel::applyLexer(size_t endLinePos) {
          colorOffset += 5;
       }
 
-      if (regexIndex > regexedCount) {
+      if (regexIndex >= regexedCount) {
          continue;
       }
 
-
-      const std::vector<int> &recFieldWidths{ fieldInfoList[regexIndex].fieldWidths };
+      const std::vector<int> recFieldWidths{ fieldInfoList[regexIndex].fieldWidths };
       const size_t fieldCount{ recFieldWidths.size() };
       int unstyledLen{};
 
+#if FW_DEBUG_APPLY_LEXER
+      wchar_t test[2000];
+      swprintf(test, 2000, L"FieldWidths[%i] = %i\n", static_cast<int>(regexIndex), static_cast<int>(regexedCount));
+
+      for (int i{}; i < static_cast<int>(fieldCount); i++) {
+         unstyledLen = static_cast<int>(eolMarkerPos - eolMarkerLen);
+         swprintf(test, 2000, L"%s (%i, %i, %i),", test,
+            currentPos, recFieldWidths[i], unstyledLen);
+
+         currentPos += recFieldWidths[i];
+      }
+
+      ::MessageBox(NULL, test, fwVizRegexed.c_str(), MB_OK);
+#endif
+
       for (size_t i{}; i < fieldCount; i++) {
-         //::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+         ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
          unstyledLen = static_cast<int>(eolMarkerPos - eolMarkerLen);
          currentPos += recFieldWidths[i];
-         //::SendMessage(hScintilla, SCI_LINEFROMPOSITION, (WPARAM)currentPos, NULL);
-         //continue;
 
          if (recFieldWidths[i] < unstyledLen) {
-            //::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
-            //   FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
+            ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
+               FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
          }
          else {
-            //::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)unstyledLen,
-            //   FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
+            ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)unstyledLen,
+               FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
 
-            //::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, 0x1F);
-            //::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_RANGE_START);
+            ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, 0x1F);
+            ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_RANGE_START);
          }
       }
    }
 }
 
-void VisualizerPanel::onStyleNeeded(SCNotification* notifyCode) {
-   if (loadLexer() > 0)
-      applyLexer(notifyCode->position);
+void VisualizerPanel::onUpdateUI() {
+   if (loadLexer() < 1) return;
+
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   //// SCN_STYLENEEDED (SCNotification* notifyCode)
+   //size_t startLine, endLine;
+
+   //startLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION,
+   //   ::SendMessage(hScintilla, SCI_GETENDSTYLED, NULL, NULL), NULL);
+   //endLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, notifyCode->position, NULL);
+
+   size_t startLine, lineCount, linesOnScreen, endLine;
+
+   startLine = static_cast<size_t>(::SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL));
+   lineCount = static_cast<size_t>(::SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
+   linesOnScreen = static_cast<size_t>(::SendMessage(hScintilla, SCI_LINESONSCREEN, NULL, NULL));
+
+   endLine = (lineCount < startLine + linesOnScreen) ? lineCount : (startLine + linesOnScreen);
+
+   applyLexer(startLine, endLine);
 }
 
 /// *** Private Functions: *** ///
