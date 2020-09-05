@@ -234,10 +234,10 @@ int VisualizerPanel::applyStyles() {
    if (::SendMessage(hScintilla, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
       return 0;
 
-   ::SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.backColor);
-   ::SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.foreColor);
-   ::SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.bold);
-   ::SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START - 1), (LPARAM)styleEOL.italics);
+   ::SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.backColor);
+   ::SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.foreColor);
+   ::SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.bold);
+   ::SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.italics);
 
    const int styleCount{ static_cast<int>(styleSet.size()) };
 
@@ -402,7 +402,15 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
       currentLine++;
 
-      if (eolMarkerLen == 0 ||
+      if (newRec && lineText.length() == 0) {
+         continue;
+      }
+
+      if (eolMarkerLen == 0) {
+         newRec = TRUE;
+         eolMarkerPos = endPos - eolMarkerLen;
+      }
+      else if (lineText.length() > eolMarkerLen &&
          eolMarker.compare(lineText.substr(lineText.length() - eolMarkerLen)) == 0) {
          newRec = TRUE;
          eolMarkerPos = endPos - eolMarkerLen;
@@ -453,7 +461,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
       for (size_t i{}; i < fieldCount; i++) {
          ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-         unstyledLen = static_cast<int>(eolMarkerPos - eolMarkerLen);
+         unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
          currentPos += recFieldWidths[i];
 
          if (recFieldWidths[i] < unstyledLen) {
@@ -465,7 +473,8 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
                FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
 
             ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
-            ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_RANGE_START);
+            ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_EOL);
+            break;
          }
       }
    }

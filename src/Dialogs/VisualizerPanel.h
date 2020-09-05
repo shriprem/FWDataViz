@@ -28,6 +28,7 @@
 
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
+#define FW_STYLE_EOL 100
 #define FW_STYLE_RANGE_START 101
 #define FW_LINE_MAX_LENGTH 32767
 
