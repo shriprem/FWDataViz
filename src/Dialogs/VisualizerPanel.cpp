@@ -442,7 +442,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
       const vector<int> recFieldWidths{ fieldInfoList[regexIndex].fieldWidths };
       const size_t fieldCount{ recFieldWidths.size() };
-      int unstyledLen;
+      int unstyledLen{};
 
 #if FW_DEBUG_APPLY_LEXER
       wchar_t test[2000];
@@ -471,11 +471,17 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          else {
             ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)unstyledLen,
                FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
+            unstyledLen = 0;
 
             ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
             ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_EOL);
             break;
          }
+      }
+
+      if (fieldCount > 0 && unstyledLen > 0) {
+         ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+         ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), FW_STYLE_EOL);
       }
    }
 }
