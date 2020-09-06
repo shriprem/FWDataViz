@@ -20,6 +20,7 @@
 #include "../PluginDefinition.h"
 #include "../NPP/DockingDlgInterface.h"
 #include <regex>
+#include <string_view>
 
 #define FW_DEBUG_LOAD_STYLES FALSE
 #define FW_DEBUG_SET_STYLES FALSE
@@ -36,6 +37,7 @@ extern NppData nppData;
 extern ConfigIO _configIO;
 
 using std::string;
+using std::string_view;
 using std::wstring;
 using std::regex;
 using std::vector;

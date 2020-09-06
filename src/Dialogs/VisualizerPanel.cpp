@@ -373,7 +373,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    if (!getDocFileType(hScintilla, fileType)) return;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH];
-   string lineText, recStartText{}, eolMarker;
+   string recStartText{}, eolMarker;
    size_t currentLine, currentPos, startPos, endPos, recStartPos{}, eolMarkerLen, eolMarkerPos;
 
    const size_t regexedCount{ fieldInfoList.size() };
@@ -393,7 +393,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       ::SendMessage(hScintilla, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
       startPos = ::SendMessage(hScintilla, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = ::SendMessage(hScintilla, SCI_GETLINEENDPOSITION, currentLine, NULL);
-      lineText = string{ lineTextCStr }.substr(0, endPos - startPos);
+      string_view lineText{ lineTextCStr, endPos - startPos };
 
       if (newRec) {
          recStartPos = startPos;
@@ -411,7 +411,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          eolMarkerPos = endPos - eolMarkerLen;
       }
       else if (lineText.length() > eolMarkerLen &&
-         eolMarker.compare(lineText.substr(lineText.length() - eolMarkerLen)) == 0) {
+         (lineText.substr(lineText.length() - eolMarkerLen) == eolMarker)) {
          newRec = TRUE;
          eolMarkerPos = endPos - eolMarkerLen;
       }
