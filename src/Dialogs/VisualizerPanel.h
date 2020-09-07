@@ -103,7 +103,7 @@ protected :
    vector<FieldInfo> fieldInfoList;
 
    // Field Info tracking
-   int caretRecordStartPos, caretRecordRegIndex;
+   int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos;
 };
 
 #endif //VISUALIZER_DLG_H
