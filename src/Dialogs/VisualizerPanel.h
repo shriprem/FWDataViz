@@ -61,7 +61,7 @@ public :
    void applyLexer(const size_t startLine, const size_t endLine);
    void updateCurrentPage();
    void clearCaretFieldInfo();
-   void displayCaretFieldInfo();
+   void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);

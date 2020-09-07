@@ -376,7 +376,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
    char lineTextCStr[FW_LINE_MAX_LENGTH];
    string recStartText{}, eolMarker;
-   size_t caretLine, eolMarkerLen, eolMarkerPos,
+   size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{},
       currentPos, startPos, endPos, recStartPos{};
 
    const size_t regexedCount{ fieldInfoList.size() };
@@ -403,6 +403,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       string_view lineText{ lineTextCStr, endPos - startPos };
 
       if (newRec) {
+         recStartLine = currentLine;
          recStartPos = startPos;
          recStartText = lineText;
       }
@@ -435,7 +436,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
       while (regexIndex < regexedCount) {
          if (regex_match(recStartText, fieldInfoList[regexIndex].regexMarker)) {
-            if (currentLine == caretLine) {
+            if (caretLine >= recStartLine && caretLine <= currentLine) {
                caretRecordRegIndex = static_cast<int>(regexIndex);
                caretRecordStartPos = static_cast<int>(recStartPos);
                caretRecordEndPos = static_cast<int>(endPos);
@@ -525,7 +526,7 @@ void VisualizerPanel::updateCurrentPage() {
    endLine = (lineCount < startLine + linesOnScreen) ? lineCount : (startLine + linesOnScreen);
 
    applyLexer(startLine, endLine);
-   displayCaretFieldInfo();
+   displayCaretFieldInfo(startLine, endLine);
 }
 
 void VisualizerPanel::clearCaretFieldInfo()
@@ -535,7 +536,7 @@ void VisualizerPanel::clearCaretFieldInfo()
    ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, L"");
 }
 
-void VisualizerPanel::displayCaretFieldInfo()
+void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine)
 {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
@@ -546,16 +547,19 @@ void VisualizerPanel::displayCaretFieldInfo()
 
    wstring fieldInfoText{};
    int caretColumnPos;
+   size_t caretLine;
 
    caretColumnPos = static_cast<int>(::SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
+   caretLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, caretColumnPos, NULL);
+
+   if (caretLine < startLine || caretLine > endLine) {
+      clearCaretFieldInfo();
+      return;
+   }
 
    if (caretRecordRegIndex < 0) {
-      size_t line;
-
-      line = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, caretColumnPos, NULL);
-
-      if (::SendMessage(hScintilla, SCI_POSITIONFROMLINE, line, NULL) ==
-         ::SendMessage(hScintilla, SCI_GETLINEENDPOSITION, line, NULL)) {
+      if (::SendMessage(hScintilla, SCI_POSITIONFROMLINE, caretLine, NULL) ==
+         ::SendMessage(hScintilla, SCI_GETLINEENDPOSITION, caretLine, NULL)) {
          fieldInfoText = L"<Blank Line>";
       }
       else {
@@ -584,7 +588,6 @@ void VisualizerPanel::displayCaretFieldInfo()
             break;
          }
       }
-      //fieldInfoText += L"\nStart = " + to_wstring(caretRecordStartPos) + L"\nEnd = " + to_wstring(caretRecordEndPos);
 
       if (matchedField < 0) {
          fieldInfoText += L"\nOverflow!";
