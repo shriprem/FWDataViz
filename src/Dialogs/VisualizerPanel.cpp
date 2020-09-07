@@ -209,15 +209,16 @@ int VisualizerPanel::loadStyles() {
    }
 
 #if FW_DEBUG_LOAD_STYLES
-   wchar_t test[500];
+   wstring dbgMessage;
 
    for (int i{}; i < styleCount; i++) {
-      swprintf(test, 500, L"C0%i_Back = %i\n C0%i_Fore = %i\n C0%i_Bold = %i\nC0%i_Italics = %i\n",
-         i, styleSet[i].backColor,
-         i, styleSet[i].foreColor,
-         i, styleSet[i].bold,
-         i, styleSet[i].italics);
-      ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
+      swprintf(cPre, 10, L"C%02i_", i);
+      sPrefix = wstring(cPre);
+      dbgMessage = sPrefix + L"_Back = " + to_wstring(styleSet[i].backColor) + L"\n" +
+         sPrefix + L"_Fore = " + to_wstring(styleSet[i].foreColor) + L"\n" +
+         sPrefix + L"_Bold = " + to_wstring(styleSet[i].bold) + L"\n" +
+         sPrefix + L"_Italics = " + to_wstring(styleSet[i].italics) + L"\n";
+      ::MessageBox(nppData._nppHandle, dbgMessage.c_str(), L"Theme Styles", MB_OK);
    }
 #endif
 
@@ -251,7 +252,7 @@ int VisualizerPanel::applyStyles() {
    ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
 
 #if FW_DEBUG_SET_STYLES
-   wchar_t test[500];
+   wstring dbgMessage;
    int back, fore, bold, italics;
 
    for (int i{ -1 }; i < styleCount; i++) {
@@ -260,8 +261,10 @@ int VisualizerPanel::applyStyles() {
       bold = ::SendMessage(hScintilla, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
       italics = ::SendMessage(hScintilla, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
 
-      swprintf(test, 500, L"C0%i_STYLES = %i,%i,%i,%i\n", i, back, fore, bold, italics);
-      ::MessageBox(NULL, test, L"Theme Styles", MB_OK);
+      dbgMessage = L"C0" + to_wstring(i) + L"_STYLES = " +
+         to_wstring(back) + L", " + to_wstring(fore) + L", " +
+         to_wstring(bold) + L", " + to_wstring(italics);
+      ::MessageBox(nppData._nppHandle, dbgMessage.c_str(), L"Theme Styles", MB_OK);
    }
 #endif
 
@@ -344,21 +347,20 @@ int VisualizerPanel::loadLexer() {
    int fieldCount;
 
    for (int i{}; i < recTypeCount; i++) {
-      wchar_t test[2000];
+      wstring dbgMessage;
       wstring &REC = recTypes[i];
       FieldInfo &FLD = fieldInfoList[i];
 
-      swprintf(test, 2000, L"%s\nRec_Label = %s\nRec_Marker = %s\nFieldWidths=\n",
-         REC.c_str(), FLD.recLabel.c_str(), _configIO.NarrowToWide(FLD.recMarker).c_str());
+      dbgMessage = REC + L"\nRec_Label = " + FLD.recLabel +
+         L"\nRec_Marker = " + _configIO.NarrowToWide(FLD.recMarker) + L"\nFieldWidths=\n";
 
       fieldCount = static_cast<int>(FLD.fieldWidths.size());
 
       for (int j{}; j < fieldCount; j++) {
-         swprintf(test, 2000, L"%s (%i, %i),", test,
-            FLD.startPositions[j], FLD.fieldWidths[j]);
+         dbgMessage += L" (" + to_wstring(FLD.startPositions[j]) + L", " + to_wstring(FLD.fieldWidths[j]) + L"),";
       }
 
-      ::MessageBox(NULL, test, fwVizRegexed.c_str(), MB_OK);
+      ::MessageBox(nppData._nppHandle, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
    }
 #endif
 
@@ -456,18 +458,19 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       int unstyledLen{};
 
 #if FW_DEBUG_APPLY_LEXER
-      wchar_t test[2000];
-      swprintf(test, 2000, L"FieldWidths[%i] = %i\n", static_cast<int>(regexIndex), static_cast<int>(regexedCount));
+      wstring dbgMessage;
+      size_t dbgPos{ currentPos };
+
+      dbgMessage = L"FieldWidths[" + to_wstring(regexIndex) + L"] = " +
+         to_wstring(fieldCount) + L"\n";
 
       for (int i{}; i < static_cast<int>(fieldCount); i++) {
-         unstyledLen = static_cast<int>(eolMarkerPos - eolMarkerLen);
-         swprintf(test, 2000, L"%s (%i, %i, %i),", test,
-            currentPos, recFieldWidths[i], unstyledLen);
-
-         currentPos += recFieldWidths[i];
+         dbgMessage += L" (" + to_wstring(dbgPos) + L", " +
+            to_wstring(recFieldWidths[i]) + L", " + to_wstring(eolMarkerPos - eolMarkerLen) + L"), ";
+         dbgPos += recFieldWidths[i];
       }
 
-      ::MessageBox(NULL, test, fwVizRegexed.c_str(), MB_OK);
+      ::MessageBox(nppData._nppHandle, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
 #endif
 
       for (size_t i{}; i < fieldCount; i++) {
