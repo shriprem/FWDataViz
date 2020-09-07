@@ -39,6 +39,8 @@ extern ConfigIO _configIO;
 using std::string;
 using std::string_view;
 using std::wstring;
+using std::to_string;
+using std::to_wstring;
 using std::regex;
 using std::vector;
 
@@ -58,6 +60,8 @@ public :
    int loadLexer();
    void applyLexer(const size_t startLine, const size_t endLine);
    void updateCurrentPage();
+   void clearCaretFieldInfo();
+   void displayCaretFieldInfo();
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -97,6 +101,9 @@ protected :
    };
 
    vector<FieldInfo> fieldInfoList;
+
+   // Field Info tracking
+   int caretRecordStartPos, caretRecordRegIndex;
 };
 
 #endif //VISUALIZER_DLG_H

@@ -374,7 +374,8 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
    char lineTextCStr[FW_LINE_MAX_LENGTH];
    string recStartText{}, eolMarker;
-   size_t currentLine, currentPos, startPos, endPos, recStartPos{}, eolMarkerLen, eolMarkerPos;
+   size_t caretLine, eolMarkerLen, eolMarkerPos,
+      currentPos, startPos, endPos, recStartPos{};
 
    const size_t regexedCount{ fieldInfoList.size() };
    const size_t styleCount{ styleSet.size() };
@@ -382,11 +383,11 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
    eolMarker =  _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
-   currentLine = startLine;
+   caretLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION,
+      ::SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL), NULL);
 
-   while (currentLine < endLine) {
+   for (auto currentLine{ startLine }; currentLine < endLine; currentLine++) {
       if (::SendMessage(hScintilla, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
-         currentLine++;
          continue;
       }
 
@@ -400,15 +401,13 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          recStartText = lineText;
       }
 
-      currentLine++;
-
       if (newRec && lineText.length() == 0) {
          continue;
       }
 
       if (eolMarkerLen == 0) {
          newRec = TRUE;
-         eolMarkerPos = endPos - eolMarkerLen;
+         eolMarkerPos = endPos;
       }
       else if (lineText.length() > eolMarkerLen &&
          (lineText.substr(lineText.length() - eolMarkerLen) == eolMarker)) {
@@ -430,8 +429,14 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
       while (regexIndex < regexedCount) {
          if (regex_match(recStartText, fieldInfoList[regexIndex].regexMarker)) {
+            if (currentLine == caretLine) {
+               caretRecordStartPos = static_cast<int>(recStartPos);
+               caretRecordRegIndex = static_cast<int>(regexIndex);
+            }
+
             break;
          }
+
          regexIndex++;
          colorOffset += 5;
       }
@@ -487,7 +492,10 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 }
 
 void VisualizerPanel::updateCurrentPage() {
-   if (loadLexer() < 1) return;
+   if (loadLexer() < 1) {
+      clearCaretFieldInfo();
+      return;
+   }
 
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
@@ -508,6 +516,66 @@ void VisualizerPanel::updateCurrentPage() {
    endLine = (lineCount < startLine + linesOnScreen) ? lineCount : (startLine + linesOnScreen);
 
    applyLexer(startLine, endLine);
+   displayCaretFieldInfo();
+}
+
+void VisualizerPanel::clearCaretFieldInfo()
+{
+   ::ShowWindow(::GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_HIDE);
+   ::ShowWindow(::GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_HIDE);
+   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, L"");
+}
+
+void VisualizerPanel::displayCaretFieldInfo()
+{
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   wstring fileType;
+
+   if (!getDocFileType(hScintilla, fileType)) return;
+
+   FieldInfo& FLD{ fieldInfoList[caretRecordRegIndex] };
+   int fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 }, caretColumn;
+   wstring fieldInfoText;
+
+   fieldCount = static_cast<int>(FLD.startPositions.size());
+   fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
+   caretColumn =  static_cast<int>(::SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL)) - caretRecordStartPos;
+
+   for (int i{}; i < fieldCount; i++) {
+      cumulativeWidth += FLD.fieldWidths[i];
+      if (caretColumn >= FLD.startPositions[i] && caretColumn < cumulativeWidth) {
+         matchedField = i;
+         break;
+      }
+   }
+
+   if (caretColumn == cumulativeWidth) {
+      fieldInfoText = L"Record End";
+   }
+   else if (matchedField < 0) {
+      fieldInfoText = L"Overflow!";
+   }
+   else {
+      fieldInfoText = L"  Field Label: ";
+
+      if (fieldLabelCount == 0 || matchedField >= fieldLabelCount) {
+         fieldInfoText += L"Field #" + to_wstring(matchedField + 1);
+      }
+      else {
+         fieldInfoText += FLD.fieldLabels[matchedField];
+      }
+
+      fieldInfoText += L"\n  Field Start: " + to_wstring(FLD.startPositions[matchedField] + 1);
+      fieldInfoText += L"\n Field Width: " + to_wstring(FLD.fieldWidths[matchedField]);
+      fieldInfoText += L"\nField Column: " + to_wstring(caretColumn - FLD.startPositions[matchedField] + 1) + L"\n";
+   }
+
+   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, fieldInfoText.c_str());
+
+   ::ShowWindow(::GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_SHOW);
+   ::ShowWindow(::GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_SHOW);
 }
 
 /// *** Private Functions: *** ///
