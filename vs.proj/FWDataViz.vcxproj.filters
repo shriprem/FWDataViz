@@ -102,12 +102,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="pencil-ruler.ico" />
-    <Image Include="..\src\Resources\pencil-ruler.ico" />
-    <Image Include="..\src\Resources\icon1.ico" />
-    <Image Include="..\src\Resources\bitmap1.bmp" />
-    <Image Include="..\src\Resources\bitmap2.bmp" />
-    <Image Include="..\src\Resources\pencil-ruler.bmp" />
-    <Image Include="pencil-ruler.bmp" />
+    <Image Include="..\src\Resources\pencil-ruler.bmp">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

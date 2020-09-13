@@ -52,13 +52,7 @@
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\src\Resources\bitmap1.bmp" />
-    <Image Include="..\src\Resources\bitmap2.bmp" />
-    <Image Include="..\src\Resources\icon1.ico" />
     <Image Include="..\src\Resources\pencil-ruler.bmp" />
-    <Image Include="..\src\Resources\pencil-ruler.ico" />
-    <Image Include="pencil-ruler.bmp" />
-    <Image Include="pencil-ruler.ico" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9D04DBD5-E12E-44E0-A683-6F43F21D533B}</ProjectGuid>
