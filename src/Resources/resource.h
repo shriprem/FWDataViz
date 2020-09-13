@@ -804,6 +804,7 @@
 #define LANG_GREENLANDIC                0x6f
 #define VK_F1                           0x70
 #define LANG_IGBO                       0x70
+#define IDD_FWVIZ_CONFIG_BTN            112
 #define VK_F2                           0x71
 #define VK_F3                           0x72
 #define VK_F4                           0x73
@@ -1246,6 +1247,7 @@
 #define IDC_SPIN2                       1017
 #define IDC_SPIN_GOCOL                  1017
 #define IDC_BUTTON1                     1019
+#define IDC_HOTKEY1                     1020
 #define CF_GDIOBJLAST                   0x03FF
 #define _WIN32_WINNT_NT4                0x0400
 #define _WIN32_IE_IE40                  0x0400
@@ -1488,10 +1490,11 @@
 #define TCS_OWNERDRAWFIXED              0x2000
 #define IDD_VISUALIZER_DOCKPANEL        9000
 #define IDC_VIZPANEL_FILETYPE_LABEL     9001
-#define IDC_VIZPANEL_FILETYPE_SELECT    9002
-#define IDC_VIZPANEL_CLEAR_BUTTON       9003
-#define IDC_VIZPANEL_FIELD_LABEL        9004
-#define IDC_VIZPANEL_FIELD_INFO         9005
+#define IDC_VIZPANEL_FILETYPE_CONFIG    9002
+#define IDC_VIZPANEL_FILETYPE_SELECT    9003
+#define IDC_VIZPANEL_CLEAR_BUTTON       9004
+#define IDC_VIZPANEL_FIELD_LABEL        9005
+#define IDC_VIZPANEL_FIELD_INFO         9006
 #define IDD_FWVIZ_DEFINER_DIALOG        9100
 #define IDD_VIZGROUP_FILE_TYPES         9101
 #define IDD_VIZGROUP_REC_TYPES          9121
@@ -1611,9 +1614,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        102
+#define _APS_NEXT_RESOURCE_VALUE        113
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1020
+#define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

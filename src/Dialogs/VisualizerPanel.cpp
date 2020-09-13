@@ -16,39 +16,57 @@
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-   case WM_COMMAND:
-      switch LOWORD(wParam) {
-      case IDC_VIZPANEL_FILETYPE_SELECT:
-         break;
 
-      case IDOK:
-         visualizeFile();
-         break;
+      case WM_SHOWWINDOW:
+      {
+         HBITMAP hBitmap = LoadBitmap(_gModule, MAKEINTRESOURCE(IDD_FWVIZ_CONFIG_BTN));
+         SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, BM_SETIMAGE,
+            IMAGE_BITMAP, (LPARAM)hBitmap);
+         DeleteObject(hBitmap);
 
-      case IDC_VIZPANEL_CLEAR_BUTTON:
-         clearVisualize();
-         break;
-
-      case IDCANCEL:
-      case IDCLOSE:
-         setFocusOnEditor();
-         ShowVisualizerPanel(false);
+         createToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, L"Configuration", L"Open File Type Configuration Dialog");
          break;
       }
 
+      case WM_COMMAND:
+         switch LOWORD(wParam) {
+            case IDC_VIZPANEL_FILETYPE_SELECT:
+               break;
+
+            case IDC_VIZPANEL_FILETYPE_CONFIG:
+            {
+               ShowConfigDialog();
+               break;
+}
+
+            case IDOK:
+               visualizeFile();
+               break;
+
+            case IDC_VIZPANEL_CLEAR_BUTTON:
+               clearVisualize();
+               break;
+
+            case IDCANCEL:
+            case IDCLOSE:
+               setFocusOnEditor();
+               ShowVisualizerPanel(false);
+               break;
+         }
+
       break;
 
-   case WM_LBUTTONDOWN:
-   case WM_MBUTTONDOWN:
-   case WM_RBUTTONDOWN:
-      ::SetFocus(_hSelf);
-      break;
+      case WM_LBUTTONDOWN:
+      case WM_MBUTTONDOWN:
+      case WM_RBUTTONDOWN:
+         ::SetFocus(_hSelf);
+         break;
 
-   case WM_SETFOCUS:
-      break;
+      case WM_SETFOCUS:
+         break;
 
-   default :
-      return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
+      default :
+         return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
    }
 
    return FALSE;

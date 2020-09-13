@@ -34,6 +34,7 @@
 #define FW_LINE_MAX_LENGTH 32767
 
 extern NppData nppData;
+extern HINSTANCE _gModule;
 extern ConfigIO _configIO;
 
 using std::string;

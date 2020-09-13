@@ -101,4 +101,13 @@
       <UniqueIdentifier>{dd30c9f9-fbbb-4bac-9914-ffbff288d148}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="pencil-ruler.ico" />
+    <Image Include="..\src\Resources\pencil-ruler.ico" />
+    <Image Include="..\src\Resources\icon1.ico" />
+    <Image Include="..\src\Resources\bitmap1.bmp" />
+    <Image Include="..\src\Resources\bitmap2.bmp" />
+    <Image Include="..\src\Resources\pencil-ruler.bmp" />
+    <Image Include="pencil-ruler.bmp" />
+  </ItemGroup>
 </Project>

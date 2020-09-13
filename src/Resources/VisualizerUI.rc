@@ -32,8 +32,9 @@ BEGIN
     LTEXT           "&File Type:",IDC_VIZPANEL_FILETYPE_LABEL,8,14,55,8
     COMBOBOX        IDC_VIZPANEL_FILETYPE_SELECT,8,26,173,14,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "&Visualize",IDOK,8,53,50,14
-    PUSHBUTTON      "C&lose",IDCLOSE,130,53,50,14
     PUSHBUTTON      "&Clear",IDC_VIZPANEL_CLEAR_BUTTON,69,53,50,14
+    PUSHBUTTON      "C&lose",IDCLOSE,130,53,50,14
+    PUSHBUTTON      "...",IDC_VIZPANEL_FILETYPE_CONFIG,166,12,15,13,BS_BITMAP
     LTEXT           "Cursor Position Data:",IDC_VIZPANEL_FIELD_LABEL,8,85,83,8
     LTEXT           "",IDC_VIZPANEL_FIELD_INFO,8,99,173,60
 END
@@ -111,6 +112,14 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDD_FWVIZ_CONFIG_BTN    BITMAP                  "pencil-ruler.bmp"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
