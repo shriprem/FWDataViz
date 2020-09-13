@@ -36,6 +36,7 @@
     <ClInclude Include="..\src\PluginDefinition.h" />
     <ClInclude Include="..\src\Resources\localization.h" />
     <ClInclude Include="..\src\Resources\resource.h" />
+    <ClInclude Include="..\src\Resources\VisualizerUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ConfigIO.cpp" />
