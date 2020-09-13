@@ -26,7 +26,6 @@
 #include "NPP/PluginInterface.h"
 #include "ConfigIO.h"
 #include "Resources/resource.h"
-#include "Resources/VisualizerUI.h"
 #include "Resources/localization.h"
 
 const int nbFunc = 2;

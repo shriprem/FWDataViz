@@ -2,6 +2,29 @@
 // Microsoft Visual C++ generated include file.
 // Used by VisualizerUI.rc
 //
+
+// FWDataViz Dock Panel
+#define IDD_VISUALIZER_DOCKPANEL        9000
+#define IDC_VIZPANEL_FILETYPE_LABEL     9001
+#define IDC_VIZPANEL_FILETYPE_SELECT    9002
+#define IDC_VIZPANEL_CLEAR_BUTTON       9003
+#define IDC_VIZPANEL_FIELD_LABEL        9004
+#define IDC_VIZPANEL_FIELD_INFO         9005
+
+
+// FWDataViz File Types Definer Dialog
+#define IDD_FWVIZ_DEFINER_DIALOG        9100
+
+
+// FWDataViz About Dialog
+#define IDD_ABOUT_DIALOG                9200
+#define IDC_ABOUT_NAME                  9201
+#define IDC_ABOUT_VERSION               9202
+#define IDC_ABOUT_ATTRIBUTION           9203
+#define IDC_ABOUT_PROD_URL              9204
+
+
+// Windows Standard Defines
 #define SW_HIDE                         0
 #define HIDE_WINDOW                     0
 #define WM_NULL                         0x0000
@@ -1591,7 +1614,7 @@
 #define UNICODE_NOCHAR                  0xFFFF
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1

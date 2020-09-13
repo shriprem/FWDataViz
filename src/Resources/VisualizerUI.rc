@@ -3,8 +3,6 @@
 #pragma code_page(65001)
 
 #include "resource.h"
-#include "VisualizerUI.h"
-
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -39,6 +37,15 @@ BEGIN
     LTEXT           "",IDC_VIZPANEL_FIELD_INFO,8,99,173,60
 END
 
+IDD_VIZ_DEFINER_DIALOG DIALOGEX 0, 0, 309, 177
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Define Fixed Width File Types"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+DEFPUSHBUTTON   "OK", IDOK, 198, 156, 50, 14
+PUSHBUTTON      "Cancel", IDCANCEL, 252, 156, 50, 14
+END
+
 IDD_ABOUT_DIALOG DIALOGEX 26, 41, 211, 92
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
@@ -58,24 +65,19 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
-    "resource.h\0"
+"resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
-    "VisualizerUI.h\0"
+"#include <windows.h>\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
-    "#include <windows.h>\0"
-END
-
-4 TEXTINCLUDE 
-BEGIN
-    "\0"
+"\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -101,7 +103,6 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
-
-

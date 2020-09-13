@@ -72,9 +72,6 @@
     <ClInclude Include="..\src\NPP\SciLexer.h">
       <Filter>_NPP Framework</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Resources\VisualizerUI.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc">
