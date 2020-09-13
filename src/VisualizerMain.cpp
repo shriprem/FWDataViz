@@ -15,9 +15,8 @@
 #include "PluginDefinition.h"
 #include "Dialogs/VisualizerPanel.h"
 
-extern FuncItem funcItem[nbFunc];
+extern FuncItem funcItem[MI_COUNT];
 extern NppData nppData;
-
 extern VisualizerPanel _vizPanel;
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD  reasonForCall, LPVOID /*lpReserved*/)
@@ -56,7 +55,7 @@ extern "C" __declspec(dllexport) const TCHAR * getName()
 
 extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 {
-   *nbF = nbFunc;
+   *nbF = MI_COUNT;
    return funcItem;
 }
 

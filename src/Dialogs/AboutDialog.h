@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _ABOUTDIALOG_H
 #define _ABOUTDIALOG_H
 

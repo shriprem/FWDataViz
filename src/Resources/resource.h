@@ -2,29 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by VisualizerUI.rc
 //
-
-// FWDataViz Dock Panel
-#define IDD_VISUALIZER_DOCKPANEL        9000
-#define IDC_VIZPANEL_FILETYPE_LABEL     9001
-#define IDC_VIZPANEL_FILETYPE_SELECT    9002
-#define IDC_VIZPANEL_CLEAR_BUTTON       9003
-#define IDC_VIZPANEL_FIELD_LABEL        9004
-#define IDC_VIZPANEL_FIELD_INFO         9005
-
-
-// FWDataViz File Types Definer Dialog
-#define IDD_FWVIZ_DEFINER_DIALOG        9100
-
-
-// FWDataViz About Dialog
-#define IDD_ABOUT_DIALOG                9200
-#define IDC_ABOUT_NAME                  9201
-#define IDC_ABOUT_VERSION               9202
-#define IDC_ABOUT_ATTRIBUTION           9203
-#define IDC_ABOUT_PROD_URL              9204
-
-
-// Windows Standard Defines
 #define SW_HIDE                         0
 #define HIDE_WINDOW                     0
 #define WM_NULL                         0x0000
@@ -1509,6 +1486,21 @@
 #define LVS_NOSCROLL                    0x2000
 #define TVS_NOSCROLL                    0x2000
 #define TCS_OWNERDRAWFIXED              0x2000
+#define IDD_VISUALIZER_DOCKPANEL        9000
+#define IDC_VIZPANEL_FILETYPE_LABEL     9001
+#define IDC_VIZPANEL_FILETYPE_SELECT    9002
+#define IDC_VIZPANEL_CLEAR_BUTTON       9003
+#define IDC_VIZPANEL_FIELD_LABEL        9004
+#define IDC_VIZPANEL_FIELD_INFO         9005
+#define IDD_FWVIZ_DEFINER_DIALOG        9100
+#define IDD_VIZGROUP_FILE_TYPES         9101
+#define IDD_VIZGROUP_REC_TYPES          9121
+#define IDD_VIZGROUP_FIELD_TYPES        9141
+#define IDD_ABOUT_DIALOG                9200
+#define IDC_ABOUT_NAME                  9201
+#define IDC_ABOUT_VERSION               9202
+#define IDC_ABOUT_ATTRIBUTION           9203
+#define IDC_ABOUT_PROD_URL              9204
 #define CS_GLOBALCLASS                  0x4000
 #define TBSTYLE_REGISTERDROP            0x4000
 #define RBS_VERTICALGRIPPER             0x00004000
@@ -1612,9 +1604,10 @@
 #define LVS_TYPESTYLEMASK               0xfc00
 #define SPVERSION_MASK                  0x0000FF00
 #define UNICODE_NOCHAR                  0xFFFF
+#define IDC_STATIC                      -1
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1

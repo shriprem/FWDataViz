@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef DIALOG_DEFS_H
 #define DIALOG_DEFS_H
 
@@ -5,7 +7,7 @@
 // Common
 #define MENU_PANEL_NAME             L"Fixed-Width Data Visualizer"
 #define MENU_SHOW_PANEL             L"&Show Panel"
-#define MENU_SETTINGS               L"Se&ttings"
+#define MENU_CONFIG                 L"&Configure File Types"
 #define MENU_ABOUT                  L"&About"
 
 

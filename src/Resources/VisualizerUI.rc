@@ -3,6 +3,7 @@
 #pragma code_page(65001)
 
 #include "resource.h"
+
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -37,13 +38,16 @@ BEGIN
     LTEXT           "",IDC_VIZPANEL_FIELD_INFO,8,99,173,60
 END
 
-IDD_VIZ_DEFINER_DIALOG DIALOGEX 0, 0, 309, 177
+IDD_FWVIZ_DEFINER_DIALOG DIALOGEX 0, 0, 523, 265
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define Fixed Width File Types"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-DEFPUSHBUTTON   "OK", IDOK, 198, 156, 50, 14
-PUSHBUTTON      "Cancel", IDCANCEL, 252, 156, 50, 14
+    DEFPUSHBUTTON   "&Save Configuration",IDOK,62,241,103,14
+    PUSHBUTTON      "&Close",IDCANCEL,357,241,103,14
+    GROUPBOX        "Configure File Types",IDD_VIZGROUP_FILE_TYPES,5,6,152,228
+    GROUPBOX        "Configure  Record Types",IDD_VIZGROUP_REC_TYPES,166,6,152,228
+    GROUPBOX        "Configure Fields:",IDD_VIZGROUP_FIELD_TYPES,323,6,191,228
 END
 
 IDD_ABOUT_DIALOG DIALOGEX 26, 41, 211, 92
@@ -65,19 +69,19 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
-"resource.h\0"
+    "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
-"#include <windows.h>\0"
+    "#include <windows.h>\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
-"\0"
+    "\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -96,6 +100,11 @@ BEGIN
         BOTTOMMARGIN, 184
     END
 
+    IDD_FWVIZ_DEFINER_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 522
+    END
+
     IDD_ABOUT_DIALOG, DIALOG
     BEGIN
         BOTTOMMARGIN, 87
@@ -103,6 +112,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
+
+

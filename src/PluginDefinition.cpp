@@ -14,30 +14,21 @@
 
 
 #include "PluginDefinition.h"
-#include <stdlib.h>
-#include "NPP/menuCmdID.h"
 
-#include "Dialogs/VisualizerPanel.h"
-#include "Dialogs/AboutDialog.h"
+FuncItem funcItem[MI_COUNT];
+
+NppData nppData;
+HINSTANCE _gModule;
+ConfigIO _configIO;
+VisualizerPanel _vizPanel;
+ConfigureDialog _configDlg;
+AboutDialog _aboutDlg;
 
 #ifdef UNICODE
    #define generic_itoa _itow
 #else
    #define generic_itoa itoa
 #endif
-
-#define INDEX_GOTO_PANEL 0
-#define INDEX_ABOUT_DIALOG 1
-
-FuncItem funcItem[nbFunc];
-
-NppData nppData;
-HINSTANCE _gModule;
-int _gLanguage = LANG_ENGLISH;
-
-ConfigIO _configIO;
-VisualizerPanel _vizPanel;
-AboutDialog _aboutDlg;
 
 void pluginInit(HANDLE hModule) {
    _gModule = (HINSTANCE)hModule;
@@ -55,18 +46,19 @@ void commandMenuInit() {
    shKeyOpen->_isShift = false;
    shKeyOpen->_key = VK_F8;
 
-   setCommand(INDEX_GOTO_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
-   setCommand(INDEX_ABOUT_DIALOG, MENU_ABOUT, ShowAboutDialog, 0, 0);
+   setCommand(MI_GOTO_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
+   setCommand(MI_CONFIG_DIALOG, MENU_CONFIG, ShowConfigDialog, 0, 0);
+   setCommand(MI_ABOUT_DIALOG, MENU_ABOUT, ShowAboutDialog, 0, 0);
 }
 
 
 void commandMenuCleanUp() {
-   delete funcItem[INDEX_GOTO_PANEL]._pShKey;
+   delete funcItem[MI_GOTO_PANEL]._pShKey;
 }
 
 // Initialize plugin commands
 bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk, bool checkOnInit) {
-    if (index >= nbFunc)
+    if (index >= MI_COUNT)
         return false;
 
     if (!pFunc)
@@ -125,7 +117,7 @@ void ToggleVisualizerPanel() {
 
          data.uMask = DWS_DF_CONT_RIGHT;
          data.pszModuleName = _vizPanel.getPluginFileName();
-         data.dlgID = INDEX_GOTO_PANEL;
+         data.dlgID = MI_GOTO_PANEL;
          data.pszName = MENU_PANEL_NAME;
 
          ::SendMessage(nppData._nppHandle, NPPM_DMMREGASDCKDLG, 0, (LPARAM)& data);
@@ -140,8 +132,12 @@ void ToggleVisualizerPanel() {
 void ShowVisualizerPanel(bool show) {
    _vizPanel.display(show);
 
-   ::CheckMenuItem(::GetMenu(nppData._nppHandle), funcItem[INDEX_GOTO_PANEL]._cmdID,
+   ::CheckMenuItem(::GetMenu(nppData._nppHandle), funcItem[MI_GOTO_PANEL]._cmdID,
                MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));
+}
+
+void ShowConfigDialog() {
+   _configDlg.doDialog((HINSTANCE)_gModule);
 }
 
 void ShowAboutDialog() {

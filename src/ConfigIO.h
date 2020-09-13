@@ -6,10 +6,8 @@
 #include "NPP/PluginInterface.h"
 #include <codecvt>
 #include <locale>
-#include <string>
 #include <unordered_map>
 #include <vector>
-#include <Windows.h>
 
 extern NppData nppData;
 

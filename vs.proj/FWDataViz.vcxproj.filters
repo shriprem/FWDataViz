@@ -19,6 +19,9 @@
     <ClCompile Include="..\src\ConfigIO.cpp">
       <Filter>Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Dialogs\ConfigureDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -71,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="..\src\NPP\SciLexer.h">
       <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Dialogs\ConfigureDialog.h">
+      <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

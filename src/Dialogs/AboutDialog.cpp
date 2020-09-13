@@ -28,31 +28,27 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
    switch (message)
    {
       case WM_COMMAND:
-      {
          switch LOWORD(wParam)
          {
-         case IDCANCEL:
-         case IDOK:
-            display(FALSE);
-            return TRUE;
+            case IDCANCEL:
+            case IDOK:
+               display(FALSE);
+               return TRUE;
          }
          return FALSE;
-      }
 
       case WM_NOTIFY:
-      {
          switch (((LPNMHDR)lParam)->code)
          {
-         case NM_CLICK:
-         case NM_RETURN:
-            ::ShellExecute(NULL, L"open", PLUGIN_GITHUB_PAGE, NULL, NULL, SW_SHOW);
-            display(FALSE);
-            return TRUE;
+            case NM_CLICK:
+            case NM_RETURN:
+               ::ShellExecute(NULL, L"open", PLUGIN_GITHUB_PAGE, NULL, NULL, SW_SHOW);
+               display(FALSE);
+               return TRUE;
          }
          return FALSE;
-      }
 
       default:
          return FALSE;
-      }
+   }
 }
