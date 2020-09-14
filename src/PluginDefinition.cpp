@@ -129,7 +129,7 @@ void ToggleVisualizerPanel() {
 
          _vizPanel.initPanel();
 
-         if (_configIO.language != LANG_ENGLISH)
+         if (_gLanguage != LANG_ENGLISH)
             _vizPanel.localize();
       }
    }

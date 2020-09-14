@@ -31,7 +31,7 @@
 #include "Resources/localization.h"
 #include "ConfigIO.h"
 
-constexpr int _gLanguage = LANG_ENGLISH;
+static int _gLanguage = LANG_ENGLISH;
 
 const enum MenuIndex {
    MI_GOTO_PANEL,

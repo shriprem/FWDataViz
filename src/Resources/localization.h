@@ -44,7 +44,7 @@
 #define FWVIZ_DEF_FIELD_GROUP_BOX   L"Define Fields:"
 #define FWVIZ_DEF_FIELD_WIDTHS_TEXT L"Widths:"
 #define FWVIZ_DEF_FIELD_LABELS_TEXT L"Labels:"
-#define FWVIZ_DEF_FIELD_ACCEPT_BTN  L"New"
+#define FWVIZ_DEF_FIELD_ACCEPT_BTN  L"Accept"
 #define FWVIZ_DIALOG_SAVE_BTN       L"&Save Configuration to File"
 #define FWVIZ_DIALOG_RESET_BTN      L"Reload Configuration from File"
 #define FWVIZ_DIALOG_CLOSE_BTN      L"Close"

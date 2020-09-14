@@ -30,8 +30,6 @@ public:
    void getStyleColor(LPCWSTR styleName, int &color, bool foreColor);
    void getStyleBool(LPCWSTR styleName, int &var);
 
-   int language = LANG_ENGLISH;
-
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
    TCHAR themeConfigFile[MAX_PATH];

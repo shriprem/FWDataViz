@@ -7,7 +7,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst)
       create(IDD_FWVIZ_DEFINER_DIALOG);
    }
 
-   localize();
+   if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    ::SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
