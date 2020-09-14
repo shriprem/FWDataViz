@@ -49,6 +49,7 @@ class VisualizerPanel : public DockingDlgInterface {
 public :
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
 
+   void initPanel();
    void localize();
    virtual void display(bool toShow=true);
    void setParent(HWND parent2set);

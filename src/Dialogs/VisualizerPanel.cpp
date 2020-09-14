@@ -16,18 +16,6 @@
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-
-      case WM_SHOWWINDOW:
-      {
-         HBITMAP hBitmap = LoadBitmap(_gModule, MAKEINTRESOURCE(IDD_FWVIZ_CONFIG_BTN));
-         SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, BM_SETIMAGE,
-            IMAGE_BITMAP, (LPARAM)hBitmap);
-         DeleteObject(hBitmap);
-
-         createToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, L"Open File Type Configuration Dialog");
-         break;
-      }
-
       case WM_COMMAND:
          switch LOWORD(wParam) {
             case IDC_VIZPANEL_FILETYPE_SELECT:
@@ -72,11 +60,24 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
    return FALSE;
 }
 
+void VisualizerPanel::initPanel() {
+   HBITMAP hBitmap = ::LoadBitmap(_gModule, MAKEINTRESOURCE(IDC_FWVIZ_CONFIG_BITMAP));
+   if (hBitmap) {
+      ::SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, BM_SETIMAGE,
+         IMAGE_BITMAP, (LPARAM)hBitmap);
+   }
+   ::DeleteObject(hBitmap);
+
+   createToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG);
+}
+
 void VisualizerPanel::localize() {
-   //::SetDlgItemText(_hSelf, IDC_VIZPANEL_FILETYPE_LABEL, GOLINECOL_LABEL_GOLINE);
-   //::SetDlgItemText(_hSelf, IDOK, GOLINECOL_LABEL_GOLINE);
-   //::SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BUTTON, GOLINECOL_LABEL_GOLINE);
-   //::SetDlgItemText(_hSelf, IDCLOSE, GOLINECOL_LABEL_GOLINE);
+   ::SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
+   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FILETYPE_LABEL, VIZ_PANEL_FILETYPE_LABEL);
+   ::SetDlgItemText(_hSelf, IDOK, VIZ_PANEL_OK);
+   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BUTTON, VIZ_PANEL_CLEAR_BUTTON);
+   ::SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
+   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
 }
 
 void VisualizerPanel::display(bool toShow) {

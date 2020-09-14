@@ -806,11 +806,11 @@
 #define LANG_IGBO                       0x70
 #define VK_F2                           0x71
 #define VK_F3                           0x72
-#define IDB_BITMAP1                     114
-#define IDD_FWVIZ_CONFIG_BTN            114
 #define VK_F4                           0x73
 #define LANG_TIGRIGNA                   0x73
 #define LANG_TIGRINYA                   0x73
+#define IDB_BITMAP1                     115
+#define IDC_FWVIZ_CONFIG_BITMAP         115
 #define VK_F5                           0x74
 #define VK_F6                           0x75
 #define LANG_HAWAIIAN                   0x75
@@ -1244,11 +1244,6 @@
 #define WM_PENWINFIRST                  0x0380
 #define WM_PENWINLAST                   0x038F
 #define WM_DDE_FIRST                    0x03E0
-#define IDC_SPIN_GOLINE                 1016
-#define IDC_SPIN2                       1017
-#define IDC_SPIN_GOCOL                  1017
-#define IDC_BUTTON1                     1019
-#define IDC_HOTKEY1                     1020
 #define CF_GDIOBJLAST                   0x03FF
 #define _WIN32_WINNT_NT4                0x0400
 #define _WIN32_IE_IE40                  0x0400
@@ -1497,9 +1492,39 @@
 #define IDC_VIZPANEL_FIELD_LABEL        9005
 #define IDC_VIZPANEL_FIELD_INFO         9006
 #define IDD_FWVIZ_DEFINER_DIALOG        9100
-#define IDD_VIZGROUP_FILE_TYPES         9101
-#define IDD_VIZGROUP_REC_TYPES          9121
-#define IDD_VIZGROUP_FIELD_TYPES        9141
+#define IDC_FWVIZ_DEF_FILE_GROUP_BOX    9101
+#define IDC_FWVIZ_DEF_FILE_LIST_BOX     9102
+#define IDC_FWVIZ_DEF_FILE_CODE_LABEL   9103
+#define IDC_FWVIZ_DEF_FILE_CODE_EDIT    9104
+#define IDC_FWVIZ_DEF_FILE_DESC_LABEL   9105
+#define IDC_FWVIZ_DEF_FILE_DESC_EDIT    9106
+#define IDC_FWVIZ_DEF_FILE_TERM_LABEL   9107
+#define IDC_FWVIZ_DEF_FILE_TERM_EDIT    9108
+#define IDC_FWVIZ_DEF_FILE_THEME_LABEL  9109
+#define IDC_FWVIZ_DEF_FILE_THEME_LIST   9110
+#define IDC_FWVIZ_DEF_FILE_NEW_BTN      9111
+#define IDC_FWVIZ_DEF_FILE_ACCEPT_BTN   9112
+#define IDC_FWVIZ_DEF_FILE_DEL_BTN      9113
+#define IDC_FWVIZ_DEF_REC_GROUP_BOX     9121
+#define IDC_FWVIZ_DEF_REC_LIST_BOX      9122
+#define IDC_FWVIZ_DEF_REC_CODE_LABEL    9123
+#define IDC_FWVIZ_DEF_REC_CODE_EDIT     9124
+#define IDC_FWVIZ_DEF_REC_DESC_LABEL    9125
+#define IDC_FWVIZ_DEF_REC_DESC_EDIT     9126
+#define IDC_FWVIZ_DEF_REC_START_LABEL   9127
+#define IDC_FWVIZ_DEF_REC_START_EDIT    9128
+#define IDC_FWVIZ_DEF_REC_REGEX_LABEL   9129
+#define IDC_FWVIZ_DEF_REC_REGEX_EDIT    9130
+#define IDC_FWVIZ_DEF_REC_NEW_BTN       9131
+#define IDC_FWVIZ_DEF_REC_ACCEPT_BTN    9132
+#define IDC_FWVIZ_DEF_REC_DEL_BTN       9133
+#define IDC_FWVIZ_DEF_FIELD_GROUP_BOX   9141
+#define IDC_FWVIZ_DEF_FIELD_WIDTHS_TEXT 9142
+#define IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT 9143
+#define IDC_FWVIZ_DEF_FIELD_LABELS_TEXT 9144
+#define IDC_FWVIZ_DEF_FIELD_LABELS_EDIT 9145
+#define IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN  9146
+#define IDC_FWVIZ_DEF_RESET_BTN         9151
 #define IDD_ABOUT_DIALOG                9200
 #define IDC_ABOUT_NAME                  9201
 #define IDC_ABOUT_VERSION               9202
@@ -1615,9 +1640,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        115
+#define _APS_NEXT_RESOURCE_VALUE        117
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1021
+#define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

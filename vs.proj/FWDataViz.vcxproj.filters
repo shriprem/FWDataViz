@@ -105,5 +105,8 @@
     <Image Include="..\src\Resources\gear.bmp">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="gear.bmp" />
+    <Image Include="gear.ico" />
+    <Image Include="..\src\Resources\gear.ico" />
   </ItemGroup>
 </Project>
