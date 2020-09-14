@@ -14,12 +14,16 @@
 
 
 #include "PluginDefinition.h"
+#include "Dialogs/VisualizerPanel.h"
+#include "Dialogs/ConfigureDialog.h"
+#include "Dialogs/AboutDialog.h"
 
 FuncItem funcItem[MI_COUNT];
 
 NppData nppData;
 HINSTANCE _gModule;
 ConfigIO _configIO;
+
 VisualizerPanel _vizPanel;
 ConfigureDialog _configDlg;
 AboutDialog _aboutDlg;
@@ -48,6 +52,7 @@ void commandMenuInit() {
 
    setCommand(MI_GOTO_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
    setCommand(MI_CONFIG_DIALOG, MENU_CONFIG, ShowConfigDialog, 0, 0);
+   setCommand(MI_SEPARATOR, TEXT("-"), NULL, NULL, false);
    setCommand(MI_ABOUT_DIALOG, MENU_ABOUT, ShowAboutDialog, 0, 0);
 }
 
@@ -91,7 +96,7 @@ HWND createToolTip(HWND hDlg, int toolID, LPWSTR pTitle, LPWSTR pMessage) {
       return (HWND)NULL;
 
    // Associate the tooltip with the tool.
-   TOOLINFO toolInfo = { 0 };
+   TOOLINFO toolInfo {};
    toolInfo.cbSize = sizeof(toolInfo);
    toolInfo.hwnd = hDlg;
    toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
@@ -110,7 +115,7 @@ void ToggleVisualizerPanel() {
 
    if (hidden) {
       _vizPanel.setParent(nppData._nppHandle);
-      tTbData  data = { 0 };
+      tTbData data {};
 
       if (!_vizPanel.isCreated()) {
          _vizPanel.create(&data);

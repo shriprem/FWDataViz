@@ -25,24 +25,18 @@
 #include <Shlwapi.h>
 #include <shellapi.h>
 #include <CommCtrl.h>
-#include <stdlib.h>
 
 #include "NPP/PluginInterface.h"
-#include "NPP/menuCmdID.h"
-
 #include "Resources/resource.h"
 #include "Resources/localization.h"
 #include "ConfigIO.h"
-
-#include "Dialogs/VisualizerPanel.h"
-#include "Dialogs/ConfigureDialog.h"
-#include "Dialogs/AboutDialog.h"
 
 constexpr int _gLanguage = LANG_ENGLISH;
 
 const enum MenuIndex {
    MI_GOTO_PANEL,
    MI_CONFIG_DIALOG,
+   MI_SEPARATOR,
    MI_ABOUT_DIALOG,
    MI_COUNT
 };

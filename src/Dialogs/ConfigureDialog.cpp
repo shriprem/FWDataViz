@@ -18,26 +18,17 @@ void ConfigureDialog::localize()
    //::SetWindowText(_hSelf, IDD_FWVIZ_DEFINER_TITLE);
 }
 
-INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
-{
+INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
    switch (message)
    {
-   case WM_COMMAND:
-      switch LOWORD(wParam)
-      {
-         case IDCANCEL:
-         case IDOK:
-            display(FALSE);
-            return TRUE;
-      }
-
-   case NULL:
-      switch (lParam)
-      {
-         case NULL:
-            return FALSE;
-      }
-
+      case WM_COMMAND:
+         switch LOWORD(wParam)
+         {
+            case IDCANCEL:
+            case IDOK:
+               display(FALSE);
+               return TRUE;
+         }
    }
 
    return FALSE;

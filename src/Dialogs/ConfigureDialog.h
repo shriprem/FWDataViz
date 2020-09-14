@@ -5,14 +5,13 @@
 
 extern NppData nppData;
 
-class ConfigureDialog : public StaticDialog
-{
+class ConfigureDialog : public StaticDialog {
 public:
    ConfigureDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
 
 protected:
-   INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
+   INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
 };
 
