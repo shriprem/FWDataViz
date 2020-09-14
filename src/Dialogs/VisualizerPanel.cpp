@@ -24,7 +24,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             IMAGE_BITMAP, (LPARAM)hBitmap);
          DeleteObject(hBitmap);
 
-         createToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, L"Configuration", L"Open File Type Configuration Dialog");
+         createToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, L"Open File Type Configuration Dialog");
          break;
       }
 

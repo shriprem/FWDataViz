@@ -18,6 +18,12 @@
 #include "Dialogs/ConfigureDialog.h"
 #include "Dialogs/AboutDialog.h"
 
+#ifdef UNICODE
+   #define generic_itoa _itow
+#else
+   #define generic_itoa itoa
+#endif
+
 FuncItem funcItem[MI_COUNT];
 
 NppData nppData;
@@ -27,12 +33,6 @@ ConfigIO _configIO;
 VisualizerPanel _vizPanel;
 ConfigureDialog _configDlg;
 AboutDialog _aboutDlg;
-
-#ifdef UNICODE
-   #define generic_itoa _itow
-#else
-   #define generic_itoa itoa
-#endif
 
 void pluginInit(HANDLE hModule) {
    _gModule = (HINSTANCE)hModule;

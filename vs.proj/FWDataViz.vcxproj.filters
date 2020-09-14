@@ -102,7 +102,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\src\Resources\pencil-ruler.bmp">
+    <Image Include="..\src\Resources\gear.bmp">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>

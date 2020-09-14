@@ -119,7 +119,7 @@ END
 // Bitmap
 //
 
-IDD_FWVIZ_CONFIG_BTN    BITMAP                  "pencil-ruler.bmp"
+IDD_FWVIZ_CONFIG_BTN    BITMAP                  "gear.bmp"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

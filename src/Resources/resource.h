@@ -804,9 +804,10 @@
 #define LANG_GREENLANDIC                0x6f
 #define VK_F1                           0x70
 #define LANG_IGBO                       0x70
-#define IDD_FWVIZ_CONFIG_BTN            112
 #define VK_F2                           0x71
 #define VK_F3                           0x72
+#define IDB_BITMAP1                     114
+#define IDD_FWVIZ_CONFIG_BTN            114
 #define VK_F4                           0x73
 #define LANG_TIGRIGNA                   0x73
 #define LANG_TIGRINYA                   0x73
@@ -1614,7 +1615,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        113
+#define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           101
