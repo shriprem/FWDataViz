@@ -632,14 +632,6 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 
 /// *** Private Functions: *** ///
 
-HWND VisualizerPanel::getCurrentScintilla() {
-   int which = -1;
-   nppMessage(NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)& which);
-   if (which < 0)
-      return (HWND)FALSE;
-   return (HWND)(which == 0) ? nppData._scintillaMainHandle : nppData._scintillaSecondHandle;
-}
-
 bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
    char fType[MAX_PATH];
 

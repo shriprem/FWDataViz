@@ -30,7 +30,6 @@
 #define FW_STYLE_RANGE_START 101
 #define FW_LINE_MAX_LENGTH 32767
 
-extern NppData nppData;
 extern ConfigIO _configIO;
 
 using std::regex;
@@ -58,7 +57,6 @@ public :
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
-   static HWND getCurrentScintilla();
    bool getDocFileType(HWND hScintilla, wstring &fileType);
    void setDocFileType(HWND hScintilla, wstring fileType);
    static void setFocusOnEditor();

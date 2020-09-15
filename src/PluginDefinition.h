@@ -49,6 +49,7 @@ void commandMenuInit();
 void commandMenuCleanUp();
 bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk=NULL, bool checkOnInit=false);
 
+HWND getCurrentScintilla();
 LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam);
 
 // Plugin Command Functions
