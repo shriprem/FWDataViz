@@ -70,7 +70,7 @@ protected :
    static HWND getCurrentScintilla();
    bool getDocFileType(HWND hScintilla, wstring &fileType);
    void setDocFileType(HWND hScintilla, wstring fileType);
-   static int setFocusOnEditor();
+   static void setFocusOnEditor();
    void clearLexer();
 
    // File Type data

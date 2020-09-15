@@ -61,6 +61,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 }
 
 void VisualizerPanel::initPanel() {
+   // Load gear.bmp for the panel Config button
    HBITMAP hBitmap = ::LoadBitmap(_gModule, MAKEINTRESOURCE(IDC_FWVIZ_CONFIG_BITMAP));
    if (hBitmap) {
       ::SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, BM_SETIMAGE,
@@ -68,6 +69,34 @@ void VisualizerPanel::initPanel() {
    }
    ::DeleteObject(hBitmap);
 
+   // Load monospaced fonts for the Cursor Position Data section
+   LOGFONT logFont{ 0 };
+
+   bool recentOS = (::SendMessage(nppData._nppHandle, NPPM_GETWINDOWSVERSION, NULL, NULL) >= WV_VISTA);
+
+   const TCHAR* fontName = recentOS ? L"Consolas" : L"Courier New";
+   wcscpy(logFont.lfFaceName, fontName);
+
+   HDC hdc = GetDC(_hSelf);
+   logFont.lfHeight = -MulDiv((recentOS ? 10 : 8), GetDeviceCaps(hdc, LOGPIXELSY), 72);
+   ReleaseDC(_hSelf, hdc);
+
+   logFont.lfWeight = 800;
+   logFont.lfUnderline = TRUE;
+   HFONT hMonospaceUnderlined = CreateFontIndirect(&logFont);
+
+   ::SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FIELD_LABEL, WM_SETFONT,
+      (WPARAM)hMonospaceUnderlined, MAKELPARAM(true, 0));
+
+   logFont.lfWeight = 400;
+   logFont.lfUnderline = FALSE;
+   HFONT hMonospaceRegular = CreateFontIndirect(&logFont);
+
+   ::SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FIELD_INFO, WM_SETFONT,
+      (WPARAM)hMonospaceRegular, MAKELPARAM(true, 0));
+
+   // Localize & Tooltip
+   if (_gLanguage != LANG_ENGLISH) localize();
    createToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG);
 }
 
@@ -529,13 +558,6 @@ void VisualizerPanel::updateCurrentPage() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   //// SCN_STYLENEEDED (SCNotification* notifyCode)
-   //size_t startLine, endLine;
-
-   //startLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION,
-   //   ::SendMessage(hScintilla, SCI_GETENDSTYLED, NULL, NULL), NULL);
-   //endLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, notifyCode->position, NULL);
-
    size_t startLine, lineCount, linesOnScreen, endLine;
 
    startLine = static_cast<size_t>(::SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL));
@@ -596,7 +618,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 };
 
       caretColumn = caretColumnPos - caretRecordStartPos;
-      fieldInfoText = L"Record Type = " + FLD.recLabel;
+      fieldInfoText = L" Record Type: " + FLD.recLabel;
       fieldCount = static_cast<int>(FLD.startPositions.size());
       fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
 
@@ -612,7 +634,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          fieldInfoText += L"\nOverflow!";
       }
       else {
-         fieldInfoText += L"\nField Label = ";
+         fieldInfoText += L"\n Field Label: ";
 
          if (fieldLabelCount == 0 || matchedField >= fieldLabelCount) {
             fieldInfoText += L"Field #" + to_wstring(matchedField + 1);
@@ -621,9 +643,9 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
             fieldInfoText += FLD.fieldLabels[matchedField];
          }
 
-         fieldInfoText += L"\nField Start = " + to_wstring(FLD.startPositions[matchedField] + 1);
-         fieldInfoText += L"\nField Width = " + to_wstring(FLD.fieldWidths[matchedField]);
-         fieldInfoText += L"\nField Column = " + to_wstring(caretColumn - FLD.startPositions[matchedField] + 1) + L"\n";
+         fieldInfoText += L"\n Field Start: " + to_wstring(FLD.startPositions[matchedField] + 1);
+         fieldInfoText += L"\n Field Width: " + to_wstring(FLD.fieldWidths[matchedField]);
+         fieldInfoText += L"\nField Column: " + to_wstring(caretColumn - FLD.startPositions[matchedField] + 1) + L"\n";
       }
    }
 
@@ -658,13 +680,13 @@ void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
       (LPARAM)_configIO.WideToNarrow(fileType).c_str());
 }
 
-int VisualizerPanel::setFocusOnEditor() {
+void VisualizerPanel::setFocusOnEditor() {
    HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla)
-      return -1;
+   if (!hScintilla) return;
 
-   return (int)::SendMessage(hScintilla, SCI_GRABFOCUS, 0, 0);
+   ::SendMessage(hScintilla, SCI_GRABFOCUS, 0, 0);
 }
+
 void VisualizerPanel::clearLexer() {
    fieldInfoList.clear();
    fwVizRegexed = L"";

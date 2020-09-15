@@ -128,9 +128,6 @@ void ToggleVisualizerPanel() {
          ::SendMessage(nppData._nppHandle, NPPM_DMMREGASDCKDLG, 0, (LPARAM)& data);
 
          _vizPanel.initPanel();
-
-         if (_gLanguage != LANG_ENGLISH)
-            _vizPanel.localize();
       }
    }
    ShowVisualizerPanel(hidden);

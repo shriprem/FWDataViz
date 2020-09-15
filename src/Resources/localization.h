@@ -16,7 +16,7 @@
 #define VIZ_PANEL_OK                L"&Visualize"
 #define VIZ_PANEL_CLEAR_BUTTON      L"&Clear"
 #define VIZ_PANEL_CLOSE             L"C&lose"
-#define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data:"
+#define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
 #define VIZ_PANEL_TIP_CONFIG        L"Open File Type Configuration Dialog"
 
 

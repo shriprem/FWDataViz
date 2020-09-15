@@ -65,27 +65,21 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
    switch (notifyCode->nmhdr.code)
    {
       case NPPN_BUFFERACTIVATED:
-      {
          if (_vizPanel.isVisible()) {
             _vizPanel.syncListFileType();
             _vizPanel.loadStyles();
             _vizPanel.applyStyles();
             _vizPanel.loadLexer();
          }
-      }
-      break;
+         break;
 
       case SCN_UPDATEUI:
-      {
          _vizPanel.updateCurrentPage();
-      }
-      break;
+         break;
 
       case NPPN_SHUTDOWN:
-      {
          commandMenuCleanUp();
-      }
-      break;
+         break;
 
       default:
          return;
