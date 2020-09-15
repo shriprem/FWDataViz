@@ -47,7 +47,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case WM_LBUTTONDOWN:
       case WM_MBUTTONDOWN:
       case WM_RBUTTONDOWN:
-         ::SetFocus(_hSelf);
+         SetFocus(_hSelf);
          break;
 
       case WM_SETFOCUS:
@@ -61,61 +61,36 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 }
 
 void VisualizerPanel::initPanel() {
-   // Load gear.bmp for the panel Config button
-   HBITMAP hBitmap = ::LoadBitmap(_gModule, MAKEINTRESOURCE(IDC_FWVIZ_CONFIG_BITMAP));
-   if (hBitmap) {
-      ::SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, BM_SETIMAGE,
-         IMAGE_BITMAP, (LPARAM)hBitmap);
-   }
-   ::DeleteObject(hBitmap);
+   bool recentOS = Utils::checkBaseOS(WV_VISTA);
+   wstring fontName = recentOS ? L"Consolas" : L"Courier New";
+   int fontHeight = recentOS ? 10 : 8;
 
-   // Load monospaced fonts for the Cursor Position Data section
-   LOGFONT logFont{ 0 };
+   Utils::setFontBold(_hSelf, IDOK);
+   Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
+   Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
-   bool recentOS = (::SendMessage(nppData._nppHandle, NPPM_GETWINDOWSVERSION, NULL, NULL) >= WV_VISTA);
+   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDC_FWVIZ_CONFIG_BITMAP);
+   Utils::addToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG);
 
-   const TCHAR* fontName = recentOS ? L"Consolas" : L"Courier New";
-   wcscpy(logFont.lfFaceName, fontName);
-
-   HDC hdc = GetDC(_hSelf);
-   logFont.lfHeight = -MulDiv((recentOS ? 10 : 8), GetDeviceCaps(hdc, LOGPIXELSY), 72);
-   ReleaseDC(_hSelf, hdc);
-
-   logFont.lfWeight = 800;
-   logFont.lfUnderline = TRUE;
-   HFONT hMonospaceUnderlined = CreateFontIndirect(&logFont);
-
-   ::SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FIELD_LABEL, WM_SETFONT,
-      (WPARAM)hMonospaceUnderlined, MAKELPARAM(true, 0));
-
-   logFont.lfWeight = 400;
-   logFont.lfUnderline = FALSE;
-   HFONT hMonospaceRegular = CreateFontIndirect(&logFont);
-
-   ::SendDlgItemMessage(_hSelf, IDC_VIZPANEL_FIELD_INFO, WM_SETFONT,
-      (WPARAM)hMonospaceRegular, MAKELPARAM(true, 0));
-
-   // Localize & Tooltip
    if (_gLanguage != LANG_ENGLISH) localize();
-   createToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG);
 }
 
 void VisualizerPanel::localize() {
-   ::SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
-   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FILETYPE_LABEL, VIZ_PANEL_FILETYPE_LABEL);
-   ::SetDlgItemText(_hSelf, IDOK, VIZ_PANEL_OK);
-   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BUTTON, VIZ_PANEL_CLEAR_BUTTON);
-   ::SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
-   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
+   SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FILETYPE_LABEL, VIZ_PANEL_FILETYPE_LABEL);
+   SetDlgItemText(_hSelf, IDOK, VIZ_PANEL_OK);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BUTTON, VIZ_PANEL_CLEAR_BUTTON);
+   SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
 }
 
 void VisualizerPanel::display(bool toShow) {
    DockingDlgInterface::display(toShow);
-   hFTList = ::GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
+   hFTList = GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
 
    if (toShow) {
       loadFileTypes();
-      ::SetFocus(hFTList);
+      SetFocus(hFTList);
       syncListFileType();
    }
 };
@@ -134,8 +109,8 @@ void VisualizerPanel::loadFileTypes() {
    mapFileDescToType.clear();
    mapFileTypeToDesc.clear();
 
-   ::SendMessageW(hFTList, CB_RESETCONTENT, NULL, NULL);
-   ::SendMessageW(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
+   SendMessage(hFTList, CB_RESETCONTENT, NULL, NULL);
+   SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
 
    for (auto fType : fileTypes) {
       string fTypeAnsi;
@@ -145,7 +120,7 @@ void VisualizerPanel::loadFileTypes() {
 
       mapFileDescToType[fileLabel] = fType;
       mapFileTypeToDesc[fType] = fileLabel;
-      ::SendMessageW(hFTList, CB_ADDSTRING, NULL, (LPARAM)fileLabel.c_str());
+      SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)fileLabel.c_str());
    }
 }
 
@@ -157,14 +132,14 @@ void VisualizerPanel::syncListFileType() {
    wstring fDesc;
 
    if (!getDocFileType(hScintilla, fileType)) {
-      ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)L"-");
+      SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)L"-");
       return;
    }
 
    fDesc = mapFileTypeToDesc[fileType];
 
-   ::SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)
-      ((::SendMessage(hFTList, CB_FINDSTRING, (WPARAM)0, (LPARAM)fDesc.c_str()) != CB_ERR) ? fDesc.c_str() : L"-"));
+   SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)
+      ((SendMessage(hFTList, CB_FINDSTRING, (WPARAM)0, (LPARAM)fDesc.c_str()) != CB_ERR) ? fDesc.c_str() : L"-"));
 }
 
 void VisualizerPanel::visualizeFile() {
@@ -174,7 +149,7 @@ void VisualizerPanel::visualizeFile() {
    wchar_t fDesc[MAX_PATH];
    wstring sDesc;
 
-   ::SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
+   SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
    sDesc =  mapFileDescToType[fDesc];
 
    if (sDesc.length() < 2) {
@@ -182,7 +157,7 @@ void VisualizerPanel::visualizeFile() {
       return;
    }
 
-   ::SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
+   SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
 
    clearVisualize(FALSE);
    setDocFileType(hScintilla, sDesc);
@@ -194,7 +169,7 @@ void VisualizerPanel::visualizeFile() {
    updateCurrentPage();
    setFocusOnEditor();
 
-   //size_t startLine{ static_cast<size_t>(::SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL)) };
+   //size_t startLine{ static_cast<size_t>(SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL)) };
    //applyLexer(startLine, startLine + 10);
 }
 
@@ -202,10 +177,10 @@ void VisualizerPanel::clearVisualize(bool sync) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   ::SendMessage(hScintilla, SCI_STYLECLEARALL, NULL, NULL);
-   ::SendMessage(hScintilla, SCI_STARTSTYLING, 0, NULL);
-   ::SendMessage(hScintilla, SCI_SETSTYLING,
-      ::SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
+   SendMessage(hScintilla, SCI_STYLECLEARALL, NULL, NULL);
+   SendMessage(hScintilla, SCI_STARTSTYLING, 0, NULL);
+   SendMessage(hScintilla, SCI_SETSTYLING,
+      SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
 
    setDocFileType(hScintilla, L"");
    clearLexer();
@@ -266,7 +241,7 @@ int VisualizerPanel::loadStyles() {
          sPrefix + L"_Fore = " + to_wstring(styleSet[i].foreColor) + L"\n" +
          sPrefix + L"_Bold = " + to_wstring(styleSet[i].bold) + L"\n" +
          sPrefix + L"_Italics = " + to_wstring(styleSet[i].italics) + L"\n";
-      ::MessageBox(nppData._nppHandle, dbgMessage.c_str(), L"Theme Styles", MB_OK);
+      MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
    }
 #endif
 
@@ -280,39 +255,39 @@ int VisualizerPanel::applyStyles() {
    if (currentStyleTheme.length() < 1)
       return 0;
 
-   if (::SendMessage(hScintilla, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
+   if (SendMessage(hScintilla, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
       return 0;
 
-   ::SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.backColor);
-   ::SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.foreColor);
-   ::SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.bold);
-   ::SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.italics);
+   SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.backColor);
+   SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.foreColor);
+   SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.bold);
+   SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.italics);
 
    const int styleCount{ static_cast<int>(styleSet.size()) };
 
    for (int i{}; i < styleCount; i++) {
-      ::SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].backColor);
-      ::SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].foreColor);
-      ::SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].bold);
-      ::SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].italics);
+      SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].backColor);
+      SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].foreColor);
+      SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].bold);
+      SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].italics);
    }
 
-   ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
+   SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
 
 #if FW_DEBUG_SET_STYLES
    wstring dbgMessage;
    int back, fore, bold, italics;
 
    for (int i{ -1 }; i < styleCount; i++) {
-      back = ::SendMessage(hScintilla, SCI_STYLEGETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      fore = ::SendMessage(hScintilla, SCI_STYLEGETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      bold = ::SendMessage(hScintilla, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      italics = ::SendMessage(hScintilla, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      back = SendMessage(hScintilla, SCI_STYLEGETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      fore = SendMessage(hScintilla, SCI_STYLEGETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      bold = SendMessage(hScintilla, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      italics = SendMessage(hScintilla, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
 
       dbgMessage = L"C0" + to_wstring(i) + L"_STYLES = " +
          to_wstring(back) + L", " + to_wstring(fore) + L", " +
          to_wstring(bold) + L", " + to_wstring(italics);
-      ::MessageBox(nppData._nppHandle, dbgMessage.c_str(), L"Theme Styles", MB_OK);
+      MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
    }
 #endif
 
@@ -408,7 +383,7 @@ int VisualizerPanel::loadLexer() {
          dbgMessage += L" (" + to_wstring(FLD.startPositions[j]) + L", " + to_wstring(FLD.fieldWidths[j]) + L"),";
       }
 
-      ::MessageBox(nppData._nppHandle, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
+      MessageBox(_hSelf, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
    }
 #endif
 
@@ -433,21 +408,21 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
    eolMarker =  _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
-   caretLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION,
-      ::SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL), NULL);
+   caretLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION,
+      SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL), NULL);
 
    caretRecordRegIndex = -1;
    caretRecordStartPos = 0;
    caretRecordEndPos = 0;
 
    for (auto currentLine{ startLine }; currentLine < endLine; currentLine++) {
-      if (::SendMessage(hScintilla, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
+      if (SendMessage(hScintilla, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
          continue;
       }
 
-      ::SendMessage(hScintilla, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
-      startPos = ::SendMessage(hScintilla, SCI_POSITIONFROMLINE, currentLine, NULL);
-      endPos = ::SendMessage(hScintilla, SCI_GETLINEENDPOSITION, currentLine, NULL);
+      SendMessage(hScintilla, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
+      startPos = SendMessage(hScintilla, SCI_POSITIONFROMLINE, currentLine, NULL);
+      endPos = SendMessage(hScintilla, SCI_GETLINEENDPOSITION, currentLine, NULL);
       string_view lineText{ lineTextCStr, endPos - startPos };
 
       if (newRec) {
@@ -519,32 +494,32 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          dbgPos += recFieldWidths[i];
       }
 
-      ::MessageBox(nppData._nppHandle, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
+      MessageBox(_hSelf, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
 #endif
 
       for (size_t i{}; i < fieldCount; i++) {
-         ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+         SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
          unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
          currentPos += recFieldWidths[i];
 
          if (recFieldWidths[i] < unstyledLen) {
-            ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
+            SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
                FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
          }
          else {
-            ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)unstyledLen,
+            SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)unstyledLen,
                FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
             unstyledLen = 0;
 
-            ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
-            ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_EOL);
+            SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
+            SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_EOL);
             break;
          }
       }
 
       if (fieldCount > 0 && unstyledLen > 0) {
-         ::SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-         ::SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), FW_STYLE_EOL);
+         SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+         SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), FW_STYLE_EOL);
       }
    }
 }
@@ -560,9 +535,9 @@ void VisualizerPanel::updateCurrentPage() {
 
    size_t startLine, lineCount, linesOnScreen, endLine;
 
-   startLine = static_cast<size_t>(::SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL));
-   lineCount = static_cast<size_t>(::SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
-   linesOnScreen = static_cast<size_t>(::SendMessage(hScintilla, SCI_LINESONSCREEN, NULL, NULL));
+   startLine = static_cast<size_t>(SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL));
+   lineCount = static_cast<size_t>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
+   linesOnScreen = static_cast<size_t>(SendMessage(hScintilla, SCI_LINESONSCREEN, NULL, NULL));
 
    endLine = (lineCount < startLine + linesOnScreen) ? lineCount : (startLine + linesOnScreen);
 
@@ -572,9 +547,9 @@ void VisualizerPanel::updateCurrentPage() {
 
 void VisualizerPanel::clearCaretFieldInfo()
 {
-   ::ShowWindow(::GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_HIDE);
-   ::ShowWindow(::GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_HIDE);
-   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, L"");
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_HIDE);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, L"");
 }
 
 void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine)
@@ -590,8 +565,8 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    int caretColumnPos;
    size_t caretLine;
 
-   caretColumnPos = static_cast<int>(::SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
-   caretLine = ::SendMessage(hScintilla, SCI_LINEFROMPOSITION, caretColumnPos, NULL);
+   caretColumnPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
+   caretLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION, caretColumnPos, NULL);
 
    if (caretLine < startLine || caretLine > endLine) {
       clearCaretFieldInfo();
@@ -599,8 +574,8 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    }
 
    if (caretRecordRegIndex < 0) {
-      if (::SendMessage(hScintilla, SCI_POSITIONFROMLINE, caretLine, NULL) ==
-         ::SendMessage(hScintilla, SCI_GETLINEENDPOSITION, caretLine, NULL)) {
+      if (SendMessage(hScintilla, SCI_POSITIONFROMLINE, caretLine, NULL) ==
+         SendMessage(hScintilla, SCI_GETLINEENDPOSITION, caretLine, NULL)) {
          fieldInfoText = L"<Blank Line>";
       }
       else {
@@ -649,17 +624,17 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       }
    }
 
-   ::SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, fieldInfoText.c_str());
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, fieldInfoText.c_str());
 
-   ::ShowWindow(::GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_SHOW);
-   ::ShowWindow(::GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_SHOW);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_SHOW);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_SHOW);
 }
 
 /// *** Private Functions: *** ///
 
 HWND VisualizerPanel::getCurrentScintilla() {
    int which = -1;
-   ::SendMessage(nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)& which);
+   nppMessage(NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)& which);
    if (which < 0)
       return (HWND)FALSE;
    return (HWND)(which == 0) ? nppData._scintillaMainHandle : nppData._scintillaSecondHandle;
@@ -668,15 +643,15 @@ HWND VisualizerPanel::getCurrentScintilla() {
 bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
    char fType[MAX_PATH];
 
-   ::SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
+   SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
    fileType = _configIO.NarrowToWide(fType);
 
    return (fileType.length() > 1);
 }
 
 void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
-   ::SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
-   ::SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
+   SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
+   SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
       (LPARAM)_configIO.WideToNarrow(fileType).c_str());
 }
 
@@ -684,7 +659,7 @@ void VisualizerPanel::setFocusOnEditor() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   ::SendMessage(hScintilla, SCI_GRABFOCUS, 0, 0);
+   SendMessage(hScintilla, SCI_GRABFOCUS, 0, 0);
 }
 
 void VisualizerPanel::clearLexer() {

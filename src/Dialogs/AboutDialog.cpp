@@ -10,17 +10,17 @@ void AboutDialog::doDialog(HINSTANCE hInst)
    localize();
    goToCenter();
 
-   ::SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
+   SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
 void AboutDialog::localize()
 {
-   ::SetWindowText(_hSelf, ABOUT_DIALOG_TITLE);
+   SetWindowText(_hSelf, ABOUT_DIALOG_TITLE);
 
-   ::SetDlgItemText(_hSelf, IDC_ABOUT_NAME, ABOUT_PLUGIN_NAME);
-   ::SetDlgItemText(_hSelf, IDC_ABOUT_VERSION, PLUGIN_VERSION);
-   ::SetDlgItemText(_hSelf, IDC_ABOUT_ATTRIBUTION, PLUGIN_ATTRIBUTION);
-   ::SetDlgItemText(_hSelf, IDOK, ABOUT_BTN_LABEL_OK);
+   SetDlgItemText(_hSelf, IDC_ABOUT_NAME, ABOUT_PLUGIN_NAME);
+   SetDlgItemText(_hSelf, IDC_ABOUT_VERSION, PLUGIN_VERSION);
+   SetDlgItemText(_hSelf, IDC_ABOUT_ATTRIBUTION, PLUGIN_ATTRIBUTION);
+   SetDlgItemText(_hSelf, IDOK, ABOUT_BTN_LABEL_OK);
 }
 
 INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
@@ -42,7 +42,7 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          {
             case NM_CLICK:
             case NM_RETURN:
-               ::ShellExecute(NULL, L"open", PLUGIN_GITHUB_PAGE, NULL, NULL, SW_SHOW);
+               ShellExecute(NULL, L"open", PLUGIN_GITHUB_PAGE, NULL, NULL, SW_SHOW);
                display(FALSE);
                return TRUE;
          }

@@ -22,6 +22,9 @@
     <ClCompile Include="..\src\Dialogs\ConfigureDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Utils.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -77,6 +80,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Dialogs\ConfigureDialog.h">
       <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Utils.h">
+      <Filter>Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

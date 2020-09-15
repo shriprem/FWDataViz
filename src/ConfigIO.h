@@ -1,15 +1,10 @@
 #pragma once
 
-#ifndef _PREFERENCES_INI_H
-#define _PREFERENCES_INI_H
-
 #include "NPP/PluginInterface.h"
 #include <codecvt>
 #include <locale>
 #include <unordered_map>
 #include <vector>
-
-extern NppData nppData;
 
 using std::string;
 using std::wstring;
@@ -46,5 +41,3 @@ protected:
    int defaultBackColor{};
    int defaultForeColor{};
 };
-
-#endif //_PREFERENCES_INI_H

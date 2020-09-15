@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef DIALOG_DEFS_H
-#define DIALOG_DEFS_H
-
-
 // Common
 #define MENU_PANEL_NAME             L"Fixed-Width Data Visualizer"
 #define MENU_SHOW_PANEL             L"&Show Panel"
@@ -48,4 +44,3 @@
 #define FWVIZ_DIALOG_SAVE_BTN       L"&Save Configuration to File"
 #define FWVIZ_DIALOG_RESET_BTN      L"Reload Configuration from File"
 #define FWVIZ_DIALOG_CLOSE_BTN      L"Close"
-#endif

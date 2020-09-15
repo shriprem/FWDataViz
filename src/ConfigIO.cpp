@@ -1,25 +1,25 @@
-#include "PluginDefinition.h"
+#include "Utils.h"
 
 void ConfigIO::init() {
    const wstring sPluginFolder{ L"FWDataViz" };
    TCHAR sPluginDirectory[MAX_PATH];
 
-   ::SendMessage(nppData._nppHandle, NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)sPluginDirectory);
-   ::PathAppendW(sPluginDirectory, (L"plugins\\" + sPluginFolder).c_str());
+   nppMessage(NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)sPluginDirectory);
+   PathAppendW(sPluginDirectory, (L"plugins\\" + sPluginFolder).c_str());
 
-   ::SendMessage(nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
+   nppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
 
    // if no existing config path, create it
    if (!PathFileExists(pluginConfigDir))
    {
-      ::CreateDirectory(pluginConfigDir, NULL);
+      CreateDirectory(pluginConfigDir, NULL);
    }
 
-   ::PathAppendW(pluginConfigDir, sPluginFolder.c_str());
+   PathAppendW(pluginConfigDir, sPluginFolder.c_str());
 
    // if no existing config file, create it
    if (!PathFileExists(pluginConfigDir)) {
-      ::CreateDirectory(pluginConfigDir, NULL);
+      CreateDirectory(pluginConfigDir, NULL);
    }
 
    // if config files are missing copy them from the plugins folder
@@ -30,19 +30,19 @@ void ConfigIO::init() {
 
 
    for (int i{}; i < CONFIG_FILE_COUNT; i++) {
-      ::PathCombine(sConfigFile, pluginConfigDir, CONFIG_FILES[i].c_str());
+      PathCombine(sConfigFile, pluginConfigDir, CONFIG_FILES[i].c_str());
       CONFIG_FILE_PATHS[i] = wstring{ sConfigFile };
 
       if (!PathFileExists(sConfigFile)) {
-         ::PathCombine(sDefaultsFile, sPluginDirectory, (sDefaultsPrefix + CONFIG_FILES[i]).c_str());
-         ::CopyFile(sDefaultsFile, sConfigFile, TRUE);
+         PathCombine(sDefaultsFile, sPluginDirectory, (sDefaultsPrefix + CONFIG_FILES[i]).c_str());
+         CopyFile(sDefaultsFile, sConfigFile, TRUE);
       }
    }
 
    defaultBackColor = static_cast<int>
-      (::SendMessage(nppData._nppHandle, NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
+      (nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
    defaultForeColor = static_cast<int>
-      (::SendMessage(nppData._nppHandle, NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
+      (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
 }
 
 string ConfigIO::getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName)
@@ -104,7 +104,7 @@ string ConfigIO::WideToNarrow(const wstring &wStr) {
 }
 
 void ConfigIO::setThemeFilePath(const wstring theme) {
-   ::PathCombine(themeConfigFile, pluginConfigDir, (theme + wstring{ L".ini" }).c_str());
+   PathCombine(themeConfigFile, pluginConfigDir, (theme + wstring{ L".ini" }).c_str());
 }
 
 wstring ConfigIO::getStyleValue(LPCWSTR styleName) {

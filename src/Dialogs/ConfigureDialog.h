@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../PluginDefinition.h"
+#include "../Utils.h"
 #include "../NPP/StaticDialog.h"
 
 extern NppData nppData;

@@ -14,10 +14,7 @@
 
 #pragma once
 
-#ifndef VISUALIZER_DLG_H
-#define VISUALIZER_DLG_H
-
-#include "../PluginDefinition.h"
+#include "../Utils.h"
 #include "../NPP/DockingDlgInterface.h"
 #include <regex>
 #include <string_view>
@@ -37,11 +34,6 @@ extern NppData nppData;
 extern HINSTANCE _gModule;
 extern ConfigIO _configIO;
 
-using std::string;
-using std::string_view;
-using std::wstring;
-using std::to_string;
-using std::to_wstring;
 using std::regex;
 using std::vector;
 
@@ -107,5 +99,3 @@ protected :
    // Field Info tracking
    int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos;
 };
-
-#endif //VISUALIZER_DLG_H
