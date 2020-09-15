@@ -14,6 +14,7 @@
 
 
 #include "PluginDefinition.h"
+#include "ConfigIO.h"
 #include "Dialogs/VisualizerPanel.h"
 #include "Dialogs/ConfigureDialog.h"
 #include "Dialogs/AboutDialog.h"
@@ -98,7 +99,7 @@ void ToggleVisualizerPanel() {
          data.dlgID = MI_GOTO_PANEL;
          data.pszName = MENU_PANEL_NAME;
 
-         SendMessage(nppData._nppHandle, NPPM_DMMREGASDCKDLG, 0, (LPARAM)& data);
+         nppMessage(NPPM_DMMREGASDCKDLG, 0, (LPARAM)& data);
 
          _vizPanel.initPanel();
       }

@@ -19,14 +19,19 @@
 #include <string>
 
 #include <windows.h>
+#include <CommCtrl.h>
 #include <Shlwapi.h>
 #include <shellapi.h>
-#include <CommCtrl.h>
 
 #include "NPP/PluginInterface.h"
 #include "Resources/resource.h"
 #include "Resources/localization.h"
-#include "ConfigIO.h"
+
+using std::string;
+using std::string_view;
+using std::wstring;
+using std::to_string;
+using std::to_wstring;
 
 static int _gLanguage = LANG_ENGLISH;
 

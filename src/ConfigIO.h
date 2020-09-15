@@ -1,13 +1,11 @@
 #pragma once
 
-#include "NPP/PluginInterface.h"
+#include "PluginDefinition.h"
 #include <codecvt>
 #include <locale>
 #include <unordered_map>
 #include <vector>
 
-using std::string;
-using std::wstring;
 using std::vector;
 
 class ConfigIO {

@@ -15,9 +15,9 @@
 #pragma once
 
 #include "../Utils.h"
+#include "../ConfigIO.h"
 #include "../NPP/DockingDlgInterface.h"
 #include <regex>
-#include <string_view>
 
 #define FW_DEBUG_LOAD_STYLES FALSE
 #define FW_DEBUG_SET_STYLES FALSE
@@ -31,7 +31,6 @@
 #define FW_LINE_MAX_LENGTH 32767
 
 extern NppData nppData;
-extern HINSTANCE _gModule;
 extern ConfigIO _configIO;
 
 using std::regex;

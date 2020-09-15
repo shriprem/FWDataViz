@@ -1,6 +1,5 @@
 #include "Utils.h"
 
-extern NppData nppData;
 extern HINSTANCE _gModule;
 
 // ***************** PRIVATE *****************
