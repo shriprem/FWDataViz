@@ -37,11 +37,11 @@ BEGIN
    BEGIN
       BLOCK "040904b0"
       BEGIN
-         VALUE "CompanyName", "Shridhar Kumar <shriprem@gmail.com>\0"
+         VALUE "CompanyName", "https://github.com/shriprem/FWDataViz\0"
          VALUE "FileDescription",   "Fixed Width Data Visualizer plugin for Notepad++\0"
          VALUE "FileVersion", VERSION_VALUE
          VALUE "InternalName",   "FWDataViz.dll\0"
-         VALUE "LegalCopyright", "Copyright 2020 by Shridhar Kumar\0"
+         VALUE "LegalCopyright", "(c) 2020 by Shridhar Kumar\0"
          VALUE "OriginalFilename",  "FWDataViz.dll\0"
          VALUE "ProductName", "Fixed Width Data Visualizer\0"
          VALUE "ProductVersion", VERSION_VALUE

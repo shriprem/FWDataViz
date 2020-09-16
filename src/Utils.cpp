@@ -10,8 +10,7 @@ enum fontStyle {
    FS_UNDERLINE
 };
 
-bool changeFontStyle(HWND hDlg, int controlID, fontStyle style)
-{
+bool changeFontStyle(HWND hDlg, int controlID, fontStyle style) {
    HWND hwndCtrl = GetDlgItem(hDlg, controlID);
    LOGFONT lf{ 0 };
 
@@ -20,8 +19,7 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style)
    if (!GetObject(hFont, sizeof(lf), &lf))
       return FALSE;
 
-   switch (style)
-   {
+   switch (style) {
    case FS_BOLD:
       lf.lfWeight = FW_BOLD;
       break;
@@ -44,10 +42,10 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style)
    return TRUE;
 }
 
+
 // ***************** PUBLIC *****************
 
-HWND Utils::addToolTip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage)
-{
+HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage) {
    if (!controlID || !hDlg || !pMessage)
       return FALSE;
 
@@ -74,13 +72,52 @@ HWND Utils::addToolTip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage)
    toolInfo.lpszText = pMessage;
    SendMessage(hwndTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
    SendMessage(hwndTip, TTM_SETTITLE, TTI_INFO, (LPARAM)pTitle);
-   //SendMessage(hwndTip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)PREFS_TIP_MAX_WIDTH);
+   SendMessage(hwndTip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)PREFS_TIP_MAX_WIDTH);
 
    return hwndTip;
 }
 
 bool Utils::checkBaseOS(winVer os) {
    return (nppMessage(NPPM_GETWINDOWSVERSION, NULL, NULL) >= os);
+}
+
+wstring Utils::getVersionInfo(LPCWSTR key) {
+   wstring sVersionInfo;
+   wchar_t sModuleFilePath[MAX_PATH];
+   DWORD  verHandle{};
+   DWORD  verSize{};
+   UINT   querySize{};
+   LPBYTE lpBuffer{};
+
+   struct LANGANDCODEPAGE {
+      WORD wLanguage;
+      WORD wCodePage;
+   } *lpTranslate;
+
+   GetModuleFileName(_gModule, sModuleFilePath, MAX_PATH);
+   verSize = GetFileVersionInfoSize(sModuleFilePath, &verHandle);
+
+   if (verSize) {
+      LPSTR verData = new char[verSize];
+
+      if (GetFileVersionInfo(sModuleFilePath, verHandle, verSize, verData)) {
+
+         VerQueryValue(verData, L"\\VarFileInfo\\Translation", (VOID FAR * FAR*)& lpTranslate, & querySize);
+
+         wchar_t qVal[100]{};
+         swprintf(qVal, 100, L"\\StringFileInfo\\%04X%04X\\%s",
+            lpTranslate[0].wLanguage, lpTranslate[0].wCodePage, key);
+
+         if (VerQueryValue(verData, wstring(qVal).c_str(), (VOID FAR * FAR*) & lpBuffer, &querySize)) {
+            if (querySize) {
+               sVersionInfo = wstring((LPCTSTR)lpBuffer);
+            }
+         }
+      }
+      delete[] verData;
+   }
+
+   return sVersionInfo;
 }
 
 void Utils::loadBitmap(HWND hDlg, int controlID, int resource) {
@@ -112,17 +149,14 @@ void Utils::setFont(HWND hDlg, int controlID, wstring &name, int height, int wei
    SendMessage(hwndCtrl, WM_SETFONT, (WPARAM)hFont, MAKELPARAM(true, 0));
 }
 
-bool Utils::setFontBold(HWND hDlg, int controlID)
-{
+bool Utils::setFontBold(HWND hDlg, int controlID) {
    return changeFontStyle(hDlg, controlID, FS_BOLD);
 }
 
-bool Utils::setFontItalic(HWND hDlg, int controlID)
-{
+bool Utils::setFontItalic(HWND hDlg, int controlID) {
    return changeFontStyle(hDlg, controlID, FS_ITALIC);
 }
 
-bool Utils::setFontUnderline(HWND hDlg, int controlID)
-{
+bool Utils::setFontUnderline(HWND hDlg, int controlID) {
    return changeFontStyle(hDlg, controlID, FS_UNDERLINE);
 }

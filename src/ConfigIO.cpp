@@ -45,8 +45,7 @@ void ConfigIO::init() {
       (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
 }
 
-string ConfigIO::getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName)
-{
+string ConfigIO::getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName) {
    return WideToNarrow(getConfigString(sectionName, keyName, defaultValue, fileName));
 }
 

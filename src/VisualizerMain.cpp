@@ -19,10 +19,8 @@ extern FuncItem funcItem[MI_COUNT];
 extern NppData nppData;
 extern VisualizerPanel _vizPanel;
 
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD  reasonForCall, LPVOID /*lpReserved*/)
-{
-    switch (reasonForCall)
-    {
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD  reasonForCall, LPVOID /*lpReserved*/) {
+    switch (reasonForCall) {
       case DLL_PROCESS_ATTACH:
         pluginInit(hModule);
         break;
@@ -42,28 +40,23 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  reasonForCall, LPVOID /*lpReserved*
 }
 
 
-extern "C" __declspec(dllexport) void setInfo(NppData notpadPlusData)
-{
+extern "C" __declspec(dllexport) void setInfo(NppData notpadPlusData) {
    nppData = notpadPlusData;
    commandMenuInit();
 }
 
-extern "C" __declspec(dllexport) const TCHAR * getName()
-{
+extern "C" __declspec(dllexport) const TCHAR * getName() {
    return MENU_PANEL_NAME;
 }
 
-extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
-{
+extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF) {
    *nbF = MI_COUNT;
    return funcItem;
 }
 
 
-extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
-{
-   switch (notifyCode->nmhdr.code)
-   {
+extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
+   switch (notifyCode->nmhdr.code) {
       case NPPN_BUFFERACTIVATED:
          if (_vizPanel.isVisible()) {
             _vizPanel.syncListFileType();
@@ -87,14 +80,12 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 }
 
 
-extern "C" __declspec(dllexport) LRESULT messageProc(UINT /*Message*/, WPARAM /*wParam*/, LPARAM /*lParam*/)
-{
+extern "C" __declspec(dllexport) LRESULT messageProc(UINT /*Message*/, WPARAM /*wParam*/, LPARAM /*lParam*/) {
    return TRUE;
 }
 
 #ifdef UNICODE
-extern "C" __declspec(dllexport) BOOL isUnicode()
-{
+extern "C" __declspec(dllexport) BOOL isUnicode() {
     return TRUE;
 }
 #endif //UNICODE

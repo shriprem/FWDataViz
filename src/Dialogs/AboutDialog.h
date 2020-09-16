@@ -1,16 +1,13 @@
 #pragma once
 
-#define PLUGIN_VERSION              L"Version 1.0.0.0"
-#define PLUGIN_ATTRIBUTION          L"(c) 2020, Shridhar Kumar"
-#define PLUGIN_GITHUB_PAGE          L"https://github.com/shriprem/FWDataViz"
-
 #include "../Utils.h"
 #include "../NPP/StaticDialog.h"
 
+using Utils::getVersionInfo;
+
 extern NppData nppData;
 
-class AboutDialog : public StaticDialog
-{
+class AboutDialog : public StaticDialog {
 public:
    AboutDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);

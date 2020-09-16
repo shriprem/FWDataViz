@@ -1,7 +1,6 @@
 #include "ConfigureDialog.h"
 
-void ConfigureDialog::doDialog(HINSTANCE hInst)
-{
+void ConfigureDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
       create(IDD_FWVIZ_DEFINER_DIALOG);
@@ -15,8 +14,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst)
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
-void ConfigureDialog::localize()
-{
+void ConfigureDialog::localize() {
    SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_GROUP_BOX, FWVIZ_DEF_FILE_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_LABEL, FWVIZ_DEF_FILE_DESC_LABEL);
@@ -42,11 +40,9 @@ void ConfigureDialog::localize()
 }
 
 INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
-   switch (message)
-   {
+   switch (message) {
       case WM_COMMAND:
-         switch LOWORD(wParam)
-         {
+         switch LOWORD(wParam) {
             case IDCANCEL:
             case IDOK:
                display(FALSE);
@@ -56,4 +52,3 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
    return FALSE;
 }
-

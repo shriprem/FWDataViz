@@ -22,10 +22,8 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_FILETYPE_CONFIG:
-            {
                ShowConfigDialog();
                break;
-}
 
             case IDOK:
                visualizeFile();
@@ -70,7 +68,7 @@ void VisualizerPanel::initPanel() {
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDC_FWVIZ_CONFIG_BITMAP);
-   Utils::addToolTip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG);
 
    if (_gLanguage != LANG_ENGLISH) localize();
 }
@@ -545,15 +543,13 @@ void VisualizerPanel::updateCurrentPage() {
    displayCaretFieldInfo(startLine, endLine);
 }
 
-void VisualizerPanel::clearCaretFieldInfo()
-{
+void VisualizerPanel::clearCaretFieldInfo() {
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_HIDE);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_HIDE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, L"");
 }
 
-void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine)
-{
+void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
