@@ -111,7 +111,6 @@ void VisualizerPanel::loadFileTypes() {
    SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
 
    for (auto fType : fileTypes) {
-      string fTypeAnsi;
       wstring fileLabel;
 
       fileLabel = _configIO.getConfigString(fType.c_str(), L"FileLabel");
@@ -130,14 +129,14 @@ void VisualizerPanel::syncListFileType() {
    wstring fDesc;
 
    if (!getDocFileType(hScintilla, fileType)) {
-      SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)L"-");
+      SendMessage(hFTList, CB_SETCURSEL, (WPARAM)0, NULL);
       return;
    }
 
    fDesc = mapFileTypeToDesc[fileType];
 
-   SendMessage(hFTList, CB_SELECTSTRING, (WPARAM)0, (LPARAM)
-      ((SendMessage(hFTList, CB_FINDSTRING, (WPARAM)0, (LPARAM)fDesc.c_str()) != CB_ERR) ? fDesc.c_str() : L"-"));
+   SendMessage(hFTList, CB_SETCURSEL, (WPARAM)
+      SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)fDesc.c_str()), NULL);
 }
 
 void VisualizerPanel::visualizeFile() {
@@ -310,56 +309,41 @@ int VisualizerPanel::loadLexer() {
       clearLexer();
    }
 
-   if (fieldInfoList.size() > 0) {
-      return static_cast<int>(fieldInfoList.size());
+   if (recInfoList.size() > 0) {
+      return static_cast<int>(recInfoList.size());
    }
 
    recTypeList = _configIO.getConfigString(fileType.c_str(), L"RecordTypes");
    recTypeCount = _configIO.Tokenize(recTypeList, recTypes);
 
-   fieldInfoList.resize(recTypeCount);
+   recInfoList.resize(recTypeCount);
 
    for (int i{}; i < recTypeCount; i++) {
-      wstring &REC = recTypes[i];
-      FieldInfo &FLD = fieldInfoList[i];
+      wstring &recType = recTypes[i];
+      RecordInfo &REC = recInfoList[i];
 
-      FLD.recLabel = _configIO.getConfigString(fileType.c_str(), (REC + L"_Label").c_str(), REC.c_str());
-      FLD.recMarker = _configIO.getConfigStringA(fileType.c_str(), (REC + L"_Marker").c_str(), L".");
-      FLD.regexMarker = regex{ FLD.recMarker + ".*(\r\n|\n|\r)?" };
+      REC.label = _configIO.getConfigString(fileType.c_str(), (recType + L"_Label").c_str(), recType.c_str());
+      REC.marker = _configIO.getConfigStringA(fileType.c_str(), (recType + L"_Marker").c_str(), L".");
+      REC.regExpr = regex{ REC.marker + ".*(\r\n|\n|\r)?" };
 
       wstring fieldWidthList;
-      vector<int> fieldWidths;
       int fieldCount;
 
-      fieldWidthList = _configIO.getConfigString(fileType.c_str(), (REC + L"_FieldWidths").c_str());
-      fieldCount = _configIO.Tokenize(fieldWidthList, fieldWidths);
+      fieldWidthList = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldWidths").c_str());
+      fieldCount = _configIO.Tokenize(fieldWidthList, REC.fieldWidths);
 
-      FLD.fieldWidths.clear();
-      FLD.fieldWidths.resize(fieldCount);
-
-      FLD.startPositions.clear();
-      FLD.startPositions.resize(fieldCount);
+      REC.fieldStarts.clear();
+      REC.fieldStarts.resize(fieldCount);
 
       for (int fnum{}, startPos{}; fnum < fieldCount; fnum++) {
-         FLD.startPositions[fnum] = startPos;
-         FLD.fieldWidths[fnum] = fieldWidths[fnum];
-
-         startPos += fieldWidths[fnum];
+         REC.fieldStarts[fnum] = startPos;
+         startPos += REC.fieldWidths[fnum];
       }
 
       wstring fieldLabelList;
-      vector<wstring> fieldLabels;
-      int labelCount;
 
-      fieldLabelList = _configIO.getConfigString(fileType.c_str(), (REC + L"_FieldLabels").c_str());
-      labelCount = _configIO.Tokenize(fieldLabelList, fieldLabels);
-
-      FLD.fieldLabels.clear();
-      FLD.fieldLabels.resize(labelCount);
-
-      for (int lnum{}; lnum < labelCount; lnum++) {
-         FLD.fieldLabels[lnum] = fieldLabels[lnum];
-      }
+      fieldLabelList = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldLabels").c_str());
+      _configIO.Tokenize(fieldLabelList, REC.fieldLabels);
    }
 
    fwVizRegexed = fileType;
@@ -369,16 +353,16 @@ int VisualizerPanel::loadLexer() {
 
    for (int i{}; i < recTypeCount; i++) {
       wstring dbgMessage;
-      wstring &REC = recTypes[i];
-      FieldInfo &FLD = fieldInfoList[i];
+      wstring &recType = recTypes[i];
+      RecordInfo &REC = recInfoList[i];
 
-      dbgMessage = REC + L"\nRec_Label = " + FLD.recLabel +
-         L"\nRec_Marker = " + _configIO.NarrowToWide(FLD.recMarker) + L"\nFieldWidths=\n";
+      dbgMessage = recType + L"\nRec_Label = " + REC.label +
+         L"\nRec_Marker = " + _configIO.NarrowToWide(REC.marker) + L"\nFieldWidths=\n";
 
-      fieldCount = static_cast<int>(FLD.fieldWidths.size());
+      fieldCount = static_cast<int>(REC.fieldWidths.size());
 
       for (int j{}; j < fieldCount; j++) {
-         dbgMessage += L" (" + to_wstring(FLD.startPositions[j]) + L", " + to_wstring(FLD.fieldWidths[j]) + L"),";
+         dbgMessage += L" (" + to_wstring(REC.fieldStarts[j]) + L", " + to_wstring(REC.fieldWidths[j]) + L"),";
       }
 
       MessageBox(_hSelf, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
@@ -400,7 +384,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{},
       currentPos, startPos, endPos, recStartPos{};
 
-   const size_t regexedCount{ fieldInfoList.size() };
+   const size_t regexedCount{ recInfoList.size() };
    const size_t styleCount{ styleSet.size() };
    bool newRec{ TRUE };
 
@@ -456,7 +440,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       size_t regexIndex{};
 
       while (regexIndex < regexedCount) {
-         if (regex_match(recStartText, fieldInfoList[regexIndex].regexMarker)) {
+         if (regex_match(recStartText, recInfoList[regexIndex].regExpr)) {
             if (caretLine >= recStartLine && caretLine <= currentLine) {
                caretRecordRegIndex = static_cast<int>(regexIndex);
                caretRecordStartPos = static_cast<int>(recStartPos);
@@ -475,7 +459,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          continue;
       }
 
-      const vector<int> recFieldWidths{ fieldInfoList[regexIndex].fieldWidths };
+      const vector<int> recFieldWidths{ recInfoList[regexIndex].fieldWidths };
       const size_t fieldCount{ recFieldWidths.size() };
       int unstyledLen{};
 
@@ -585,17 +569,17 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       fieldInfoText = L"<Record Terminator>";
    }
    else {
-      FieldInfo& FLD{ fieldInfoList[caretRecordRegIndex] };
+      RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
       int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 };
 
       caretColumn = caretColumnPos - caretRecordStartPos;
-      fieldInfoText = L" Record Type: " + FLD.recLabel;
-      fieldCount = static_cast<int>(FLD.startPositions.size());
+      fieldInfoText = L" Record Type: " + FLD.label;
+      fieldCount = static_cast<int>(FLD.fieldStarts.size());
       fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
 
       for (int i{}; i < fieldCount; i++) {
          cumulativeWidth += FLD.fieldWidths[i];
-         if (caretColumn >= FLD.startPositions[i] && caretColumn < cumulativeWidth) {
+         if (caretColumn >= FLD.fieldStarts[i] && caretColumn < cumulativeWidth) {
             matchedField = i;
             break;
          }
@@ -614,9 +598,9 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
             fieldInfoText += FLD.fieldLabels[matchedField];
          }
 
-         fieldInfoText += L"\n Field Start: " + to_wstring(FLD.startPositions[matchedField] + 1);
+         fieldInfoText += L"\n Field Start: " + to_wstring(FLD.fieldStarts[matchedField] + 1);
          fieldInfoText += L"\n Field Width: " + to_wstring(FLD.fieldWidths[matchedField]);
-         fieldInfoText += L"\nField Column: " + to_wstring(caretColumn - FLD.startPositions[matchedField] + 1) + L"\n";
+         fieldInfoText += L"\nField Column: " + to_wstring(caretColumn - FLD.fieldStarts[matchedField] + 1) + L"\n";
       }
    }
 
@@ -651,6 +635,6 @@ void VisualizerPanel::setFocusOnEditor() {
 }
 
 void VisualizerPanel::clearLexer() {
-   fieldInfoList.clear();
+   recInfoList.clear();
    fwVizRegexed = L"";
 }

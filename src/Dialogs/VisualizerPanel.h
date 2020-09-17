@@ -82,16 +82,16 @@ protected :
    // Regex data
    wstring fwVizRegexed{};
 
-   struct FieldInfo {
-      wstring recLabel;
-      string recMarker;
-      regex regexMarker;
-      vector<int> startPositions;
+   struct RecordInfo {
+      wstring label;
+      string marker;
+      regex regExpr;
+      vector<int> fieldStarts;
       vector<int> fieldWidths;
       vector<wstring> fieldLabels;
    };
 
-   vector<FieldInfo> fieldInfoList;
+   vector<RecordInfo> recInfoList;
 
    // Field Info tracking
    int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos;
