@@ -190,16 +190,12 @@ int VisualizerPanel::loadStyles() {
    if (!hScintilla) return -1;
 
    wstring fileType;
+   if (!getDocFileType(hScintilla, fileType)) return 0;
+
    wstring fileTheme;
 
-   if (!getDocFileType(hScintilla, fileType)) {
-      return 0;
-   }
-
    fileTheme = _configIO.getConfigString(fileType.c_str(), L"FileTheme");
-   if (fileTheme.compare(currentStyleTheme) == 0) {
-      return 0;
-   }
+   if (fileTheme == currentStyleTheme) return 0;
 
    _configIO.setThemeFilePath(fileTheme);
    currentStyleTheme = fileTheme;
@@ -249,8 +245,10 @@ int VisualizerPanel::applyStyles() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
-   if (currentStyleTheme.length() < 1)
-      return 0;
+   wstring fileType;
+   if (!getDocFileType(hScintilla, fileType)) return 0;
+
+   if (currentStyleTheme.length() < 1) return 0;
 
    if (SendMessage(hScintilla, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
       return 0;

@@ -50,6 +50,7 @@
     <ClCompile Include="..\src\PluginDefinition.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="..\src\Resources\AboutUI.rc" />
     <ResourceCompile Include="..\src\Resources\VisualizerPlugin.rc" />
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc" />
   </ItemGroup>

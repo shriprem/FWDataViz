@@ -1524,12 +1524,19 @@
 #define IDC_FWVIZ_DEF_FIELD_LABELS_TEXT 9144
 #define IDC_FWVIZ_DEF_FIELD_LABELS_EDIT 9145
 #define IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN  9146
-#define IDC_FWVIZ_DEF_RESET_BTN         9151
-#define IDD_ABOUT_DIALOG                9200
-#define IDC_ABOUT_NAME                  9201
-#define IDC_ABOUT_VERSION               9202
-#define IDC_ABOUT_ATTRIBUTION           9203
-#define IDC_ABOUT_PROD_URL              9204
+#define IDC_FWVIZ_DEF_FIELD_RESET_BTN   9147
+#define IDC_FWVIZ_DEF_RESET_BTN         9161
+#define IDC_FWVIZ_DEF_BACKUP_LOAD_BTN   9162
+#define IDC_FWVIZ_DEF_BACKUP_VIEW_BTN   9163
+#define IDC_FWVIZ_DEF_EXPORT_BTN        9164
+#define IDC_FWVIZ_DEF_IMPORT_BTN        9165
+#define IDC_FWVIZ_DEF_TEST_VIEW_BTN     9181
+#define IDD_ABOUT_DIALOG                9900
+#define IDC_ABOUT_NAME                  9901
+#define IDC_ABOUT_VERSION               9902
+#define IDC_ABOUT_ATTRIBUTION           9903
+#define IDC_ABOUT_PROD_URL              9904
+#define IDC_ABOUT_BUILD_TIME            9905
 #define CS_GLOBALCLASS                  0x4000
 #define TBSTYLE_REGISTERDROP            0x4000
 #define RBS_VERTICALGRIPPER             0x00004000
@@ -1642,7 +1649,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        117
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -3,8 +3,11 @@
 #include "../Utils.h"
 #include "../ConfigIO.h"
 #include "../NPP/StaticDialog.h"
+#include <regex>
 #include <vector>
 
+using std::wregex;
+using std::regex_replace;
 using std::vector;
 
 extern NppData nppData;
@@ -17,16 +20,13 @@ public:
 
 protected:
    struct RecordInfo {
-      wstring fileID;
-      wstring recID;
       wstring label;
       string marker;
-      vector<int> fieldWidths;
-      vector<wstring> fieldLabels;
+      wstring fieldWidths;
+      wstring fieldLabels;
    };
 
    struct FileInfo {
-      wstring fileID;
       wstring label;
       string eol;
       wstring theme;

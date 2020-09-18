@@ -87,7 +87,6 @@ int ConfigureDialog::loadConfigInfo() {
       wstring &fileType = fileTypes[i];
       FileInfo &FILE = fileInfoList[i];
 
-      FILE.fileID = fileType;
       FILE.label = _configIO.getConfigString(fileType.c_str(), L"FileLabel");
       FILE.eol = _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
       FILE.theme = _configIO.getConfigString(fileType.c_str(), L"FileTheme");
@@ -106,22 +105,10 @@ int ConfigureDialog::loadConfigInfo() {
          wstring &recType = recTypes[j];
          RecordInfo &REC = FILE.records[j];
 
-         REC.fileID = fileType;
-         REC.recID = recType;
          REC.label = _configIO.getConfigString(fileType.c_str(), (recType + L"_Label").c_str());
          REC.marker = _configIO.getConfigStringA(fileType.c_str(), (recType + L"_Marker").c_str());
-
-         wstring fieldWidthList;
-         int fieldCount;
-
-         fieldWidthList = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldWidths").c_str());
-         fieldCount = _configIO.Tokenize(fieldWidthList, REC.fieldWidths);
-
-         wstring fieldLabelList;
-
-         fieldLabelList = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldLabels").c_str());
-         _configIO.Tokenize(fieldLabelList, REC.fieldLabels);
-
+         REC.fieldWidths = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldWidths").c_str());
+         REC.fieldLabels = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldLabels").c_str());
       }
    }
 
@@ -249,19 +236,13 @@ void ConfigureDialog::fillFieldTypes() {
    // Field Widths
    wstring fieldWidths{};
 
-   for (size_t i{}; i < recInfo.fieldWidths.size(); i++) {
-      fieldWidths += to_wstring(recInfo.fieldWidths[i]) + L"\r\n";
-   }
-
+   fieldWidths += regex_replace(recInfo.fieldWidths, wregex(L","), L"\r\n");
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT, fieldWidths.c_str());
 
    // Field Labels
    wstring fieldLabels{};
 
-   for (size_t i{}; i < recInfo.fieldLabels.size(); i++) {
-      fieldLabels += recInfo.fieldLabels[i] + L"\r\n";
-   }
-
+   fieldLabels += regex_replace(recInfo.fieldLabels, wregex(L","), L"\r\n");
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT, fieldLabels.c_str());
 }
 

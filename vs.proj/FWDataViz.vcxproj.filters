@@ -92,6 +92,9 @@
     <ResourceCompile Include="..\src\Resources\VisualizerPlugin.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="..\src\Resources\AboutUI.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_NPP Framework">

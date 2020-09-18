@@ -13,10 +13,22 @@ void AboutDialog::doDialog(HINSTANCE hInst) {
 }
 
 void AboutDialog::localize() {
+#ifdef _WIN64
+   wstring buildBit{ L" (64-bit)" };
+#else
+   wstring buildBit{ L" (32-bit)" };
+#endif // _WIN64
+
    SetWindowText(_hSelf, ABOUT_DIALOG_TITLE);
 
    SetDlgItemText(_hSelf, IDC_ABOUT_NAME, getVersionInfo(L"FileDescription").c_str());
-   SetDlgItemText(_hSelf, IDC_ABOUT_VERSION, getVersionInfo(L"FileVersion").c_str());
+
+   SetDlgItemText(_hSelf, IDC_ABOUT_VERSION,
+      (L"Version: " + getVersionInfo(L"FileVersion") + buildBit).c_str());
+
+   SetDlgItemTextA(_hSelf, IDC_ABOUT_BUILD_TIME,
+      ("Build time: " + string(__DATE__) + " - " + string(__TIME__)).c_str());
+
    SetDlgItemText(_hSelf, IDC_ABOUT_ATTRIBUTION, getVersionInfo(L"LegalCopyright").c_str());
    SetDlgItemText(_hSelf, IDOK, ABOUT_BTN_LABEL_OK);
 }
