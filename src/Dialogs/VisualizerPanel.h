@@ -58,6 +58,7 @@ public :
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    bool getDocFileType(HWND hScintilla, wstring &fileType);
+   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring &fileType);
    void setDocFileType(HWND hScintilla, wstring fileType);
    static void setFocusOnEditor();
    void clearLexer();

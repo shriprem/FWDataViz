@@ -87,6 +87,15 @@ HWND getCurrentScintilla() {
    return (HWND)(which ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
 }
 
+bool getDirectScintillaFunc(PSCIFUNC_T &fn, void* &ptr) {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return FALSE;
+
+   fn = (LRESULT(__cdecl*)(void*, int, WPARAM, LPARAM)) SendMessage(hScintilla, SCI_GETDIRECTFUNCTION, 0, 0);
+   ptr = (void*) SendMessage(hScintilla, SCI_GETDIRECTPOINTER, 0, 0);
+   return TRUE;
+}
+
 LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam)
 {
    return SendMessage(nppData._nppHandle, messageID, wparam, lparam);

@@ -19,6 +19,11 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case WM_COMMAND:
          switch LOWORD(wParam) {
             case IDC_VIZPANEL_FILETYPE_SELECT:
+               switch HIWORD(wParam) {
+                  case LBN_SELCHANGE:
+                     visualizeFile();
+                     break;
+               }
                break;
 
             case IDC_VIZPANEL_FILETYPE_CONFIG:
@@ -242,42 +247,44 @@ int VisualizerPanel::loadStyles() {
 }
 
 int VisualizerPanel::applyStyles() {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return -1;
+   PSCIFUNC_T sciFunc;
+   void* sciPtr;
+
+   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
    wstring fileType;
-   if (!getDocFileType(hScintilla, fileType)) return 0;
+   if (!getDocFileType(sciFunc, sciPtr, fileType)) return 0;
 
    if (currentStyleTheme.length() < 1) return 0;
 
-   if (SendMessage(hScintilla, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
+   if (sciFunc(sciPtr, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
       return 0;
 
-   SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.backColor);
-   SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.foreColor);
-   SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.bold);
-   SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.italics);
+   sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.backColor);
+   sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.foreColor);
+   sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.bold);
+   sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.italics);
 
    const int styleCount{ static_cast<int>(styleSet.size()) };
 
    for (int i{}; i < styleCount; i++) {
-      SendMessage(hScintilla, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].backColor);
-      SendMessage(hScintilla, SCI_STYLESETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].foreColor);
-      SendMessage(hScintilla, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].bold);
-      SendMessage(hScintilla, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].italics);
+      sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].backColor);
+      sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].foreColor);
+      sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].bold);
+      sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].italics);
    }
 
-   SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
+   sciFunc(sciPtr, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
 
 #if FW_DEBUG_SET_STYLES
    wstring dbgMessage;
    int back, fore, bold, italics;
 
    for (int i{ -1 }; i < styleCount; i++) {
-      back = SendMessage(hScintilla, SCI_STYLEGETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      fore = SendMessage(hScintilla, SCI_STYLEGETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      bold = SendMessage(hScintilla, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      italics = SendMessage(hScintilla, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      back = sciFunc(sciPtr, SCI_STYLEGETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      fore = sciFunc(sciPtr, SCI_STYLEGETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      bold = sciFunc(sciPtr, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      italics = sciFunc(sciPtr, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
 
       dbgMessage = L"C0" + to_wstring(i) + L"_STYLES = " +
          to_wstring(back) + L", " + to_wstring(fore) + L", " +
@@ -371,11 +378,13 @@ int VisualizerPanel::loadLexer() {
 }
 
 void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return;
+   PSCIFUNC_T sciFunc;
+   void* sciPtr;
+
+   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    wstring fileType;
-   if (!getDocFileType(hScintilla, fileType)) return;
+   if (!getDocFileType(sciFunc, sciPtr, fileType)) return;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH];
    string recStartText{}, eolMarker;
@@ -388,21 +397,21 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
    eolMarker =  _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
-   caretLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION,
-      SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL), NULL);
+   caretLine = sciFunc(sciPtr, SCI_LINEFROMPOSITION,
+      sciFunc(sciPtr, SCI_GETCURRENTPOS, NULL, NULL), NULL);
 
    caretRecordRegIndex = -1;
    caretRecordStartPos = 0;
    caretRecordEndPos = 0;
 
    for (auto currentLine{ startLine }; currentLine < endLine; currentLine++) {
-      if (SendMessage(hScintilla, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
+      if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
          continue;
       }
 
-      SendMessage(hScintilla, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
-      startPos = SendMessage(hScintilla, SCI_POSITIONFROMLINE, currentLine, NULL);
-      endPos = SendMessage(hScintilla, SCI_GETLINEENDPOSITION, currentLine, NULL);
+      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
+      startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
+      endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
       string_view lineText{ lineTextCStr, endPos - startPos };
 
       if (newRec) {
@@ -478,28 +487,28 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 #endif
 
       for (size_t i{}; i < fieldCount; i++) {
-         SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+         sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
          unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
          currentPos += recFieldWidths[i];
 
          if (recFieldWidths[i] < unstyledLen) {
-            SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
+            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
                FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
          }
          else {
-            SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)unstyledLen,
+            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)unstyledLen,
                FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
             unstyledLen = 0;
 
-            SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
-            SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_EOL);
+            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
+            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_EOL);
             break;
          }
       }
 
       if (fieldCount > 0 && unstyledLen > 0) {
-         SendMessage(hScintilla, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-         SendMessage(hScintilla, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), FW_STYLE_EOL);
+         sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+         sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), FW_STYLE_EOL);
       }
    }
 }
@@ -614,6 +623,15 @@ bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
    char fType[MAX_PATH];
 
    SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
+   fileType = _configIO.NarrowToWide(fType);
+
+   return (fileType.length() > 1);
+}
+
+bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& fileType) {
+   char fType[MAX_PATH];
+
+   sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
    fileType = _configIO.NarrowToWide(fType);
 
    return (fileType.length() > 1);

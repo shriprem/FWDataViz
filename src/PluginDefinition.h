@@ -43,6 +43,8 @@ const enum MenuIndex {
    MI_COUNT
 };
 
+typedef LRESULT (*PSCIFUNC_T)(void*, int, WPARAM, LPARAM);
+
 void pluginInit(HANDLE hModule);
 void pluginCleanUp();
 void commandMenuInit();
@@ -50,6 +52,7 @@ void commandMenuCleanUp();
 bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk=NULL, bool checkOnInit=false);
 
 HWND getCurrentScintilla();
+bool getDirectScintillaFunc(PSCIFUNC_T &fn, void* &ptr);
 LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam);
 
 // Plugin Command Functions
