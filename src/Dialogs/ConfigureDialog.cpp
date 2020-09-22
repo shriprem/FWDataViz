@@ -1,5 +1,29 @@
 #include "ConfigureDialog.h"
 
+extern ConfigureDialog _configDlg;
+
+LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
+   LPARAM lParam, UINT_PTR, DWORD_PTR) {
+
+   HWND hThis{ hwnd == _configDlg.hEditLabels ? _configDlg.hEditLabels : _configDlg.hEditWidths };
+   HWND hThat{ hwnd == _configDlg.hEditLabels ? _configDlg.hEditWidths : _configDlg.hEditLabels };
+
+   switch (messageId) {
+      case WM_KEYDOWN:
+      case WM_KEYUP:
+      case WM_LBUTTONUP:
+         _configDlg.hiliteFieldEditPairedItem(hThis, hThat);
+         break;
+
+      case WM_VSCROLL:
+         _configDlg.syncFieldEditScrolling(hThis, hThat);
+         break;
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}
+
+
 void ConfigureDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
@@ -8,6 +32,10 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    hEditLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hEditWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
+
+   SetWindowSubclass(hEditLabels, procFieldEditMessages, NULL, NULL);
+   SetWindowSubclass(hEditWidths, procFieldEditMessages, NULL, NULL);
+
    Utils::setFontBold(_hSelf, IDOK);
 
    if (_gLanguage != LANG_ENGLISH) localize();
@@ -19,7 +47,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    fillFileTypes();
 }
 
-INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
+INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
    switch (message) {
       case WM_COMMAND:
          switch LOWORD(wParam) {
@@ -47,67 +75,33 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
                switch HIWORD(wParam) {
                   case EN_SETFOCUS:
-                     onFocusLabelAndWidth(hEditLabels);
+                     setFieldEditCaretOnFocus(hEditLabels);
                      break;
 
                   case EN_VSCROLL:
-                     if (GetFocus() == hEditLabels)
-                        syncFieldLabelAndWidth(hEditLabels, hEditWidths);
+                     if (GetFocus() == hEditLabels) {
+                        syncFieldEditScrolling(hEditLabels, hEditWidths);
+                     }
                }
                break;
 
             case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
                switch HIWORD(wParam) {
                   case EN_SETFOCUS:
-                     onFocusLabelAndWidth(hEditWidths);
+                     setFieldEditCaretOnFocus(hEditWidths);
                      break;
 
                   case EN_VSCROLL:
-                     if (GetFocus() == hEditWidths)
-                        syncFieldLabelAndWidth(hEditWidths, hEditLabels);
+                     if (GetFocus() == hEditWidths) {
+                        syncFieldEditScrolling(hEditWidths, hEditLabels);
+                     }
                }
                break;
 
 
             case IDC_FWVIZ_DEF_TEST_VIEW_BTN:
-               if (bFocusOnLabels) {
-                  syncFieldLabelAndWidth(hEditLabels, hEditWidths);
-                  SetFocus(hEditLabels);
-               }
-               else {
-                  syncFieldLabelAndWidth(hEditWidths, hEditLabels);
-                  SetFocus(hEditWidths);
-               }
-         }
-
-      case WM_NOTIFY:
-         LPNMHDR notify{(LPNMHDR)lParam};
-         switch ((notify)->idFrom) {
-            case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
-               switch ((notify)->code) {
-                  case NM_KEYDOWN:
-                  case NM_LDOWN:
-                  case NM_RETURN:
-                  case NM_SETFOCUS:
-               //SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_TEST_VIEW_BTN, L"Width");
-                     //syncFieldWidthToLabel();
-                     break;
-               }
-               break;
-
-            case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
-               switch ((notify)->code) {
-                  case NM_KEYDOWN:
-                  case NM_LDOWN:
-                  case NM_RETURN:
-                  case NM_SETFOCUS:
-               //SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_TEST_VIEW_BTN, L"Label");
-                     //syncFieldLabelToWidth();
-                     break;
-               }
                break;
          }
-         break;
    }
 
    return FALSE;
@@ -312,27 +306,20 @@ void ConfigureDialog::fillFieldTypes() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT, fieldLabels.c_str());
 }
 
-void ConfigureDialog::onFocusLabelAndWidth(HWND hEdit) {
-   bFocusOnLabels = (hEdit == hEditLabels);
-
-   int lineCount = static_cast<int>(SendMessage(hEdit, EM_GETLINECOUNT, NULL, NULL));
-   int lastLineStart = static_cast<int>(SendMessage(hEdit, EM_LINEINDEX, (WPARAM)(lineCount - 1), NULL));
-   int lastLineLength = static_cast<int>(SendMessage(hEdit, EM_LINELENGTH, (WPARAM)lastLineStart, NULL));
-
+void ConfigureDialog::setFieldEditCaretOnFocus(HWND hEdit) {
    DWORD startPos{}, endPos{};
    SendMessage(hEdit, EM_GETSEL, (WPARAM)&startPos, (LPARAM)&endPos);
 
-   if (static_cast<int>(startPos) == 0 &&
-      static_cast<int>(endPos) == (lastLineStart + lastLineLength)) {
+   if (GetWindowTextLength(hEdit) == static_cast<int>(endPos) - static_cast<int>(startPos)) {
       int caretPos = (hEdit == hEditLabels) ? editLabelsCaret : editWidthsCaret;
       SendMessage(hEdit, EM_SETSEL, (WPARAM)caretPos, (LPARAM)caretPos);
       SendMessage(hEdit, EM_SCROLLCARET, NULL, NULL);
    }
 
-   syncFieldLabelAndWidth(hEdit, (hEdit == hEditLabels) ? hEditWidths : hEditLabels);
+   hiliteFieldEditPairedItem(hEdit, (hEdit == hEditLabels) ? hEditWidths : hEditLabels);
 }
 
-void ConfigureDialog::syncFieldLabelAndWidth(HWND hThis, HWND hThat) {
+void ConfigureDialog::hiliteFieldEditPairedItem(HWND hThis, HWND hThat) {
    int thisLine = static_cast<int>(SendMessage(hThis, EM_LINEFROMCHAR,
       (WPARAM) SendMessage(hThis, EM_LINEINDEX, (WPARAM)-1, NULL), NULL));
 
@@ -346,5 +333,16 @@ void ConfigureDialog::syncFieldLabelAndWidth(HWND hThis, HWND hThat) {
 
    SendMessage(hThat, EM_SETSEL, (WPARAM)lineStart, (LPARAM)(lineStart + lineLength));
    SendMessage(hThat, EM_SCROLLCARET, NULL, NULL);
+}
+
+void ConfigureDialog::syncFieldEditScrolling(HWND hThis, HWND hThat) {
+   int thisLine = static_cast<int>(SendMessage(hThis, EM_GETFIRSTVISIBLELINE, NULL, NULL));
+
+   int thatLineCount = static_cast<int>(SendMessage(hThat, EM_GETLINECOUNT, NULL, NULL));
+   if (thisLine >= thatLineCount) return;
+
+   int thatLine = static_cast<int>(SendMessage(hThat, EM_GETFIRSTVISIBLELINE, NULL, NULL));
+
+   SendMessage(hThat, EM_LINESCROLL, NULL, thisLine - thatLine);
 }
 

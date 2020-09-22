@@ -18,6 +18,12 @@ public:
    ConfigureDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
 
+   void setFieldEditCaretOnFocus(HWND hEdit);
+   void hiliteFieldEditPairedItem(HWND hThis, HWND hThat);
+   void syncFieldEditScrolling(HWND hThis, HWND hThat);
+
+   HWND hEditLabels, hEditWidths;
+
 protected:
    struct RecordInfo {
       wstring label;
@@ -45,11 +51,6 @@ protected:
    bool getCurrentRecInfo(RecordInfo &recInfo);
    void onRecTypeSelect();
    void fillFieldTypes();
-   void onFocusLabelAndWidth(HWND hEdit);
-   void syncFieldLabelAndWidth(HWND hThis, HWND hThat);
-
-   HWND hEditLabels, hEditWidths;
-   BOOL bFocusOnLabels{ TRUE };
    int editLabelsCaret{}, editWidthsCaret{};
 };
 
