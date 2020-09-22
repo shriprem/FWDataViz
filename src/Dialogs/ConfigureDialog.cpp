@@ -6,6 +6,8 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
       create(IDD_FWVIZ_DEFINER_DIALOG);
    }
 
+   hEditLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
+   hEditWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
    Utils::setFontBold(_hSelf, IDOK);
 
    if (_gLanguage != LANG_ENGLISH) localize();
@@ -17,31 +19,95 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    fillFileTypes();
 }
 
-INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
+INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-   case WM_COMMAND:
-      switch LOWORD(wParam) {
-         case IDCANCEL:
-         case IDOK:
-            display(FALSE);
-            return TRUE;
+      case WM_COMMAND:
+         switch LOWORD(wParam) {
+            case IDCANCEL:
+            case IDOK:
+               display(FALSE);
+               return TRUE;
 
-         case IDC_FWVIZ_DEF_FILE_LIST_BOX:
-            switch HIWORD(wParam) {
-               case LBN_SELCHANGE:
-                  onFileTypeSelect();
-                  break;
-            }
-            break;
+            case IDC_FWVIZ_DEF_FILE_LIST_BOX:
+               switch HIWORD(wParam) {
+                  case LBN_SELCHANGE:
+                     onFileTypeSelect();
+                     break;
+               }
+               break;
 
-         case IDC_FWVIZ_DEF_REC_LIST_BOX:
-            switch HIWORD(wParam) {
-               case LBN_SELCHANGE:
-                  onRecTypeSelect();
-                  break;
-            }
-            break;
-      }
+            case IDC_FWVIZ_DEF_REC_LIST_BOX:
+               switch HIWORD(wParam) {
+                  case LBN_SELCHANGE:
+                     onRecTypeSelect();
+                     break;
+               }
+               break;
+
+            case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
+               switch HIWORD(wParam) {
+                  case EN_SETFOCUS:
+                     bFocusOnLabels = TRUE;
+                     break;
+
+                  case EN_VSCROLL:
+                     if (GetFocus() == hEditLabels)
+                        syncFieldLabelAndWidth(hEditLabels, hEditWidths);
+               }
+               break;
+
+            case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
+               switch HIWORD(wParam) {
+                  case EN_SETFOCUS:
+                     bFocusOnLabels = FALSE;
+                     break;
+
+                  case EN_VSCROLL:
+                     if (GetFocus() == hEditWidths)
+                        syncFieldLabelAndWidth(hEditWidths, hEditLabels);
+               }
+               break;
+
+
+            case IDC_FWVIZ_DEF_TEST_VIEW_BTN:
+               if (bFocusOnLabels) {
+                  syncFieldLabelAndWidth(hEditLabels, hEditWidths);
+                  SetFocus(hEditLabels);
+               }
+               else {
+                  syncFieldLabelAndWidth(hEditWidths, hEditLabels);
+                  SetFocus(hEditWidths);
+               }
+         }
+
+      case WM_NOTIFY:
+         LPNMHDR notify{(LPNMHDR)lParam};
+         switch ((notify)->idFrom) {
+            case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
+               switch ((notify)->code) {
+                  case NM_KEYDOWN:
+                  case NM_LDOWN:
+                  case NM_RETURN:
+                  case NM_SETFOCUS:
+               //SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_TEST_VIEW_BTN, L"Width");
+                     //syncFieldWidthToLabel();
+                     break;
+               }
+               break;
+
+            case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
+               switch ((notify)->code) {
+                  case NM_KEYDOWN:
+                  case NM_LDOWN:
+                  case NM_RETURN:
+                  case NM_SETFOCUS:
+               //SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_TEST_VIEW_BTN, L"Label");
+                     //syncFieldLabelToWidth();
+                     break;
+               }
+               break;
+         }
+         break;
    }
 
    return FALSE;
@@ -244,5 +310,19 @@ void ConfigureDialog::fillFieldTypes() {
 
    fieldLabels += regex_replace(recInfo.fieldLabels, wregex(L","), L"\r\n");
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT, fieldLabels.c_str());
+}
+
+void ConfigureDialog::syncFieldLabelAndWidth(HWND hThis, HWND hThat) {
+   int labelLine = static_cast<int>(SendMessage(hThis, EM_LINEFROMCHAR,
+      (WPARAM) SendMessage(hThis, EM_LINEINDEX, (WPARAM)-1, NULL), NULL));
+
+   int widthLines = static_cast<int>(SendMessage(hThat, EM_GETLINECOUNT, NULL, NULL));
+   if (labelLine >= widthLines) return;
+
+   int lineIndex = static_cast<int>(SendMessage(hThat, EM_LINEINDEX, (WPARAM)labelLine, NULL));
+   int lineLength = static_cast<int>(SendMessage(hThat, EM_LINELENGTH, (WPARAM)lineIndex, NULL));
+
+   SendMessage(hThat, EM_SETSEL, (WPARAM)lineIndex, (LPARAM)(lineIndex + lineLength));
+   SendMessage(hThat, EM_SCROLLCARET, NULL, NULL);
 }
 

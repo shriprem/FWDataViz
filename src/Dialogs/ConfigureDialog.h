@@ -45,7 +45,10 @@ protected:
    bool getCurrentRecInfo(RecordInfo &recInfo);
    void onRecTypeSelect();
    void fillFieldTypes();
+   void syncFieldLabelAndWidth(HWND hThis, HWND hThat);
 
+   HWND hEditLabels, hEditWidths;
+   BOOL bFocusOnLabels{ TRUE };
 };
 
 
