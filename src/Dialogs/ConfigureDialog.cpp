@@ -47,7 +47,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
                switch HIWORD(wParam) {
                   case EN_SETFOCUS:
-                     bFocusOnLabels = TRUE;
+                     onFocusLabelAndWidth(hEditLabels);
                      break;
 
                   case EN_VSCROLL:
@@ -59,7 +59,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
                switch HIWORD(wParam) {
                   case EN_SETFOCUS:
-                     bFocusOnLabels = FALSE;
+                     onFocusLabelAndWidth(hEditWidths);
                      break;
 
                   case EN_VSCROLL:
@@ -312,17 +312,39 @@ void ConfigureDialog::fillFieldTypes() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT, fieldLabels.c_str());
 }
 
+void ConfigureDialog::onFocusLabelAndWidth(HWND hEdit) {
+   bFocusOnLabels = (hEdit == hEditLabels);
+
+   int lineCount = static_cast<int>(SendMessage(hEdit, EM_GETLINECOUNT, NULL, NULL));
+   int lastLineStart = static_cast<int>(SendMessage(hEdit, EM_LINEINDEX, (WPARAM)(lineCount - 1), NULL));
+   int lastLineLength = static_cast<int>(SendMessage(hEdit, EM_LINELENGTH, (WPARAM)lastLineStart, NULL));
+
+   DWORD startPos{}, endPos{};
+   SendMessage(hEdit, EM_GETSEL, (WPARAM)&startPos, (LPARAM)&endPos);
+
+   if (static_cast<int>(startPos) == 0 &&
+      static_cast<int>(endPos) == (lastLineStart + lastLineLength)) {
+      int caretPos = (hEdit == hEditLabels) ? editLabelsCaret : editWidthsCaret;
+      SendMessage(hEdit, EM_SETSEL, (WPARAM)caretPos, (LPARAM)caretPos);
+      SendMessage(hEdit, EM_SCROLLCARET, NULL, NULL);
+   }
+
+   syncFieldLabelAndWidth(hEdit, (hEdit == hEditLabels) ? hEditWidths : hEditLabels);
+}
+
 void ConfigureDialog::syncFieldLabelAndWidth(HWND hThis, HWND hThat) {
-   int labelLine = static_cast<int>(SendMessage(hThis, EM_LINEFROMCHAR,
+   int thisLine = static_cast<int>(SendMessage(hThis, EM_LINEFROMCHAR,
       (WPARAM) SendMessage(hThis, EM_LINEINDEX, (WPARAM)-1, NULL), NULL));
 
-   int widthLines = static_cast<int>(SendMessage(hThat, EM_GETLINECOUNT, NULL, NULL));
-   if (labelLine >= widthLines) return;
+   int thatLineCount = static_cast<int>(SendMessage(hThat, EM_GETLINECOUNT, NULL, NULL));
+   if (thisLine >= thatLineCount) return;
 
-   int lineIndex = static_cast<int>(SendMessage(hThat, EM_LINEINDEX, (WPARAM)labelLine, NULL));
-   int lineLength = static_cast<int>(SendMessage(hThat, EM_LINELENGTH, (WPARAM)lineIndex, NULL));
+   int lineStart = static_cast<int>(SendMessage(hThat, EM_LINEINDEX, (WPARAM)thisLine, NULL));
+   int lineLength = static_cast<int>(SendMessage(hThat, EM_LINELENGTH, (WPARAM)lineStart, NULL));
 
-   SendMessage(hThat, EM_SETSEL, (WPARAM)lineIndex, (LPARAM)(lineIndex + lineLength));
+   ((hThis == hEditLabels) ? editWidthsCaret : editLabelsCaret) = lineStart;
+
+   SendMessage(hThat, EM_SETSEL, (WPARAM)lineStart, (LPARAM)(lineStart + lineLength));
    SendMessage(hThat, EM_SCROLLCARET, NULL, NULL);
 }
 
