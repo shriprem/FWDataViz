@@ -9,6 +9,19 @@ LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
    HWND hThat{ hwnd == _configDlg.hEditLabels ? _configDlg.hEditWidths : _configDlg.hEditLabels };
 
    switch (messageId) {
+      case WM_CHAR:
+         if (wParam == ',' && hwnd == _configDlg.hEditLabels) {
+            EDITBALLOONTIP tip;
+            tip.cbStruct = sizeof(tip);
+            tip.pszTitle = L"Unacceptable Character";
+            tip.pszText = L"Commas are not allowed here!";
+            tip.ttiIcon = TTI_ERROR;
+            SendMessage(hwnd, EM_SHOWBALLOONTIP, NULL, (LPARAM)&tip);
+            MessageBeep(MB_OK);
+
+            return FALSE;
+         }
+
       case WM_KEYDOWN:
       case WM_KEYUP:
       case WM_LBUTTONUP:
@@ -32,6 +45,9 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    hEditLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hEditWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
+
+   SendMessage(hEditLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
+   SendMessage(hEditWidths, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
 
    SetWindowSubclass(hEditLabels, procFieldEditMessages, NULL, NULL);
    SetWindowSubclass(hEditWidths, procFieldEditMessages, NULL, NULL);
@@ -98,8 +114,36 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                }
                break;
 
+            case IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN:
+               fieldEditsAccept();
+               break;
 
-            case IDC_FWVIZ_DEF_TEST_VIEW_BTN:
+            case IDC_FWVIZ_DEF_FIELD_RESET_BTN:
+               fieldEditsReset();
+               break;
+
+            case IDC_FWVIZ_DEF_REC_ACCEPT_BTN:
+               recEditAccept();
+               break;
+
+            case IDC_FWVIZ_DEF_REC_NEW_BTN:
+               recEditNew();
+               break;
+
+            case IDC_FWVIZ_DEF_REC_DEL_BTN:
+               recEditDelete();
+               break;
+
+            case IDC_FWVIZ_DEF_FILE_ACCEPT_BTN:
+               fileEditAccept();
+               break;
+
+            case IDC_FWVIZ_DEF_FILE_NEW_BTN:
+               fileEditNew();
+               break;
+
+            case IDC_FWVIZ_DEF_FILE_DEL_BTN:
+               fileEditDelete();
                break;
          }
    }
@@ -208,37 +252,37 @@ void ConfigureDialog::fillFileTypes() {
    }
 }
 
-bool ConfigureDialog::getCurrentFileInfo(FileInfo &fileInfo) {
+bool ConfigureDialog::getCurrentFileInfo(FileInfo* &fileInfo) {
    int idxFile;
 
    idxFile = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX, LB_GETCURSEL, NULL, NULL));
    if (idxFile == LB_ERR) return FALSE;
 
-   fileInfo = fileInfoList[idxFile];
+   fileInfo = &fileInfoList[idxFile];
    return TRUE;
 }
 
 void ConfigureDialog::onFileTypeSelect() {
-   FileInfo fileInfo;
+   FileInfo* fileInfo;
 
    if (!getCurrentFileInfo(fileInfo)) return;
 
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo.label.c_str());
-   SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_EDIT, fileInfo.eol.c_str());
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
+   SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_EDIT, fileInfo->eol.c_str());
 
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_SETCURSEL, (WPARAM)
       SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_FINDSTRING, (WPARAM)-1,
-         (LPARAM)fileInfo.theme.c_str()), NULL);
+         (LPARAM)fileInfo->theme.c_str()), NULL);
 
    fillRecTypes();
 }
 
 void ConfigureDialog::fillRecTypes() {
-   FileInfo fileInfo;
+   FileInfo* fileInfo;
 
    if (!getCurrentFileInfo(fileInfo)) return;
 
-   vector <RecordInfo> &recInfoList = fileInfo.records;
+   vector <RecordInfo> &recInfoList = fileInfo->records;
 
    // Fill Rec Types Listbox
    size_t recTypes;
@@ -259,7 +303,7 @@ void ConfigureDialog::fillRecTypes() {
    }
 }
 
-bool ConfigureDialog::getCurrentRecInfo(RecordInfo &recInfo) {
+bool ConfigureDialog::getCurrentRecInfo(RecordInfo* &recInfo) {
    int idxFile, idxRec;
 
    idxFile = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX, LB_GETCURSEL, NULL, NULL));
@@ -268,18 +312,18 @@ bool ConfigureDialog::getCurrentRecInfo(RecordInfo &recInfo) {
    idxRec = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX, LB_GETCURSEL, NULL, NULL));
    if (idxRec == LB_ERR) return FALSE;
 
-   recInfo = fileInfoList[idxFile].records[idxRec];
+   recInfo = &fileInfoList[idxFile].records[idxRec];
    return TRUE;
 }
 
 void ConfigureDialog::onRecTypeSelect() {
-   RecordInfo recInfo;
+   RecordInfo *recInfo;
 
    if (!getCurrentRecInfo(recInfo)) return;
 
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recInfo.label.c_str());
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recInfo->label.c_str());
 
-   string regExpr = recInfo.marker;
+   string regExpr = recInfo->marker;
 
    SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT, regExpr.c_str());
    SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_REC_START_EDIT,
@@ -289,21 +333,17 @@ void ConfigureDialog::onRecTypeSelect() {
 }
 
 void ConfigureDialog::fillFieldTypes() {
-   RecordInfo recInfo;
+   RecordInfo *recInfo;
 
    if (!getCurrentRecInfo(recInfo)) return;
 
-   // Field Widths
-   wstring fieldWidths{};
-
-   fieldWidths += regex_replace(recInfo.fieldWidths, wregex(L","), L"\r\n");
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT, fieldWidths.c_str());
-
    // Field Labels
-   wstring fieldLabels{};
-
-   fieldLabels += regex_replace(recInfo.fieldLabels, wregex(L","), L"\r\n");
+   wstring fieldLabels{ regex_replace(recInfo->fieldLabels, wregex(L","), L"\r\n") };
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT, fieldLabels.c_str());
+
+   // Field Widths
+   wstring fieldWidths{ regex_replace(recInfo->fieldWidths, wregex(L","), L"\r\n") };
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT, fieldWidths.c_str());
 }
 
 void ConfigureDialog::setFieldEditCaretOnFocus(HWND hEdit) {
@@ -346,3 +386,61 @@ void ConfigureDialog::syncFieldEditScrolling(HWND hThis, HWND hThat) {
    SendMessage(hThat, EM_LINESCROLL, NULL, thisLine - thatLine);
 }
 
+
+void ConfigureDialog::fieldEditsAccept() {
+   RecordInfo *recInfo;
+
+   if (!getCurrentRecInfo(recInfo)) return;
+
+   wchar_t fieldValues[FW_LINE_MAX_LENGTH + 1];
+   wstring vals{};
+
+   // Field Labels
+   GetWindowText(hEditLabels, fieldValues, (FW_LINE_MAX_LENGTH + 1));
+
+   // Replace any trailing spaces + newlines with commas
+   vals = regex_replace(fieldValues, wregex(L" *\r\n"), L",");
+
+   // Replace any leading spaces + commas with commas
+   vals = regex_replace(vals, wregex(L", +([^,]*)"), L",$1");
+
+   // Trim any leading & trailing spaces + commas for the entire string
+   vals = regex_replace(vals, wregex(L"^ +(.*[^ ]) +$"), L"$1");
+
+   recInfo->fieldLabels = vals;
+
+   // Field Widths
+   GetWindowText(hEditWidths, fieldValues, (FW_LINE_MAX_LENGTH + 1));
+
+   // Replace any newlines with commas.
+   // No processing needed for leading & trailing spaces since this is a numeric edit control
+   vals = regex_replace(fieldValues, wregex(L"\r\n"), L",");
+
+   recInfo->fieldWidths = vals;
+}
+
+void ConfigureDialog::fieldEditsReset() {
+   fillFieldTypes();
+}
+
+void ConfigureDialog::recEditAccept() {
+}
+
+void ConfigureDialog::recEditNew() {
+}
+
+void ConfigureDialog::recEditDelete() {
+
+}
+
+void ConfigureDialog::fileEditAccept() {
+
+}
+
+void ConfigureDialog::fileEditNew() {
+
+}
+
+void ConfigureDialog::fileEditDelete() {
+
+}

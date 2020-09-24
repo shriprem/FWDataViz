@@ -45,12 +45,24 @@ protected:
    void localize();
    int loadConfigInfo();
    void fillFileTypes();
-   bool getCurrentFileInfo(FileInfo &fileInfo);
+   bool getCurrentFileInfo(FileInfo* &fileInfo);
    void onFileTypeSelect();
    void fillRecTypes();
-   bool getCurrentRecInfo(RecordInfo &recInfo);
+   bool getCurrentRecInfo(RecordInfo* &recInfo);
    void onRecTypeSelect();
    void fillFieldTypes();
+
+   void fieldEditsAccept();
+   void fieldEditsReset();
+
+   void recEditAccept();
+   void recEditNew();
+   void recEditDelete();
+
+   void fileEditAccept();
+   void fileEditNew();
+   void fileEditDelete();
+
    int editLabelsCaret{}, editWidthsCaret{};
 };
 

@@ -45,16 +45,18 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style) {
 
 // ***************** PUBLIC *****************
 
-HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage) {
+HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, BOOL bBalloon) {
    if (!controlID || !hDlg || !pMessage)
       return FALSE;
 
    // Get the window of the tool.
    HWND hwndCtrl = GetDlgItem(hDlg, controlID);
 
+   UINT ttsBalloon = bBalloon ? TTS_BALLOON : NULL;
+
    // Create the tooltip.
    HWND hwndTip = CreateWindowEx(NULL, TOOLTIPS_CLASS, NULL,
-      WS_POPUP | TTS_ALWAYSTIP | TTS_BALLOON,
+      WS_POPUP | TTS_ALWAYSTIP | ttsBalloon,
       CW_USEDEFAULT, CW_USEDEFAULT,
       CW_USEDEFAULT, CW_USEDEFAULT,
       hDlg, NULL,
