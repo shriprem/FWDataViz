@@ -22,14 +22,13 @@ public:
    void hiliteFieldEditPairedItem(HWND hThis, HWND hThat);
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
 
-   HWND hEditLabels, hEditWidths;
+   HWND hListFiles, hListRecs, hEditLabels, hEditWidths;
 
-protected:
    struct RecordInfo {
       wstring label;
       string marker;
-      wstring fieldWidths;
       wstring fieldLabels;
+      wstring fieldWidths;
    };
 
    struct FileInfo {
@@ -39,16 +38,23 @@ protected:
       vector<RecordInfo> records;
    };
 
+protected:
    vector<FileInfo> fileInfoList;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    int loadConfigInfo();
    void fillFileTypes();
+   int getCurrentFileIndex();
    bool getCurrentFileInfo(FileInfo* &fileInfo);
+   FileInfo getNewFile();
+
+   int getCurrentRecIndex();
+   bool getCurrentRecInfo(RecordInfo* &recInfo);
+   RecordInfo getNewRec();
+
    void onFileTypeSelect();
    void fillRecTypes();
-   bool getCurrentRecInfo(RecordInfo* &recInfo);
    void onRecTypeSelect();
    void fillFieldTypes();
 
@@ -57,11 +63,11 @@ protected:
 
    void recEditAccept();
    void recEditNew();
-   void recEditDelete();
+   int recEditDelete();
 
    void fileEditAccept();
    void fileEditNew();
-   void fileEditDelete();
+   int fileEditDelete();
 
    int editLabelsCaret{}, editWidthsCaret{};
 };

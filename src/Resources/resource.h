@@ -809,8 +809,6 @@
 #define VK_F4                           0x73
 #define LANG_TIGRIGNA                   0x73
 #define LANG_TIGRINYA                   0x73
-#define IDB_BITMAP1                     115
-#define IDC_FWVIZ_CONFIG_BITMAP         115
 #define VK_F5                           0x74
 #define VK_F6                           0x75
 #define LANG_HAWAIIAN                   0x75
@@ -1487,10 +1485,11 @@
 #define IDD_VISUALIZER_DOCKPANEL        9000
 #define IDC_VIZPANEL_FILETYPE_LABEL     9001
 #define IDC_VIZPANEL_FILETYPE_CONFIG    9002
-#define IDC_VIZPANEL_FILETYPE_SELECT    9003
-#define IDC_VIZPANEL_CLEAR_BUTTON       9004
-#define IDC_VIZPANEL_FIELD_LABEL        9005
-#define IDC_VIZPANEL_FIELD_INFO         9006
+#define IDC_VIZPANEL_CONFIG_BITMAP      9003
+#define IDC_VIZPANEL_FILETYPE_SELECT    9004
+#define IDC_VIZPANEL_CLEAR_BUTTON       9005
+#define IDC_VIZPANEL_FIELD_LABEL        9006
+#define IDC_VIZPANEL_FIELD_INFO         9007
 #define IDD_FWVIZ_DEFINER_DIALOG        9100
 #define IDC_FWVIZ_DEF_FILE_GROUP_BOX    9101
 #define IDC_FWVIZ_DEF_FILE_LIST_BOX     9102
@@ -1643,7 +1642,7 @@
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1

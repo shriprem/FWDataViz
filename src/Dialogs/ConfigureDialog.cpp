@@ -13,14 +13,13 @@ LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
          if (wParam == ',' && hwnd == _configDlg.hEditLabels) {
             EDITBALLOONTIP tip;
             tip.cbStruct = sizeof(tip);
-            tip.pszTitle = L"Unacceptable Character";
-            tip.pszText = L"Commas are not allowed here!";
+            tip.pszTitle = L"Commas are item separators";
+            tip.pszText = L"The line will be split into multiple items when the 'Accept' button below is clicked.";
             tip.ttiIcon = TTI_ERROR;
             SendMessage(hwnd, EM_SHOWBALLOONTIP, NULL, (LPARAM)&tip);
             MessageBeep(MB_OK);
-
-            return FALSE;
          }
+         break;
 
       case WM_KEYDOWN:
       case WM_KEYUP:
@@ -43,8 +42,16 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
       create(IDD_FWVIZ_DEFINER_DIALOG);
    }
 
+   hListFiles = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX);
+   hListRecs = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX);
    hEditLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hEditWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
+
+   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_START_EDIT, EM_LIMITTEXT, (WPARAM)(MAX_PATH - 1), NULL);
+   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
 
    SendMessage(hEditLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
    SendMessage(hEditWidths, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
@@ -223,12 +230,11 @@ void ConfigureDialog::fillFileTypes() {
    // Fill File Types Listbox
    size_t fTypes;
 
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX, LB_RESETCONTENT, NULL, NULL);
+   SendMessage(hListFiles, LB_RESETCONTENT, NULL, NULL);
 
    fTypes = fileInfoList.size();
    for (size_t i{}; i < fTypes; i++) {
-      SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX, LB_ADDSTRING, NULL,
-         (LPARAM)fileInfoList[i].label.c_str());
+      SendMessage(hListFiles, LB_ADDSTRING, NULL, (LPARAM)fileInfoList[i].label.c_str());
    }
 
    // Fill Themes Droplist
@@ -247,25 +253,76 @@ void ConfigureDialog::fillFileTypes() {
 
    // Select first item
    if (fTypes > 0) {
-      SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX, LB_SETCURSEL, 0, NULL);
+      SendMessage(hListFiles, LB_SETCURSEL, 0, NULL);
       onFileTypeSelect();
    }
 }
 
-bool ConfigureDialog::getCurrentFileInfo(FileInfo* &fileInfo) {
+int ConfigureDialog::getCurrentFileIndex() {
    int idxFile;
 
-   idxFile = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX, LB_GETCURSEL, NULL, NULL));
+   idxFile = static_cast<int>(SendMessage(hListFiles, LB_GETCURSEL, NULL, NULL));
+   if (idxFile == LB_ERR) return LB_ERR;
+
+   return idxFile;
+}
+
+int ConfigureDialog::getCurrentRecIndex() {
+   int idxRec;
+
+   idxRec = static_cast<int>(SendMessage(hListRecs, LB_GETCURSEL, NULL, NULL));
+   if (idxRec == LB_ERR) return LB_ERR;
+
+   return idxRec;
+}
+
+bool ConfigureDialog::getCurrentFileInfo(FileInfo* &fileInfo) {
+   int idxFile{ getCurrentFileIndex() };
    if (idxFile == LB_ERR) return FALSE;
 
    fileInfo = &fileInfoList[idxFile];
    return TRUE;
 }
 
+ConfigureDialog::FileInfo ConfigureDialog::getNewFile() {
+   FileInfo newFile;
+
+   newFile.label = L"";
+   newFile.eol = "";
+   newFile.theme = L"VT_Basic";
+   newFile.records = vector<RecordInfo>{ getNewRec() };
+
+   return newFile;
+}
+
+bool ConfigureDialog::getCurrentRecInfo(RecordInfo*& recInfo) {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return FALSE;
+
+   int idxRec{ getCurrentRecIndex() };
+   if (idxRec == LB_ERR) return FALSE;
+
+   recInfo = &fileInfoList[idxFile].records[idxRec];
+   return TRUE;
+}
+
+ConfigureDialog::RecordInfo ConfigureDialog::getNewRec() {
+   RecordInfo newRec;
+
+   newRec.label = L"";
+   newRec.marker = "";
+   newRec.fieldLabels = L"";
+   newRec.fieldWidths = L"";
+   return newRec;
+}
+
 void ConfigureDialog::onFileTypeSelect() {
    FileInfo* fileInfo;
 
-   if (!getCurrentFileInfo(fileInfo)) return;
+   if (!getCurrentFileInfo(fileInfo)) {
+      FileInfo newFile{ getNewFile() };
+      fileInfo = &newFile;
+   }
 
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
    SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_EDIT, fileInfo->eol.c_str());
@@ -280,46 +337,39 @@ void ConfigureDialog::onFileTypeSelect() {
 void ConfigureDialog::fillRecTypes() {
    FileInfo* fileInfo;
 
-   if (!getCurrentFileInfo(fileInfo)) return;
+   if (!getCurrentFileInfo(fileInfo)) {
+      FileInfo newFile{ getNewFile() };
+      fileInfo = &newFile;
+   }
 
    vector <RecordInfo> &recInfoList = fileInfo->records;
 
    // Fill Rec Types Listbox
    size_t recTypes;
 
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX, LB_RESETCONTENT, NULL, NULL);
+   SendMessage(hListRecs, LB_RESETCONTENT, NULL, NULL);
 
    recTypes = recInfoList.size();
 
    for (size_t i{}; i < recTypes; i++) {
-      SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX, LB_ADDSTRING, NULL,
-         (LPARAM)recInfoList[i].label.c_str());
+      SendMessage(hListRecs, LB_ADDSTRING, NULL, (LPARAM)recInfoList[i].label.c_str());
    }
 
    // Select first item
    if (recTypes > 0) {
-      SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX, LB_SETCURSEL, 0, NULL);
-      onRecTypeSelect();
+      SendMessage(hListRecs, LB_SETCURSEL, 0, NULL);
    }
-}
 
-bool ConfigureDialog::getCurrentRecInfo(RecordInfo* &recInfo) {
-   int idxFile, idxRec;
-
-   idxFile = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX, LB_GETCURSEL, NULL, NULL));
-   if (idxFile == LB_ERR) return FALSE;
-
-   idxRec = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX, LB_GETCURSEL, NULL, NULL));
-   if (idxRec == LB_ERR) return FALSE;
-
-   recInfo = &fileInfoList[idxFile].records[idxRec];
-   return TRUE;
+   onRecTypeSelect();
 }
 
 void ConfigureDialog::onRecTypeSelect() {
    RecordInfo *recInfo;
 
-   if (!getCurrentRecInfo(recInfo)) return;
+   if (!getCurrentRecInfo(recInfo)) {
+      RecordInfo newRec{ getNewRec() };
+      recInfo = &newRec;
+   }
 
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recInfo->label.c_str());
 
@@ -335,7 +385,10 @@ void ConfigureDialog::onRecTypeSelect() {
 void ConfigureDialog::fillFieldTypes() {
    RecordInfo *recInfo;
 
-   if (!getCurrentRecInfo(recInfo)) return;
+   if (!getCurrentRecInfo(recInfo)) {
+      RecordInfo newRec{ getNewRec() };
+      recInfo = &newRec;
+   }
 
    // Field Labels
    wstring fieldLabels{ regex_replace(recInfo->fieldLabels, wregex(L","), L"\r\n") };
@@ -408,6 +461,7 @@ void ConfigureDialog::fieldEditsAccept() {
    vals = regex_replace(vals, wregex(L"^ +(.*[^ ]) +$"), L"$1");
 
    recInfo->fieldLabels = vals;
+   SetWindowText(hEditLabels, regex_replace(vals, wregex(L","), L"\r\n").c_str());
 
    // Field Widths
    GetWindowText(hEditWidths, fieldValues, (FW_LINE_MAX_LENGTH + 1));
@@ -424,23 +478,113 @@ void ConfigureDialog::fieldEditsReset() {
 }
 
 void ConfigureDialog::recEditAccept() {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return;
+
+   int idxRec{ getCurrentRecIndex() };
+   if (idxRec == LB_ERR) return;
+
+   RecordInfo &recInfo = fileInfoList[idxFile].records[idxRec];
+
+   wchar_t recDesc[MAX_PATH + 1];
+
+   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recDesc, MAX_PATH + 1);
+   recInfo.label = recDesc;
+
+   char regexVal[MAX_PATH + 1];
+
+   GetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT, regexVal, MAX_PATH + 1);
+   recInfo.marker = regexVal;
+
+   SendMessage(hListRecs, LB_DELETESTRING, (WPARAM)idxRec, NULL);
+   SendMessage(hListRecs, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recDesc);
+   SendMessage(hListRecs, LB_SETCURSEL, idxRec, NULL);
 }
 
 void ConfigureDialog::recEditNew() {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return;
+
+   RecordInfo newRec{ getNewRec() };
+   vector<RecordInfo> &records = fileInfoList[idxFile].records;
+
+   records.push_back(newRec);
+
+   size_t moveTo = records.size() - 1;
+
+   SendMessage(hListRecs, LB_ADDSTRING, NULL, (LPARAM)newRec.label.c_str());
+   SendMessage(hListRecs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   onRecTypeSelect();
 }
 
-void ConfigureDialog::recEditDelete() {
+int ConfigureDialog::recEditDelete() {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return LB_ERR;
 
+   int idxRec{ getCurrentRecIndex() };
+   if (idxRec == LB_ERR) return LB_ERR;
+
+   vector<RecordInfo> &records = fileInfoList[idxFile].records;
+   records.erase(records.begin() + idxRec);
+
+   int lastRec = static_cast<int>(records.size()) - 1;
+   int moveTo = (idxRec <= lastRec - 1) ? idxRec : lastRec;
+
+   SendMessage(hListRecs, LB_DELETESTRING, (WPARAM)idxRec, NULL);
+   SendMessage(hListRecs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   onRecTypeSelect();
+
+   return moveTo;
 }
 
 void ConfigureDialog::fileEditAccept() {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return;
 
+   FileInfo &fileInfo = fileInfoList[idxFile];
+
+   wchar_t fileVal[MAX_PATH + 1];
+
+   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileVal, MAX_PATH + 1);
+   fileInfo.label = fileVal;
+
+   char eolVal[MAX_PATH + 1];
+
+   GetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_EDIT, eolVal, MAX_PATH + 1);
+   fileInfo.eol = eolVal;
+
+   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, fileVal, MAX_PATH + 1);
+   fileInfo.theme = fileVal;
+
+   SendMessage(hListFiles, LB_DELETESTRING, (WPARAM)idxFile, NULL);
+   SendMessage(hListFiles, LB_INSERTSTRING, (WPARAM)idxFile, (LPARAM)fileInfo.label.c_str());
+   SendMessage(hListFiles, LB_SETCURSEL, idxFile, NULL);
 }
 
 void ConfigureDialog::fileEditNew() {
+   FileInfo newFile{ getNewFile() };
 
+   fileInfoList.push_back(newFile);
+
+   size_t moveTo = fileInfoList.size() - 1;
+
+   SendMessage(hListFiles, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
+   SendMessage(hListFiles, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   onFileTypeSelect();
 }
 
-void ConfigureDialog::fileEditDelete() {
+int ConfigureDialog::fileEditDelete() {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return LB_ERR;
 
+   fileInfoList.erase(fileInfoList.begin() + idxFile);
+
+   int lastFile = static_cast<int>(fileInfoList.size()) - 1;
+   int moveTo = (idxFile <= lastFile - 1) ? idxFile : lastFile;
+
+   SendMessage(hListFiles, LB_DELETESTRING, (WPARAM)idxFile, NULL);
+   SendMessage(hListFiles, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   onFileTypeSelect();
+
+   return moveTo;
 }
