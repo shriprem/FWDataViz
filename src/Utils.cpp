@@ -79,8 +79,45 @@ HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage,
    return hwndTip;
 }
 
+void Utils::showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text) {
+   EDITBALLOONTIP tip;
+
+   tip.cbStruct = sizeof(tip);
+   tip.pszTitle = title;
+   tip.pszText = text;
+   tip.ttiIcon = TTI_ERROR;
+
+   SendMessage(hEdit, EM_SHOWBALLOONTIP, NULL, (LPARAM)&tip);
+   MessageBeep(MB_OK);
+}
+
 bool Utils::checkBaseOS(winVer os) {
    return (nppMessage(NPPM_GETWINDOWSVERSION, NULL, NULL) >= os);
+}
+
+bool Utils::getClipboardText(HWND hwnd, wstring& clipText) {
+   bool bRet{ FALSE };
+
+   if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
+      return bRet;
+
+   if (!OpenClipboard(hwnd))
+      return bRet;
+
+   HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
+   if (hglb != NULL) {
+
+      LPTSTR lpClipData = (LPTSTR)GlobalLock(hglb);
+      if (lpClipData != NULL) {
+         bRet = TRUE;
+         clipText = wstring{ lpClipData };
+         GlobalUnlock(hglb);
+      }
+
+      CloseClipboard();
+   }
+
+   return bRet;
 }
 
 wstring Utils::getVersionInfo(LPCWSTR key) {

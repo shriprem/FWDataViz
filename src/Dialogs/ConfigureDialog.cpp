@@ -2,22 +2,44 @@
 
 extern ConfigureDialog _configDlg;
 
-LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
+LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
    LPARAM lParam, UINT_PTR, DWORD_PTR) {
-
-   HWND hThis{ hwnd == _configDlg.hEditLabels ? _configDlg.hEditLabels : _configDlg.hEditWidths };
-   HWND hThat{ hwnd == _configDlg.hEditLabels ? _configDlg.hEditWidths : _configDlg.hEditLabels };
 
    switch (messageId) {
       case WM_CHAR:
-         if (wParam == ',' && hwnd == _configDlg.hEditLabels) {
-            EDITBALLOONTIP tip;
-            tip.cbStruct = sizeof(tip);
-            tip.pszTitle = L"Commas are item separators";
-            tip.pszText = L"The line will be split into multiple items when the 'Accept' button below is clicked.";
-            tip.ttiIcon = TTI_ERROR;
-            SendMessage(hwnd, EM_SHOWBALLOONTIP, NULL, (LPARAM)&tip);
-            MessageBeep(MB_OK);
+         if (static_cast<WCHAR>(wParam) > 255) {
+            showEditBalloonTip(hwnd, FWVIZ_DIALOG_ANSI_TITLE, FWVIZ_DIALOG_ANSI_MESSAGE);
+            return FALSE;
+         }
+         break;
+
+      case WM_PASTE:
+      {
+         wstring clipText;
+
+         Utils::getClipboardText(GetParent(hwnd), clipText);
+
+         if (!regex_match(clipText, std::wregex(L"^[\x20-\xFF]*$"))) {
+            showEditBalloonTip(hwnd, FWVIZ_DIALOG_ANSI_TITLE, FWVIZ_DIALOG_ANSI_MESSAGE);
+            return FALSE;
+         }
+         break;
+      }
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}
+
+LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
+   LPARAM lParam, UINT_PTR, DWORD_PTR) {
+
+   HWND hThis{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldLabels : _configDlg.hFieldWidths };
+   HWND hThat{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldWidths : _configDlg.hFieldLabels };
+
+   switch (messageId) {
+      case WM_CHAR:
+         if (wParam == ',' && hwnd == _configDlg.hFieldLabels) {
+            showEditBalloonTip(hwnd, FWVIZ_DIALOG_COMMAS_TITLE, FWVIZ_DIALOG_COMMAS_MESSAGE);
          }
          break;
 
@@ -35,31 +57,44 @@ LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
    return DefSubclassProc(hwnd, messageId, wParam, lParam);
 }
 
-
 void ConfigureDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
       create(IDD_FWVIZ_DEFINER_DIALOG);
    }
 
-   hListFiles = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX);
-   hListRecs = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX);
-   hEditLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
-   hEditWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
+   hFilesList = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX);
+   hFileEOL = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT);
+   hRecsList = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX);
+   hRecStart = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_START_EDIT);
+   hRecRegex = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT);
+   hFieldLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
+   hFieldWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
 
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_START_EDIT, EM_LIMITTEXT, (WPARAM)(MAX_PATH - 1), NULL);
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
 
-   SendMessage(hEditLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
-   SendMessage(hEditWidths, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
+   SendMessage(hFileEOL, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendMessage(hRecStart, EM_LIMITTEXT, (WPARAM)(MAX_PATH - 1), NULL);
+   SendMessage(hRecRegex, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendMessage(hFieldLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
+   SendMessage(hFieldWidths, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
 
-   SetWindowSubclass(hEditLabels, procFieldEditMessages, NULL, NULL);
-   SetWindowSubclass(hEditWidths, procFieldEditMessages, NULL, NULL);
+   SetWindowSubclass(hFileEOL, procANSIEditControl, NULL, NULL);
+   SetWindowSubclass(hRecStart, procANSIEditControl, NULL, NULL);
+   SetWindowSubclass(hRecRegex, procANSIEditControl, NULL, NULL);
+   SetWindowSubclass(hFieldLabels, procFieldEditMessages, NULL, NULL);
+   SetWindowSubclass(hFieldWidths, procFieldEditMessages, NULL, NULL);
 
    Utils::setFontBold(_hSelf, IDOK);
+
+   bool recentOS = Utils::checkBaseOS(WV_VISTA);
+   wstring fontName = recentOS ? L"Consolas" : L"Courier New";
+   int fontHeight = recentOS ? 8 : 7;
+
+   Utils::setFont(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
+   Utils::setFont(_hSelf, IDC_FWVIZ_DEF_REC_START_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
+   Utils::setFont(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
 
    if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
@@ -74,17 +109,24 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
    switch (message) {
       case WM_COMMAND:
          switch LOWORD(wParam) {
-            case IDCANCEL:
-            case IDOK:
-               display(FALSE);
-               return TRUE;
-
             case IDC_FWVIZ_DEF_FILE_LIST_BOX:
                switch HIWORD(wParam) {
                   case LBN_SELCHANGE:
                      onFileTypeSelect();
                      break;
                }
+               break;
+
+            case IDC_FWVIZ_DEF_FILE_ACCEPT_BTN:
+               fileEditAccept();
+               break;
+
+            case IDC_FWVIZ_DEF_FILE_NEW_BTN:
+               fileEditNew();
+               break;
+
+            case IDC_FWVIZ_DEF_FILE_DEL_BTN:
+               fileEditDelete();
                break;
 
             case IDC_FWVIZ_DEF_REC_LIST_BOX:
@@ -95,38 +137,24 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                }
                break;
 
-            case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
+            case IDC_FWVIZ_DEF_REC_START_EDIT:
                switch HIWORD(wParam) {
-                  case EN_SETFOCUS:
-                     setFieldEditCaretOnFocus(hEditLabels);
-                     break;
-
-                  case EN_VSCROLL:
-                     if (GetFocus() == hEditLabels) {
-                        syncFieldEditScrolling(hEditLabels, hEditWidths);
+                  case EN_CHANGE:
+                     if (GetFocus() == hRecStart) {
+                        onRecStartEditChange();
                      }
+                     break;
                }
                break;
 
-            case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
+            case IDC_FWVIZ_DEF_REC_REGEX_EDIT:
                switch HIWORD(wParam) {
-                  case EN_SETFOCUS:
-                     setFieldEditCaretOnFocus(hEditWidths);
-                     break;
-
-                  case EN_VSCROLL:
-                     if (GetFocus() == hEditWidths) {
-                        syncFieldEditScrolling(hEditWidths, hEditLabels);
+                  case EN_CHANGE:
+                     if (GetFocus() == hRecRegex) {
+                        onRecRegexEditChange();
                      }
+                     break;
                }
-               break;
-
-            case IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN:
-               fieldEditsAccept();
-               break;
-
-            case IDC_FWVIZ_DEF_FIELD_RESET_BTN:
-               fieldEditsReset();
                break;
 
             case IDC_FWVIZ_DEF_REC_ACCEPT_BTN:
@@ -141,18 +169,50 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                recEditDelete();
                break;
 
-            case IDC_FWVIZ_DEF_FILE_ACCEPT_BTN:
-               fileEditAccept();
+            case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
+               switch HIWORD(wParam) {
+                  case EN_SETFOCUS:
+                     setFieldEditCaretOnFocus(hFieldLabels);
+                     break;
+
+                  case EN_VSCROLL:
+                     if (GetFocus() == hFieldLabels) {
+                        syncFieldEditScrolling(hFieldLabels, hFieldWidths);
+                     }
+               }
                break;
 
-            case IDC_FWVIZ_DEF_FILE_NEW_BTN:
-               fileEditNew();
+            case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
+               switch HIWORD(wParam) {
+                  case EN_SETFOCUS:
+                     setFieldEditCaretOnFocus(hFieldWidths);
+                     break;
+
+                  case EN_VSCROLL:
+                     if (GetFocus() == hFieldWidths) {
+                        syncFieldEditScrolling(hFieldWidths, hFieldLabels);
+                     }
+               }
                break;
 
-            case IDC_FWVIZ_DEF_FILE_DEL_BTN:
-               fileEditDelete();
+            case IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN:
+               fieldEditsAccept();
+               break;
+
+            case IDC_FWVIZ_DEF_FIELD_RESET_BTN:
+               fieldEditsReset();
+               break;
+
+            case IDCANCEL:
+            case IDOK:
+               display(FALSE);
+               return TRUE;
+
+            case IDC_FWVIZ_DEF_RESET_BTN:
+               reloadConfigInfo();
                break;
          }
+         break;
    }
 
    return FALSE;
@@ -162,7 +222,7 @@ void ConfigureDialog::localize() {
    SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_GROUP_BOX, FWVIZ_DEF_FILE_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_LABEL, FWVIZ_DEF_FILE_DESC_LABEL);
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_LABEL, FWVIZ_DEF_FILE_TERM_LABEL);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_LABEL, FWVIZ_DEF_FILE_EOL_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LABEL, FWVIZ_DEF_FILE_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN, FWVIZ_DEF_FILE_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_ACCEPT_BTN, FWVIZ_DEF_FILE_ACCEPT_BTN);
@@ -230,11 +290,11 @@ void ConfigureDialog::fillFileTypes() {
    // Fill File Types Listbox
    size_t fTypes;
 
-   SendMessage(hListFiles, LB_RESETCONTENT, NULL, NULL);
+   SendMessage(hFilesList, LB_RESETCONTENT, NULL, NULL);
 
    fTypes = fileInfoList.size();
    for (size_t i{}; i < fTypes; i++) {
-      SendMessage(hListFiles, LB_ADDSTRING, NULL, (LPARAM)fileInfoList[i].label.c_str());
+      SendMessage(hFilesList, LB_ADDSTRING, NULL, (LPARAM)fileInfoList[i].label.c_str());
    }
 
    // Fill Themes Droplist
@@ -253,7 +313,7 @@ void ConfigureDialog::fillFileTypes() {
 
    // Select first item
    if (fTypes > 0) {
-      SendMessage(hListFiles, LB_SETCURSEL, 0, NULL);
+      SendMessage(hFilesList, LB_SETCURSEL, 0, NULL);
       onFileTypeSelect();
    }
 }
@@ -261,7 +321,7 @@ void ConfigureDialog::fillFileTypes() {
 int ConfigureDialog::getCurrentFileIndex() {
    int idxFile;
 
-   idxFile = static_cast<int>(SendMessage(hListFiles, LB_GETCURSEL, NULL, NULL));
+   idxFile = static_cast<int>(SendMessage(hFilesList, LB_GETCURSEL, NULL, NULL));
    if (idxFile == LB_ERR) return LB_ERR;
 
    return idxFile;
@@ -270,7 +330,7 @@ int ConfigureDialog::getCurrentFileIndex() {
 int ConfigureDialog::getCurrentRecIndex() {
    int idxRec;
 
-   idxRec = static_cast<int>(SendMessage(hListRecs, LB_GETCURSEL, NULL, NULL));
+   idxRec = static_cast<int>(SendMessage(hRecsList, LB_GETCURSEL, NULL, NULL));
    if (idxRec == LB_ERR) return LB_ERR;
 
    return idxRec;
@@ -325,7 +385,7 @@ void ConfigureDialog::onFileTypeSelect() {
    }
 
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
-   SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_EDIT, fileInfo->eol.c_str());
+   SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT, fileInfo->eol.c_str());
 
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_SETCURSEL, (WPARAM)
       SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_FINDSTRING, (WPARAM)-1,
@@ -347,17 +407,17 @@ void ConfigureDialog::fillRecTypes() {
    // Fill Rec Types Listbox
    size_t recTypes;
 
-   SendMessage(hListRecs, LB_RESETCONTENT, NULL, NULL);
+   SendMessage(hRecsList, LB_RESETCONTENT, NULL, NULL);
 
    recTypes = recInfoList.size();
 
    for (size_t i{}; i < recTypes; i++) {
-      SendMessage(hListRecs, LB_ADDSTRING, NULL, (LPARAM)recInfoList[i].label.c_str());
+      SendMessage(hRecsList, LB_ADDSTRING, NULL, (LPARAM)recInfoList[i].label.c_str());
    }
 
    // Select first item
    if (recTypes > 0) {
-      SendMessage(hListRecs, LB_SETCURSEL, 0, NULL);
+      SendMessage(hRecsList, LB_SETCURSEL, 0, NULL);
    }
 
    onRecTypeSelect();
@@ -375,9 +435,8 @@ void ConfigureDialog::onRecTypeSelect() {
 
    string regExpr = recInfo->marker;
 
-   SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT, regExpr.c_str());
-   SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_REC_START_EDIT,
-      (regExpr.substr(0, 1) == "^") ? regExpr.substr(1).c_str() : "");
+   SetWindowTextA(hRecRegex, regExpr.c_str());
+   SetWindowTextA(hRecStart, (regExpr.substr(0, 1) == "^") ? regExpr.substr(1).c_str() : "");
 
    fillFieldTypes();
 }
@@ -392,11 +451,11 @@ void ConfigureDialog::fillFieldTypes() {
 
    // Field Labels
    wstring fieldLabels{ regex_replace(recInfo->fieldLabels, wregex(L","), L"\r\n") };
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT, fieldLabels.c_str());
+   SetWindowText(hFieldLabels, fieldLabels.c_str());
 
    // Field Widths
    wstring fieldWidths{ regex_replace(recInfo->fieldWidths, wregex(L","), L"\r\n") };
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT, fieldWidths.c_str());
+   SetWindowText(hFieldWidths, fieldWidths.c_str());
 }
 
 void ConfigureDialog::setFieldEditCaretOnFocus(HWND hEdit) {
@@ -404,12 +463,12 @@ void ConfigureDialog::setFieldEditCaretOnFocus(HWND hEdit) {
    SendMessage(hEdit, EM_GETSEL, (WPARAM)&startPos, (LPARAM)&endPos);
 
    if (GetWindowTextLength(hEdit) == static_cast<int>(endPos) - static_cast<int>(startPos)) {
-      int caretPos = (hEdit == hEditLabels) ? editLabelsCaret : editWidthsCaret;
+      int caretPos = (hEdit == hFieldLabels) ? editLabelsCaret : editWidthsCaret;
       SendMessage(hEdit, EM_SETSEL, (WPARAM)caretPos, (LPARAM)caretPos);
       SendMessage(hEdit, EM_SCROLLCARET, NULL, NULL);
    }
 
-   hiliteFieldEditPairedItem(hEdit, (hEdit == hEditLabels) ? hEditWidths : hEditLabels);
+   hiliteFieldEditPairedItem(hEdit, (hEdit == hFieldLabels) ? hFieldWidths : hFieldLabels);
 }
 
 void ConfigureDialog::hiliteFieldEditPairedItem(HWND hThis, HWND hThat) {
@@ -422,7 +481,7 @@ void ConfigureDialog::hiliteFieldEditPairedItem(HWND hThis, HWND hThat) {
    int lineStart = static_cast<int>(SendMessage(hThat, EM_LINEINDEX, (WPARAM)thisLine, NULL));
    int lineLength = static_cast<int>(SendMessage(hThat, EM_LINELENGTH, (WPARAM)lineStart, NULL));
 
-   ((hThis == hEditLabels) ? editWidthsCaret : editLabelsCaret) = lineStart;
+   ((hThis == hFieldLabels) ? editWidthsCaret : editLabelsCaret) = lineStart;
 
    SendMessage(hThat, EM_SETSEL, (WPARAM)lineStart, (LPARAM)(lineStart + lineLength));
    SendMessage(hThat, EM_SCROLLCARET, NULL, NULL);
@@ -449,7 +508,7 @@ void ConfigureDialog::fieldEditsAccept() {
    wstring vals{};
 
    // Field Labels
-   GetWindowText(hEditLabels, fieldValues, (FW_LINE_MAX_LENGTH + 1));
+   GetWindowText(hFieldLabels, fieldValues, (FW_LINE_MAX_LENGTH + 1));
 
    // Replace any trailing spaces + newlines with commas
    vals = regex_replace(fieldValues, wregex(L" *\r\n"), L",");
@@ -461,10 +520,10 @@ void ConfigureDialog::fieldEditsAccept() {
    vals = regex_replace(vals, wregex(L"^ +(.*[^ ]) +$"), L"$1");
 
    recInfo->fieldLabels = vals;
-   SetWindowText(hEditLabels, regex_replace(vals, wregex(L","), L"\r\n").c_str());
+   SetWindowText(hFieldLabels, regex_replace(vals, wregex(L","), L"\r\n").c_str());
 
    // Field Widths
-   GetWindowText(hEditWidths, fieldValues, (FW_LINE_MAX_LENGTH + 1));
+   GetWindowText(hFieldWidths, fieldValues, (FW_LINE_MAX_LENGTH + 1));
 
    // Replace any newlines with commas.
    // No processing needed for leading & trailing spaces since this is a numeric edit control
@@ -475,6 +534,29 @@ void ConfigureDialog::fieldEditsAccept() {
 
 void ConfigureDialog::fieldEditsReset() {
    fillFieldTypes();
+}
+
+void ConfigureDialog::onRecStartEditChange() {
+   char startChars[MAX_PATH];
+   GetWindowTextA(hRecStart, startChars, MAX_PATH);
+
+   string startText = string{ startChars };
+   string regexText = (startText.length() > 0) ? "^" + startText : ".";
+
+   SetWindowTextA(hRecRegex, regexText.c_str());
+}
+
+void ConfigureDialog::onRecRegexEditChange() {
+   char regexChars[MAX_PATH];
+   int cCount = GetWindowTextA(hRecRegex, regexChars, MAX_PATH);
+
+   string startText{};
+
+   if (cCount > 0 && regexChars[0] == '^') {
+      startText = string{ regexChars }.substr(1);
+   }
+
+   SetWindowTextA(hRecStart, startText.c_str());
 }
 
 void ConfigureDialog::recEditAccept() {
@@ -496,9 +578,9 @@ void ConfigureDialog::recEditAccept() {
    GetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT, regexVal, MAX_PATH + 1);
    recInfo.marker = regexVal;
 
-   SendMessage(hListRecs, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hListRecs, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recDesc);
-   SendMessage(hListRecs, LB_SETCURSEL, idxRec, NULL);
+   SendMessage(hRecsList, LB_DELETESTRING, (WPARAM)idxRec, NULL);
+   SendMessage(hRecsList, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recDesc);
+   SendMessage(hRecsList, LB_SETCURSEL, idxRec, NULL);
 }
 
 void ConfigureDialog::recEditNew() {
@@ -512,8 +594,8 @@ void ConfigureDialog::recEditNew() {
 
    size_t moveTo = records.size() - 1;
 
-   SendMessage(hListRecs, LB_ADDSTRING, NULL, (LPARAM)newRec.label.c_str());
-   SendMessage(hListRecs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hRecsList, LB_ADDSTRING, NULL, (LPARAM)newRec.label.c_str());
+   SendMessage(hRecsList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
    onRecTypeSelect();
 }
 
@@ -530,8 +612,8 @@ int ConfigureDialog::recEditDelete() {
    int lastRec = static_cast<int>(records.size()) - 1;
    int moveTo = (idxRec <= lastRec - 1) ? idxRec : lastRec;
 
-   SendMessage(hListRecs, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hListRecs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hRecsList, LB_DELETESTRING, (WPARAM)idxRec, NULL);
+   SendMessage(hRecsList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
    onRecTypeSelect();
 
    return moveTo;
@@ -550,15 +632,15 @@ void ConfigureDialog::fileEditAccept() {
 
    char eolVal[MAX_PATH + 1];
 
-   GetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_TERM_EDIT, eolVal, MAX_PATH + 1);
+   GetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT, eolVal, MAX_PATH + 1);
    fileInfo.eol = eolVal;
 
    GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, fileVal, MAX_PATH + 1);
    fileInfo.theme = fileVal;
 
-   SendMessage(hListFiles, LB_DELETESTRING, (WPARAM)idxFile, NULL);
-   SendMessage(hListFiles, LB_INSERTSTRING, (WPARAM)idxFile, (LPARAM)fileInfo.label.c_str());
-   SendMessage(hListFiles, LB_SETCURSEL, idxFile, NULL);
+   SendMessage(hFilesList, LB_DELETESTRING, (WPARAM)idxFile, NULL);
+   SendMessage(hFilesList, LB_INSERTSTRING, (WPARAM)idxFile, (LPARAM)fileInfo.label.c_str());
+   SendMessage(hFilesList, LB_SETCURSEL, idxFile, NULL);
 }
 
 void ConfigureDialog::fileEditNew() {
@@ -568,8 +650,8 @@ void ConfigureDialog::fileEditNew() {
 
    size_t moveTo = fileInfoList.size() - 1;
 
-   SendMessage(hListFiles, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
-   SendMessage(hListFiles, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFilesList, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
+   SendMessage(hFilesList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
    onFileTypeSelect();
 }
 
@@ -582,9 +664,14 @@ int ConfigureDialog::fileEditDelete() {
    int lastFile = static_cast<int>(fileInfoList.size()) - 1;
    int moveTo = (idxFile <= lastFile - 1) ? idxFile : lastFile;
 
-   SendMessage(hListFiles, LB_DELETESTRING, (WPARAM)idxFile, NULL);
-   SendMessage(hListFiles, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFilesList, LB_DELETESTRING, (WPARAM)idxFile, NULL);
+   SendMessage(hFilesList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
    onFileTypeSelect();
 
    return moveTo;
+}
+
+void ConfigureDialog::reloadConfigInfo() {
+   loadConfigInfo();
+   fillFileTypes();
 }

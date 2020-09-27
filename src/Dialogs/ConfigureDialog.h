@@ -9,6 +9,7 @@
 using std::wregex;
 using std::regex_replace;
 using std::vector;
+using Utils::showEditBalloonTip;
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -22,7 +23,7 @@ public:
    void hiliteFieldEditPairedItem(HWND hThis, HWND hThat);
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
 
-   HWND hListFiles, hListRecs, hEditLabels, hEditWidths;
+   HWND hFilesList, hFileEOL, hRecsList, hRecStart, hRecRegex, hFieldLabels, hFieldWidths;
 
    struct RecordInfo {
       wstring label;
@@ -44,7 +45,8 @@ protected:
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    int loadConfigInfo();
-   void fillFileTypes();
+   void reloadConfigInfo();
+
    int getCurrentFileIndex();
    bool getCurrentFileInfo(FileInfo* &fileInfo);
    FileInfo getNewFile();
@@ -53,21 +55,23 @@ protected:
    bool getCurrentRecInfo(RecordInfo* &recInfo);
    RecordInfo getNewRec();
 
+   void fillFileTypes();
    void onFileTypeSelect();
+   void fileEditAccept();
+   void fileEditNew();
+   int fileEditDelete();
+
    void fillRecTypes();
    void onRecTypeSelect();
-   void fillFieldTypes();
-
-   void fieldEditsAccept();
-   void fieldEditsReset();
-
+   void onRecStartEditChange();
+   void onRecRegexEditChange();
    void recEditAccept();
    void recEditNew();
    int recEditDelete();
 
-   void fileEditAccept();
-   void fileEditNew();
-   int fileEditDelete();
+   void fillFieldTypes();
+   void fieldEditsAccept();
+   void fieldEditsReset();
 
    int editLabelsCaret{}, editWidthsCaret{};
 };

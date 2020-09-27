@@ -6,7 +6,9 @@
 
 namespace Utils {
    HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, BOOL bBalloon=TRUE);
+   void showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text);
    bool checkBaseOS(winVer os);
+   bool getClipboardText(HWND hwnd, wstring& clipText);
    wstring getVersionInfo(LPCWSTR key);
    void loadBitmap(HWND hDlg, int controlID, int resource);
    void setFont(HWND hDlg, int controlID, wstring &name, int height,
