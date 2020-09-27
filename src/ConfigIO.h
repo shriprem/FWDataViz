@@ -11,6 +11,7 @@ using std::vector;
 class ConfigIO {
 public:
    void init();
+   LPCWSTR getPluginConfigDir();
    string getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
    wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");

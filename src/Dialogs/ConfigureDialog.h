@@ -40,6 +40,12 @@ public:
    };
 
 protected:
+   enum move_dir {
+      MOVE_DOWN = 1,
+      MOVE_UP = -1
+   };
+
+   wstring configFile{ L"" };
    vector<FileInfo> fileInfoList;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
@@ -57,6 +63,8 @@ protected:
 
    void fillFileTypes();
    void onFileTypeSelect();
+   void enableMoveButtons();
+   int moveFileType(move_dir dir);
    void fileEditAccept();
    void fileEditNew();
    int fileEditDelete();

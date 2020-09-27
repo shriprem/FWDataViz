@@ -86,6 +86,12 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    SetWindowSubclass(hFieldLabels, procFieldEditMessages, NULL, NULL);
    SetWindowSubclass(hFieldWidths, procFieldEditMessages, NULL, NULL);
 
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDC_FWVIZ_DEF_FILE_DOWN_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDC_FWVIZ_DEF_FILE_UP_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_UP, FALSE);
+
    Utils::setFontBold(_hSelf, IDOK);
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
@@ -115,6 +121,14 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                      onFileTypeSelect();
                      break;
                }
+               break;
+
+            case IDC_FWVIZ_DEF_FILE_DOWN_BUTTON:
+               moveFileType(MOVE_DOWN);
+               break;
+
+            case IDC_FWVIZ_DEF_FILE_UP_BUTTON:
+               moveFileType(MOVE_UP);
                break;
 
             case IDC_FWVIZ_DEF_FILE_ACCEPT_BTN:
@@ -152,6 +166,12 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                   case EN_CHANGE:
                      if (GetFocus() == hRecRegex) {
                         onRecRegexEditChange();
+                     }
+                     break;
+
+                  case EN_KILLFOCUS:
+                     if (GetWindowTextLength(hRecRegex) == 0) {
+                        SetWindowTextA(hRecRegex, ".");
                      }
                      break;
                }
@@ -209,6 +229,15 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                return TRUE;
 
             case IDC_FWVIZ_DEF_RESET_BTN:
+               configFile = L"";
+               reloadConfigInfo();
+               break;
+
+            case IDC_FWVIZ_DEF_BACKUP_LOAD_BTN:
+               TCHAR sConfigFile[MAX_PATH];
+
+               PathCombine(sConfigFile, _configIO.getPluginConfigDir(), L"Visualizer_Bkup.ini");
+               configFile = wstring{ sConfigFile };
                reloadConfigInfo();
                break;
          }
@@ -248,7 +277,7 @@ int ConfigureDialog::loadConfigInfo() {
    wstring fileTypeList;
    int fileTypeCount;
 
-   fileTypeList = _configIO.getConfigString(L"Base", L"FileTypes");
+   fileTypeList = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile.c_str());
    fileTypeCount = _configIO.Tokenize(fileTypeList, fileTypes);
 
    fileInfoList.clear();
@@ -258,15 +287,15 @@ int ConfigureDialog::loadConfigInfo() {
       wstring &fileType = fileTypes[i];
       FileInfo &FILE = fileInfoList[i];
 
-      FILE.label = _configIO.getConfigString(fileType.c_str(), L"FileLabel");
-      FILE.eol = _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
-      FILE.theme = _configIO.getConfigString(fileType.c_str(), L"FileTheme");
+      FILE.label = _configIO.getConfigString(fileType.c_str(), L"FileLabel", L"", configFile.c_str());
+      FILE.eol = _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator", L"", configFile.c_str());
+      FILE.theme = _configIO.getConfigString(fileType.c_str(), L"FileTheme", L"", configFile.c_str());
 
       vector<wstring> recTypes;
       wstring recTypeList;
       int recTypeCount;
 
-      recTypeList = _configIO.getConfigString(fileType.c_str(), L"RecordTypes");
+      recTypeList = _configIO.getConfigString(fileType.c_str(), L"RecordTypes", L"", configFile.c_str());
       recTypeCount = _configIO.Tokenize(recTypeList, recTypes);
 
       FILE.records.clear();
@@ -276,10 +305,14 @@ int ConfigureDialog::loadConfigInfo() {
          wstring &recType = recTypes[j];
          RecordInfo &REC = FILE.records[j];
 
-         REC.label = _configIO.getConfigString(fileType.c_str(), (recType + L"_Label").c_str());
-         REC.marker = _configIO.getConfigStringA(fileType.c_str(), (recType + L"_Marker").c_str());
-         REC.fieldWidths = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldWidths").c_str());
-         REC.fieldLabels = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldLabels").c_str());
+         REC.label = _configIO.getConfigString(fileType.c_str(),
+            (recType + L"_Label").c_str(), L"", configFile.c_str());
+         REC.marker = _configIO.getConfigStringA(fileType.c_str(),
+            (recType + L"_Marker").c_str(), L"", configFile.c_str());
+         REC.fieldWidths = _configIO.getConfigString(fileType.c_str(),
+            (recType + L"_FieldWidths").c_str(), L"", configFile.c_str());
+         REC.fieldLabels = _configIO.getConfigString(fileType.c_str(),
+            (recType + L"_FieldLabels").c_str(), L"", configFile.c_str());
       }
    }
 
@@ -391,8 +424,52 @@ void ConfigureDialog::onFileTypeSelect() {
       SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_FINDSTRING, (WPARAM)-1,
          (LPARAM)fileInfo->theme.c_str()), NULL);
 
+   enableMoveButtons();
    fillRecTypes();
 }
+
+void ConfigureDialog::enableMoveButtons() {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return;
+
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON),
+      (idxFile < static_cast<int>(fileInfoList.size()) - 1));
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON), (idxFile > 0));
+}
+
+int ConfigureDialog::moveFileType(move_dir dir) {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return LB_ERR;
+
+   switch(dir) {
+      case MOVE_DOWN:
+         if (idxFile >= static_cast<int>(fileInfoList.size()) - 1) return LB_ERR;
+         break;
+
+      case MOVE_UP:
+         if (idxFile == 0) return LB_ERR;
+         break;
+
+      default:
+         return LB_ERR;
+   }
+
+   FileInfo currType = fileInfoList[idxFile];
+   FileInfo &adjType = fileInfoList[idxFile + dir];
+
+   fileInfoList[idxFile] = adjType;
+   fileInfoList[idxFile + dir] = currType;
+
+   SendMessage(hFilesList, LB_DELETESTRING, (WPARAM)idxFile, NULL);
+   SendMessage(hFilesList, LB_INSERTSTRING, (WPARAM)(idxFile + dir),
+      (LPARAM)fileInfoList[idxFile + dir].label.c_str());
+   SendMessage(hFilesList, LB_SETCURSEL, idxFile + dir, NULL);
+
+   enableMoveButtons();
+
+   return idxFile + dir;
+}
+
 
 void ConfigureDialog::fillRecTypes() {
    FileInfo* fileInfo;

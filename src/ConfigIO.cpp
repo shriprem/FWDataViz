@@ -28,7 +28,6 @@ void ConfigIO::init() {
    TCHAR sDefaultsFile[MAX_PATH];
    TCHAR sConfigFile[MAX_PATH];
 
-
    for (int i{}; i < CONFIG_FILE_COUNT; i++) {
       PathCombine(sConfigFile, pluginConfigDir, CONFIG_FILES[i].c_str());
       CONFIG_FILE_PATHS[i] = wstring{ sConfigFile };
@@ -43,6 +42,10 @@ void ConfigIO::init() {
       (nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
    defaultForeColor = static_cast<int>
       (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
+}
+
+LPCWSTR ConfigIO::getPluginConfigDir() {
+   return pluginConfigDir;
 }
 
 string ConfigIO::getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName) {

@@ -55,7 +55,11 @@
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\src\Resources\down.bmp" />
     <Image Include="..\src\Resources\gear.bmp" />
+    <Image Include="..\src\Resources\up.bmp" />
+    <Image Include="down.bmp" />
+    <Image Include="up.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9D04DBD5-E12E-44E0-A683-6F43F21D533B}</ProjectGuid>

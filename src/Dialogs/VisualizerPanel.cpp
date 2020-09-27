@@ -68,7 +68,7 @@ void VisualizerPanel::initPanel() {
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDC_VIZPANEL_CONFIG_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG, FALSE);
 
    if (_gLanguage != LANG_ENGLISH) localize();
 }

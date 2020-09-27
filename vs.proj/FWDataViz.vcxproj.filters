@@ -114,5 +114,13 @@
     <Image Include="..\src\Resources\gear.bmp">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="down.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="up.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\src\Resources\down.bmp" />
+    <Image Include="..\src\Resources\up.bmp" />
   </ItemGroup>
 </Project>
