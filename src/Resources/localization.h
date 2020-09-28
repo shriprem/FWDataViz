@@ -33,6 +33,8 @@
 #define FWVIZ_DEF_FILE_ACCEPT_BTN   L"Accept"
 #define FWVIZ_DEF_FILE_DEL_BTN      L"Delete"
 #define FWVIZ_DEF_REC_GROUP_BOX     L"Record Types"
+#define FWVIZ_DEF_REC_MOVE_DOWN     L"Move down the selected Record Type"
+#define FWVIZ_DEF_REC_MOVE_UP       L"Move up the selected Record Type"
 #define FWVIZ_DEF_REC_DESC_LABEL    L"Record Type Label:"
 #define FWVIZ_DEF_REC_START_LABEL   L"Record Starts With:"
 #define FWVIZ_DEF_REC_REGEX_LABEL   L"Record Regex Key:"

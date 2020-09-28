@@ -25,6 +25,12 @@ public:
 
    HWND hFilesList, hFileEOL, hRecsList, hRecStart, hRecRegex, hFieldLabels, hFieldWidths;
 
+protected:
+   enum move_dir {
+      MOVE_DOWN = 1,
+      MOVE_UP = -1
+   };
+
    struct RecordInfo {
       wstring label;
       string marker;
@@ -39,14 +45,14 @@ public:
       vector<RecordInfo> records;
    };
 
-protected:
-   enum move_dir {
-      MOVE_DOWN = 1,
-      MOVE_UP = -1
+   struct ModTrack {
+      bool edited{};
+      int accepted{};
    };
 
    wstring configFile{ L"" };
    vector<FileInfo> fileInfoList;
+   ModTrack fileMods, recMods, fieldMods;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
@@ -63,7 +69,7 @@ protected:
 
    void fillFileTypes();
    void onFileTypeSelect();
-   void enableMoveButtons();
+   void enableMoveFileButtons();
    int moveFileType(move_dir dir);
    void fileEditAccept();
    void fileEditNew();
@@ -71,6 +77,8 @@ protected:
 
    void fillRecTypes();
    void onRecTypeSelect();
+   void enableMoveRecButtons();
+   int moveRecType(move_dir dir);
    void onRecStartEditChange();
    void onRecRegexEditChange();
    void recEditAccept();

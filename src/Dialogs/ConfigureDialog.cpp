@@ -86,11 +86,17 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    SetWindowSubclass(hFieldLabels, procFieldEditMessages, NULL, NULL);
    SetWindowSubclass(hFieldWidths, procFieldEditMessages, NULL, NULL);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDC_FWVIZ_DEF_FILE_DOWN_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDC_FWVIZ_DEF_FILE_UP_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_UP, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
 
    Utils::setFontBold(_hSelf, IDOK);
 
@@ -149,6 +155,14 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                      onRecTypeSelect();
                      break;
                }
+               break;
+
+            case IDC_FWVIZ_DEF_REC_DOWN_BUTTON:
+               moveRecType(MOVE_DOWN);
+               break;
+
+            case IDC_FWVIZ_DEF_REC_UP_BUTTON:
+               moveRecType(MOVE_UP);
                break;
 
             case IDC_FWVIZ_DEF_REC_START_EDIT:
@@ -424,11 +438,11 @@ void ConfigureDialog::onFileTypeSelect() {
       SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_FINDSTRING, (WPARAM)-1,
          (LPARAM)fileInfo->theme.c_str()), NULL);
 
-   enableMoveButtons();
+   enableMoveFileButtons();
    fillRecTypes();
 }
 
-void ConfigureDialog::enableMoveButtons() {
+void ConfigureDialog::enableMoveFileButtons() {
    int idxFile{ getCurrentFileIndex() };
    if (idxFile == LB_ERR) return;
 
@@ -465,7 +479,7 @@ int ConfigureDialog::moveFileType(move_dir dir) {
       (LPARAM)fileInfoList[idxFile + dir].label.c_str());
    SendMessage(hFilesList, LB_SETCURSEL, idxFile + dir, NULL);
 
-   enableMoveButtons();
+   enableMoveFileButtons();
 
    return idxFile + dir;
 }
@@ -515,7 +529,58 @@ void ConfigureDialog::onRecTypeSelect() {
    SetWindowTextA(hRecRegex, regExpr.c_str());
    SetWindowTextA(hRecStart, (regExpr.substr(0, 1) == "^") ? regExpr.substr(1).c_str() : "");
 
+   enableMoveRecButtons();
    fillFieldTypes();
+}
+
+void ConfigureDialog::enableMoveRecButtons() {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return;
+
+   int idxRec{ getCurrentRecIndex() };
+   if (idxRec == LB_ERR) return;
+
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON),
+      (idxRec < static_cast<int>(fileInfoList[idxFile].records.size()) - 1));
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON), (idxRec > 0));
+}
+
+int ConfigureDialog::moveRecType(move_dir dir) {
+   int idxFile{ getCurrentFileIndex() };
+   if (idxFile == LB_ERR) return LB_ERR;
+
+   int idxRec{ getCurrentRecIndex() };
+   if (idxRec == LB_ERR) return LB_ERR;
+
+   vector<RecordInfo>& recList = fileInfoList[idxFile].records;
+
+   switch (dir) {
+   case MOVE_DOWN:
+      if (idxRec >= static_cast<int>(recList.size()) - 1) return LB_ERR;
+      break;
+
+   case MOVE_UP:
+      if (idxRec == 0) return LB_ERR;
+      break;
+
+   default:
+      return LB_ERR;
+   }
+
+   RecordInfo currType = recList[idxRec];
+   RecordInfo& adjType = recList[idxRec + dir];
+
+   recList[idxRec] = adjType;
+   recList[idxRec + dir] = currType;
+
+   SendMessage(hRecsList, LB_DELETESTRING, (WPARAM)idxRec, NULL);
+   SendMessage(hRecsList, LB_INSERTSTRING, (WPARAM)(idxRec + dir),
+      (LPARAM)recList[idxRec + dir].label.c_str());
+   SendMessage(hRecsList, LB_SETCURSEL, idxRec + dir, NULL);
+
+   enableMoveRecButtons();
+
+   return idxRec + dir;
 }
 
 void ConfigureDialog::fillFieldTypes() {
