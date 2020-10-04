@@ -14,6 +14,8 @@
 #define VIZ_PANEL_CLOSE             L"C&lose"
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
 #define VIZ_PANEL_TIP_CONFIG        L"Open File Type Configuration Dialog"
+#define VIZ_PANEL_WORDWRAP_INFO     L"Visualizer is impaired when wordwrap is enabled."
+#define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
 
 
 // About Dialog

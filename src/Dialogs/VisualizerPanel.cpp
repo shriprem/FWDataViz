@@ -39,6 +39,11 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                setFocusOnEditor();
                ShowVisualizerPanel(false);
                break;
+
+            case IDC_VIZPANEL_WORDWRAP_BUTTON:
+               SendMessage(nppData._nppHandle, NPPM_MENUCOMMAND, 0, IDM_VIEW_WRAP);
+               setFocusOnEditor();
+               break;
          }
 
       break;
@@ -47,9 +52,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case WM_MBUTTONDOWN:
       case WM_RBUTTONDOWN:
          SetFocus(_hSelf);
-         break;
-
-      case WM_SETFOCUS:
          break;
 
       default :
@@ -79,6 +81,8 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BUTTON, VIZ_PANEL_CLEAR_BUTTON);
    SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO, VIZ_PANEL_WORDWRAP_INFO);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON, VIZ_PANEL_WORDWRAP_BUTTON);
 }
 
 void VisualizerPanel::display(bool toShow) {
@@ -510,11 +514,14 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 void VisualizerPanel::updateCurrentPage() {
    if (loadLexer() < 1) {
       clearCaretFieldInfo();
+      showWordwrapInfo(FALSE);
       return;
    }
 
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
+
+   showWordwrapInfo(SendMessage(hScintilla, SCI_GETWRAPMODE, NULL, NULL) != SC_WRAP_NONE);
 
    size_t startLine, lineCount, linesOnScreen, endLine;
 
@@ -587,7 +594,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       }
 
       if (matchedField < 0) {
-         fieldInfoText += L"\nOverflow!";
+         fieldInfoText += L"\n    Overflow!";
       }
       else {
          fieldInfoText += L"\n Field Label: ";
@@ -601,9 +608,14 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 
          fieldInfoText += L"\n Field Start: " + to_wstring(FLD.fieldStarts[matchedField] + 1);
          fieldInfoText += L"\n Field Width: " + to_wstring(FLD.fieldWidths[matchedField]);
-         fieldInfoText += L"\nField Column: " + to_wstring(caretColumn - FLD.fieldStarts[matchedField] + 1) + L"\n";
+         fieldInfoText += L"\nField Column: " + to_wstring(caretColumn - FLD.fieldStarts[matchedField] + 1);
       }
    }
+
+   wchar_t ansiInfo[200];
+   UCHAR atChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretColumnPos, 0));
+   swprintf(ansiInfo, 200, L"0x%X [%u]", atChar, atChar);
+   fieldInfoText += L"\n   ANSI Byte: " + wstring(ansiInfo);
 
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, fieldInfoText.c_str());
 
@@ -647,4 +659,9 @@ void VisualizerPanel::setFocusOnEditor() {
 void VisualizerPanel::clearLexer() {
    recInfoList.clear();
    fwVizRegexed = L"";
+}
+
+void VisualizerPanel::showWordwrapInfo(bool show) {
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO), show ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON), show ? SW_SHOW : SW_HIDE);
 }

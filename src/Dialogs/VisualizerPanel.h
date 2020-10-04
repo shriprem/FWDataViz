@@ -17,6 +17,7 @@
 #include "../Utils.h"
 #include "../ConfigIO.h"
 #include "../NPP/DockingDlgInterface.h"
+#include "../NPP/menuCmdID.h"
 #include <regex>
 
 #define FW_DEBUG_LOAD_STYLES FALSE
@@ -29,6 +30,7 @@
 #define FW_STYLE_EOL 100
 #define FW_STYLE_RANGE_START 101
 
+extern NppData nppData;
 extern ConfigIO _configIO;
 
 using std::regex;
@@ -51,8 +53,6 @@ public :
    int loadLexer();
    void applyLexer(const size_t startLine, const size_t endLine);
    void updateCurrentPage();
-   void clearCaretFieldInfo();
-   void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
@@ -60,7 +60,10 @@ protected :
    bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring &fileType);
    void setDocFileType(HWND hScintilla, wstring fileType);
    static void setFocusOnEditor();
+   void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
+   void clearCaretFieldInfo();
    void clearLexer();
+   void showWordwrapInfo(bool show);
 
    // File Type data
    HWND hFTList;
