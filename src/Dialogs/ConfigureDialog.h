@@ -45,19 +45,15 @@ protected:
       vector<RecordInfo> records;
    };
 
-   struct ModTrack {
-      bool edited{};
-      int accepted{};
-   };
-
    wstring configFile{ L"" };
    vector<FileInfo> fileInfoList;
-   ModTrack fileMods, recMods, fieldMods;
+   bool cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    int loadConfigInfo();
    void reloadConfigInfo();
+   bool promptDiscardChangesNo();
 
    int getCurrentFileIndex();
    bool getCurrentFileInfo(FileInfo* &fileInfo);
@@ -70,6 +66,7 @@ protected:
    void fillFileTypes();
    void onFileTypeSelect();
    void enableMoveFileButtons();
+   void enableFileSelection(bool enable);
    int moveFileType(move_dir dir);
    void fileEditAccept();
    void fileEditNew();
@@ -78,6 +75,7 @@ protected:
    void fillRecTypes();
    void onRecTypeSelect();
    void enableMoveRecButtons();
+   void enableRecSelection(bool enable);
    int moveRecType(move_dir dir);
    void onRecStartEditChange();
    void onRecRegexEditChange();

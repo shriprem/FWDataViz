@@ -54,3 +54,4 @@
 #define FWVIZ_DIALOG_ANSI_MESSAGE   L"This edit field will only accept ANSI characters."
 #define FWVIZ_DIALOG_COMMAS_TITLE   L"Commas are item separators"
 #define FWVIZ_DIALOG_COMMAS_MESSAGE L"The line will be split into multiple items when the 'Accept' button below is clicked."
+#define FWVIZ_DISCARD_CHANGES       L"Discard changes?"
