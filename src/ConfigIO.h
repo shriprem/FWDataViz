@@ -3,6 +3,7 @@
 #include "PluginDefinition.h"
 #include <codecvt>
 #include <locale>
+#include <time.h>
 #include <unordered_map>
 #include <vector>
 
@@ -12,10 +13,13 @@ class ConfigIO {
 public:
    void init();
    LPCWSTR getPluginConfigDir();
-   string getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
-   wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue = L"", LPCWSTR fileName=L"");
+   string getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue=L"", LPCWSTR fileName=L"");
+   wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue=L"", LPCWSTR fileName=L"");
+   void setConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCSTR keyValue, LPCWSTR fileName=L"");
+   void setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR keyValue, LPCWSTR fileName=L"");
+
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
-   int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim = L",");
+   int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim=L",");
    wstring NarrowToWide(const string &str);
    string WideToNarrow(const wstring &wStr);
 
@@ -24,8 +28,11 @@ public:
    void getStyleColor(LPCWSTR styleName, int &color, bool foreColor);
    void getStyleBool(LPCWSTR styleName, int &var);
 
+   void backupMoveConfigFile();
+
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
+   TCHAR pluginConfigBackupDir[MAX_PATH];
    TCHAR themeConfigFile[MAX_PATH];
 
    enum CF_TYPES {

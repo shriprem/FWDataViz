@@ -54,6 +54,7 @@ protected:
    int loadConfigInfo();
    void reloadConfigInfo();
    bool promptDiscardChangesNo();
+   void saveConfigInfo();
 
    int getCurrentFileIndex();
    bool getCurrentFileInfo(FileInfo* &fileInfo);

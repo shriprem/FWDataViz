@@ -301,7 +301,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                return TRUE;
 
             case IDOK:
-               display(FALSE);
+               saveConfigInfo();
                return TRUE;
 
             case IDC_FWVIZ_DEF_RESET_BTN:
@@ -760,10 +760,10 @@ void ConfigureDialog::fieldEditsAccept() {
    // Replace any trailing spaces + newlines with commas
    vals = regex_replace(fieldValues, wregex(L" *\r\n"), L",");
 
-   // Replace any leading spaces + commas with commas
+   // Replace any commas + leading spaces with commas
    vals = regex_replace(vals, wregex(L", +([^,]*)"), L",$1");
 
-   // Trim any leading & trailing spaces + commas for the entire string
+   // Trim any leading & trailing spaces for the entire string
    vals = regex_replace(vals, wregex(L"^ +(.*[^ ]) +$"), L"$1");
 
    recInfo->fieldLabels = vals;
@@ -970,4 +970,57 @@ bool ConfigureDialog::promptDiscardChangesNo() {
    }
 
    return false;
+}
+
+void ConfigureDialog::saveConfigInfo() {
+   if (!cleanFieldVals) fieldEditsAccept();
+   if (!cleanRecVals) recEditAccept();
+   if (!cleanFileVals) fileEditAccept();
+
+   wchar_t fileTypeCode[10], recTypeCode[10];
+   wstring fileTypeList{}, themesList{}, recTypeList{}, recTypePrefix;
+
+   themesList = _configIO.getConfigString(L"Base", L"Themes");
+   _configIO.backupMoveConfigFile();
+
+   size_t fileTypeCount{fileInfoList.size()};
+   fileTypeCount = (fileTypeCount > 999) ? 999 : fileTypeCount;
+
+   _configIO.setConfigString(L"Base", L"FileTypes", L"");
+   _configIO.setConfigString(L"Base", L"Themes", themesList.c_str());
+
+   for (size_t i{}; i < fileTypeCount; i++) {
+      FileInfo& FILE = fileInfoList[i];
+
+      swprintf(fileTypeCode, 10, L"FT_%03d", static_cast<int>(i + 1));
+      fileTypeList += (i == 0 ? L"" : L",") + wstring{ fileTypeCode };
+
+      _configIO.setConfigString(fileTypeCode, L"FileLabel", FILE.label.c_str());
+      _configIO.setConfigString(fileTypeCode, L"FileTheme", FILE.theme.c_str());
+      _configIO.setConfigStringA(fileTypeCode, L"RecordTerminator", FILE.eol.c_str());
+
+      size_t recTypeCount{ FILE.records.size() };
+      recTypeCount = (recTypeCount > 999) ? 999 : recTypeCount;
+
+      recTypeList = L"";
+      _configIO.setConfigString(fileTypeCode, L"RecordTypes", L"");
+
+      for (size_t j{}; j < recTypeCount; j++) {
+         RecordInfo& REC = FILE.records[j];
+
+         swprintf(recTypeCode, 10, L"REC%03d", static_cast<int>(j + 1));
+         recTypePrefix = wstring{ recTypeCode };
+         recTypeList += (j == 0 ? L"" : L",") + recTypePrefix;
+
+         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_Label").c_str(), REC.label.c_str());
+         _configIO.setConfigStringA(fileTypeCode, (recTypePrefix + L"_Marker").c_str(), REC.marker.c_str());
+         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_FieldLabels").c_str(), REC.fieldLabels.c_str());
+         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_FieldWidths").c_str(), REC.fieldWidths.c_str());
+      }
+
+      _configIO.setConfigString(fileTypeCode, L"RecordTypes", recTypeList.c_str());
+   }
+
+   _configIO.setConfigString(L"Base", L"FileTypes", fileTypeList.c_str());
+   cleanConfigFile = TRUE;
 }

@@ -5,7 +5,7 @@ void ConfigIO::init() {
    TCHAR sPluginDirectory[MAX_PATH];
 
    nppMessage(NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)sPluginDirectory);
-   PathAppendW(sPluginDirectory, (L"plugins\\" + sPluginFolder).c_str());
+   PathAppend(sPluginDirectory, (L"plugins\\" + sPluginFolder).c_str());
 
    nppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
 
@@ -15,11 +15,18 @@ void ConfigIO::init() {
       CreateDirectory(pluginConfigDir, NULL);
    }
 
-   PathAppendW(pluginConfigDir, sPluginFolder.c_str());
+   // if no existing config folder for this plugin, create it
+   PathAppend(pluginConfigDir, sPluginFolder.c_str());
 
-   // if no existing config file, create it
    if (!PathFileExists(pluginConfigDir)) {
       CreateDirectory(pluginConfigDir, NULL);
+   }
+
+   // if no existing config backup folder for this plugin, create it
+   PathCombine(pluginConfigBackupDir, pluginConfigDir, L"Backup");
+
+   if (!PathFileExists(pluginConfigBackupDir)) {
+      CreateDirectory(pluginConfigBackupDir, NULL);
    }
 
    // if config files are missing copy them from the plugins folder
@@ -62,6 +69,17 @@ wstring ConfigIO::getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR 
    GetPrivateProfileStringW(sectionName, keyName, defaultValue, ftBuf, bufSize, fileName);
 
    return wstring{ ftBuf };
+}
+
+void ConfigIO::setConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCSTR keyValue, LPCWSTR fileName) {
+   setConfigString(sectionName, keyName, NarrowToWide(keyValue).c_str(), fileName);
+}
+
+void ConfigIO::setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR keyValue, LPCWSTR fileName) {
+   if (wstring{ fileName }.length() < 1)
+      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+
+   WritePrivateProfileString(sectionName, keyName, keyValue, fileName);
 }
 
 int ConfigIO::Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim) {
@@ -129,4 +147,19 @@ void ConfigIO::getStyleColor(LPCWSTR styleName, int &color, bool foreColor) {
 
 void ConfigIO::getStyleBool(LPCWSTR styleName, int &var) {
    var = (getStyleValue(styleName).compare(L"Y") == 0) ? 1 : 0;
+}
+
+void ConfigIO::backupMoveConfigFile() {
+   time_t rawTime;
+   struct tm* timeInfo;
+
+   char fileName[30];
+   TCHAR backupFilePath[MAX_PATH];
+
+   time(&rawTime);
+   timeInfo = localtime(&rawTime);
+   strftime(fileName, 30, "%Y%m%d_%H%M%S.ini", timeInfo);
+
+   PathCombine(backupFilePath, pluginConfigBackupDir, NarrowToWide(fileName).c_str());
+   MoveFile(CONFIG_FILE_PATHS[CONFIG_MAIN].c_str(), backupFilePath);
 }
