@@ -316,6 +316,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                configFile = wstring{ sConfigFile };
                reloadConfigInfo();
                break;
+
+            case IDC_FWVIZ_DEF_BACKUP_VIEW_BTN:
+               _configIO.viewBackupFolder();
+               break;
          }
          break;
    }

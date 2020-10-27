@@ -29,6 +29,7 @@ public:
    void getStyleBool(LPCWSTR styleName, int &var);
 
    void backupMoveConfigFile();
+   void viewBackupFolder();
 
 protected:
    TCHAR pluginConfigDir[MAX_PATH];

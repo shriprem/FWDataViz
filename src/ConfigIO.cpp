@@ -163,3 +163,7 @@ void ConfigIO::backupMoveConfigFile() {
    PathCombine(backupFilePath, pluginConfigBackupDir, NarrowToWide(fileName).c_str());
    MoveFile(CONFIG_FILE_PATHS[CONFIG_MAIN].c_str(), backupFilePath);
 }
+
+void ConfigIO::viewBackupFolder() {
+   ShellExecute(NULL, L"open", pluginConfigBackupDir, NULL, NULL, SW_SHOWNORMAL);
+}
