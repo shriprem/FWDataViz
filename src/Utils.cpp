@@ -5,6 +5,7 @@ extern HINSTANCE _gModule;
 // ***************** PRIVATE *****************
 
 enum fontStyle {
+   FS_REGULAR,
    FS_BOLD,
    FS_ITALIC,
    FS_UNDERLINE
@@ -20,20 +21,24 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style) {
       return FALSE;
 
    switch (style) {
-   case FS_BOLD:
-      lf.lfWeight = FW_BOLD;
-      break;
+      case FS_REGULAR:
+         lf.lfWeight = FW_REGULAR;
+         break;
 
-   case FS_ITALIC:
-      lf.lfItalic = TRUE;
-      break;
+      case FS_BOLD:
+         lf.lfWeight = FW_BOLD;
+         break;
 
-   case FS_UNDERLINE:
-      lf.lfUnderline = TRUE;
-      break;
+      case FS_ITALIC:
+         lf.lfItalic = TRUE;
+         break;
 
-   default:
-      break;
+      case FS_UNDERLINE:
+         lf.lfUnderline = TRUE;
+         break;
+
+      default:
+         break;
    }
 
    hFont = CreateFontIndirect(&lf);
@@ -186,6 +191,10 @@ void Utils::setFont(HWND hDlg, int controlID, wstring &name, int height, int wei
    HFONT hFont = CreateFontIndirect(&lf);
 
    SendMessage(hwndCtrl, WM_SETFONT, (WPARAM)hFont, MAKELPARAM(true, 0));
+}
+
+bool Utils::setFontRegular(HWND hDlg, int controlID) {
+   return changeFontStyle(hDlg, controlID, FS_REGULAR);
 }
 
 bool Utils::setFontBold(HWND hDlg, int controlID) {

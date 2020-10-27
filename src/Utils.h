@@ -13,6 +13,7 @@ namespace Utils {
    void loadBitmap(HWND hDlg, int controlID, int resource);
    void setFont(HWND hDlg, int controlID, wstring &name, int height,
       int weight=FW_REGULAR, bool italic=FALSE, bool underline=FALSE);
+   bool setFontRegular(HWND hDlg, int controlID);
    bool setFontBold(HWND hDlg, int controlID);
    bool setFontItalic(HWND hDlg, int controlID);
    bool setFontUnderline(HWND hDlg, int controlID);

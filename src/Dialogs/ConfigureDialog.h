@@ -47,10 +47,11 @@ protected:
 
    wstring configFile{ L"" };
    vector<FileInfo> fileInfoList;
-   bool cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
+   bool loadingEdits, cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
+   void indicateCleanStatus();
    int loadConfigInfo();
    void reloadConfigInfo();
    bool promptDiscardChangesNo();
@@ -67,7 +68,7 @@ protected:
    void fillFileTypes();
    void onFileTypeSelect();
    void enableMoveFileButtons();
-   void enableFileSelection(bool enable);
+   void enableFileSelection();
    int moveFileType(move_dir dir);
    void fileEditAccept();
    void fileEditNew();
@@ -76,7 +77,7 @@ protected:
    void fillRecTypes();
    void onRecTypeSelect();
    void enableMoveRecButtons();
-   void enableRecSelection(bool enable);
+   void enableRecSelection();
    int moveRecType(move_dir dir);
    void onRecStartEditChange();
    void onRecRegexEditChange();
@@ -86,7 +87,6 @@ protected:
 
    void fillFieldTypes();
    void fieldEditsAccept();
-   void fieldEditsReset();
 
    int editLabelsCaret{}, editWidthsCaret{};
 };

@@ -98,8 +98,6 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
 
-   Utils::setFontBold(_hSelf, IDOK);
-
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
    int fontHeight = recentOS ? 8 : 7;
@@ -140,8 +138,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FILE_DESC_EDIT:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                     cleanFileVals = FALSE;
-                     enableFileSelection(FALSE);
+                     if (!loadingEdits) {
+                        cleanFileVals = FALSE;
+                        enableFileSelection();
+                     }
                      break;
                   }
                break;
@@ -149,8 +149,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FILE_EOL_EDIT:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                     cleanFileVals = FALSE;
-                     enableFileSelection(FALSE);
+                     if (!loadingEdits) {
+                        cleanFileVals = FALSE;
+                        enableFileSelection();
+                     }
                      break;
                   }
                break;
@@ -158,8 +160,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FILE_THEME_LIST:
                switch HIWORD(wParam) {
                   case LBN_SELCHANGE:
-                     cleanFileVals = FALSE;
-                     enableFileSelection(FALSE);
+                     if (!loadingEdits) {
+                        cleanFileVals = FALSE;
+                        enableFileSelection();
+                     }
                      break;
                   }
                break;
@@ -195,9 +199,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_REC_DESC_EDIT:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                     cleanRecVals = FALSE;
-                     enableFileSelection(FALSE);
-                     enableRecSelection(FALSE);
+                     if (!loadingEdits) {
+                        cleanRecVals = FALSE;
+                        enableRecSelection();
+                     }
                      break;
                }
                break;
@@ -205,9 +210,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_REC_START_EDIT:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                     cleanRecVals = FALSE;
-                     enableFileSelection(FALSE);
-                     enableRecSelection(FALSE);
+                     if (!loadingEdits) {
+                        cleanRecVals = FALSE;
+                        enableRecSelection();
+                     }
 
                      if (GetFocus() == hRecStart) {
                         onRecStartEditChange();
@@ -219,9 +225,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_REC_REGEX_EDIT:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                     cleanRecVals = FALSE;
-                     enableFileSelection(FALSE);
-                     enableRecSelection(FALSE);
+                     if (!loadingEdits) {
+                        cleanRecVals = FALSE;
+                        enableRecSelection();
+                     }
 
                      if (GetFocus() == hRecRegex) {
                         onRecRegexEditChange();
@@ -251,9 +258,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                     cleanFieldVals = FALSE;
-                     enableFileSelection(FALSE);
-                     enableRecSelection(FALSE);
+                     if (!loadingEdits) {
+                        cleanFieldVals = FALSE;
+                        enableRecSelection();
+                     }
                      break;
 
                   case EN_SETFOCUS:
@@ -270,9 +278,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                     cleanFieldVals = FALSE;
-                     enableFileSelection(FALSE);
-                     enableRecSelection(FALSE);
+                     if (!loadingEdits) {
+                        cleanFieldVals = FALSE;
+                        enableRecSelection();
+                     }
                      break;
 
                   case EN_SETFOCUS:
@@ -291,7 +300,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_FWVIZ_DEF_FIELD_RESET_BTN:
-               fieldEditsReset();
+               fillFieldTypes();
                break;
 
             case IDCANCEL:
@@ -300,7 +309,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                display(FALSE);
                return TRUE;
 
-            case IDOK:
+            case IDC_FWVIZ_DEF_SAVE_CONFIG_BTN:
                saveConfigInfo();
                return TRUE;
 
@@ -347,9 +356,51 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_TEXT, FWVIZ_DEF_FIELD_WIDTHS_TEXT);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_TEXT, FWVIZ_DEF_FIELD_LABELS_TEXT);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN, FWVIZ_DEF_FIELD_ACCEPT_BTN);
-   SetDlgItemText(_hSelf, IDOK, FWVIZ_DIALOG_SAVE_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_SAVE_CONFIG_BTN, FWVIZ_DIALOG_SAVE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_RESET_BTN, FWVIZ_DIALOG_RESET_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_LOAD_BTN, FWVIZ_DIALOG_BKUP_LOAD_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_VIEW_BTN, FWVIZ_DIALOG_BKUP_VIEW_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_EXPORT_BTN, FWVIZ_DIALOG_EXPORT_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_IMPORT_BTN, FWVIZ_DIALOG_IMPORT_BTN);
    SetDlgItemText(_hSelf, IDCANCEL, FWVIZ_DIALOG_CLOSE_BTN);
+}
+
+void ConfigureDialog::indicateCleanStatus() {
+   if (cleanConfigFile) {
+      SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_SAVE_CONFIG_BTN, FWVIZ_DIALOG_SAVE_BTN);
+      Utils::setFontRegular(_hSelf, IDC_FWVIZ_DEF_SAVE_CONFIG_BTN);
+   }
+   else {
+      SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_SAVE_CONFIG_BTN, (wstring(FWVIZ_DIALOG_SAVE_BTN) + L"*").c_str());
+      Utils::setFontBold(_hSelf, IDC_FWVIZ_DEF_SAVE_CONFIG_BTN);
+   }
+
+   if (cleanFileVals) {
+      SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_ACCEPT_BTN, FWVIZ_DEF_FILE_ACCEPT_BTN);
+      Utils::setFontRegular(_hSelf, IDC_FWVIZ_DEF_FILE_ACCEPT_BTN);
+   }
+   else {
+      SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_ACCEPT_BTN, (wstring(FWVIZ_DEF_FILE_ACCEPT_BTN) + L"*").c_str());
+      Utils::setFontBold(_hSelf, IDC_FWVIZ_DEF_FILE_ACCEPT_BTN);
+   }
+
+   if (cleanRecVals) {
+      SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_ACCEPT_BTN, FWVIZ_DEF_REC_ACCEPT_BTN);
+      Utils::setFontRegular(_hSelf, IDC_FWVIZ_DEF_REC_ACCEPT_BTN);
+   }
+   else {
+      SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_ACCEPT_BTN, (wstring(FWVIZ_DEF_REC_ACCEPT_BTN) + L"*").c_str());
+      Utils::setFontBold(_hSelf, IDC_FWVIZ_DEF_REC_ACCEPT_BTN);
+   }
+
+   if (cleanFieldVals) {
+      SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN, FWVIZ_DEF_FIELD_ACCEPT_BTN);
+      Utils::setFontRegular(_hSelf, IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN);
+   }
+   else {
+      SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN, (wstring(FWVIZ_DEF_FIELD_ACCEPT_BTN) + L"*").c_str());
+      Utils::setFontBold(_hSelf, IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN);
+   }
 }
 
 int ConfigureDialog::loadConfigInfo() {
@@ -427,14 +478,11 @@ void ConfigureDialog::fillFileTypes() {
    // Select first item
    if (fTypes > 0) {
       SendMessage(hFilesList, LB_SETCURSEL, 0, NULL);
-      onFileTypeSelect();
-   }
-   else {
-      cleanFileVals = TRUE;
-      enableFileSelection(TRUE);
    }
 
    cleanConfigFile = TRUE;
+   cleanFileVals = TRUE;
+   onFileTypeSelect();
 }
 
 int ConfigureDialog::getCurrentFileIndex() {
@@ -503,16 +551,16 @@ void ConfigureDialog::onFileTypeSelect() {
       fileInfo = &newFile;
    }
 
+   loadingEdits = TRUE;
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
    SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT, fileInfo->eol.c_str());
+   loadingEdits = FALSE;
 
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_SETCURSEL, (WPARAM)
       SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_FINDSTRING, (WPARAM)-1,
          (LPARAM)fileInfo->theme.c_str()), NULL);
 
-   cleanFileVals = TRUE;
    enableMoveFileButtons();
-
    fillRecTypes();
 }
 
@@ -525,7 +573,8 @@ void ConfigureDialog::enableMoveFileButtons() {
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON), (idxFile > 0));
 }
 
-void ConfigureDialog::enableFileSelection(bool enable) {
+void ConfigureDialog::enableFileSelection() {
+   bool enable{ cleanFileVals && cleanRecVals && cleanFieldVals };
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN), enable);
 
@@ -536,6 +585,8 @@ void ConfigureDialog::enableFileSelection(bool enable) {
       EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON), FALSE);
       EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON), FALSE);
    }
+
+   indicateCleanStatus();
 }
 
 int ConfigureDialog::moveFileType(move_dir dir) {
@@ -567,11 +618,11 @@ int ConfigureDialog::moveFileType(move_dir dir) {
    SendMessage(hFilesList, LB_SETCURSEL, idxFile + dir, NULL);
 
    cleanConfigFile = FALSE;
+   indicateCleanStatus();
    enableMoveFileButtons();
 
    return idxFile + dir;
 }
-
 
 void ConfigureDialog::fillRecTypes() {
    FileInfo* fileInfo;
@@ -599,6 +650,7 @@ void ConfigureDialog::fillRecTypes() {
       SendMessage(hRecsList, LB_SETCURSEL, 0, NULL);
    }
 
+   cleanRecVals = TRUE;
    onRecTypeSelect();
 }
 
@@ -610,6 +662,8 @@ void ConfigureDialog::onRecTypeSelect() {
       recInfo = &newRec;
    }
 
+   loadingEdits = TRUE;
+
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recInfo->label.c_str());
 
    string regExpr = recInfo->marker;
@@ -617,11 +671,9 @@ void ConfigureDialog::onRecTypeSelect() {
    SetWindowTextA(hRecRegex, regExpr.c_str());
    SetWindowTextA(hRecStart, (regExpr.substr(0, 1) == "^") ? regExpr.substr(1).c_str() : "");
 
-   cleanRecVals = TRUE;
-   enableFileSelection(cleanFileVals);
-   enableRecSelection(TRUE);
-   enableMoveRecButtons();
+   loadingEdits = FALSE;
 
+   enableMoveRecButtons();
    fillFieldTypes();
 }
 
@@ -637,7 +689,8 @@ void ConfigureDialog::enableMoveRecButtons() {
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON), (idxRec > 0));
 }
 
-void ConfigureDialog::enableRecSelection(bool enable) {
+void ConfigureDialog::enableRecSelection() {
+   bool enable{ cleanRecVals && cleanFieldVals };
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN), enable);
 
@@ -648,6 +701,8 @@ void ConfigureDialog::enableRecSelection(bool enable) {
       EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON), FALSE);
       EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON), FALSE);
    }
+
+   enableFileSelection();
 }
 
 int ConfigureDialog::moveRecType(move_dir dir) {
@@ -683,7 +738,6 @@ int ConfigureDialog::moveRecType(move_dir dir) {
       (LPARAM)recList[idxRec + dir].label.c_str());
    SendMessage(hRecsList, LB_SETCURSEL, idxRec + dir, NULL);
 
-   cleanConfigFile = FALSE;
    enableMoveRecButtons();
 
    return idxRec + dir;
@@ -706,6 +760,7 @@ void ConfigureDialog::fillFieldTypes() {
    SetWindowText(hFieldWidths, fieldWidths.c_str());
 
    cleanFieldVals = TRUE;
+   enableRecSelection();
 }
 
 void ConfigureDialog::setFieldEditCaretOnFocus(HWND hEdit) {
@@ -784,14 +839,7 @@ void ConfigureDialog::fieldEditsAccept() {
 
    cleanConfigFile = FALSE;
    cleanFieldVals = TRUE;
-   enableFileSelection(cleanFileVals && cleanRecVals);
-   enableRecSelection(cleanRecVals);
-}
-
-void ConfigureDialog::fieldEditsReset() {
-   fillFieldTypes();
-   enableFileSelection(cleanFileVals && cleanRecVals);
-   enableRecSelection(cleanRecVals);
+   enableRecSelection();
 }
 
 void ConfigureDialog::onRecStartEditChange() {
@@ -844,8 +892,7 @@ void ConfigureDialog::recEditAccept() {
 
    cleanConfigFile = FALSE;
    cleanRecVals = TRUE;
-   enableFileSelection(cleanFileVals && cleanFieldVals);
-   enableRecSelection(cleanFieldVals);
+   enableRecSelection();
 }
 
 void ConfigureDialog::recEditNew() {
@@ -864,8 +911,8 @@ void ConfigureDialog::recEditNew() {
    onRecTypeSelect();
 
    cleanConfigFile = FALSE;
-   enableFileSelection(FALSE);
-   enableRecSelection(FALSE);
+   cleanRecVals = FALSE;
+   enableRecSelection();
 }
 
 int ConfigureDialog::recEditDelete() {
@@ -883,12 +930,10 @@ int ConfigureDialog::recEditDelete() {
 
    SendMessage(hRecsList, LB_DELETESTRING, (WPARAM)idxRec, NULL);
    SendMessage(hRecsList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
-   onRecTypeSelect();
 
    cleanConfigFile = FALSE;
    cleanRecVals = TRUE;
-   enableFileSelection(cleanFileVals);
-   enableRecSelection(TRUE);
+   onRecTypeSelect();
 
    return moveTo;
 }
@@ -920,7 +965,7 @@ void ConfigureDialog::fileEditAccept() {
 
    cleanConfigFile = FALSE;
    cleanFileVals = TRUE;
-   enableFileSelection(cleanRecVals && cleanFieldVals);
+   enableFileSelection();
 }
 
 void ConfigureDialog::fileEditNew() {
@@ -936,7 +981,7 @@ void ConfigureDialog::fileEditNew() {
 
    cleanConfigFile = FALSE;
    cleanFileVals = FALSE;
-   enableFileSelection(FALSE);
+   enableFileSelection();
 }
 
 int ConfigureDialog::fileEditDelete() {
@@ -950,11 +995,10 @@ int ConfigureDialog::fileEditDelete() {
 
    SendMessage(hFilesList, LB_DELETESTRING, (WPARAM)idxFile, NULL);
    SendMessage(hFilesList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
-   onFileTypeSelect();
 
    cleanConfigFile = FALSE;
    cleanFileVals = TRUE;
-   enableFileSelection(TRUE);
+   onFileTypeSelect();
 
    return moveTo;
 }
@@ -1027,4 +1071,5 @@ void ConfigureDialog::saveConfigInfo() {
 
    _configIO.setConfigString(L"Base", L"FileTypes", fileTypeList.c_str());
    cleanConfigFile = TRUE;
+   indicateCleanStatus();
 }
