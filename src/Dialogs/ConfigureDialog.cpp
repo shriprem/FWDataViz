@@ -1025,7 +1025,7 @@ void ConfigureDialog::saveConfigInfo() {
    if (!cleanRecVals) recEditAccept();
    if (!cleanFileVals) fileEditAccept();
 
-   wchar_t fileTypeCode[10], recTypeCode[10];
+   wchar_t fileTypeCode[60], recTypeCode[10];
    wstring fileTypeList{}, themesList{}, recTypeList{}, recTypePrefix;
 
    themesList = _configIO.getConfigString(L"Base", L"Themes");
@@ -1040,7 +1040,12 @@ void ConfigureDialog::saveConfigInfo() {
    for (size_t i{}; i < fileTypeCount; i++) {
       FileInfo& FILE = fileInfoList[i];
 
-      swprintf(fileTypeCode, 10, L"FT_%03d", static_cast<int>(i + 1));
+      wstring fileType{};
+
+      fileType = regex_replace(FILE.label, wregex(L" "), L"_").substr(0, 50);
+      std::use_facet<std::ctype<wchar_t>>(std::locale()).toupper(&fileType[0], &(fileType[fileType.length()]));
+
+      swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(i + 1), fileType.c_str());
       fileTypeList += (i == 0 ? L"" : L",") + wstring{ fileTypeCode };
 
       _configIO.setConfigString(fileTypeCode, L"FileLabel", FILE.label.c_str());
