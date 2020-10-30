@@ -3,6 +3,7 @@
 #include "PluginDefinition.h"
 #include <codecvt>
 #include <locale>
+#include <commdlg.h>
 #include <time.h>
 #include <unordered_map>
 #include <vector>
@@ -12,7 +13,7 @@ using std::vector;
 class ConfigIO {
 public:
    void init();
-   LPCWSTR getPluginConfigDir();
+
    string getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue=L"", LPCWSTR fileName=L"");
    wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue=L"", LPCWSTR fileName=L"");
    void setConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCSTR keyValue, LPCWSTR fileName=L"");
@@ -31,6 +32,7 @@ public:
    void getStyleBool(LPCWSTR styleName, int &var);
 
    void backupMoveConfigFile();
+   BOOL getBackupConfigFileName(HWND hwnd, wstring* backupConfigFile);
    void viewBackupFolder();
 
 protected:

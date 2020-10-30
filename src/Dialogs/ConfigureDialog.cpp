@@ -319,12 +319,15 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_FWVIZ_DEF_BACKUP_LOAD_BTN:
-               TCHAR sConfigFile[MAX_PATH];
+            {
+               wstring sBackupConfigFile;
 
-               PathCombine(sConfigFile, _configIO.getPluginConfigDir(), L"Visualizer_Bkup.ini");
-               configFile = wstring{ sConfigFile };
-               reloadConfigInfo();
+               if (_configIO.getBackupConfigFileName(_hSelf, &sBackupConfigFile)) {
+                  configFile = sBackupConfigFile;
+                  reloadConfigInfo();
+               }
                break;
+            }
 
             case IDC_FWVIZ_DEF_BACKUP_VIEW_BTN:
                _configIO.viewBackupFolder();

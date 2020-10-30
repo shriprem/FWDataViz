@@ -51,10 +51,6 @@ void ConfigIO::init() {
       (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
 }
 
-LPCWSTR ConfigIO::getPluginConfigDir() {
-   return pluginConfigDir;
-}
-
 string ConfigIO::getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName) {
    return WideToNarrow(getConfigString(sectionName, keyName, defaultValue, fileName));
 }
@@ -157,15 +153,40 @@ void ConfigIO::backupMoveConfigFile() {
    time_t rawTime;
    struct tm* timeInfo;
 
-   char fileName[30];
+   char fileName[50];
    TCHAR backupFilePath[MAX_PATH];
 
    time(&rawTime);
    timeInfo = localtime(&rawTime);
-   strftime(fileName, 30, "%Y%m%d_%H%M%S.ini", timeInfo);
+   strftime(fileName, 50, "Visualizer_%Y%m%d_%H%M%S.ini", timeInfo);
 
    PathCombine(backupFilePath, pluginConfigBackupDir, NarrowToWide(fileName).c_str());
    MoveFile(CONFIG_FILE_PATHS[CONFIG_MAIN].c_str(), backupFilePath);
+}
+
+BOOL ConfigIO::getBackupConfigFileName(HWND hwnd, wstring *backupConfigFile) {
+   OPENFILENAME ofn;
+
+   TCHAR filePath[MAX_PATH];
+
+   ZeroMemory(&ofn, sizeof(ofn));
+   ofn.lStructSize = sizeof(ofn);
+   ofn.hwndOwner = hwnd;
+   ofn.lpstrFile = filePath;
+   ofn.lpstrFile[0] = '\0';
+   ofn.nMaxFile = sizeof(filePath);
+   ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.INI\0";
+   ofn.nFilterIndex = 2;
+   ofn.lpstrFileTitle = NULL;
+   ofn.nMaxFileTitle = 0;
+   ofn.lpstrInitialDir = pluginConfigBackupDir;
+   ofn.lpstrTitle = L"Open Backup Configuration File";
+   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+   BOOL ret{ GetOpenFileName(&ofn) };
+   if (ret) *backupConfigFile = ofn.lpstrFile;
+
+   return ret;
 }
 
 void ConfigIO::viewBackupFolder() {
