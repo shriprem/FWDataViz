@@ -60,6 +60,7 @@ LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam);
 // Plugin Command Functions
 void ToggleVisualizerPanel();
 void ShowVisualizerPanel(bool show);
+void RefreshVisualizerPanel();
 
 void ShowConfigDialog();
 void ShowAboutDialog();

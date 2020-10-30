@@ -132,6 +132,10 @@ void ShowVisualizerPanel(bool show) {
                MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));
 }
 
+void RefreshVisualizerPanel() {
+    _vizPanel.loadFileTypes();
+}
+
 void ShowConfigDialog() {
    _configDlg.doDialog((HINSTANCE)_gModule);
 }

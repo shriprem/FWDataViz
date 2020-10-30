@@ -115,6 +115,10 @@ int ConfigIO::Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim)
    return static_cast<int>(results.size());
 }
 
+LPCWSTR ConfigIO::ToUpper(LPWSTR str, size_t strlen) {
+   return std::use_facet<std::ctype<wchar_t>>(std::locale()).toupper(str, str + strlen);
+}
+
 wstring ConfigIO::NarrowToWide(const string &str) {
    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(str);
 }

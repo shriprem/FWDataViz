@@ -1025,14 +1025,14 @@ void ConfigureDialog::saveConfigInfo() {
    if (!cleanRecVals) recEditAccept();
    if (!cleanFileVals) fileEditAccept();
 
+   size_t fileTypeCount, recTypeCount;
    wchar_t fileTypeCode[60], recTypeCode[10];
    wstring fileTypeList{}, themesList{}, recTypeList{}, recTypePrefix;
 
    themesList = _configIO.getConfigString(L"Base", L"Themes");
    _configIO.backupMoveConfigFile();
 
-   size_t fileTypeCount{fileInfoList.size()};
-   fileTypeCount = (fileTypeCount > 999) ? 999 : fileTypeCount;
+   fileTypeCount = (fileInfoList.size() > 999) ? 999 : fileInfoList.size();
 
    _configIO.setConfigString(L"Base", L"FileTypes", L"");
    _configIO.setConfigString(L"Base", L"Themes", themesList.c_str());
@@ -1040,20 +1040,17 @@ void ConfigureDialog::saveConfigInfo() {
    for (size_t i{}; i < fileTypeCount; i++) {
       FileInfo& FILE = fileInfoList[i];
 
-      wstring fileType{};
+      swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(i + 1),
+         regex_replace(FILE.label, wregex(L" "), L"_").substr(0, 50).c_str());
+      _configIO.ToUpper(fileTypeCode, sizeof(fileTypeCode));
 
-      fileType = regex_replace(FILE.label, wregex(L" "), L"_").substr(0, 50);
-      std::use_facet<std::ctype<wchar_t>>(std::locale()).toupper(&fileType[0], &(fileType[fileType.length()]));
-
-      swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(i + 1), fileType.c_str());
       fileTypeList += (i == 0 ? L"" : L",") + wstring{ fileTypeCode };
 
       _configIO.setConfigString(fileTypeCode, L"FileLabel", FILE.label.c_str());
       _configIO.setConfigString(fileTypeCode, L"FileTheme", FILE.theme.c_str());
       _configIO.setConfigStringA(fileTypeCode, L"RecordTerminator", FILE.eol.c_str());
 
-      size_t recTypeCount{ FILE.records.size() };
-      recTypeCount = (recTypeCount > 999) ? 999 : recTypeCount;
+      recTypeCount = (FILE.records.size() > 999) ? 999 : FILE.records.size();
 
       recTypeList = L"";
       _configIO.setConfigString(fileTypeCode, L"RecordTypes", L"");
@@ -1077,4 +1074,5 @@ void ConfigureDialog::saveConfigInfo() {
    _configIO.setConfigString(L"Base", L"FileTypes", fileTypeList.c_str());
    cleanConfigFile = TRUE;
    indicateCleanStatus();
+   RefreshVisualizerPanel();
 }

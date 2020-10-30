@@ -40,6 +40,16 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                ShowVisualizerPanel(false);
                break;
 
+            case IDC_VIZPANEL_CARET_FRAMED:
+               {
+                  HWND hScintilla{ getCurrentScintilla() };
+                  if (hScintilla) {
+                     int frame{ IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_CARET_FRAMED) == BST_CHECKED ? 2 : 0 };
+                     SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)frame, NULL);
+                  }
+               }
+               break;
+
             case IDC_VIZPANEL_WORDWRAP_BUTTON:
                SendMessage(nppData._nppHandle, NPPM_MENUCOMMAND, 0, IDM_VIEW_WRAP);
                setFocusOnEditor();
@@ -72,6 +82,12 @@ void VisualizerPanel::initPanel() {
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDC_VIZPANEL_CONFIG_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG, FALSE);
 
+   HWND hScintilla{ getCurrentScintilla() };
+   if (hScintilla) {
+      CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED,
+         SendMessage(hScintilla, SCI_GETCARETLINEFRAME, NULL, NULL) == 0 ? BST_UNCHECKED : BST_CHECKED);
+   }
+
    if (_gLanguage != LANG_ENGLISH) localize();
 }
 
@@ -82,6 +98,7 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO, VIZ_PANEL_WORDWRAP_INFO);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON, VIZ_PANEL_WORDWRAP_BUTTON);
 }
 
@@ -158,6 +175,7 @@ void VisualizerPanel::visualizeFile() {
    }
 
    SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
+   CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED, BST_CHECKED);
 
    clearVisualize(FALSE);
    setDocFileType(hScintilla, sDesc);

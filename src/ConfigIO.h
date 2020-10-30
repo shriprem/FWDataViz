@@ -20,6 +20,8 @@ public:
 
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
    int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim=L",");
+
+   LPCWSTR ToUpper(LPWSTR str, size_t strlen);
    wstring NarrowToWide(const string &str);
    string WideToNarrow(const wstring &wStr);
 
