@@ -329,6 +329,16 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_BACKUP_VIEW_BTN:
                _configIO.viewBackupFolder();
                break;
+
+            case IDC_FWVIZ_DEF_EXTRACT_BTN:
+               MessageBox(_hSelf, L"Extracting", L"", MB_OK);
+               _configIO.viewBackupFolder();
+               break;
+
+            case IDC_FWVIZ_DEF_APPEND_BTN:
+               MessageBox(_hSelf, L"Appending", L"", MB_OK);
+               _configIO.viewBackupFolder();
+               break;
          }
          break;
    }
@@ -360,8 +370,8 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_RESET_BTN, FWVIZ_DIALOG_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_LOAD_BTN, FWVIZ_DIALOG_BKUP_LOAD_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_VIEW_BTN, FWVIZ_DIALOG_BKUP_VIEW_BTN);
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_EXPORT_BTN, FWVIZ_DIALOG_EXPORT_BTN);
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_IMPORT_BTN, FWVIZ_DIALOG_IMPORT_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN, FWVIZ_DIALOG_EXTRACT_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_APPEND_BTN, FWVIZ_DIALOG_APPEND_BTN);
    SetDlgItemText(_hSelf, IDCANCEL, FWVIZ_DIALOG_CLOSE_BTN);
 }
 

@@ -41,13 +41,8 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_CARET_FRAMED:
-               {
-                  HWND hScintilla{ getCurrentScintilla() };
-                  if (hScintilla) {
-                     int frame{ IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_CARET_FRAMED) == BST_CHECKED ? 2 : 0 };
-                     SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)frame, NULL);
-                  }
-               }
+               SendMessage(getCurrentScintilla(), SCI_SETCARETLINEFRAME,
+                  (WPARAM)IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_CARET_FRAMED) == BST_CHECKED ? 2 : 0, NULL);
                break;
 
             case IDC_VIZPANEL_WORDWRAP_BUTTON:
@@ -82,12 +77,6 @@ void VisualizerPanel::initPanel() {
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDC_VIZPANEL_CONFIG_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG, FALSE);
 
-   HWND hScintilla{ getCurrentScintilla() };
-   if (hScintilla) {
-      CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED,
-         SendMessage(hScintilla, SCI_GETCARETLINEFRAME, NULL, NULL) == 0 ? BST_UNCHECKED : BST_CHECKED);
-   }
-
    if (_gLanguage != LANG_ENGLISH) localize();
 }
 
@@ -107,6 +96,9 @@ void VisualizerPanel::display(bool toShow) {
    hFTList = GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
 
    if (toShow) {
+      CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED,
+         SendMessage(getCurrentScintilla(), SCI_GETCARETLINEFRAME, NULL, NULL) == 0 ? BST_UNCHECKED : BST_CHECKED);
+
       loadFileTypes();
       SetFocus(hFTList);
       syncListFileType();

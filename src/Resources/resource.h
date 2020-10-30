@@ -1540,8 +1540,8 @@
 #define IDC_FWVIZ_DEF_RESET_BTN         9182
 #define IDC_FWVIZ_DEF_BACKUP_LOAD_BTN   9183
 #define IDC_FWVIZ_DEF_BACKUP_VIEW_BTN   9184
-#define IDC_FWVIZ_DEF_EXPORT_BTN        9185
-#define IDC_FWVIZ_DEF_IMPORT_BTN        9186
+#define IDC_FWVIZ_DEF_EXTRACT_BTN       9185
+#define IDC_FWVIZ_DEF_APPEND_BTN        9186
 #define IDD_ABOUT_DIALOG                9900
 #define IDC_ABOUT_NAME                  9901
 #define IDC_ABOUT_VERSION               9902
