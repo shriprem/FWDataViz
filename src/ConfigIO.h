@@ -4,6 +4,8 @@
 #include <codecvt>
 #include <locale>
 #include <commdlg.h>
+#include <fstream>
+//#include <iostream>
 #include <time.h>
 #include <unordered_map>
 #include <vector>
@@ -18,7 +20,7 @@ public:
    wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue=L"", LPCWSTR fileName=L"");
    void setConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCSTR keyValue, LPCWSTR fileName=L"");
    void setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR keyValue, LPCWSTR fileName=L"");
-   void writeConfigSection(LPCWSTR sectionName, LPCWSTR sectionConfig, LPCWSTR fileName=L"");
+   void saveConfigFile(const wstring &fileData, LPCWSTR fileName = L"");
 
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
    int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim=L",");

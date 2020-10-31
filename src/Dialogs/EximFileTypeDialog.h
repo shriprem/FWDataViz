@@ -10,7 +10,7 @@ public:
    EximFileTypeDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
    void initDialog(bool bExtract);
-   void setFileTypeData(wstring &ftConfig);
+   void setFileTypeData(LPCWSTR ftConfig);
 
 protected:
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);

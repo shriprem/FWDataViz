@@ -62,7 +62,7 @@ protected:
    int getCurrentFileTypeIndex();
    bool getCurrentFileTypeInfo(FileType* &fileInfo);
    FileType getNewFileType();
-   void getFileTypeConfig(int idxFT, wstring& ftCode, wstring &ftConfig);
+   void getFileTypeConfig(size_t idxFT, bool cr_lf, wstring &ftCode, wstring &ftConfig);
 
    int getCurrentRecIndex();
    bool getCurrentRecInfo(RecordType* &recInfo);

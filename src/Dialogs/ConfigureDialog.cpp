@@ -539,22 +539,23 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
    return newFile;
 }
 
-void ConfigureDialog::getFileTypeConfig(int idxFT, wstring& ftCode, wstring &ftConfig) {
+void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring &ftCode, wstring &ftConfig) {
    size_t recTypeCount;
    wchar_t fileTypeCode[60], recTypeCode[10];
-   wstring recTypes{}, rtConfig{}, recTypePrefix;
+   wstring new_line, recTypes{}, rtConfig{}, recTypePrefix;
 
    FileType& FT = vFileTypes[idxFT];
+   new_line = cr_lf ? L"\r\n" : L"\n";
 
    swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxFT + 1),
       regex_replace(FT.label, wregex(L" "), L"_").substr(0, 50).c_str());
    _configIO.ToUpper(fileTypeCode, sizeof(fileTypeCode));
 
    ftCode = wstring{ fileTypeCode };
-   ftConfig = L"[" + ftCode + L"]\r\n" +
-      L"FileLabel=" + FT.label + L"\r\n" +
-      L"FileTheme=" + FT.theme + L"\r\n" +
-      L"RecordTerminator=" + _configIO.NarrowToWide(FT.eol) + L"\r\n";
+   ftConfig = L"[" + ftCode + L"]" + new_line +
+      L"FileLabel=" + FT.label + new_line +
+      L"FileTheme=" + FT.theme + new_line +
+      L"RecordTerminator=" + _configIO.NarrowToWide(FT.eol) + new_line;
 
    recTypeCount = (FT.vRecTypes.size() > 999) ? 999 : FT.vRecTypes.size();
 
@@ -566,13 +567,13 @@ void ConfigureDialog::getFileTypeConfig(int idxFT, wstring& ftCode, wstring &ftC
       recTypes += (j == 0 ? L"RecordTypes=" : L",") + recTypePrefix;
 
       rtConfig +=
-         recTypePrefix + L"_Label=" + RT.label + L"\r\n" +
-         recTypePrefix + L"_Marker=" + _configIO.NarrowToWide(RT.marker) + L"\r\n" +
-         recTypePrefix + L"_FieldLabels=" + RT.fieldLabels + L"\r\n" +
-         recTypePrefix + L"_FieldWidths=" + RT.fieldWidths + L"\r\n";
+         recTypePrefix + L"_Label=" + RT.label + new_line +
+         recTypePrefix + L"_Marker=" + _configIO.NarrowToWide(RT.marker) + new_line +
+         recTypePrefix + L"_FieldLabels=" + RT.fieldLabels + new_line +
+         recTypePrefix + L"_FieldWidths=" + RT.fieldWidths + new_line;
    }
 
-   ftConfig += recTypes + L"\r\n" + rtConfig;
+   ftConfig += recTypes + new_line + rtConfig;
 }
 
 bool ConfigureDialog::getCurrentRecInfo(RecordType*& recInfo) {
@@ -1080,53 +1081,24 @@ void ConfigureDialog::saveConfigInfo() {
    if (!cleanRecVals) recEditAccept();
    if (!cleanFileVals) fileEditAccept();
 
-   size_t fileTypeCount, recTypeCount;
-   wchar_t fileTypeCode[60], recTypeCode[10];
-   wstring fileTypes{}, themes{}, recTypes{}, recTypePrefix;
+   size_t fileTypeCount;
+   wstring fileData{}, fileTypes{}, themes{}, ftCode{}, ftConfig{};
 
    themes = _configIO.getConfigString(L"Base", L"Themes");
    _configIO.backupMoveConfigFile();
 
    fileTypeCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
 
-   _configIO.setConfigString(L"Base", L"FileTypes", L"");
-   _configIO.setConfigString(L"Base", L"Themes", themes.c_str());
-
    for (size_t i{}; i < fileTypeCount; i++) {
-      FileType& FT = vFileTypes[i];
-
-      swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(i + 1),
-         regex_replace(FT.label, wregex(L" "), L"_").substr(0, 50).c_str());
-      _configIO.ToUpper(fileTypeCode, sizeof(fileTypeCode));
-
-      fileTypes += (i == 0 ? L"" : L",") + wstring{ fileTypeCode };
-
-      _configIO.setConfigString(fileTypeCode, L"FileLabel", FT.label.c_str());
-      _configIO.setConfigString(fileTypeCode, L"FileTheme", FT.theme.c_str());
-      _configIO.setConfigStringA(fileTypeCode, L"RecordTerminator", FT.eol.c_str());
-
-      recTypeCount = (FT.vRecTypes.size() > 999) ? 999 : FT.vRecTypes.size();
-
-      recTypes = L"";
-      _configIO.setConfigString(fileTypeCode, L"RecordTypes", L"");
-
-      for (size_t j{}; j < recTypeCount; j++) {
-         RecordType& RT = FT.vRecTypes[j];
-
-         swprintf(recTypeCode, 10, L"REC%03d", static_cast<int>(j + 1));
-         recTypePrefix = wstring{ recTypeCode };
-         recTypes += (j == 0 ? L"" : L",") + recTypePrefix;
-
-         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_Label").c_str(), RT.label.c_str());
-         _configIO.setConfigStringA(fileTypeCode, (recTypePrefix + L"_Marker").c_str(), RT.marker.c_str());
-         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_FieldLabels").c_str(), RT.fieldLabels.c_str());
-         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_FieldWidths").c_str(), RT.fieldWidths.c_str());
-      }
-
-      _configIO.setConfigString(fileTypeCode, L"RecordTypes", recTypes.c_str());
+      getFileTypeConfig(i, FALSE, ftCode, ftConfig);
+      fileTypes += (i == 0 ? L"" : L",") + ftCode;
+      fileData += ftConfig + L"\n";
    }
 
-   _configIO.setConfigString(L"Base", L"FileTypes", fileTypes.c_str());
+   fileData = L"[Base]\nFileTypes=" + fileTypes + L"\nThemes=" + themes + L"\n\n" + fileData;
+
+   _configIO.saveConfigFile(fileData);
+
    cleanConfigFile = TRUE;
    indicateCleanStatus();
    RefreshVisualizerPanel();
@@ -1142,8 +1114,8 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
 
       wstring ftCode{}, ftConfig{};
 
-      getFileTypeConfig(idxFT, ftCode, ftConfig);
-      _eximDlg.setFileTypeData(ftConfig);
+      getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig);
+      _eximDlg.setFileTypeData(ftConfig.c_str());
    }
 }
 
