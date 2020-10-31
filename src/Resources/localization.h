@@ -61,3 +61,13 @@
 #define FWVIZ_DIALOG_COMMAS_TITLE   L"Commas are item separators"
 #define FWVIZ_DIALOG_COMMAS_MESSAGE L"The line will be split into multiple items when the 'Accept' button below is clicked."
 #define FWVIZ_DISCARD_CHANGES       L"Discard changes?"
+#define FWVIZ_OPEN_BKUP_CONFIG_DLG  L"Open Backup Configuration File"
+
+// Exim File Type Dialog
+#define FT_EXIM_EXTRACT_DLG_TITLE   L"Extract File Type Data"
+#define FT_EXIM_APPEND_DLG_TITLE    L"Append File Type Data"
+#define FT_EXIM_EDIT_LABEL          L"File Type Metadata:"
+#define FT_EXIM_LOAD_FILE_BTN       L"&Load from a file"
+#define FT_EXIM_SAVE_FILE_BTN       L"&Save to a file"
+#define FT_EXIM_APPEND_BTN          L"&Append File Type"
+#define FT_EXIM_CLOSE_BTN           L"&Close"

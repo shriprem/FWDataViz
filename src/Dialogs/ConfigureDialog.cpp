@@ -1,6 +1,9 @@
 #include "ConfigureDialog.h"
+#include "EximFileTypeDialog.h"
 
+extern HINSTANCE _gModule;
 extern ConfigureDialog _configDlg;
+EximFileTypeDialog _eximDlg;
 
 LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
    LPARAM lParam, UINT_PTR, DWORD_PTR) {
@@ -304,6 +307,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDCANCEL:
+            case IDCLOSE:
                if (promptDiscardChangesNo()) return TRUE;
 
                display(FALSE);
@@ -334,13 +338,11 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_FWVIZ_DEF_EXTRACT_BTN:
-               MessageBox(_hSelf, L"Extracting", L"", MB_OK);
-               _configIO.viewBackupFolder();
+               showEximDialog(TRUE);
                break;
 
             case IDC_FWVIZ_DEF_APPEND_BTN:
-               MessageBox(_hSelf, L"Appending", L"", MB_OK);
-               _configIO.viewBackupFolder();
+               showEximDialog(FALSE);
                break;
          }
          break;
@@ -375,7 +377,7 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_VIEW_BTN, FWVIZ_DIALOG_BKUP_VIEW_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN, FWVIZ_DIALOG_EXTRACT_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_APPEND_BTN, FWVIZ_DIALOG_APPEND_BTN);
-   SetDlgItemText(_hSelf, IDCANCEL, FWVIZ_DIALOG_CLOSE_BTN);
+   SetDlgItemText(_hSelf, IDCLOSE, FWVIZ_DIALOG_CLOSE_BTN);
 }
 
 void ConfigureDialog::indicateCleanStatus() {
@@ -1088,4 +1090,14 @@ void ConfigureDialog::saveConfigInfo() {
    cleanConfigFile = TRUE;
    indicateCleanStatus();
    RefreshVisualizerPanel();
+}
+
+void ConfigureDialog::showEximDialog(bool bExtract) {
+   _eximDlg.doDialog((HINSTANCE)_gModule);
+   _eximDlg.initDialog(bExtract);
+
+   if (bExtract) _eximDlg.setFileTypeData(L"Hello, World!");
+}
+
+void ConfigureDialog::initEximDialog() {
 }

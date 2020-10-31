@@ -180,7 +180,7 @@ BOOL ConfigIO::getBackupConfigFileName(HWND hwnd, wstring *backupConfigFile) {
    ofn.lpstrFileTitle = NULL;
    ofn.nMaxFileTitle = 0;
    ofn.lpstrInitialDir = pluginConfigBackupDir;
-   ofn.lpstrTitle = L"Open Backup Configuration File";
+   ofn.lpstrTitle = FWVIZ_OPEN_BKUP_CONFIG_DLG;
    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
    BOOL ret{ GetOpenFileName(&ofn) };

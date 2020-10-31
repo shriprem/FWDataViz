@@ -56,6 +56,8 @@ protected:
    void reloadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();
+   void showEximDialog(bool bExtract);
+   void initEximDialog();
 
    int getCurrentFileIndex();
    bool getCurrentFileInfo(FileInfo* &fileInfo);

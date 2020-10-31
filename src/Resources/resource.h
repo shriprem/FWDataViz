@@ -1542,6 +1542,12 @@
 #define IDC_FWVIZ_DEF_BACKUP_VIEW_BTN   9184
 #define IDC_FWVIZ_DEF_EXTRACT_BTN       9185
 #define IDC_FWVIZ_DEF_APPEND_BTN        9186
+#define IDD_FILE_TYPE_EXIM_DIALOG       9200
+#define IDC_FTEXIM_EDIT_LABEL           9201
+#define IDC_FTEXIM_EDIT_CNTRL           9202
+#define IDC_FTEXIM_LOAD_FILE            9203
+#define IDC_FTEXIM_SAVE_FILE            9204
+#define IDC_FTEXIM_APPEND               9205
 #define IDD_ABOUT_DIALOG                9900
 #define IDC_ABOUT_NAME                  9901
 #define IDC_ABOUT_VERSION               9902
