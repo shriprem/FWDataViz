@@ -333,30 +333,30 @@ int VisualizerPanel::loadLexer() {
 
    for (int i{}; i < recTypeCount; i++) {
       wstring &recType = recTypes[i];
-      RecordInfo &REC = recInfoList[i];
+      RecordInfo &RT = recInfoList[i];
 
-      REC.label = _configIO.getConfigString(fileType.c_str(), (recType + L"_Label").c_str(), recType.c_str());
-      REC.marker = _configIO.getConfigStringA(fileType.c_str(), (recType + L"_Marker").c_str(), L".");
-      REC.regExpr = regex{ REC.marker + ".*(\r\n|\n|\r)?" };
+      RT.label = _configIO.getConfigString(fileType.c_str(), (recType + L"_Label").c_str(), recType.c_str());
+      RT.marker = _configIO.getConfigStringA(fileType.c_str(), (recType + L"_Marker").c_str(), L".");
+      RT.regExpr = regex{ RT.marker + ".*(\r\n|\n|\r)?" };
 
       wstring fieldWidthList;
       int fieldCount;
 
       fieldWidthList = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldWidths").c_str());
-      fieldCount = _configIO.Tokenize(fieldWidthList, REC.fieldWidths);
+      fieldCount = _configIO.Tokenize(fieldWidthList, RT.fieldWidths);
 
-      REC.fieldStarts.clear();
-      REC.fieldStarts.resize(fieldCount);
+      RT.fieldStarts.clear();
+      RT.fieldStarts.resize(fieldCount);
 
       for (int fnum{}, startPos{}; fnum < fieldCount; fnum++) {
-         REC.fieldStarts[fnum] = startPos;
-         startPos += REC.fieldWidths[fnum];
+         RT.fieldStarts[fnum] = startPos;
+         startPos += RT.fieldWidths[fnum];
       }
 
       wstring fieldLabelList;
 
       fieldLabelList = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldLabels").c_str());
-      _configIO.Tokenize(fieldLabelList, REC.fieldLabels);
+      _configIO.Tokenize(fieldLabelList, RT.fieldLabels);
    }
 
    fwVizRegexed = fileType;
@@ -367,15 +367,15 @@ int VisualizerPanel::loadLexer() {
    for (int i{}; i < recTypeCount; i++) {
       wstring dbgMessage;
       wstring &recType = recTypes[i];
-      RecordInfo &REC = recInfoList[i];
+      RecordInfo &RT = recInfoList[i];
 
-      dbgMessage = recType + L"\nRec_Label = " + REC.label +
-         L"\nRec_Marker = " + _configIO.NarrowToWide(REC.marker) + L"\nFieldWidths=\n";
+      dbgMessage = recType + L"\nRec_Label = " + RT.label +
+         L"\nRec_Marker = " + _configIO.NarrowToWide(RT.marker) + L"\nFieldWidths=\n";
 
-      fieldCount = static_cast<int>(REC.fieldWidths.size());
+      fieldCount = static_cast<int>(RT.fieldWidths.size());
 
       for (int j{}; j < fieldCount; j++) {
-         dbgMessage += L" (" + to_wstring(REC.fieldStarts[j]) + L", " + to_wstring(REC.fieldWidths[j]) + L"),";
+         dbgMessage += L" (" + to_wstring(RT.fieldStarts[j]) + L", " + to_wstring(RT.fieldWidths[j]) + L"),";
       }
 
       MessageBox(_hSelf, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);

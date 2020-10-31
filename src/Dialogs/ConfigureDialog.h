@@ -23,7 +23,7 @@ public:
    void hiliteFieldEditPairedItem(HWND hThis, HWND hThat);
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
 
-   HWND hFilesList, hFileEOL, hRecsList, hRecStart, hRecRegex, hFieldLabels, hFieldWidths;
+   HWND hFilesLB, hFileEOL, hRecsLB, hRecStart, hRecRegex, hFieldLabels, hFieldWidths;
 
 protected:
    enum move_dir {
@@ -31,22 +31,22 @@ protected:
       MOVE_UP = -1
    };
 
-   struct RecordInfo {
+   struct RecordType {
       wstring label;
       string marker;
       wstring fieldLabels;
       wstring fieldWidths;
    };
 
-   struct FileInfo {
+   struct FileType {
       wstring label;
       string eol;
       wstring theme;
-      vector<RecordInfo> records;
+      vector<RecordType> vRecTypes;
    };
 
    wstring configFile{ L"" };
-   vector<FileInfo> fileInfoList;
+   vector<FileType> vFileTypes;
    bool loadingEdits, cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
@@ -59,13 +59,14 @@ protected:
    void showEximDialog(bool bExtract);
    void initEximDialog();
 
-   int getCurrentFileIndex();
-   bool getCurrentFileInfo(FileInfo* &fileInfo);
-   FileInfo getNewFile();
+   int getCurrentFileTypeIndex();
+   bool getCurrentFileTypeInfo(FileType* &fileInfo);
+   FileType getNewFileType();
+   void getFileTypeConfig(int idxFT, wstring& ftCode, wstring &ftConfig);
 
    int getCurrentRecIndex();
-   bool getCurrentRecInfo(RecordInfo* &recInfo);
-   RecordInfo getNewRec();
+   bool getCurrentRecInfo(RecordType* &recInfo);
+   RecordType getNewRec();
 
    void fillFileTypes();
    void onFileTypeSelect();

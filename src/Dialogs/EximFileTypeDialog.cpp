@@ -26,8 +26,8 @@ void EximFileTypeDialog::initDialog(bool bExtract) {
    SetFocus(GetDlgItem(_hSelf, IDC_FTEXIM_EDIT_CNTRL));
 }
 
-void EximFileTypeDialog::setFileTypeData(LPWSTR fileTypeData) {
-   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, fileTypeData);
+void EximFileTypeDialog::setFileTypeData(wstring &ftConfig) {
+   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, ftConfig.c_str());
 }
 
 void EximFileTypeDialog::localize(bool bExtract) {

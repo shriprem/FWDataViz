@@ -78,6 +78,13 @@ void ConfigIO::setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR key
    WritePrivateProfileString(sectionName, keyName, keyValue, fileName);
 }
 
+void ConfigIO::writeConfigSection(LPCWSTR sectionName, LPCWSTR sectionConfig, LPCWSTR fileName) {
+   if (wstring{ fileName }.length() < 1)
+      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+
+   WritePrivateProfileSection(sectionName, sectionConfig, fileName);
+}
+
 int ConfigIO::Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim) {
    std::size_t nStart{}, nEnd;
 
@@ -153,14 +160,17 @@ void ConfigIO::backupMoveConfigFile() {
    time_t rawTime;
    struct tm* timeInfo;
 
-   char fileName[50];
+   char fileName[20];
    TCHAR backupFilePath[MAX_PATH];
 
    time(&rawTime);
    timeInfo = localtime(&rawTime);
-   strftime(fileName, 50, "Visualizer_%Y%m%d_%H%M%S.ini", timeInfo);
+   strftime(fileName, 20, "%Y%m%d_%H%M%S", timeInfo);
 
-   PathCombine(backupFilePath, pluginConfigBackupDir, NarrowToWide(fileName).c_str());
+   PathCombine(backupFilePath, pluginConfigBackupDir,
+      (L"Visualizer_" + NarrowToWide(fileName) + L".ini").c_str());
+   Sleep(10);
+
    MoveFile(CONFIG_FILE_PATHS[CONFIG_MAIN].c_str(), backupFilePath);
 }
 

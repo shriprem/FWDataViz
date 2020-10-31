@@ -66,9 +66,9 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
       create(IDD_FWVIZ_DEFINER_DIALOG);
    }
 
-   hFilesList = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX);
+   hFilesLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX);
    hFileEOL = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT);
-   hRecsList = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX);
+   hRecsLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX);
    hRecStart = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_START_EDIT);
    hRecRegex = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT);
    hFieldLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
@@ -314,7 +314,9 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                return TRUE;
 
             case IDC_FWVIZ_DEF_SAVE_CONFIG_BTN:
+               SetCursor(LoadCursor(NULL, IDC_WAIT));
                saveConfigInfo();
+               SetCursor(LoadCursor(NULL, IDC_ARROW));
                return TRUE;
 
             case IDC_FWVIZ_DEF_RESET_BTN:
@@ -419,61 +421,61 @@ void ConfigureDialog::indicateCleanStatus() {
 }
 
 int ConfigureDialog::loadConfigInfo() {
-   vector<wstring> fileTypes;
-   wstring fileTypeList;
+   vector<wstring> fileTypeList;
+   wstring fileTypes;
    int fileTypeCount;
 
-   fileTypeList = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile.c_str());
-   fileTypeCount = _configIO.Tokenize(fileTypeList, fileTypes);
+   fileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile.c_str());
+   fileTypeCount = _configIO.Tokenize(fileTypes, fileTypeList);
 
-   fileInfoList.clear();
-   fileInfoList.resize(fileTypeCount);
+   vFileTypes.clear();
+   vFileTypes.resize(fileTypeCount);
 
    for (int i{}; i < fileTypeCount; i++) {
-      wstring &fileType = fileTypes[i];
-      FileInfo &FILE = fileInfoList[i];
+      wstring &fileType = fileTypeList[i];
+      FileType &FT = vFileTypes[i];
 
-      FILE.label = _configIO.getConfigString(fileType.c_str(), L"FileLabel", L"", configFile.c_str());
-      FILE.eol = _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator", L"", configFile.c_str());
-      FILE.theme = _configIO.getConfigString(fileType.c_str(), L"FileTheme", L"", configFile.c_str());
+      FT.label = _configIO.getConfigString(fileType.c_str(), L"FileLabel", L"", configFile.c_str());
+      FT.eol = _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator", L"", configFile.c_str());
+      FT.theme = _configIO.getConfigString(fileType.c_str(), L"FileTheme", L"", configFile.c_str());
 
-      vector<wstring> recTypes;
-      wstring recTypeList;
+      vector<wstring> recTypesList;
+      wstring recTypes;
       int recTypeCount;
 
-      recTypeList = _configIO.getConfigString(fileType.c_str(), L"RecordTypes", L"", configFile.c_str());
-      recTypeCount = _configIO.Tokenize(recTypeList, recTypes);
+      recTypes = _configIO.getConfigString(fileType.c_str(), L"RecordTypes", L"", configFile.c_str());
+      recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
 
-      FILE.records.clear();
-      FILE.records.resize(recTypeCount);
+      FT.vRecTypes.clear();
+      FT.vRecTypes.resize(recTypeCount);
 
       for (int j{}; j < recTypeCount; j++) {
-         wstring &recType = recTypes[j];
-         RecordInfo &REC = FILE.records[j];
+         wstring &recType = recTypesList[j];
+         RecordType &RT = FT.vRecTypes[j];
 
-         REC.label = _configIO.getConfigString(fileType.c_str(),
+         RT.label = _configIO.getConfigString(fileType.c_str(),
             (recType + L"_Label").c_str(), L"", configFile.c_str());
-         REC.marker = _configIO.getConfigStringA(fileType.c_str(),
+         RT.marker = _configIO.getConfigStringA(fileType.c_str(),
             (recType + L"_Marker").c_str(), L"", configFile.c_str());
-         REC.fieldWidths = _configIO.getConfigString(fileType.c_str(),
+         RT.fieldWidths = _configIO.getConfigString(fileType.c_str(),
             (recType + L"_FieldWidths").c_str(), L"", configFile.c_str());
-         REC.fieldLabels = _configIO.getConfigString(fileType.c_str(),
+         RT.fieldLabels = _configIO.getConfigString(fileType.c_str(),
             (recType + L"_FieldLabels").c_str(), L"", configFile.c_str());
       }
    }
 
-   return static_cast<int>(fileInfoList.size());
+   return static_cast<int>(vFileTypes.size());
 }
 
 void ConfigureDialog::fillFileTypes() {
    // Fill File Types Listbox
    size_t fTypes;
 
-   SendMessage(hFilesList, LB_RESETCONTENT, NULL, NULL);
+   SendMessage(hFilesLB, LB_RESETCONTENT, NULL, NULL);
 
-   fTypes = fileInfoList.size();
+   fTypes = vFileTypes.size();
    for (size_t i{}; i < fTypes; i++) {
-      SendMessage(hFilesList, LB_ADDSTRING, NULL, (LPARAM)fileInfoList[i].label.c_str());
+      SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)vFileTypes[i].label.c_str());
    }
 
    // Fill Themes Droplist
@@ -492,7 +494,7 @@ void ConfigureDialog::fillFileTypes() {
 
    // Select first item
    if (fTypes > 0) {
-      SendMessage(hFilesList, LB_SETCURSEL, 0, NULL);
+      SendMessage(hFilesLB, LB_SETCURSEL, 0, NULL);
    }
 
    cleanConfigFile = TRUE;
@@ -500,56 +502,92 @@ void ConfigureDialog::fillFileTypes() {
    onFileTypeSelect();
 }
 
-int ConfigureDialog::getCurrentFileIndex() {
-   int idxFile;
+int ConfigureDialog::getCurrentFileTypeIndex() {
+   int idxFT;
 
-   idxFile = static_cast<int>(SendMessage(hFilesList, LB_GETCURSEL, NULL, NULL));
-   if (idxFile == LB_ERR) return LB_ERR;
+   idxFT = static_cast<int>(SendMessage(hFilesLB, LB_GETCURSEL, NULL, NULL));
+   if (idxFT == LB_ERR) return LB_ERR;
 
-   return idxFile;
+   return idxFT;
 }
 
 int ConfigureDialog::getCurrentRecIndex() {
    int idxRec;
 
-   idxRec = static_cast<int>(SendMessage(hRecsList, LB_GETCURSEL, NULL, NULL));
+   idxRec = static_cast<int>(SendMessage(hRecsLB, LB_GETCURSEL, NULL, NULL));
    if (idxRec == LB_ERR) return LB_ERR;
 
    return idxRec;
 }
 
-bool ConfigureDialog::getCurrentFileInfo(FileInfo* &fileInfo) {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return FALSE;
+bool ConfigureDialog::getCurrentFileTypeInfo(FileType* &fileInfo) {
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return FALSE;
 
-   fileInfo = &fileInfoList[idxFile];
+   fileInfo = &vFileTypes[idxFT];
    return TRUE;
 }
 
-ConfigureDialog::FileInfo ConfigureDialog::getNewFile() {
-   FileInfo newFile;
+ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
+   FileType newFile;
 
    newFile.label = L"";
    newFile.eol = "";
    newFile.theme = L"VT_Basic";
-   newFile.records = vector<RecordInfo>{ getNewRec() };
+   newFile.vRecTypes = vector<RecordType>{ getNewRec() };
 
    return newFile;
 }
 
-bool ConfigureDialog::getCurrentRecInfo(RecordInfo*& recInfo) {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return FALSE;
+void ConfigureDialog::getFileTypeConfig(int idxFT, wstring& ftCode, wstring &ftConfig) {
+   size_t recTypeCount;
+   wchar_t fileTypeCode[60], recTypeCode[10];
+   wstring recTypes{}, rtConfig{}, recTypePrefix;
+
+   FileType& FT = vFileTypes[idxFT];
+
+   swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxFT + 1),
+      regex_replace(FT.label, wregex(L" "), L"_").substr(0, 50).c_str());
+   _configIO.ToUpper(fileTypeCode, sizeof(fileTypeCode));
+
+   ftCode = wstring{ fileTypeCode };
+   ftConfig = L"[" + ftCode + L"]\r\n" +
+      L"FileLabel=" + FT.label + L"\r\n" +
+      L"FileTheme=" + FT.theme + L"\r\n" +
+      L"RecordTerminator=" + _configIO.NarrowToWide(FT.eol) + L"\r\n";
+
+   recTypeCount = (FT.vRecTypes.size() > 999) ? 999 : FT.vRecTypes.size();
+
+   for (size_t j{}; j < recTypeCount; j++) {
+      RecordType& RT = FT.vRecTypes[j];
+
+      swprintf(recTypeCode, 10, L"REC%03d", static_cast<int>(j + 1));
+      recTypePrefix = wstring{ recTypeCode };
+      recTypes += (j == 0 ? L"RecordTypes=" : L",") + recTypePrefix;
+
+      rtConfig +=
+         recTypePrefix + L"_Label=" + RT.label + L"\r\n" +
+         recTypePrefix + L"_Marker=" + _configIO.NarrowToWide(RT.marker) + L"\r\n" +
+         recTypePrefix + L"_FieldLabels=" + RT.fieldLabels + L"\r\n" +
+         recTypePrefix + L"_FieldWidths=" + RT.fieldWidths + L"\r\n";
+   }
+
+   ftConfig += recTypes + L"\r\n" + rtConfig;
+}
+
+bool ConfigureDialog::getCurrentRecInfo(RecordType*& recInfo) {
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return FALSE;
 
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return FALSE;
 
-   recInfo = &fileInfoList[idxFile].records[idxRec];
+   recInfo = &vFileTypes[idxFT].vRecTypes[idxRec];
    return TRUE;
 }
 
-ConfigureDialog::RecordInfo ConfigureDialog::getNewRec() {
-   RecordInfo newRec;
+ConfigureDialog::RecordType ConfigureDialog::getNewRec() {
+   RecordType newRec;
 
    newRec.label = L"";
    newRec.marker = "";
@@ -559,10 +597,10 @@ ConfigureDialog::RecordInfo ConfigureDialog::getNewRec() {
 }
 
 void ConfigureDialog::onFileTypeSelect() {
-   FileInfo* fileInfo;
+   FileType* fileInfo;
 
-   if (!getCurrentFileInfo(fileInfo)) {
-      FileInfo newFile{ getNewFile() };
+   if (!getCurrentFileTypeInfo(fileInfo)) {
+      FileType newFile{ getNewFileType() };
       fileInfo = &newFile;
    }
 
@@ -580,18 +618,20 @@ void ConfigureDialog::onFileTypeSelect() {
 }
 
 void ConfigureDialog::enableMoveFileButtons() {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return;
 
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON),
-      (idxFile < static_cast<int>(fileInfoList.size()) - 1));
-   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON), (idxFile > 0));
+      (idxFT < static_cast<int>(vFileTypes.size()) - 1));
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON), (idxFT > 0));
 }
 
 void ConfigureDialog::enableFileSelection() {
    bool enable{ cleanFileVals && cleanRecVals && cleanFieldVals };
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_APPEND_BTN), enable);
 
    if (enable) {
       enableMoveFileButtons();
@@ -605,64 +645,64 @@ void ConfigureDialog::enableFileSelection() {
 }
 
 int ConfigureDialog::moveFileType(move_dir dir) {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return LB_ERR;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return LB_ERR;
 
    switch(dir) {
       case MOVE_DOWN:
-         if (idxFile >= static_cast<int>(fileInfoList.size()) - 1) return LB_ERR;
+         if (idxFT >= static_cast<int>(vFileTypes.size()) - 1) return LB_ERR;
          break;
 
       case MOVE_UP:
-         if (idxFile == 0) return LB_ERR;
+         if (idxFT == 0) return LB_ERR;
          break;
 
       default:
          return LB_ERR;
    }
 
-   FileInfo currType = fileInfoList[idxFile];
-   FileInfo &adjType = fileInfoList[idxFile + dir];
+   FileType currType = vFileTypes[idxFT];
+   FileType &adjType = vFileTypes[idxFT + dir];
 
-   fileInfoList[idxFile] = adjType;
-   fileInfoList[idxFile + dir] = currType;
+   vFileTypes[idxFT] = adjType;
+   vFileTypes[idxFT + dir] = currType;
 
-   SendMessage(hFilesList, LB_DELETESTRING, (WPARAM)idxFile, NULL);
-   SendMessage(hFilesList, LB_INSERTSTRING, (WPARAM)(idxFile + dir),
-      (LPARAM)fileInfoList[idxFile + dir].label.c_str());
-   SendMessage(hFilesList, LB_SETCURSEL, idxFile + dir, NULL);
+   SendMessage(hFilesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
+   SendMessage(hFilesLB, LB_INSERTSTRING, (WPARAM)(idxFT + dir),
+      (LPARAM)vFileTypes[idxFT + dir].label.c_str());
+   SendMessage(hFilesLB, LB_SETCURSEL, idxFT + dir, NULL);
 
    cleanConfigFile = FALSE;
    indicateCleanStatus();
    enableMoveFileButtons();
 
-   return idxFile + dir;
+   return idxFT + dir;
 }
 
 void ConfigureDialog::fillRecTypes() {
-   FileInfo* fileInfo;
+   FileType* fileInfo;
 
-   if (!getCurrentFileInfo(fileInfo)) {
-      FileInfo newFile{ getNewFile() };
+   if (!getCurrentFileTypeInfo(fileInfo)) {
+      FileType newFile{ getNewFileType() };
       fileInfo = &newFile;
    }
 
-   vector <RecordInfo> &recInfoList = fileInfo->records;
+   vector <RecordType> &recInfoList = fileInfo->vRecTypes;
 
    // Fill Rec Types Listbox
    size_t recTypes;
 
-   SendMessage(hRecsList, LB_RESETCONTENT, NULL, NULL);
+   SendMessage(hRecsLB, LB_RESETCONTENT, NULL, NULL);
 
    recTypes = recInfoList.size();
 
    for (size_t i{}; i < recTypes; i++) {
-      SendMessage(hRecsList, LB_ADDSTRING, NULL, (LPARAM)recInfoList[i].label.c_str());
+      SendMessage(hRecsLB, LB_ADDSTRING, NULL, (LPARAM)recInfoList[i].label.c_str());
    }
 
    // Select first item
    if (recTypes > 0) {
-      SendMessage(hRecsList, LB_SETCURSEL, 0, NULL);
+      SendMessage(hRecsLB, LB_SETCURSEL, 0, NULL);
    }
 
    cleanRecVals = TRUE;
@@ -670,10 +710,10 @@ void ConfigureDialog::fillRecTypes() {
 }
 
 void ConfigureDialog::onRecTypeSelect() {
-   RecordInfo *recInfo;
+   RecordType *recInfo;
 
    if (!getCurrentRecInfo(recInfo)) {
-      RecordInfo newRec{ getNewRec() };
+      RecordType newRec{ getNewRec() };
       recInfo = &newRec;
    }
 
@@ -693,14 +733,14 @@ void ConfigureDialog::onRecTypeSelect() {
 }
 
 void ConfigureDialog::enableMoveRecButtons() {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return;
 
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return;
 
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON),
-      (idxRec < static_cast<int>(fileInfoList[idxFile].records.size()) - 1));
+      (idxRec < static_cast<int>(vFileTypes[idxFT].vRecTypes.size()) - 1));
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON), (idxRec > 0));
 }
 
@@ -721,13 +761,13 @@ void ConfigureDialog::enableRecSelection() {
 }
 
 int ConfigureDialog::moveRecType(move_dir dir) {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return LB_ERR;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return LB_ERR;
 
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
-   vector<RecordInfo>& recList = fileInfoList[idxFile].records;
+   vector<RecordType>& recList = vFileTypes[idxFT].vRecTypes;
 
    switch (dir) {
    case MOVE_DOWN:
@@ -742,16 +782,16 @@ int ConfigureDialog::moveRecType(move_dir dir) {
       return LB_ERR;
    }
 
-   RecordInfo currType = recList[idxRec];
-   RecordInfo& adjType = recList[idxRec + dir];
+   RecordType currType = recList[idxRec];
+   RecordType& adjType = recList[idxRec + dir];
 
    recList[idxRec] = adjType;
    recList[idxRec + dir] = currType;
 
-   SendMessage(hRecsList, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hRecsList, LB_INSERTSTRING, (WPARAM)(idxRec + dir),
+   SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
+   SendMessage(hRecsLB, LB_INSERTSTRING, (WPARAM)(idxRec + dir),
       (LPARAM)recList[idxRec + dir].label.c_str());
-   SendMessage(hRecsList, LB_SETCURSEL, idxRec + dir, NULL);
+   SendMessage(hRecsLB, LB_SETCURSEL, idxRec + dir, NULL);
 
    enableMoveRecButtons();
 
@@ -759,10 +799,10 @@ int ConfigureDialog::moveRecType(move_dir dir) {
 }
 
 void ConfigureDialog::fillFieldTypes() {
-   RecordInfo *recInfo;
+   RecordType *recInfo;
 
    if (!getCurrentRecInfo(recInfo)) {
-      RecordInfo newRec{ getNewRec() };
+      RecordType newRec{ getNewRec() };
       recInfo = &newRec;
    }
 
@@ -822,7 +862,7 @@ void ConfigureDialog::syncFieldEditScrolling(HWND hThis, HWND hThat) {
 void ConfigureDialog::fieldEditsAccept() {
    if (cleanFieldVals) return;
 
-   RecordInfo *recInfo;
+   RecordType *recInfo;
    if (!getCurrentRecInfo(recInfo)) return;
 
    wchar_t fieldValues[FW_LINE_MAX_LENGTH + 1];
@@ -883,13 +923,13 @@ void ConfigureDialog::onRecRegexEditChange() {
 void ConfigureDialog::recEditAccept() {
    if (cleanRecVals) return;
 
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return;
 
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return;
 
-   RecordInfo &recInfo = fileInfoList[idxFile].records[idxRec];
+   RecordType &recInfo = vFileTypes[idxFT].vRecTypes[idxRec];
 
    wchar_t recDesc[MAX_PATH + 1];
 
@@ -901,9 +941,9 @@ void ConfigureDialog::recEditAccept() {
    GetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT, regexVal, MAX_PATH + 1);
    recInfo.marker = regexVal;
 
-   SendMessage(hRecsList, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hRecsList, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recDesc);
-   SendMessage(hRecsList, LB_SETCURSEL, idxRec, NULL);
+   SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
+   SendMessage(hRecsLB, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recDesc);
+   SendMessage(hRecsLB, LB_SETCURSEL, idxRec, NULL);
 
    cleanConfigFile = FALSE;
    cleanRecVals = TRUE;
@@ -911,18 +951,18 @@ void ConfigureDialog::recEditAccept() {
 }
 
 void ConfigureDialog::recEditNew() {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return;
 
-   RecordInfo newRec{ getNewRec() };
-   vector<RecordInfo> &records = fileInfoList[idxFile].records;
+   RecordType newRec{ getNewRec() };
+   vector<RecordType> &records = vFileTypes[idxFT].vRecTypes;
 
    records.push_back(newRec);
 
    size_t moveTo = records.size() - 1;
 
-   SendMessage(hRecsList, LB_ADDSTRING, NULL, (LPARAM)newRec.label.c_str());
-   SendMessage(hRecsList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hRecsLB, LB_ADDSTRING, NULL, (LPARAM)newRec.label.c_str());
+   SendMessage(hRecsLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
    onRecTypeSelect();
 
    cleanConfigFile = FALSE;
@@ -931,20 +971,20 @@ void ConfigureDialog::recEditNew() {
 }
 
 int ConfigureDialog::recEditDelete() {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return LB_ERR;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return LB_ERR;
 
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
-   vector<RecordInfo> &records = fileInfoList[idxFile].records;
+   vector<RecordType> &records = vFileTypes[idxFT].vRecTypes;
    records.erase(records.begin() + idxRec);
 
    int lastRec = static_cast<int>(records.size()) - 1;
    int moveTo = (idxRec <= lastRec - 1) ? idxRec : lastRec;
 
-   SendMessage(hRecsList, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hRecsList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
+   SendMessage(hRecsLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
 
    cleanConfigFile = FALSE;
    cleanRecVals = TRUE;
@@ -956,10 +996,10 @@ int ConfigureDialog::recEditDelete() {
 void ConfigureDialog::fileEditAccept() {
    if (cleanFileVals) return;
 
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return;
 
-   FileInfo &fileInfo = fileInfoList[idxFile];
+   FileType &fileInfo = vFileTypes[idxFT];
 
    wchar_t fileVal[MAX_PATH + 1];
 
@@ -974,9 +1014,9 @@ void ConfigureDialog::fileEditAccept() {
    GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, fileVal, MAX_PATH + 1);
    fileInfo.theme = fileVal;
 
-   SendMessage(hFilesList, LB_DELETESTRING, (WPARAM)idxFile, NULL);
-   SendMessage(hFilesList, LB_INSERTSTRING, (WPARAM)idxFile, (LPARAM)fileInfo.label.c_str());
-   SendMessage(hFilesList, LB_SETCURSEL, idxFile, NULL);
+   SendMessage(hFilesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
+   SendMessage(hFilesLB, LB_INSERTSTRING, (WPARAM)idxFT, (LPARAM)fileInfo.label.c_str());
+   SendMessage(hFilesLB, LB_SETCURSEL, idxFT, NULL);
 
    cleanConfigFile = FALSE;
    cleanFileVals = TRUE;
@@ -984,14 +1024,14 @@ void ConfigureDialog::fileEditAccept() {
 }
 
 void ConfigureDialog::fileEditNew() {
-   FileInfo newFile{ getNewFile() };
+   FileType newFile{ getNewFileType() };
 
-   fileInfoList.push_back(newFile);
+   vFileTypes.push_back(newFile);
 
-   size_t moveTo = fileInfoList.size() - 1;
+   size_t moveTo = vFileTypes.size() - 1;
 
-   SendMessage(hFilesList, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
-   SendMessage(hFilesList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
+   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
    onFileTypeSelect();
 
    cleanConfigFile = FALSE;
@@ -1000,16 +1040,16 @@ void ConfigureDialog::fileEditNew() {
 }
 
 int ConfigureDialog::fileEditDelete() {
-   int idxFile{ getCurrentFileIndex() };
-   if (idxFile == LB_ERR) return LB_ERR;
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return LB_ERR;
 
-   fileInfoList.erase(fileInfoList.begin() + idxFile);
+   vFileTypes.erase(vFileTypes.begin() + idxFT);
 
-   int lastFile = static_cast<int>(fileInfoList.size()) - 1;
-   int moveTo = (idxFile <= lastFile - 1) ? idxFile : lastFile;
+   int lastFile = static_cast<int>(vFileTypes.size()) - 1;
+   int moveTo = (idxFT <= lastFile - 1) ? idxFT : lastFile;
 
-   SendMessage(hFilesList, LB_DELETESTRING, (WPARAM)idxFile, NULL);
-   SendMessage(hFilesList, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFilesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
+   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
 
    cleanConfigFile = FALSE;
    cleanFileVals = TRUE;
@@ -1042,51 +1082,51 @@ void ConfigureDialog::saveConfigInfo() {
 
    size_t fileTypeCount, recTypeCount;
    wchar_t fileTypeCode[60], recTypeCode[10];
-   wstring fileTypeList{}, themesList{}, recTypeList{}, recTypePrefix;
+   wstring fileTypes{}, themes{}, recTypes{}, recTypePrefix;
 
-   themesList = _configIO.getConfigString(L"Base", L"Themes");
+   themes = _configIO.getConfigString(L"Base", L"Themes");
    _configIO.backupMoveConfigFile();
 
-   fileTypeCount = (fileInfoList.size() > 999) ? 999 : fileInfoList.size();
+   fileTypeCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
 
    _configIO.setConfigString(L"Base", L"FileTypes", L"");
-   _configIO.setConfigString(L"Base", L"Themes", themesList.c_str());
+   _configIO.setConfigString(L"Base", L"Themes", themes.c_str());
 
    for (size_t i{}; i < fileTypeCount; i++) {
-      FileInfo& FILE = fileInfoList[i];
+      FileType& FT = vFileTypes[i];
 
       swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(i + 1),
-         regex_replace(FILE.label, wregex(L" "), L"_").substr(0, 50).c_str());
+         regex_replace(FT.label, wregex(L" "), L"_").substr(0, 50).c_str());
       _configIO.ToUpper(fileTypeCode, sizeof(fileTypeCode));
 
-      fileTypeList += (i == 0 ? L"" : L",") + wstring{ fileTypeCode };
+      fileTypes += (i == 0 ? L"" : L",") + wstring{ fileTypeCode };
 
-      _configIO.setConfigString(fileTypeCode, L"FileLabel", FILE.label.c_str());
-      _configIO.setConfigString(fileTypeCode, L"FileTheme", FILE.theme.c_str());
-      _configIO.setConfigStringA(fileTypeCode, L"RecordTerminator", FILE.eol.c_str());
+      _configIO.setConfigString(fileTypeCode, L"FileLabel", FT.label.c_str());
+      _configIO.setConfigString(fileTypeCode, L"FileTheme", FT.theme.c_str());
+      _configIO.setConfigStringA(fileTypeCode, L"RecordTerminator", FT.eol.c_str());
 
-      recTypeCount = (FILE.records.size() > 999) ? 999 : FILE.records.size();
+      recTypeCount = (FT.vRecTypes.size() > 999) ? 999 : FT.vRecTypes.size();
 
-      recTypeList = L"";
+      recTypes = L"";
       _configIO.setConfigString(fileTypeCode, L"RecordTypes", L"");
 
       for (size_t j{}; j < recTypeCount; j++) {
-         RecordInfo& REC = FILE.records[j];
+         RecordType& RT = FT.vRecTypes[j];
 
          swprintf(recTypeCode, 10, L"REC%03d", static_cast<int>(j + 1));
          recTypePrefix = wstring{ recTypeCode };
-         recTypeList += (j == 0 ? L"" : L",") + recTypePrefix;
+         recTypes += (j == 0 ? L"" : L",") + recTypePrefix;
 
-         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_Label").c_str(), REC.label.c_str());
-         _configIO.setConfigStringA(fileTypeCode, (recTypePrefix + L"_Marker").c_str(), REC.marker.c_str());
-         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_FieldLabels").c_str(), REC.fieldLabels.c_str());
-         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_FieldWidths").c_str(), REC.fieldWidths.c_str());
+         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_Label").c_str(), RT.label.c_str());
+         _configIO.setConfigStringA(fileTypeCode, (recTypePrefix + L"_Marker").c_str(), RT.marker.c_str());
+         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_FieldLabels").c_str(), RT.fieldLabels.c_str());
+         _configIO.setConfigString(fileTypeCode, (recTypePrefix + L"_FieldWidths").c_str(), RT.fieldWidths.c_str());
       }
 
-      _configIO.setConfigString(fileTypeCode, L"RecordTypes", recTypeList.c_str());
+      _configIO.setConfigString(fileTypeCode, L"RecordTypes", recTypes.c_str());
    }
 
-   _configIO.setConfigString(L"Base", L"FileTypes", fileTypeList.c_str());
+   _configIO.setConfigString(L"Base", L"FileTypes", fileTypes.c_str());
    cleanConfigFile = TRUE;
    indicateCleanStatus();
    RefreshVisualizerPanel();
@@ -1096,7 +1136,15 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
    _eximDlg.doDialog((HINSTANCE)_gModule);
    _eximDlg.initDialog(bExtract);
 
-   if (bExtract) _eximDlg.setFileTypeData(L"Hello, World!");
+   if (bExtract) {
+      int idxFT{ getCurrentFileTypeIndex() };
+      if (idxFT == LB_ERR) return;
+
+      wstring ftCode{}, ftConfig{};
+
+      getFileTypeConfig(idxFT, ftCode, ftConfig);
+      _eximDlg.setFileTypeData(ftConfig);
+   }
 }
 
 void ConfigureDialog::initEximDialog() {
