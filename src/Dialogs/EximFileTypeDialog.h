@@ -12,11 +12,15 @@ public:
    EximFileTypeDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
    void initDialog(bool bExtract);
-   void setFileTypeData(LPCWSTR ftConfig);
+   void setFileTypeData(const wstring& ftConfig);
 
 protected:
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
    void localize(bool bExtract);
+
+   void appendExtractFile();
    void loadExtractFile();
    void saveExtractFile();
+
+   wstring getEditControlText();
 };

@@ -17,13 +17,17 @@ class ConfigIO {
 public:
    void init();
 
-   string getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue=L"", LPCWSTR fileName=L"");
-   wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue=L"", LPCWSTR fileName=L"");
-   void setConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCSTR keyValue, LPCWSTR fileName=L"");
-   void setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR keyValue, LPCWSTR fileName=L"");
+   string getConfigStringA(const wstring& sectionName, const wstring& keyName,
+      const wstring& defaultValue = L"", wstring fileName = L"");
+   wstring getConfigString(const wstring& sectionName, const wstring& keyName,
+      const wstring& defaultValue = L"", wstring fileName = L"");
+   void setConfigStringA(const wstring& sectionName, const wstring& keyName,
+      const string& keyValue, wstring fileName=L"");
+   void setConfigString(const wstring& sectionName, const wstring& keyName,
+      const wstring& keyValue, wstring fileName=L"");
    void flushConfigFile();
-   void openConfigFile(LPWSTR configData, const size_t readLength, LPCWSTR fileName = L"");
-   void saveConfigFile(const wstring &fileData, LPCWSTR fileName = L"");
+   void openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName = L"");
+   void saveConfigFile(const wstring &fileData, wstring fileName = L"");
 
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
    int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim=L",");
@@ -33,13 +37,14 @@ public:
    string WideToNarrow(const wstring &wStr);
 
    void setThemeFilePath(const wstring theme=L"VT_Basic");
-   wstring getStyleValue(LPCWSTR styleName);
-   void getStyleColor(LPCWSTR styleName, int &color, bool foreColor);
-   void getStyleBool(LPCWSTR styleName, int &var);
+   wstring getStyleValue(const wstring& styleName);
+   void getStyleColor(const wstring& styleName, int &color, bool foreColor);
+   void getStyleBool(const wstring& styleName, int &var);
 
    void backupMoveConfigFile();
    BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, wstring &backupConfigFile);
    void viewBackupFolder();
+   int getBackupTempFileName(wstring &tempFileName);
 
 protected:
    TCHAR pluginConfigDir[MAX_PATH];

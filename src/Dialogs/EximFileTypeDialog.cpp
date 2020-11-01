@@ -26,8 +26,8 @@ void EximFileTypeDialog::initDialog(bool bExtract) {
    SetFocus(GetDlgItem(_hSelf, IDC_FTEXIM_EDIT_CNTRL));
 }
 
-void EximFileTypeDialog::setFileTypeData(LPCWSTR ftConfig) {
-   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, ftConfig);
+void EximFileTypeDialog::setFileTypeData(const wstring& ftConfig) {
+   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, ftConfig.c_str());
 }
 
 void EximFileTypeDialog::localize(bool bExtract) {
@@ -42,28 +42,6 @@ void EximFileTypeDialog::localize(bool bExtract) {
    else {
       SetDlgItemText(_hSelf, IDC_FTEXIM_LOAD_FILE, FT_EXIM_LOAD_FILE_BTN);
       SetDlgItemText(_hSelf, IDC_FTEXIM_APPEND, FT_EXIM_APPEND_BTN);
-   }
-}
-
-void EximFileTypeDialog::loadExtractFile() {
-   wstring sExtractFile{};
-
-   if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, sExtractFile)) {
-      TCHAR sExtractData[FW_LINE_MAX_LENGTH];
-
-      _configIO.openConfigFile(sExtractData, FW_LINE_MAX_LENGTH, sExtractFile.c_str());
-      SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData);
-   }
-}
-
-void EximFileTypeDialog::saveExtractFile() {
-   wstring sExtractFile{};
-
-   if (_configIO.queryConfigFileName(_hSelf, FALSE, FALSE, sExtractFile)) {
-      TCHAR sExtractData[FW_LINE_MAX_LENGTH];
-      GetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData, FW_LINE_MAX_LENGTH);
-
-      _configIO.saveConfigFile(wstring{ sExtractData }, sExtractFile.c_str());
    }
 }
 
@@ -83,6 +61,10 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
             case IDC_FTEXIM_SAVE_FILE:
                saveExtractFile();
                break;
+
+            case IDC_FTEXIM_APPEND:
+               appendExtractFile();
+               break;
          }
          return FALSE;
 
@@ -92,4 +74,40 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
       default:
          return FALSE;
    }
+}
+
+void EximFileTypeDialog::appendExtractFile() {
+   wstring tmpFile{};
+
+   _configIO.getBackupTempFileName(tmpFile);
+   _configIO.saveConfigFile(getEditControlText(), tmpFile);
+
+
+   MessageBox(_hSelf, tmpFile.c_str(), L"", MB_OK);
+   DeleteFile(tmpFile.c_str());
+}
+
+void EximFileTypeDialog::loadExtractFile() {
+   wstring sExtractFile{};
+
+   if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, sExtractFile)) {
+      TCHAR sExtractData[FW_LINE_MAX_LENGTH];
+
+      _configIO.openConfigFile(sExtractData, FW_LINE_MAX_LENGTH, sExtractFile);
+      SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData);
+   }
+}
+
+void EximFileTypeDialog::saveExtractFile() {
+   wstring sExtractFile{};
+
+   if (_configIO.queryConfigFileName(_hSelf, FALSE, FALSE, sExtractFile)) {
+      _configIO.saveConfigFile(getEditControlText(), sExtractFile);
+   }
+}
+
+wstring EximFileTypeDialog::getEditControlText() {
+      TCHAR sExtractData[FW_LINE_MAX_LENGTH];
+      GetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData, FW_LINE_MAX_LENGTH);
+      return wstring{ sExtractData };
 }

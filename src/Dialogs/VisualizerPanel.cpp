@@ -125,7 +125,7 @@ void VisualizerPanel::loadFileTypes() {
    for (auto fType : fileTypes) {
       wstring fileLabel;
 
-      fileLabel = _configIO.getConfigString(fType.c_str(), L"FileLabel");
+      fileLabel = _configIO.getConfigString(fType, L"FileLabel");
 
       mapFileDescToType[fileLabel] = fType;
       mapFileTypeToDesc[fType] = fileLabel;
@@ -207,7 +207,7 @@ int VisualizerPanel::loadStyles() {
 
    wstring fileTheme;
 
-   fileTheme = _configIO.getConfigString(fileType.c_str(), L"FileTheme");
+   fileTheme = _configIO.getConfigString(fileType, L"FileTheme");
    if (fileTheme == currentStyleTheme) return 0;
 
    _configIO.setThemeFilePath(fileTheme);
@@ -231,10 +231,10 @@ int VisualizerPanel::loadStyles() {
    for (int i{}; i < styleCount; i++) {
       swprintf(cPre, 10, L"C%02i_", i);
       sPrefix = wstring(cPre);
-      _configIO.getStyleColor((sPrefix + L"Back").c_str(), styleSet[i].backColor, FALSE);
-      _configIO.getStyleColor((sPrefix + L"Fore").c_str(), styleSet[i].foreColor, TRUE);
-      _configIO.getStyleBool((sPrefix + L"Bold").c_str(), styleSet[i].bold);
-      _configIO.getStyleBool((sPrefix + L"Italics").c_str(), styleSet[i].italics);
+      _configIO.getStyleColor((sPrefix + L"Back"), styleSet[i].backColor, FALSE);
+      _configIO.getStyleColor((sPrefix + L"Fore"), styleSet[i].foreColor, TRUE);
+      _configIO.getStyleBool((sPrefix + L"Bold"), styleSet[i].bold);
+      _configIO.getStyleBool((sPrefix + L"Italics"), styleSet[i].italics);
    }
 
 #if FW_DEBUG_LOAD_STYLES
@@ -326,7 +326,7 @@ int VisualizerPanel::loadLexer() {
       return static_cast<int>(recInfoList.size());
    }
 
-   recTypeList = _configIO.getConfigString(fileType.c_str(), L"RecordTypes");
+   recTypeList = _configIO.getConfigString(fileType, L"RecordTypes");
    recTypeCount = _configIO.Tokenize(recTypeList, recTypes);
 
    recInfoList.resize(recTypeCount);
@@ -335,14 +335,14 @@ int VisualizerPanel::loadLexer() {
       wstring &recType = recTypes[i];
       RecordInfo &RT = recInfoList[i];
 
-      RT.label = _configIO.getConfigString(fileType.c_str(), (recType + L"_Label").c_str(), recType.c_str());
-      RT.marker = _configIO.getConfigStringA(fileType.c_str(), (recType + L"_Marker").c_str(), L".");
+      RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), recType);
+      RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L".");
       RT.regExpr = regex{ RT.marker + ".*(\r\n|\n|\r)?" };
 
       wstring fieldWidthList;
       int fieldCount;
 
-      fieldWidthList = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldWidths").c_str());
+      fieldWidthList = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"));
       fieldCount = _configIO.Tokenize(fieldWidthList, RT.fieldWidths);
 
       RT.fieldStarts.clear();
@@ -355,7 +355,7 @@ int VisualizerPanel::loadLexer() {
 
       wstring fieldLabelList;
 
-      fieldLabelList = _configIO.getConfigString(fileType.c_str(), (recType + L"_FieldLabels").c_str());
+      fieldLabelList = _configIO.getConfigString(fileType, (recType + L"_FieldLabels"));
       _configIO.Tokenize(fieldLabelList, RT.fieldLabels);
    }
 
@@ -403,7 +403,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    const size_t styleCount{ styleSet.size() };
    bool newRec{ TRUE };
 
-   eolMarker =  _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator");
+   eolMarker =  _configIO.getConfigStringA(fileType, L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
    caretLine = sciFunc(sciPtr, SCI_LINEFROMPOSITION,
       sciFunc(sciPtr, SCI_GETCURRENTPOS, NULL, NULL), NULL);

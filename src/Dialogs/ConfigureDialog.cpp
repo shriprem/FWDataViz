@@ -434,7 +434,7 @@ int ConfigureDialog::loadConfigInfo() {
    wstring fileTypes;
    int fileTypeCount;
 
-   fileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile.c_str());
+   fileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile);
    fileTypeCount = _configIO.Tokenize(fileTypes, fileTypeList);
 
    vFileTypes.clear();
@@ -444,15 +444,15 @@ int ConfigureDialog::loadConfigInfo() {
       wstring &fileType = fileTypeList[i];
       FileType &FT = vFileTypes[i];
 
-      FT.label = _configIO.getConfigString(fileType.c_str(), L"FileLabel", L"", configFile.c_str());
-      FT.eol = _configIO.getConfigStringA(fileType.c_str(), L"RecordTerminator", L"", configFile.c_str());
-      FT.theme = _configIO.getConfigString(fileType.c_str(), L"FileTheme", L"", configFile.c_str());
+      FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", configFile);
+      FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", configFile);
+      FT.theme = _configIO.getConfigString(fileType, L"FileTheme", L"", configFile);
 
       vector<wstring> recTypesList;
       wstring recTypes;
       int recTypeCount;
 
-      recTypes = _configIO.getConfigString(fileType.c_str(), L"RecordTypes", L"", configFile.c_str());
+      recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"", configFile);
       recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
 
       FT.vRecTypes.clear();
@@ -462,14 +462,10 @@ int ConfigureDialog::loadConfigInfo() {
          wstring &recType = recTypesList[j];
          RecordType &RT = FT.vRecTypes[j];
 
-         RT.label = _configIO.getConfigString(fileType.c_str(),
-            (recType + L"_Label").c_str(), L"", configFile.c_str());
-         RT.marker = _configIO.getConfigStringA(fileType.c_str(),
-            (recType + L"_Marker").c_str(), L"", configFile.c_str());
-         RT.fieldWidths = _configIO.getConfigString(fileType.c_str(),
-            (recType + L"_FieldWidths").c_str(), L"", configFile.c_str());
-         RT.fieldLabels = _configIO.getConfigString(fileType.c_str(),
-            (recType + L"_FieldLabels").c_str(), L"", configFile.c_str());
+         RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), L"", configFile);
+         RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L"", configFile);
+         RT.fieldWidths = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"), L"", configFile);
+         RT.fieldLabels = _configIO.getConfigString(fileType, (recType + L"_FieldLabels"), L"", configFile);
       }
    }
 
@@ -1100,7 +1096,7 @@ void ConfigureDialog::saveConfigInfo() {
    _configIO.saveConfigFile(fileData);
 
    // Set the FileTypes again via WinAPI to reinitialize its cache
-   _configIO.setConfigString(L"Base", L"FileTypes", fileTypes.c_str());
+   _configIO.setConfigString(L"Base", L"FileTypes", fileTypes);
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();
@@ -1117,6 +1113,6 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
 
       wstring ftCode{}, ftConfig{};
       getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig);
-      _eximDlg.setFileTypeData(ftConfig.c_str());
+      _eximDlg.setFileTypeData(ftConfig);
    }
 }

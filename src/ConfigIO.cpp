@@ -51,40 +51,43 @@ void ConfigIO::init() {
       (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
 }
 
-string ConfigIO::getConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName) {
+string ConfigIO::getConfigStringA(const wstring& sectionName, const wstring& keyName,
+   const wstring& defaultValue, wstring fileName) {
    return WideToNarrow(getConfigString(sectionName, keyName, defaultValue, fileName));
 }
 
-wstring ConfigIO::getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue, LPCWSTR fileName) {
+wstring ConfigIO::getConfigString(const wstring& sectionName, const wstring& keyName,
+   const wstring& defaultValue, wstring fileName) {
    const int bufSize{ 32000 };
    wchar_t ftBuf[bufSize];
 
-   if (wstring{ fileName }.length() < 1)
-      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
 
-   GetPrivateProfileString(sectionName, keyName, defaultValue, ftBuf, bufSize, fileName);
+   GetPrivateProfileString(sectionName.c_str(), keyName.c_str(), defaultValue.c_str(), ftBuf, bufSize, fileName.c_str());
 
    return wstring{ ftBuf };
 }
 
-void ConfigIO::setConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCSTR keyValue, LPCWSTR fileName) {
+void ConfigIO::setConfigStringA(const wstring& sectionName, const wstring& keyName,
+   const string& keyValue, wstring fileName) {
    setConfigString(sectionName, keyName, NarrowToWide(keyValue).c_str(), fileName);
 }
 
-void ConfigIO::setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR keyValue, LPCWSTR fileName) {
-   if (wstring{ fileName }.length() < 1)
-      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+void ConfigIO::setConfigString(const wstring& sectionName, const wstring& keyName,
+   const wstring& keyValue, wstring fileName) {
+   if (fileName.length() < 1)
+      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
 
-   WritePrivateProfileString(sectionName, keyName, keyValue, fileName);
+   WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), keyValue.c_str(), fileName.c_str());
 }
 
 void ConfigIO::flushConfigFile() {
    WritePrivateProfileString(NULL, NULL, NULL, NULL);
 }
 
-void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, LPCWSTR fileName) {
-   if (wstring{ fileName }.length() < 1)
-      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName) {
+   if (fileName.length() < 1)
+      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
 
    using std::ios;
    std::wifstream fs;
@@ -107,9 +110,9 @@ void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, LPCWST
    fs.close();
 }
 
-void ConfigIO::saveConfigFile(const wstring &fileData, LPCWSTR fileName) {
-   if (wstring{ fileName }.length() < 1)
-      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+void ConfigIO::saveConfigFile(const wstring &fileData, wstring fileName) {
+   if (fileName.length() < 1)
+      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
 
    using std::ios;
    std::wofstream fs;
@@ -181,14 +184,14 @@ void ConfigIO::setThemeFilePath(const wstring theme) {
    PathCombine(themeConfigFile, pluginConfigDir, (theme + wstring{ L".ini" }).c_str());
 }
 
-wstring ConfigIO::getStyleValue(LPCWSTR styleName) {
+wstring ConfigIO::getStyleValue(const wstring& styleName) {
    if (wstring{ themeConfigFile }.length() < 0)
       setThemeFilePath();
 
    return getConfigString(L"Styles", styleName, L"", themeConfigFile);
 }
 
-void ConfigIO::getStyleColor(LPCWSTR styleName, int &color, bool foreColor) {
+void ConfigIO::getStyleColor(const wstring& styleName, int &color, bool foreColor) {
    vector<int> rgb;
 
    Tokenize(getStyleValue(styleName), rgb);
@@ -199,8 +202,8 @@ void ConfigIO::getStyleColor(LPCWSTR styleName, int &color, bool foreColor) {
       color = foreColor ? defaultForeColor : defaultBackColor;
 }
 
-void ConfigIO::getStyleBool(LPCWSTR styleName, int &var) {
-   var = (getStyleValue(styleName).compare(L"Y") == 0) ? 1 : 0;
+void ConfigIO::getStyleBool(const wstring& styleName, int &var) {
+   var = (getStyleValue(styleName) == L"Y") ? 1 : 0;
 }
 
 void ConfigIO::backupMoveConfigFile() {
@@ -256,4 +259,16 @@ BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, ws
 
 void ConfigIO::viewBackupFolder() {
    ShellExecute(NULL, L"open", pluginConfigBackupDir, NULL, NULL, SW_SHOWNORMAL);
+}
+
+int ConfigIO::getBackupTempFileName(wstring &tempFileName) {
+   TCHAR tmpFilePath[MAX_PATH];
+
+   if (GetTempFileName(pluginConfigBackupDir, L"FT_", 0, tmpFilePath) == 0) {
+      tempFileName = L"";
+      return -1;
+   }
+
+   tempFileName = tmpFilePath;
+   return 0;
 }
