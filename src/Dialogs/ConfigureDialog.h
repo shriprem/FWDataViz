@@ -57,7 +57,6 @@ protected:
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);
-   void initEximDialog();
 
    int getCurrentFileTypeIndex();
    bool getCurrentFileTypeInfo(FileType* &fileInfo);

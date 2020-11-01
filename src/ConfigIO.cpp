@@ -62,7 +62,7 @@ wstring ConfigIO::getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR 
    if (wstring{ fileName }.length() < 1)
       fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
 
-   GetPrivateProfileStringW(sectionName, keyName, defaultValue, ftBuf, bufSize, fileName);
+   GetPrivateProfileString(sectionName, keyName, defaultValue, ftBuf, bufSize, fileName);
 
    return wstring{ ftBuf };
 }
@@ -78,19 +78,33 @@ void ConfigIO::setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR key
    WritePrivateProfileString(sectionName, keyName, keyValue, fileName);
 }
 
+void ConfigIO::flushConfigFile() {
+   WritePrivateProfileString(NULL, NULL, NULL, NULL);
+}
+
 void ConfigIO::saveConfigFile(const wstring &fileData, LPCWSTR fileName) {
    if (wstring{ fileName }.length() < 1)
       fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
 
    using std::ios;
+   std::wofstream fs;
 
-   std::wofstream fs16;
-   std::locale ucs16(std::locale(), new std::codecvt_utf16<wchar_t, 1114111UL, (std::codecvt_mode)3>);
-   fs16.open(fileName, ios::out | ios::binary | ios::trunc);
-   fs16.imbue(ucs16);
+   fs.open(fileName, ios::out | ios::binary | ios::trunc);
+   fs.write(fileData.c_str(), fileData.length());
 
-   fs16.write(fileData.c_str(), fileData.length());
-   fs16.close();
+   bool writeFailed{ fs.bad() };
+   fs.clear();
+   fs.close();
+
+   if (writeFailed) {
+      std::locale ucs16(std::locale(), new std::codecvt_utf16<wchar_t, 1114111UL, (std::codecvt_mode)3>);
+      fs.open(fileName, ios::out | ios::binary | ios::trunc);
+      fs.imbue(ucs16);
+      fs.write(fileData.c_str(), fileData.length());
+      fs.close();
+   }
+
+   flushConfigFile();
 }
 
 int ConfigIO::Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim) {

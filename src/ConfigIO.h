@@ -20,6 +20,7 @@ public:
    wstring getConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR defaultValue=L"", LPCWSTR fileName=L"");
    void setConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCSTR keyValue, LPCWSTR fileName=L"");
    void setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR keyValue, LPCWSTR fileName=L"");
+   void flushConfigFile();
    void saveConfigFile(const wstring &fileData, LPCWSTR fileName = L"");
 
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");

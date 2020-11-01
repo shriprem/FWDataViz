@@ -114,8 +114,10 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 
-   loadConfigInfo();
-   fillFileTypes();
+   if (vFileTypes.size() < 1) {
+      loadConfigInfo();
+      fillFileTypes();
+   }
 }
 
 INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
@@ -1092,13 +1094,16 @@ void ConfigureDialog::saveConfigInfo() {
    fileTypeCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
 
    for (size_t i{}; i < fileTypeCount; i++) {
-      getFileTypeConfig(i, FALSE, ftCode, ftConfig);
+      getFileTypeConfig(i, TRUE, ftCode, ftConfig);
       fileTypes += (i == 0 ? L"" : L",") + ftCode;
-      fileData += ftConfig + L"\n";
+      fileData += ftConfig + L"\r\n";
    }
 
-   fileData = L"[Base]\nFileTypes=" + fileTypes + L"\nThemes=" + themes + L"\n\n" + fileData;
+   fileData = L"[Base]\r\nFileTypes=" + fileTypes + L"\r\nThemes=" + themes + L"\r\n\r\n" + fileData;
    _configIO.saveConfigFile(fileData);
+
+   // Set the FileTypes again via WinAPI to reinitialize its cache
+   _configIO.setConfigString(L"Base", L"FileTypes", fileTypes.c_str());
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();
@@ -1118,7 +1123,4 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
       getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig);
       _eximDlg.setFileTypeData(ftConfig.c_str());
    }
-}
-
-void ConfigureDialog::initEximDialog() {
 }
