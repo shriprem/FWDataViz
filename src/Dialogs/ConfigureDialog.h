@@ -53,7 +53,6 @@ protected:
    void localize();
    void indicateCleanStatus();
    int loadConfigInfo();
-   void reloadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);

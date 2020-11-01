@@ -62,6 +62,7 @@
 #define FWVIZ_DIALOG_COMMAS_MESSAGE L"The line will be split into multiple items when the 'Accept' button below is clicked."
 #define FWVIZ_DISCARD_CHANGES       L"Discard changes?"
 #define FWVIZ_OPEN_BKUP_CONFIG_DLG  L"Open Backup Configuration File"
+#define FWVIZ_SAVE_BKUP_CONFIG_DLG  L"Save Backup Configuration File"
 
 // Exim File Type Dialog
 #define FT_EXIM_EXTRACT_DLG_TITLE   L"Extract File Type Data"

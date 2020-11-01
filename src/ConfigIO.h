@@ -6,6 +6,7 @@
 #include <commdlg.h>
 #include <fstream>
 #include <iostream>
+#include <ShlObj_core.h>
 #include <time.h>
 #include <unordered_map>
 #include <vector>
@@ -21,6 +22,7 @@ public:
    void setConfigStringA(LPCWSTR sectionName, LPCWSTR keyName, LPCSTR keyValue, LPCWSTR fileName=L"");
    void setConfigString(LPCWSTR sectionName, LPCWSTR keyName, LPCWSTR keyValue, LPCWSTR fileName=L"");
    void flushConfigFile();
+   void openConfigFile(LPWSTR configData, const size_t readLength, LPCWSTR fileName = L"");
    void saveConfigFile(const wstring &fileData, LPCWSTR fileName = L"");
 
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
@@ -36,7 +38,7 @@ public:
    void getStyleBool(LPCWSTR styleName, int &var);
 
    void backupMoveConfigFile();
-   BOOL getBackupConfigFileName(HWND hwnd, wstring* backupConfigFile);
+   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, wstring &backupConfigFile);
    void viewBackupFolder();
 
 protected:

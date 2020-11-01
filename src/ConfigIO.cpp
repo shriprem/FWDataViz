@@ -82,6 +82,31 @@ void ConfigIO::flushConfigFile() {
    WritePrivateProfileString(NULL, NULL, NULL, NULL);
 }
 
+void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, LPCWSTR fileName) {
+   if (wstring{ fileName }.length() < 1)
+      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
+
+   using std::ios;
+   std::wifstream fs;
+
+   ZeroMemory(configData, readLength);
+   fs.open(fileName, ios::binary);
+
+   unsigned short bom[2]{};
+
+   bom[0] = fs.get();
+   bom[1] = fs.get();
+
+   if (bom[0] == 0xFF && bom[1] == 0xFE) {
+      std::locale ucs16(std::locale(), new std::codecvt_utf16<wchar_t, 1114111UL, (std::codecvt_mode)5>);
+      fs.imbue(ucs16);
+   }
+
+   fs.seekg(0);
+   fs.read(configData, readLength);
+   fs.close();
+}
+
 void ConfigIO::saveConfigFile(const wstring &fileData, LPCWSTR fileName) {
    if (wstring{ fileName }.length() < 1)
       fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
@@ -195,7 +220,7 @@ void ConfigIO::backupMoveConfigFile() {
    MoveFile(CONFIG_FILE_PATHS[CONFIG_MAIN].c_str(), backupFilePath);
 }
 
-BOOL ConfigIO::getBackupConfigFileName(HWND hwnd, wstring *backupConfigFile) {
+BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, wstring &backupConfigFile) {
    OPENFILENAME ofn;
 
    TCHAR filePath[MAX_PATH];
@@ -206,18 +231,27 @@ BOOL ConfigIO::getBackupConfigFileName(HWND hwnd, wstring *backupConfigFile) {
    ofn.lpstrFile = filePath;
    ofn.lpstrFile[0] = '\0';
    ofn.nMaxFile = sizeof(filePath);
-   ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.INI\0";
+   ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.ini\0";
+   ofn.lpstrDefExt = L"ini";
    ofn.nFilterIndex = 2;
    ofn.lpstrFileTitle = NULL;
    ofn.nMaxFileTitle = 0;
-   ofn.lpstrInitialDir = pluginConfigBackupDir;
-   ofn.lpstrTitle = FWVIZ_OPEN_BKUP_CONFIG_DLG;
-   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+   ofn.lpstrTitle = bOpen ? FWVIZ_OPEN_BKUP_CONFIG_DLG : FWVIZ_SAVE_BKUP_CONFIG_DLG;
+   ofn.Flags = bOpen ? (OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST) : OFN_OVERWRITEPROMPT;
 
-   BOOL ret{ GetOpenFileName(&ofn) };
-   if (ret) *backupConfigFile = ofn.lpstrFile;
+   if (bBackupFolder)
+      ofn.lpstrInitialDir = pluginConfigBackupDir;
+   else {
+      TCHAR desktopPath[MAX_PATH];
+      SHGetSpecialFolderPath(NULL, desktopPath, CSIDL_DESKTOP, FALSE);
+      ofn.lpstrInitialDir = desktopPath;
+   }
 
-   return ret;
+   BOOL bOK = bOpen ? GetOpenFileName(&ofn) : GetSaveFileName(&ofn);
+
+   if (bOK) backupConfigFile = ofn.lpstrFile;
+
+   return bOK;
 }
 
 void ConfigIO::viewBackupFolder() {

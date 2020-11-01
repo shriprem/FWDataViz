@@ -322,22 +322,27 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                return TRUE;
 
             case IDC_FWVIZ_DEF_RESET_BTN:
-               configFile = L"";
-               reloadConfigInfo();
+               if (!promptDiscardChangesNo()) {
+                  configFile = L"";
+                  loadConfigInfo();
+                  fillFileTypes();
+               }
                break;
 
             case IDC_FWVIZ_DEF_BACKUP_LOAD_BTN:
-            {
-               wstring sBackupConfigFile;
+               if (!promptDiscardChangesNo()) {
+                  wstring sBackupConfigFile;
 
-               if (_configIO.getBackupConfigFileName(_hSelf, &sBackupConfigFile)) {
-                  configFile = sBackupConfigFile;
-                  reloadConfigInfo();
-                  cleanConfigFile = FALSE;
-                  enableFileSelection();
+                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, sBackupConfigFile)) {
+                     configFile = sBackupConfigFile;
+                     loadConfigInfo();
+                     fillFileTypes();
+                     cleanConfigFile = FALSE;
+                     enableFileSelection();
+                  }
                }
                break;
-            }
+
 
             case IDC_FWVIZ_DEF_BACKUP_VIEW_BTN:
                _configIO.viewBackupFolder();
@@ -1061,13 +1066,6 @@ int ConfigureDialog::fileEditDelete() {
    onFileTypeSelect();
 
    return moveTo;
-}
-
-void ConfigureDialog::reloadConfigInfo() {
-   if (promptDiscardChangesNo()) return;
-
-   loadConfigInfo();
-   fillFileTypes();
 }
 
 bool ConfigureDialog::promptDiscardChangesNo() {
