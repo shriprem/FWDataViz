@@ -549,7 +549,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring &ftCod
    FileType& FT = vFileTypes[idxFT];
    new_line = cr_lf ? L"\r\n" : L"\n";
 
-   rawCode = regex_replace(FT.label, wregex(L"( |,|=|[|])"), L"_").substr(0, 50);
+   rawCode = regex_replace(FT.label, wregex(L"( |,|=|\\[|\\])"), L"_").substr(0, 50);
    swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxFT + 1), rawCode.c_str());
    _configIO.ToUpper(fileTypeCode, sizeof(fileTypeCode));
 
