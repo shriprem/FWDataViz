@@ -1109,16 +1109,17 @@ void ConfigureDialog::saveConfigInfo() {
 }
 
 void ConfigureDialog::showEximDialog(bool bExtract) {
-   _eximDlg.doDialog((HINSTANCE)_gModule);
-   _eximDlg.initDialog(bExtract);
+   wstring ftCode{}, ftConfig{};
 
    if (bExtract) {
       int idxFT{ getCurrentFileTypeIndex() };
       if (idxFT == LB_ERR) return;
 
-      wstring ftCode{}, ftConfig{};
-
       getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig);
-      _eximDlg.setFileTypeData(ftConfig.c_str());
    }
+
+   _eximDlg.doDialog((HINSTANCE)_gModule);
+   _eximDlg.initDialog(bExtract);
+
+   if (bExtract) _eximDlg.setFileTypeData(ftConfig.c_str());
 }
