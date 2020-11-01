@@ -331,6 +331,8 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                if (_configIO.getBackupConfigFileName(_hSelf, &sBackupConfigFile)) {
                   configFile = sBackupConfigFile;
                   reloadConfigInfo();
+                  cleanConfigFile = FALSE;
+                  enableFileSelection();
                }
                break;
             }
@@ -542,13 +544,13 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
 void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring &ftCode, wstring &ftConfig) {
    size_t recTypeCount;
    wchar_t fileTypeCode[60], recTypeCode[10];
-   wstring new_line, recTypes{}, rtConfig{}, recTypePrefix;
+   wstring new_line, rawCode, recTypes{}, rtConfig{}, recTypePrefix;
 
    FileType& FT = vFileTypes[idxFT];
    new_line = cr_lf ? L"\r\n" : L"\n";
 
-   swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxFT + 1),
-      regex_replace(FT.label, wregex(L" "), L"_").substr(0, 50).c_str());
+   rawCode = regex_replace(FT.label, wregex(L"( |,|=|[|])"), L"_").substr(0, 50);
+   swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxFT + 1), rawCode.c_str());
    _configIO.ToUpper(fileTypeCode, sizeof(fileTypeCode));
 
    ftCode = wstring{ fileTypeCode };
@@ -1096,7 +1098,6 @@ void ConfigureDialog::saveConfigInfo() {
    }
 
    fileData = L"[Base]\nFileTypes=" + fileTypes + L"\nThemes=" + themes + L"\n\n" + fileData;
-
    _configIO.saveConfigFile(fileData);
 
    cleanConfigFile = TRUE;

@@ -82,13 +82,15 @@ void ConfigIO::saveConfigFile(const wstring &fileData, LPCWSTR fileName) {
    if (wstring{ fileName }.length() < 1)
       fileName = CONFIG_FILE_PATHS[CONFIG_MAIN].c_str();
 
-   using std::wofstream;
    using std::ios;
-   wofstream fs;
 
-   fs.open(fileName, ios::out | ios::binary | ios::trunc);
-   fs.write(fileData.c_str(), fileData.length());
-   fs.close();
+   std::wofstream fs16;
+   std::locale ucs16(std::locale(), new std::codecvt_utf16<wchar_t, 1114111UL, (std::codecvt_mode)3>);
+   fs16.open(fileName, ios::out | ios::binary | ios::trunc);
+   fs16.imbue(ucs16);
+
+   fs16.write(fileData.c_str(), fileData.length());
+   fs16.close();
 }
 
 int ConfigIO::Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim) {
@@ -163,18 +165,19 @@ void ConfigIO::getStyleBool(LPCWSTR styleName, int &var) {
 }
 
 void ConfigIO::backupMoveConfigFile() {
+   char aFileName[50];
    time_t rawTime;
    struct tm* timeInfo;
-   char aFileName[50];
 
    time(&rawTime);
    timeInfo = localtime(&rawTime);
    strftime(aFileName, 50, "Visualizer_%Y%m%d_%H%M%S.ini", timeInfo);
 
-   TCHAR wFileName[MAX_PATH], backupFilePath[MAX_PATH];
+   TCHAR backupFilePath[MAX_PATH];
+   wstring wFileName;
 
-   swprintf(wFileName, MAX_PATH, L"%s", NarrowToWide(aFileName).c_str());
-   PathCombine(backupFilePath, pluginConfigBackupDir, wFileName);
+   wFileName = NarrowToWide(aFileName);
+   PathCombine(backupFilePath, pluginConfigBackupDir, wFileName.c_str());
    MoveFile(CONFIG_FILE_PATHS[CONFIG_MAIN].c_str(), backupFilePath);
 }
 
