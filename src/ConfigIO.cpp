@@ -68,15 +68,36 @@ wstring ConfigIO::getConfigString(const wstring& sectionName, const wstring& key
    return wstring{ ftBuf };
 }
 
+int ConfigIO::getConfigSectionList(wstring& sections, wstring fileName) {
+   const int bufSize{ 32000 };
+   wchar_t ftBuf[bufSize];
+
+   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
+
+   DWORD charCount{};
+   charCount = GetPrivateProfileString(NULL, L"", L"", ftBuf, bufSize, fileName.c_str());
+   if (charCount < 1) return 0;
+
+   int sectionCount{};
+   for (unsigned int i{}; i < charCount; i++) {
+      if (ftBuf[i] == 0) {
+         ftBuf[i] = ',';
+         sectionCount++;
+      }
+   }
+
+   sections = ftBuf;
+   return sectionCount;
+}
+
 void ConfigIO::setConfigStringA(const wstring& sectionName, const wstring& keyName,
    const string& keyValue, wstring fileName) {
-   setConfigString(sectionName, keyName, NarrowToWide(keyValue).c_str(), fileName);
+   setConfigString(sectionName, keyName, NarrowToWide(keyValue), fileName);
 }
 
 void ConfigIO::setConfigString(const wstring& sectionName, const wstring& keyName,
    const wstring& keyValue, wstring fileName) {
-   if (fileName.length() < 1)
-      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
+   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
 
    WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), keyValue.c_str(), fileName.c_str());
 }
@@ -86,8 +107,7 @@ void ConfigIO::flushConfigFile() {
 }
 
 void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName) {
-   if (fileName.length() < 1)
-      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
+   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
 
    using std::ios;
    std::wifstream fs;
@@ -111,8 +131,7 @@ void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, wstrin
 }
 
 void ConfigIO::saveConfigFile(const wstring &fileData, wstring fileName) {
-   if (fileName.length() < 1)
-      fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
+   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
 
    using std::ios;
    std::wofstream fs;

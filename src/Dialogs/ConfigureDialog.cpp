@@ -429,44 +429,50 @@ void ConfigureDialog::indicateCleanStatus() {
    }
 }
 
+int ConfigureDialog::addConfigInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
+   FileType& FT = vFileTypes[vIndex];
+
+   FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", sConfigFile);
+   FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", sConfigFile);
+   FT.theme = _configIO.getConfigString(fileType, L"FileTheme", L"", sConfigFile);
+
+   vector<wstring> recTypesList;
+   wstring recTypes;
+   int recTypeCount;
+
+   recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"", sConfigFile);
+   recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
+
+   FT.vRecTypes.clear();
+   FT.vRecTypes.resize(recTypeCount);
+
+   for (int j{}; j < recTypeCount; j++) {
+      wstring& recType = recTypesList[j];
+      RecordType& RT = FT.vRecTypes[j];
+
+      RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), L"", sConfigFile);
+      RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L"", sConfigFile);
+      RT.fieldWidths = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"), L"", sConfigFile);
+      RT.fieldLabels = _configIO.getConfigString(fileType, (recType + L"_FieldLabels"), L"", sConfigFile);
+   }
+
+   return recTypeCount;
+}
+
 int ConfigureDialog::loadConfigInfo() {
    vector<wstring> fileTypeList;
-   wstring fileTypes;
+   wstring sFileTypes;
    int fileTypeCount;
 
-   fileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile);
-   fileTypeCount = _configIO.Tokenize(fileTypes, fileTypeList);
+   sFileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile);
+   fileTypeCount = _configIO.Tokenize(sFileTypes, fileTypeList);
 
    vFileTypes.clear();
    vFileTypes.resize(fileTypeCount);
 
    for (int i{}; i < fileTypeCount; i++) {
       wstring &fileType = fileTypeList[i];
-      FileType &FT = vFileTypes[i];
-
-      FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", configFile);
-      FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", configFile);
-      FT.theme = _configIO.getConfigString(fileType, L"FileTheme", L"", configFile);
-
-      vector<wstring> recTypesList;
-      wstring recTypes;
-      int recTypeCount;
-
-      recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"", configFile);
-      recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
-
-      FT.vRecTypes.clear();
-      FT.vRecTypes.resize(recTypeCount);
-
-      for (int j{}; j < recTypeCount; j++) {
-         wstring &recType = recTypesList[j];
-         RecordType &RT = FT.vRecTypes[j];
-
-         RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), L"", configFile);
-         RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L"", configFile);
-         RT.fieldWidths = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"), L"", configFile);
-         RT.fieldLabels = _configIO.getConfigString(fileType, (recType + L"_FieldLabels"), L"", configFile);
-      }
+      addConfigInfo(i, fileType, configFile);
    }
 
    return static_cast<int>(vFileTypes.size());
@@ -1028,6 +1034,38 @@ void ConfigureDialog::fileEditAccept() {
    enableFileSelection();
 }
 
+int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
+   wstring sections{};
+   int sectionCount{};
+
+   sectionCount = _configIO.getConfigSectionList(sections, sConfigFile);
+
+   vector<wstring> sectionList{};
+   sectionCount = _configIO.Tokenize(sections, sectionList);
+
+   wstring sectionLabel{};
+   int validCount{};
+   for (int i{}; i < sectionCount; i++) {
+      sectionLabel = _configIO.getConfigString(sectionList[i], L"FileLabel", L"", sConfigFile);
+      if (sectionLabel.length() > 0) {
+         FileType newFile{ getNewFileType() };
+
+         vFileTypes.push_back(newFile);
+         addConfigInfo(static_cast<int>(vFileTypes.size() - 1), sectionList[i], sConfigFile);
+         SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
+         validCount++;
+      }
+   }
+
+   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)(vFileTypes.size() - 1), NULL);
+   onFileTypeSelect();
+
+   cleanConfigFile = FALSE;
+   enableFileSelection();
+
+   return validCount;
+}
+
 void ConfigureDialog::fileEditNew() {
    FileType newFile{ getNewFileType() };
 
@@ -1094,9 +1132,6 @@ void ConfigureDialog::saveConfigInfo() {
 
    fileData = L"[Base]\r\nFileTypes=" + fileTypes + L"\r\nThemes=" + themes + L"\r\n\r\n" + fileData;
    _configIO.saveConfigFile(fileData);
-
-   // Set the FileTypes again via WinAPI to reinitialize its cache
-   _configIO.setConfigString(L"Base", L"FileTypes", fileTypes);
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();

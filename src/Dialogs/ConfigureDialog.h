@@ -22,6 +22,7 @@ public:
    void setFieldEditCaretOnFocus(HWND hEdit);
    void hiliteFieldEditPairedItem(HWND hThis, HWND hThat);
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
+   int appendFileTypeConfigs(const wstring& sConfigFile);
 
    HWND hFilesLB, hFileEOL, hRecsLB, hRecStart, hRecRegex, hFieldLabels, hFieldWidths;
 
@@ -52,6 +53,7 @@ protected:
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    void indicateCleanStatus();
+   int addConfigInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile);
    int loadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();

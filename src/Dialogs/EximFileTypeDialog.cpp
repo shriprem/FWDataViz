@@ -82,8 +82,9 @@ void EximFileTypeDialog::appendExtractFile() {
    _configIO.getBackupTempFileName(tmpFile);
    _configIO.saveConfigFile(getEditControlText(), tmpFile);
 
+   display(FALSE);
+   _configDlg.appendFileTypeConfigs(tmpFile);
 
-   MessageBox(_hSelf, tmpFile.c_str(), L"", MB_OK);
    DeleteFile(tmpFile.c_str());
 }
 

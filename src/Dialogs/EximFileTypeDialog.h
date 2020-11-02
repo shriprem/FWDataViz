@@ -1,11 +1,13 @@
 #pragma once
 
+#include "ConfigureDialog.h"
 #include "../Utils.h"
 #include "../ConfigIO.h"
 #include "../NPP/StaticDialog.h"
 
 extern NppData nppData;
 extern ConfigIO _configIO;
+extern ConfigureDialog _configDlg;
 
 class EximFileTypeDialog : public StaticDialog {
 public:

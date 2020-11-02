@@ -21,10 +21,13 @@ public:
       const wstring& defaultValue = L"", wstring fileName = L"");
    wstring getConfigString(const wstring& sectionName, const wstring& keyName,
       const wstring& defaultValue = L"", wstring fileName = L"");
+   int getConfigSectionList(wstring& sections, wstring fileName = L"");
+
    void setConfigStringA(const wstring& sectionName, const wstring& keyName,
       const string& keyValue, wstring fileName=L"");
    void setConfigString(const wstring& sectionName, const wstring& keyName,
       const wstring& keyValue, wstring fileName=L"");
+
    void flushConfigFile();
    void openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName = L"");
    void saveConfigFile(const wstring &fileData, wstring fileName = L"");
