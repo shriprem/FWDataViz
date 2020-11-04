@@ -1120,6 +1120,8 @@ void ConfigureDialog::saveConfigInfo() {
    wstring fileData{}, fileTypes{}, themes{}, ftCode{}, ftConfig{};
 
    themes = _configIO.getConfigString(L"Base", L"Themes");
+   themes = themes.length() > 0 ? themes : L"VT_Basic";
+
    _configIO.backupMoveConfigFile();
 
    fileTypeCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
