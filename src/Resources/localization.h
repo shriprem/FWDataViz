@@ -4,6 +4,9 @@
 #define MENU_PANEL_NAME             L"Fixed-Width Data Visualizer"
 #define MENU_SHOW_PANEL             L"&Show Panel"
 #define MENU_CONFIG                 L"&Configure File Types"
+#define MENU_DEMO_SINGLE_REC_FILES  L"Sample Single-Record-Type Files"
+#define MENU_DEMO_MULTI_REC_FILES   L"Sample Multiple-Record-Type Files"
+#define MENU_DEMO_MULTI_LINE_FILES  L"Sample Multiple-Line Record Files"
 #define MENU_ABOUT                  L"&About"
 
 

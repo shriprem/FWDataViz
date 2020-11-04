@@ -31,6 +31,7 @@
 #define FW_STYLE_RANGE_START 101
 
 extern NppData nppData;
+extern FuncItem pluginMenuItems[MI_COUNT];
 extern ConfigIO _configIO;
 
 using std::regex;
@@ -64,6 +65,9 @@ protected :
    void clearCaretFieldInfo();
    void clearLexer();
    void showWordwrapInfo(bool show);
+
+   HMENU getPluginSubMenu();
+   void loadMenuDemoDataFiles();
 
    // File Type data
    HWND hFTList;

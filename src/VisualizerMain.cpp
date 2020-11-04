@@ -15,7 +15,7 @@
 #include "PluginDefinition.h"
 #include "Dialogs/VisualizerPanel.h"
 
-extern FuncItem funcItem[MI_COUNT];
+extern FuncItem pluginMenuItems[MI_COUNT];
 extern NppData nppData;
 extern VisualizerPanel _vizPanel;
 
@@ -51,7 +51,7 @@ extern "C" __declspec(dllexport) const TCHAR * getName() {
 
 extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF) {
    *nbF = MI_COUNT;
-   return funcItem;
+   return pluginMenuItems;
 }
 
 

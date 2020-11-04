@@ -25,7 +25,7 @@
    #define generic_itoa itoa
 #endif
 
-FuncItem funcItem[MI_COUNT];
+FuncItem pluginMenuItems[MI_COUNT];
 
 NppData nppData;
 HINSTANCE _gModule;
@@ -53,13 +53,17 @@ void commandMenuInit() {
 
    setCommand(MI_GOTO_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
    setCommand(MI_CONFIG_DIALOG, MENU_CONFIG, ShowConfigDialog, 0, 0);
-   setCommand(MI_SEPARATOR, TEXT("-"), NULL, NULL, false);
+   setCommand(MI_SEPARATOR_1, L"-", NULL);
+   setCommand(MI_DEMO_SINGLE_REC_FILES, MENU_DEMO_SINGLE_REC_FILES, NULL);
+   setCommand(MI_DEMO_MULTI_REC_FILES, MENU_DEMO_MULTI_REC_FILES, NULL);
+   setCommand(MI_DEMO_MULTI_LINE_FILES, MENU_DEMO_MULTI_LINE_FILES, NULL);
+   setCommand(MI_SEPARATOR_2, L"-", NULL);
    setCommand(MI_ABOUT_DIALOG, MENU_ABOUT, ShowAboutDialog, 0, 0);
 }
 
 
 void commandMenuCleanUp() {
-   delete funcItem[MI_GOTO_PANEL]._pShKey;
+   delete pluginMenuItems[MI_GOTO_PANEL]._pShKey;
 }
 
 // Initialize plugin commands
@@ -70,10 +74,10 @@ bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey 
     if (!pFunc)
         return false;
 
-    lstrcpy(funcItem[index]._itemName, cmdName);
-    funcItem[index]._pFunc = pFunc;
-    funcItem[index]._init2Check = checkOnInit;
-    funcItem[index]._pShKey = sk;
+    lstrcpy(pluginMenuItems[index]._itemName, cmdName);
+    pluginMenuItems[index]._pFunc = pFunc;
+    pluginMenuItems[index]._init2Check = checkOnInit;
+    pluginMenuItems[index]._pShKey = sk;
 
     return true;
 }
@@ -128,7 +132,7 @@ void ToggleVisualizerPanel() {
 void ShowVisualizerPanel(bool show) {
    _vizPanel.display(show);
 
-   CheckMenuItem(GetMenu(nppData._nppHandle), funcItem[MI_GOTO_PANEL]._cmdID,
+   CheckMenuItem(GetMenu(nppData._nppHandle), pluginMenuItems[MI_GOTO_PANEL]._cmdID,
                MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));
 }
 
