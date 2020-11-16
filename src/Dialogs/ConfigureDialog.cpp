@@ -735,7 +735,7 @@ void ConfigureDialog::onRecTypeSelect() {
    string regExpr = recInfo->marker;
 
    SetWindowTextA(hRecRegex, regExpr.c_str());
-   SetWindowTextA(hRecStart, (regExpr.substr(0, 1) == "^") ? regExpr.substr(1).c_str() : "");
+   SetWindowTextA(hRecStart, getOnlyStartsWith(regExpr).c_str());
 
    loadingEdits = FALSE;
 
@@ -920,15 +920,11 @@ void ConfigureDialog::onRecStartEditChange() {
 
 void ConfigureDialog::onRecRegexEditChange() {
    char regexChars[MAX_PATH];
-   int cCount = GetWindowTextA(hRecRegex, regexChars, MAX_PATH);
+   GetWindowTextA(hRecRegex, regexChars, MAX_PATH);
 
-   string startText{};
+   string regexText{ regexChars };
 
-   if (cCount > 0 && regexChars[0] == '^') {
-      startText = string{ regexChars }.substr(1);
-   }
-
-   SetWindowTextA(hRecStart, startText.c_str());
+   SetWindowTextA(hRecStart, getOnlyStartsWith(regexText).c_str());
 }
 
 void ConfigureDialog::recEditAccept() {
@@ -1152,4 +1148,9 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
       getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig);
       _eximDlg.setFileTypeData(ftConfig);
    }
+}
+
+string ConfigureDialog::getOnlyStartsWith(string txt) {
+   return string{ (txt.length() > 0 &&
+      regex_match(txt, std::regex("^\\^[^\\.\\{\\}\\\\[\\]\\*\\?\\+\\<\\>\\=]+"))) ? txt.substr(1) : "" };
 }
