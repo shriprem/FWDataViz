@@ -29,6 +29,8 @@
 #include "Resources/resource.h"
 #include "Resources/localization.h"
 
+#define PLUGIN_FOLDER_NAME L"FWDataViz"
+
 using std::string;
 using std::string_view;
 using std::wstring;
@@ -60,6 +62,8 @@ bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey 
 HWND getCurrentScintilla();
 bool getDirectScintillaFunc(PSCIFUNC_T &fn, void* &ptr);
 LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam);
+HMENU getPluginSubMenu();
+void initMenuSampleFiles();
 
 // Plugin Command Functions
 void ToggleVisualizerPanel();

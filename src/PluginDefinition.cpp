@@ -15,6 +15,7 @@
 
 #include "PluginDefinition.h"
 #include "ConfigIO.h"
+#include "Resources/samples_list.h"
 #include "Dialogs/VisualizerPanel.h"
 #include "Dialogs/ConfigureDialog.h"
 #include "Dialogs/AboutDialog.h"
@@ -103,6 +104,62 @@ bool getDirectScintillaFunc(PSCIFUNC_T &fn, void* &ptr) {
 LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam)
 {
    return SendMessage(nppData._nppHandle, messageID, wparam, lparam);
+}
+
+HMENU getPluginSubMenu() {
+   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
+   int menuItemCount = GetMenuItemCount(hPluginMenu);
+
+   for (int i{}; i < menuItemCount; i++)
+   {
+      TCHAR pluginItemText[MAX_PATH];
+      int pluginItemLen{};
+
+      pluginItemLen = GetMenuString(hPluginMenu, i, pluginItemText, MAX_PATH, MF_BYPOSITION);
+      if (pluginItemLen > 0 && wstring{ pluginItemText } == MENU_PANEL_NAME) {
+         HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
+
+         if (GetMenuState(hSubMenu, (UINT)pluginMenuItems[0]._cmdID, MF_BYCOMMAND) != -1)
+            return hSubMenu;
+      }
+   }
+
+   return NULL;
+}
+
+void initMenuSampleFiles() {
+   HMENU hSubMenu = getPluginSubMenu();
+   if (hSubMenu == NULL) return;
+
+   int itemID{};
+   size_t itemCount{};
+
+   HMENU hMenuSingleRec = CreatePopupMenu();
+   ModifyMenu(hSubMenu, MI_DEMO_SINGLE_REC_FILES, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hMenuSingleRec, MENU_DEMO_SINGLE_REC_FILES);
+
+   itemID = 101;
+   itemCount = std::size(gSampleSingleRecs);
+   for (int i{}; i < itemCount; i++) {
+      AppendMenu(hMenuSingleRec, MF_STRING, itemID + i, gSampleSingleRecs[i].display_name.c_str());
+   }
+
+   HMENU hMenuMultiRec = CreatePopupMenu();
+   ModifyMenu(hSubMenu, MI_DEMO_MULTI_REC_FILES, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hMenuMultiRec, MENU_DEMO_MULTI_REC_FILES);
+
+   itemID = 201;
+   itemCount = std::size(gSampleMultiRecs);
+   for (int i{}; i < itemCount; i++) {
+      AppendMenu(hMenuMultiRec, MF_STRING, itemID + i, gSampleMultiRecs[i].display_name.c_str());
+   }
+
+   HMENU hMenuMultiLine = CreatePopupMenu();
+   ModifyMenu(hSubMenu, MI_DEMO_MULTI_LINE_FILES, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hMenuMultiLine, MENU_DEMO_MULTI_LINE_FILES);
+
+   itemID = 301;
+   itemCount = std::size(gSampleMultiLines);
+   for (int i{}; i < itemCount; i++) {
+      AppendMenu(hMenuMultiLine, MF_STRING, itemID + i, gSampleMultiLines[i].display_name.c_str());
+   }
 }
 
 // Dockable Visualizer Dialog

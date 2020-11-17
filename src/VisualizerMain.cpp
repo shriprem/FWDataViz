@@ -57,6 +57,10 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF) {
 
 extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
    switch (notifyCode->nmhdr.code) {
+      case NPPN_READY:
+         initMenuSampleFiles();
+         break;
+
       case NPPN_BUFFERACTIVATED:
          if (_vizPanel.isVisible()) {
             _vizPanel.syncListFileType();

@@ -78,7 +78,6 @@ void VisualizerPanel::initPanel() {
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG, FALSE);
 
    if (_gLanguage != LANG_ENGLISH) localize();
-   loadMenuDemoDataFiles();
 }
 
 void VisualizerPanel::localize() {
@@ -675,48 +674,4 @@ void VisualizerPanel::clearLexer() {
 void VisualizerPanel::showWordwrapInfo(bool show) {
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO), show ? SW_SHOW : SW_HIDE);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON), show ? SW_SHOW : SW_HIDE);
-}
-
-HMENU VisualizerPanel::getPluginSubMenu() {
-   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
-   int menuItemCount = GetMenuItemCount(hPluginMenu);
-
-   for (int i{}; i < menuItemCount; i++)
-   {
-      TCHAR pluginItemText[MAX_PATH];
-      int pluginItemLen{};
-
-      pluginItemLen = GetMenuString(hPluginMenu, i, pluginItemText, MAX_PATH, MF_BYPOSITION);
-      if (pluginItemLen > 0 && wstring{ pluginItemText } == MENU_PANEL_NAME) {
-         HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
-
-         if (GetMenuState(hSubMenu, (UINT)pluginMenuItems[0]._cmdID, MF_BYCOMMAND) != -1)
-            return hSubMenu;
-      }
-   }
-
-   return NULL;
-}
-
-void VisualizerPanel::loadMenuDemoDataFiles() {
-   HMENU hSubMenu = getPluginSubMenu();
-   if (hSubMenu == NULL) return;
-
-   int itemID{ 101 };
-
-   HMENU hMenuSingleRec = CreatePopupMenu();
-   ModifyMenu(hSubMenu, MI_DEMO_SINGLE_REC_FILES, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hMenuSingleRec, MENU_DEMO_SINGLE_REC_FILES);
-   AppendMenu(hMenuSingleRec, MF_STRING, itemID++, L"Weather Station Data");
-   AppendMenu(hMenuSingleRec, MF_STRING, itemID++, L"Weather Daily Data");
-   AppendMenu(hMenuSingleRec, MF_STRING, itemID++, L"ICD-10 Diagnosis Codes");
-
-   HMENU hMenuMultiRec = CreatePopupMenu();
-   ModifyMenu(hSubMenu, MI_DEMO_MULTI_REC_FILES, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hMenuMultiRec, MENU_DEMO_MULTI_REC_FILES);
-   AppendMenu(hMenuMultiRec, MF_STRING, itemID++, L"Combined Weather Data");
-
-   HMENU hMenuMultiLine = CreatePopupMenu();
-   ModifyMenu(hSubMenu, MI_DEMO_MULTI_LINE_FILES, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hMenuMultiLine, MENU_DEMO_MULTI_LINE_FILES);
-   AppendMenu(hMenuMultiLine, MF_STRING, itemID++, L"ICD-10 Diagnoses with Brief Summary");
-
-
 }

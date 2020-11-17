@@ -90,6 +90,9 @@
     <ClInclude Include="..\src\Dialogs\EximFileTypeDialog.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Resources\samples_list.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc">

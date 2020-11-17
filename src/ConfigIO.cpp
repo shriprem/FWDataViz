@@ -1,11 +1,10 @@
 #include "ConfigIO.h"
 
 void ConfigIO::init() {
-   const wstring sPluginFolder{ L"FWDataViz" };
    TCHAR sPluginDirectory[MAX_PATH];
 
    nppMessage(NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)sPluginDirectory);
-   PathAppend(sPluginDirectory, (L"plugins\\" + sPluginFolder).c_str());
+   PathAppend(sPluginDirectory, (L"plugins\\" + wstring{ PLUGIN_FOLDER_NAME }).c_str());
 
    nppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
 
@@ -16,7 +15,7 @@ void ConfigIO::init() {
    }
 
    // if no existing config folder for this plugin, create it
-   PathAppend(pluginConfigDir, sPluginFolder.c_str());
+   PathAppend(pluginConfigDir, PLUGIN_FOLDER_NAME);
 
    if (!PathFileExists(pluginConfigDir)) {
       CreateDirectory(pluginConfigDir, NULL);
