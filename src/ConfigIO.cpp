@@ -3,8 +3,8 @@
 void ConfigIO::init() {
    TCHAR sPluginDirectory[MAX_PATH];
 
-   nppMessage(NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)sPluginDirectory);
-   PathAppend(sPluginDirectory, (L"plugins\\" + wstring{ PLUGIN_FOLDER_NAME }).c_str());
+   nppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)sPluginDirectory);
+   PathAppend(sPluginDirectory, PLUGIN_FOLDER_NAME);
 
    nppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
 

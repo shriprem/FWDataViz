@@ -99,6 +99,9 @@
     <ClInclude Include="..\src\Resources\SamplesMenuDefs.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\NPP\Common.h">
+      <Filter>_NPP Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc">

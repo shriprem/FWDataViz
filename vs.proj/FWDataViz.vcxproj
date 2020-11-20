@@ -24,6 +24,7 @@
     <ClInclude Include="..\src\Dialogs\ConfigureDialog.h" />
     <ClInclude Include="..\src\Dialogs\EximFileTypeDialog.h" />
     <ClInclude Include="..\src\Dialogs\VisualizerPanel.h" />
+    <ClInclude Include="..\src\NPP\Common.h" />
     <ClInclude Include="..\src\NPP\Docking.h" />
     <ClInclude Include="..\src\NPP\DockingDlgInterface.h" />
     <ClInclude Include="..\src\NPP\dockingResource.h" />

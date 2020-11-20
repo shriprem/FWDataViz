@@ -19,8 +19,9 @@ void SamplesMenu::init() {
    itemCount = std::size(gSampleFiles);
    if (!nppMessage(NPPM_ALLOCATECMDID, itemCount, (LPARAM)&itemIDStart)) return;
 
-   nppMessage(NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)pluginSamplesDir);
-   PathAppend(pluginSamplesDir, (L"plugins\\" + wstring{ PLUGIN_FOLDER_NAME } + L"\\Samples").c_str());
+   nppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)pluginSamplesDir);
+   PathAppend(pluginSamplesDir, PLUGIN_FOLDER_NAME);
+   PathAppend(pluginSamplesDir, L"Samples");
 
    HMENU hWhich;
    TCHAR sampleFile[MAX_PATH];
@@ -48,6 +49,20 @@ void SamplesMenu::init() {
       if (PathFileExists(sampleFile))
          AppendMenu(hWhich, MF_STRING, itemIDStart + i, gSampleFiles[i].display_name.c_str());
    }
+}
+
+void SamplesMenu::procCommand(WPARAM wParam, LPARAM) {
+   size_t cmdID{ LOWORD(wParam) - itemIDStart };
+   if (cmdID < 0 || cmdID > itemCount) return;
+
+   TCHAR sampleFile[MAX_PATH];
+   TCHAR pluginPath[MAX_PATH];
+
+   nppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)pluginPath);
+   PathCombine(sampleFile, pluginSamplesDir, gSampleFiles[cmdID].file_name.c_str());
+   if (!PathFileExists(sampleFile)) return;
+
+   MessageBox(NULL, sampleFile, pluginPath, 0);
 }
 
 HMENU SamplesMenu::getPluginSubMenu() {

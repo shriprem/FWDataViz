@@ -87,7 +87,16 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
 }
 
 
-extern "C" __declspec(dllexport) LRESULT messageProc(UINT /*Message*/, WPARAM /*wParam*/, LPARAM /*lParam*/) {
+extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam, LPARAM lParam) {
+   switch (message)
+   {
+      case WM_COMMAND:
+         samplesMenu.procCommand(wParam, lParam);
+         break;
+
+      default:
+         break;
+   }
    return TRUE;
 }
 
