@@ -28,6 +28,9 @@
     <ClCompile Include="..\src\Dialogs\EximFileTypeDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\SamplesMenu.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -90,7 +93,10 @@
     <ClInclude Include="..\src\Dialogs\EximFileTypeDialog.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Resources\samples_list.h">
+    <ClInclude Include="..\src\SamplesMenu.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Resources\SamplesMenuDefs.h">
       <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
