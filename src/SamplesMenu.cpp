@@ -56,13 +56,12 @@ void SamplesMenu::procCommand(WPARAM wParam, LPARAM) {
    if (cmdID < 0 || cmdID > itemCount) return;
 
    TCHAR sampleFile[MAX_PATH];
-   TCHAR pluginPath[MAX_PATH];
 
-   nppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)pluginPath);
    PathCombine(sampleFile, pluginSamplesDir, gSampleFiles[cmdID].file_name.c_str());
    if (!PathFileExists(sampleFile)) return;
 
-   MessageBox(NULL, sampleFile, pluginPath, 0);
+   nppMessage(NPPM_DOOPEN, NULL, (LPARAM)sampleFile);
+   ShowVisualizerPanel(TRUE);
 }
 
 HMENU SamplesMenu::getPluginSubMenu() {

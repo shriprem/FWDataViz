@@ -106,10 +106,8 @@ LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam)
 }
 
 // Dockable Visualizer Dialog
-void ToggleVisualizerPanel() {
-   bool hidden = !_vizPanel.isVisible();
-
-   if (hidden) {
+void ShowVisualizerPanel(bool show) {
+   if (show && !_vizPanel.isVisible()) {
       _vizPanel.setParent(nppData._nppHandle);
       tTbData data {};
 
@@ -126,14 +124,15 @@ void ToggleVisualizerPanel() {
          _vizPanel.initPanel();
       }
    }
-   ShowVisualizerPanel(hidden);
-}
 
-void ShowVisualizerPanel(bool show) {
    _vizPanel.display(show);
 
    CheckMenuItem(GetMenu(nppData._nppHandle), pluginMenuItems[MI_GOTO_PANEL]._cmdID,
                MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));
+}
+
+void ToggleVisualizerPanel() {
+   ShowVisualizerPanel(!_vizPanel.isVisible());
 }
 
 void RefreshVisualizerPanel() {
