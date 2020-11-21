@@ -1,7 +1,9 @@
 #include "SamplesMenu.h"
+#include "Dialogs/VisualizerPanel.h"
 #include "Resources/SamplesMenuDefs.h"
 
 extern FuncItem pluginMenuItems[MI_COUNT];
+extern VisualizerPanel _vizPanel;
 
 void SamplesMenu::init() {
    HMENU hSubMenu = getPluginSubMenu();
@@ -62,7 +64,12 @@ void SamplesMenu::procCommand(WPARAM wParam, LPARAM) {
 
    nppMessage(NPPM_DOOPEN, NULL, (LPARAM)sampleFile);
    ShowVisualizerPanel(TRUE);
+
+   _vizPanel.clearVisualize();
+   _vizPanel.setDocFileType(getCurrentScintilla(), gSampleFiles[cmdID].file_type);
+   _vizPanel.onBufferActivate();
 }
+
 
 HMENU SamplesMenu::getPluginSubMenu() {
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);

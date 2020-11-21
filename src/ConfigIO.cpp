@@ -28,7 +28,7 @@ void ConfigIO::init() {
       CreateDirectory(pluginConfigBackupDir, NULL);
    }
 
-   // if config files are missing copy them from the plugins folder
+   // if config files are missing, copy them from the plugins folder
    const wstring sDefaultsPrefix{ L"defaults_" };
 
    TCHAR sDefaultsFile[MAX_PATH];
@@ -44,10 +44,43 @@ void ConfigIO::init() {
       }
    }
 
+   // initialize instance variables
+   resetCurrentConfigFile();
+   PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultsPrefix + CONFIG_FILES[CONFIG_MAIN]).c_str());
+
    defaultBackColor = static_cast<int>
       (nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
    defaultForeColor = static_cast<int>
       (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
+}
+
+int ConfigIO::setCurrentConfigFile(const wstring& docFileType) {
+   int sectionCount{};
+   wstring sectionList{};
+
+   if (docFileType.length() < 1) {
+      resetCurrentConfigFile();
+      return 0;
+   }
+
+   sectionCount = getConfigSectionList(sectionList, CONFIG_FILES[CONFIG_MAIN]);
+   if (sectionCount > 0 && sectionList.find(docFileType) != std::string::npos) {
+      resetCurrentConfigFile();
+      return 1;
+   }
+
+   sectionCount = getConfigSectionList(sectionList, defaultConfigFile);
+   if (sectionCount > 0 && sectionList.find(docFileType) != std::string::npos) {
+      currentConfigFile = wstring{ defaultConfigFile };
+      return 2;
+   }
+
+   resetCurrentConfigFile();
+   return -1;
+}
+
+void ConfigIO::resetCurrentConfigFile() {
+   currentConfigFile = CONFIG_FILE_PATHS[CONFIG_MAIN];
 }
 
 string ConfigIO::getConfigStringA(const wstring& sectionName, const wstring& keyName,
@@ -60,7 +93,7 @@ wstring ConfigIO::getConfigString(const wstring& sectionName, const wstring& key
    const int bufSize{ 32000 };
    wchar_t ftBuf[bufSize];
 
-   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
+   if (fileName.length() < 1) fileName = currentConfigFile;
 
    GetPrivateProfileString(sectionName.c_str(), keyName.c_str(), defaultValue.c_str(), ftBuf, bufSize, fileName.c_str());
 
@@ -70,8 +103,6 @@ wstring ConfigIO::getConfigString(const wstring& sectionName, const wstring& key
 int ConfigIO::getConfigSectionList(wstring& sections, wstring fileName) {
    const int bufSize{ 32000 };
    wchar_t ftBuf[bufSize];
-
-   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
 
    DWORD charCount{};
    charCount = GetPrivateProfileString(NULL, L"", L"", ftBuf, bufSize, fileName.c_str());
@@ -96,7 +127,7 @@ void ConfigIO::setConfigStringA(const wstring& sectionName, const wstring& keyNa
 
 void ConfigIO::setConfigString(const wstring& sectionName, const wstring& keyName,
    const wstring& keyValue, wstring fileName) {
-   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
+   if (fileName.length() < 1) fileName = currentConfigFile;
 
    WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), keyValue.c_str(), fileName.c_str());
 }
@@ -106,7 +137,7 @@ void ConfigIO::flushConfigFile() {
 }
 
 void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName) {
-   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
+   if (fileName.length() < 1) fileName = currentConfigFile;
 
    using std::ios;
    std::wifstream fs;
@@ -130,7 +161,7 @@ void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, wstrin
 }
 
 void ConfigIO::saveConfigFile(const wstring &fileData, wstring fileName) {
-   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_MAIN];
+   if (fileName.length() < 1) fileName = currentConfigFile;
 
    using std::ios;
    std::wofstream fs;

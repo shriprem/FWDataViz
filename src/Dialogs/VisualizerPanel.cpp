@@ -138,17 +138,18 @@ void VisualizerPanel::syncListFileType() {
    if (!hScintilla) return;
 
    wstring fileType;
-   wstring fDesc;
 
-   if (!getDocFileType(hScintilla, fileType)) {
+   getDocFileType(hScintilla, fileType);
+   _configIO.setCurrentConfigFile(fileType);
+   loadFileTypes();
+
+   if (fileType.length() < 1) {
       SendMessage(hFTList, CB_SETCURSEL, (WPARAM)0, NULL);
       return;
    }
 
-   fDesc = mapFileTypeToDesc[fileType];
-
    SendMessage(hFTList, CB_SETCURSEL, (WPARAM)
-      SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)fDesc.c_str()), NULL);
+      SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)mapFileTypeToDesc[fileType].c_str()), NULL);
 }
 
 void VisualizerPanel::visualizeFile() {
@@ -176,11 +177,8 @@ void VisualizerPanel::visualizeFile() {
    applyStyles();
 
    loadLexer();
-   updateCurrentPage();
+   renderCurrentPage();
    setFocusOnEditor();
-
-   //size_t startLine{ static_cast<size_t>(SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL)) };
-   //applyLexer(startLine, startLine + 10);
 }
 
 void VisualizerPanel::clearVisualize(bool sync) {
@@ -204,6 +202,7 @@ int VisualizerPanel::loadStyles() {
 
    wstring fileType;
    if (!getDocFileType(hScintilla, fileType)) return 0;
+   _configIO.setCurrentConfigFile(fileType);
 
    wstring fileTheme;
 
@@ -521,7 +520,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    }
 }
 
-void VisualizerPanel::updateCurrentPage() {
+void VisualizerPanel::renderCurrentPage() {
    if (loadLexer() < 1) {
       clearCaretFieldInfo();
       showWordwrapInfo(FALSE);
@@ -641,7 +640,7 @@ bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
    SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
    fileType = _configIO.NarrowToWide(fType);
 
-   return (fileType.length() > 1);
+   return (fileType.length() > 0);
 }
 
 bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& fileType) {
@@ -650,13 +649,21 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& 
    sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
    fileType = _configIO.NarrowToWide(fType);
 
-   return (fileType.length() > 1);
+   return (fileType.length() > 0);
 }
 
 void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
    SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
       (LPARAM)_configIO.WideToNarrow(fileType).c_str());
+}
+
+void VisualizerPanel::onBufferActivate() {
+   if (isVisible()) {
+      syncListFileType();
+      loadStyles();
+      applyStyles();
+   }
 }
 
 void VisualizerPanel::setFocusOnEditor() {

@@ -16,12 +16,14 @@ using std::vector;
 class ConfigIO {
 public:
    void init();
+   int setCurrentConfigFile(const wstring& docFileType);
+   void resetCurrentConfigFile();
 
    string getConfigStringA(const wstring& sectionName, const wstring& keyName,
       const wstring& defaultValue = L"", wstring fileName = L"");
    wstring getConfigString(const wstring& sectionName, const wstring& keyName,
       const wstring& defaultValue = L"", wstring fileName = L"");
-   int getConfigSectionList(wstring& sections, wstring fileName = L"");
+   int getConfigSectionList(wstring& sections, wstring fileName);
 
    void setConfigStringA(const wstring& sectionName, const wstring& keyName,
       const string& keyValue, wstring fileName=L"");
@@ -53,6 +55,7 @@ protected:
    TCHAR pluginConfigDir[MAX_PATH];
    TCHAR pluginConfigBackupDir[MAX_PATH];
    TCHAR themeConfigFile[MAX_PATH];
+   TCHAR defaultConfigFile[MAX_PATH];
 
    enum CF_TYPES {
       CONFIG_MAIN,
@@ -63,6 +66,8 @@ protected:
 
    const wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini",L"VT_Basic.ini"};
    wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
+   wstring currentConfigFile{};
+
    int defaultBackColor{};
    int defaultForeColor{};
 };

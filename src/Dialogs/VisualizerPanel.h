@@ -44,25 +44,29 @@ public :
    void localize();
    virtual void display(bool toShow=true);
    void setParent(HWND parent2set);
+
    void loadFileTypes();
-   void syncListFileType();
-   void visualizeFile();
+   void setDocFileType(HWND hScintilla, wstring fileType);
+   void onBufferActivate();
+   void renderCurrentPage();
    void clearVisualize(bool sync=TRUE);
-   int loadStyles();
-   int applyStyles();
-   int loadLexer();
-   void applyLexer(const size_t startLine, const size_t endLine);
-   void updateCurrentPage();
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    bool getDocFileType(HWND hScintilla, wstring &fileType);
    bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring &fileType);
-   void setDocFileType(HWND hScintilla, wstring fileType);
+   void syncListFileType();
+   void visualizeFile();
+
+   int loadStyles();
+   int applyStyles();
+   int loadLexer();
+   void applyLexer(const size_t startLine, const size_t endLine);
+   void clearLexer();
+
    static void setFocusOnEditor();
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();
-   void clearLexer();
    void showWordwrapInfo(bool show);
 
    // File Type data

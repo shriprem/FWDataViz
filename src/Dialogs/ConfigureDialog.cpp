@@ -114,10 +114,8 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 
-   if (vFileTypes.size() < 1) {
-      loadConfigInfo();
-      fillFileTypes();
-   }
+   loadConfigInfo();
+   fillFileTypes();
 }
 
 INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
