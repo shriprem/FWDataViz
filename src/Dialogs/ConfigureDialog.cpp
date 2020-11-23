@@ -1144,28 +1144,28 @@ void ConfigureDialog::cloneConfigInfo() {
    if (idxFT == LB_ERR) return;
 
    FileType& FT = vFileTypes[idxFT];
-   FileType newFile{};
+   FileType NF{};
 
-   newFile.label = FT.label;
-   newFile.eol = FT.eol;
-   newFile.theme = FT.theme;
+   NF.label = FT.label;
+   NF.eol = FT.eol;
+   NF.theme = FT.theme;
 
    size_t recCount = FT.vRecTypes.size();
-   newFile.vRecTypes.resize(recCount);
+   NF.vRecTypes.resize(recCount);
 
    for (size_t i{}; i < recCount; i++) {
-      newFile.vRecTypes[i].label = FT.vRecTypes[i].label;
-      newFile.vRecTypes[i].marker = FT.vRecTypes[i].marker;
-      newFile.vRecTypes[i].fieldLabels = FT.vRecTypes[i].fieldLabels;
-      newFile.vRecTypes[i].fieldWidths = FT.vRecTypes[i].fieldWidths;
+      NF.vRecTypes[i].label = FT.vRecTypes[i].label;
+      NF.vRecTypes[i].marker = FT.vRecTypes[i].marker;
+      NF.vRecTypes[i].fieldLabels = FT.vRecTypes[i].fieldLabels;
+      NF.vRecTypes[i].fieldWidths = FT.vRecTypes[i].fieldWidths;
    }
 
-   vFileTypes.push_back(newFile);
+   vFileTypes.push_back(NF);
 
-   SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)FT.label.c_str());
+   SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)NF.label.c_str());
    SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)(vFileTypes.size() - 1), NULL);
-   onFileTypeSelect();
 
+   onFileTypeSelect();
    cleanConfigFile = FALSE;
    enableFileSelection();
 }
