@@ -16,6 +16,7 @@
 
 #include "../Utils.h"
 #include "../ConfigIO.h"
+#include "../SubmenuManager.h"
 #include "../NPP/DockingDlgInterface.h"
 #include "../NPP/menuCmdID.h"
 #include <regex>
@@ -32,6 +33,7 @@
 
 extern NppData nppData;
 extern ConfigIO _configIO;
+extern SubmenuManager _submenu;
 
 using std::regex;
 using std::vector;
@@ -44,6 +46,7 @@ public :
    void localize();
    virtual void display(bool toShow=true);
    void setParent(HWND parent2set);
+   void showCaretFramedState(bool framed);
 
    void loadFileTypes();
    void setDocFileType(HWND hScintilla, wstring fileType);

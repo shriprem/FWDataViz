@@ -41,8 +41,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_CARET_FRAMED:
-               SendMessage(getCurrentScintilla(), SCI_SETCARETLINEFRAME,
-                  (WPARAM)IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_CARET_FRAMED) == BST_CHECKED ? 2 : 0, NULL);
+               ToggleCaretFramedState();
                break;
 
             case IDC_VIZPANEL_WORDWRAP_BUTTON:
@@ -96,18 +95,21 @@ void VisualizerPanel::display(bool toShow) {
    hFTList = GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
 
    if (toShow) {
-      CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED,
-         SendMessage(getCurrentScintilla(), SCI_GETCARETLINEFRAME, NULL, NULL) == 0 ? BST_UNCHECKED : BST_CHECKED);
-
       loadFileTypes();
       SetFocus(hFTList);
       syncListFileType();
+      showCaretFramedState(_configIO.getCaretFramed());
    }
-};
+}
 
 void VisualizerPanel::setParent(HWND parent2set) {
    _hParent = parent2set;
-};
+}
+
+void VisualizerPanel::showCaretFramedState(bool framed) {
+   CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED, framed ? BST_CHECKED : BST_UNCHECKED);
+}
+
 
 void VisualizerPanel::loadFileTypes() {
    vector<wstring> fileTypes;
@@ -166,9 +168,6 @@ void VisualizerPanel::visualizeFile() {
       clearVisualize();
       return;
    }
-
-   SendMessage(hScintilla, SCI_SETCARETLINEFRAME, (WPARAM)2, NULL);
-   CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED, BST_CHECKED);
 
    clearVisualize(FALSE);
    setDocFileType(hScintilla, sDesc);

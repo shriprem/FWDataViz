@@ -41,6 +41,7 @@ static int _gLanguage = LANG_ENGLISH;
 
 const enum MenuIndex {
    MI_GOTO_PANEL,
+   MI_CARET_FRAMED,
    MI_CONFIG_DIALOG,
    MI_SEPARATOR_1,
    MI_DEMO_SINGLE_REC_FILES,
@@ -64,9 +65,11 @@ bool getDirectScintillaFunc(PSCIFUNC_T &fn, void* &ptr);
 LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam);
 
 // Plugin Command Functions
-void ToggleVisualizerPanel();
 void ShowVisualizerPanel(bool show);
+void ToggleVisualizerPanel();
 void RefreshVisualizerPanel();
 
+void DisplayCaretFrame();
+void ToggleCaretFramedState();
 void ShowConfigDialog();
 void ShowAboutDialog();

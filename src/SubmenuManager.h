@@ -3,10 +3,10 @@
 #include "PluginDefinition.h"
 #include <vector>
 
-class SamplesMenu {
+class SubmenuManager {
 public:
-   void init();
-   void procCommand(WPARAM wParam, LPARAM lParam);
+   void listSampleFiles();
+   void loadSampleFile(WPARAM wParam, LPARAM lParam);
 
 private:
    size_t itemCount;

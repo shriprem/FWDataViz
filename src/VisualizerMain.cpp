@@ -13,14 +13,13 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "PluginDefinition.h"
-#include "SamplesMenu.h"
+#include "SubmenuManager.h"
 #include "Dialogs/VisualizerPanel.h"
 
 extern FuncItem pluginMenuItems[MI_COUNT];
 extern NppData nppData;
 extern VisualizerPanel _vizPanel;
-
-SamplesMenu samplesMenu;
+extern SubmenuManager _submenu;
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD  reasonForCall, LPVOID /*lpReserved*/) {
     switch (reasonForCall) {
@@ -61,10 +60,11 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF) {
 extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
    switch (notifyCode->nmhdr.code) {
       case NPPN_READY:
-         samplesMenu.init();
+         _submenu.listSampleFiles();
          break;
 
       case NPPN_BUFFERACTIVATED:
+         DisplayCaretFrame();
          _vizPanel.onBufferActivate();
          break;
 
@@ -86,7 +86,7 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT message, WPARAM wParam
    switch (message)
    {
       case WM_COMMAND:
-         samplesMenu.procCommand(wParam, lParam);
+         _submenu.loadSampleFile(wParam, lParam);
          break;
 
       default:

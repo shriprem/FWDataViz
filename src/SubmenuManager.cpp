@@ -1,11 +1,11 @@
-#include "SamplesMenu.h"
+#include "SubmenuManager.h"
 #include "Dialogs/VisualizerPanel.h"
 #include "Resources/SamplesMenuDefs.h"
 
 extern FuncItem pluginMenuItems[MI_COUNT];
 extern VisualizerPanel _vizPanel;
 
-void SamplesMenu::init() {
+void SubmenuManager::listSampleFiles() {
    HMENU hSubMenu = getPluginSubMenu();
    if (hSubMenu == NULL) return;
 
@@ -53,7 +53,7 @@ void SamplesMenu::init() {
    }
 }
 
-void SamplesMenu::procCommand(WPARAM wParam, LPARAM) {
+void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
    size_t cmdID{ LOWORD(wParam) - itemIDStart };
    if (cmdID < 0 || cmdID > itemCount) return;
 
@@ -71,7 +71,7 @@ void SamplesMenu::procCommand(WPARAM wParam, LPARAM) {
 }
 
 
-HMENU SamplesMenu::getPluginSubMenu() {
+HMENU SubmenuManager::getPluginSubMenu() {
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
    int menuItemCount = GetMenuItemCount(hPluginMenu);
 

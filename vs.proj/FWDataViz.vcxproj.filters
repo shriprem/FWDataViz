@@ -28,7 +28,7 @@
     <ClCompile Include="..\src\Dialogs\EximFileTypeDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\SamplesMenu.cpp">
+    <ClCompile Include="..\src\SubmenuManager.cpp">
       <Filter>Base</Filter>
     </ClCompile>
   </ItemGroup>
@@ -93,14 +93,14 @@
     <ClInclude Include="..\src\Dialogs\EximFileTypeDialog.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\SamplesMenu.h">
-      <Filter>Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Resources\SamplesMenuDefs.h">
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="..\src\NPP\Common.h">
       <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SubmenuManager.h">
+      <Filter>Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

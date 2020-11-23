@@ -95,7 +95,8 @@ wstring ConfigIO::getConfigString(const wstring& sectionName, const wstring& key
 
    if (fileName.length() < 1) fileName = currentConfigFile;
 
-   GetPrivateProfileString(sectionName.c_str(), keyName.c_str(), defaultValue.c_str(), ftBuf, bufSize, fileName.c_str());
+   GetPrivateProfileString(sectionName.c_str(), keyName.c_str(), defaultValue.c_str(),
+      ftBuf, bufSize, fileName.c_str());
 
    return wstring{ ftBuf };
 }
@@ -320,4 +321,27 @@ int ConfigIO::getBackupTempFileName(wstring &tempFileName) {
 
    tempFileName = tmpFilePath;
    return 0;
+}
+
+wstring ConfigIO::getPrefString(const wstring& sectionName, const wstring& keyName, const wstring& defaultValue) {
+   const int bufSize{ 32000 };
+   wchar_t ftBuf[bufSize];
+
+   GetPrivateProfileString(sectionName.c_str(), keyName.c_str(), defaultValue.c_str(),
+      ftBuf, bufSize, CONFIG_FILE_PATHS[CONFIG_PREFS].c_str());
+
+   return wstring{ ftBuf };
+}
+
+void ConfigIO::setPrefString(const wstring& sectionName, const wstring& keyName, const wstring& value) {
+   WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), value.c_str(),
+      CONFIG_FILE_PATHS[CONFIG_PREFS].c_str());
+}
+
+bool ConfigIO::getCaretFramed() {
+   return getPrefString(L"Preferences", L"FramedCaret", L"Y") == L"Y";
+}
+
+void ConfigIO::setCaretFramed(bool framed) {
+   setPrefString(L"Preferences", L"FramedCaret", framed ? L"Y" : L"N");
 }

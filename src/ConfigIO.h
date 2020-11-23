@@ -51,6 +51,11 @@ public:
    void viewBackupFolder();
    int getBackupTempFileName(wstring &tempFileName);
 
+   wstring getPrefString(const wstring& sectionName, const wstring& keyName, const wstring& defaultValue = L"");
+   void setPrefString(const wstring& sectionName, const wstring& keyName, const wstring& value = L"");
+   bool getCaretFramed();
+   void setCaretFramed(bool framed);
+
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
    TCHAR pluginConfigBackupDir[MAX_PATH];

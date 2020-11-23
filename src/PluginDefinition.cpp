@@ -15,6 +15,8 @@
 
 #include "PluginDefinition.h"
 #include "ConfigIO.h"
+#include "SubmenuManager.h"
+
 #include "Dialogs/VisualizerPanel.h"
 #include "Dialogs/ConfigureDialog.h"
 #include "Dialogs/AboutDialog.h"
@@ -30,6 +32,7 @@ FuncItem pluginMenuItems[MI_COUNT];
 NppData nppData;
 HINSTANCE _gModule;
 ConfigIO _configIO;
+SubmenuManager _submenu;
 
 VisualizerPanel _vizPanel;
 ConfigureDialog _configDlg;
@@ -52,13 +55,14 @@ void commandMenuInit() {
    shKeyOpen->_key = VK_F8;
 
    setCommand(MI_GOTO_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
-   setCommand(MI_CONFIG_DIALOG, MENU_CONFIG, ShowConfigDialog, 0, 0);
+   setCommand(MI_CARET_FRAMED, MENU_CARET_FRAMED, ToggleCaretFramedState, NULL, _configIO.getCaretFramed());
+   setCommand(MI_CONFIG_DIALOG, MENU_CONFIG, ShowConfigDialog);
    setCommand(MI_SEPARATOR_1, L"-", NULL);
    setCommand(MI_DEMO_SINGLE_REC_FILES, MENU_DEMO_SINGLE_REC_FILES, NULL);
    setCommand(MI_DEMO_MULTI_REC_FILES, MENU_DEMO_MULTI_REC_FILES, NULL);
    setCommand(MI_DEMO_MULTI_LINE_FILES, MENU_DEMO_MULTI_LINE_FILES, NULL);
    setCommand(MI_SEPARATOR_2, L"-", NULL);
-   setCommand(MI_ABOUT_DIALOG, MENU_ABOUT, ShowAboutDialog, 0, 0);
+   setCommand(MI_ABOUT_DIALOG, MENU_ABOUT, ShowAboutDialog);
 }
 
 
@@ -68,16 +72,13 @@ void commandMenuCleanUp() {
 
 // Initialize plugin commands
 bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk, bool checkOnInit) {
-    if (index >= MI_COUNT)
-        return false;
-
-    if (!pFunc)
-        return false;
+    if (index >= MI_COUNT) return false;
+    if (!pFunc) return false;
 
     lstrcpy(pluginMenuItems[index]._itemName, cmdName);
     pluginMenuItems[index]._pFunc = pFunc;
-    pluginMenuItems[index]._init2Check = checkOnInit;
     pluginMenuItems[index]._pShKey = sk;
+    pluginMenuItems[index]._init2Check = checkOnInit;
 
     return true;
 }
@@ -128,7 +129,7 @@ void ShowVisualizerPanel(bool show) {
    _vizPanel.display(show);
 
    CheckMenuItem(GetMenu(nppData._nppHandle), pluginMenuItems[MI_GOTO_PANEL]._cmdID,
-               MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));
+      MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));
 }
 
 void ToggleVisualizerPanel() {
@@ -137,6 +138,24 @@ void ToggleVisualizerPanel() {
 
 void RefreshVisualizerPanel() {
     _vizPanel.loadFileTypes();
+}
+
+void DisplayCaretFrame() {
+   SendMessage(nppData._scintillaMainHandle, SCI_SETCARETLINEFRAME, _configIO.getCaretFramed() ? 2 : 0, NULL);
+   SendMessage(nppData._scintillaSecondHandle, SCI_SETCARETLINEFRAME, _configIO.getCaretFramed() ? 2 : 0, NULL);
+}
+
+void ToggleCaretFramedState() {
+   bool framed = !(_configIO.getCaretFramed());
+   _configIO.setCaretFramed(framed);
+
+   DisplayCaretFrame();
+
+   CheckMenuItem(GetMenu(nppData._nppHandle), pluginMenuItems[MI_CARET_FRAMED]._cmdID,
+      MF_BYCOMMAND | (framed ? MF_CHECKED : MF_UNCHECKED));
+
+   if (_vizPanel.isVisible())
+      _vizPanel.showCaretFramedState(framed);
 }
 
 void ShowConfigDialog() {
