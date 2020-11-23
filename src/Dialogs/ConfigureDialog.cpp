@@ -341,9 +341,12 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                }
                break;
 
-
             case IDC_FWVIZ_DEF_BACKUP_VIEW_BTN:
                _configIO.viewBackupFolder();
+               break;
+
+            case IDC_FWVIZ_DEF_CLONE_BTN:
+               cloneConfigInfo();
                break;
 
             case IDC_FWVIZ_DEF_EXTRACT_BTN:
@@ -384,6 +387,7 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_RESET_BTN, FWVIZ_DIALOG_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_LOAD_BTN, FWVIZ_DIALOG_BKUP_LOAD_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_VIEW_BTN, FWVIZ_DIALOG_BKUP_VIEW_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_CLONE_BTN, FWVIZ_DIALOG_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN, FWVIZ_DIALOG_EXTRACT_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_APPEND_BTN, FWVIZ_DIALOG_APPEND_BTN);
    SetDlgItemText(_hSelf, IDCLOSE, FWVIZ_DIALOG_CLOSE_BTN);
@@ -639,6 +643,7 @@ void ConfigureDialog::enableFileSelection() {
    bool enable{ cleanFileVals && cleanRecVals && cleanFieldVals };
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_CLONE_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_APPEND_BTN), enable);
 
@@ -1132,6 +1137,37 @@ void ConfigureDialog::saveConfigInfo() {
    cleanConfigFile = TRUE;
    indicateCleanStatus();
    RefreshVisualizerPanel();
+}
+
+void ConfigureDialog::cloneConfigInfo() {
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return;
+
+   FileType& FT = vFileTypes[idxFT];
+   FileType newFile{};
+
+   newFile.label = FT.label;
+   newFile.eol = FT.eol;
+   newFile.theme = FT.theme;
+
+   size_t recCount = FT.vRecTypes.size();
+   newFile.vRecTypes.resize(recCount);
+
+   for (size_t i{}; i < recCount; i++) {
+      newFile.vRecTypes[i].label = FT.vRecTypes[i].label;
+      newFile.vRecTypes[i].marker = FT.vRecTypes[i].marker;
+      newFile.vRecTypes[i].fieldLabels = FT.vRecTypes[i].fieldLabels;
+      newFile.vRecTypes[i].fieldWidths = FT.vRecTypes[i].fieldWidths;
+   }
+
+   vFileTypes.push_back(newFile);
+
+   SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)FT.label.c_str());
+   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)(vFileTypes.size() - 1), NULL);
+   onFileTypeSelect();
+
+   cleanConfigFile = FALSE;
+   enableFileSelection();
 }
 
 void ConfigureDialog::showEximDialog(bool bExtract) {

@@ -56,6 +56,7 @@
 #define FWVIZ_DIALOG_RESET_BTN      L"&Reload Primary Configuration"
 #define FWVIZ_DIALOG_BKUP_LOAD_BTN  L"Load &Backup Configuration"
 #define FWVIZ_DIALOG_BKUP_VIEW_BTN  L"&View Backup Folder"
+#define FWVIZ_DIALOG_CLONE_BTN      L"C&lone Selected File Type Data"
 #define FWVIZ_DIALOG_EXTRACT_BTN    L"E&xtract Selected File Type Data"
 #define FWVIZ_DIALOG_APPEND_BTN     L"&Append New File Type Data"
 #define FWVIZ_DIALOG_CLOSE_BTN      L"Close"

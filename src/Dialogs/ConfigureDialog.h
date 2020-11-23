@@ -57,6 +57,7 @@ protected:
    int loadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();
+   void cloneConfigInfo();
    void showEximDialog(bool bExtract);
    string getOnlyStartsWith(string txt);
 
