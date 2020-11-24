@@ -21,55 +21,61 @@ const SampleFileInfo gSampleFiles[] =
 {
    {
       SINGLE_REC,
-      L"Weather Stations List",
+      L"[Real Data] Weather Stations List",
       L"ghcnd-stations.txt",
       L"FT001_WEATHER_STATIONS_LIST"
    },
    {
       SINGLE_REC,
-      L"Daily Weather Data",
+      L"[Real Data] Daily Weather Data",
       L"AYM00089664.dly",
       L"FT002_DAILY_WEATHER_DATA"
    },
    {
       SINGLE_REC,
-      L"ICD-10 Diagnosis Codes",
+      L"[Real Data] ICD-10 Diagnosis Codes",
       L"icd10cm_codes_2021.txt",
       L"FT003_ICD-10_DIAGNOSIS_CODES"
    },
    {
       SINGLE_REC,
-      L"ICD-10 Order Codes",
+      L"[Real Data] ICD-10 Order Codes",
       L"icd10cm_order_2021.txt",
       L"FT004_ICD-10_ORDER_CODES"
    },
    {
       SINGLE_REC,
-      L"ICD-10 Procedure Codes",
+      L"[Real Data] ICD-10 Procedure Codes",
       L"icd10pcs_codes_2021.txt",
       L"FT005_ICD-10_PROCEDURE_CODES"
    },
    {
       MULTI_REC,
-      L"GSN-Flagged Weather Stations List",
-      L"ghcnd-stations.txt",
-      L"FT006_GSN-FLAGGED_WEATHER_STATIONS"
+      L"[Dummy Data] Treasury IPAC File",
+      L"IPAC_082020.txt",
+      L"FT010_TREASURY_IPAC_FILE"
    },
    {
       MULTI_REC,
-      L"Multiple GSN Daily Weather",
+      L"[Mixed Data] Multiple GSN Daily Weather",
       L"MultiGSN.txt",
       L"FT007_MULTIPLE_GSN_DAILY_WEATHER"
    },
    {
       MULTI_REC,
-      L"ICD-10 Billable-Flagged Order Codes",
+      L"[Real Data] GSN-Flagged Weather Stations List",
+      L"ghcnd-stations.txt",
+      L"FT006_GSN-FLAGGED_WEATHER_STATIONS"
+   },
+   {
+      MULTI_REC,
+      L"[Real Data] ICD-10 Billable-Flagged Order Codes",
       L"icd10cm_order_2021.txt",
       L"FT008_ICD-10_BILLABLE-FLAGGED_ORDER_CODES"
    },
    {
       MULTI_LINE,
-      L"Multi-Line GSN Daily Weather",
+      L"[Mixed Data] Multi-Line GSN Daily Weather",
       L"MultiLineGSN.txt",
       L"FT009_MULTI-LINE_GSN_DAILY_WEATHER"
    }
