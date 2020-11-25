@@ -144,8 +144,6 @@
     <Image Include="up.bmp">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="..\src\Resources\down.bmp" />
-    <Image Include="..\src\Resources\up.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Default Ini Files\defaults_Visualizer.ini">

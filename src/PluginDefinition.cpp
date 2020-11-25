@@ -137,7 +137,8 @@ void ToggleVisualizerPanel() {
 }
 
 void RefreshVisualizerPanel() {
-    _vizPanel.loadFileTypes();
+    _vizPanel.loadListFileTypes();
+    _vizPanel.loadListThemes();
 }
 
 void DisplayCaretFrame() {
@@ -156,6 +157,8 @@ void ToggleCaretFramedState() {
 
    if (_vizPanel.isVisible())
       _vizPanel.showCaretFramedState(framed);
+
+   _vizPanel.setFocusOnEditor();
 }
 
 void ShowConfigDialog() {

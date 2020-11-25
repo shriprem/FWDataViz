@@ -54,6 +54,10 @@ void ConfigIO::init() {
       (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
 }
 
+wstring ConfigIO::getPluginConfigDir() {
+   return wstring{ pluginConfigDir };
+}
+
 int ConfigIO::setCurrentConfigFile(const wstring& docFileType) {
    int sectionCount{};
    wstring sectionList{};
@@ -323,25 +327,22 @@ int ConfigIO::getBackupTempFileName(wstring &tempFileName) {
    return 0;
 }
 
-wstring ConfigIO::getPrefString(const wstring& sectionName, const wstring& keyName, const wstring& defaultValue) {
-   const int bufSize{ 32000 };
-   wchar_t ftBuf[bufSize];
+vector<wstring> ConfigIO::getFileList(const wstring& path, const wstring& fileMask) {
+   namespace fs = std::filesystem;
 
-   GetPrivateProfileString(sectionName.c_str(), keyName.c_str(), defaultValue.c_str(),
-      ftBuf, bufSize, CONFIG_FILE_PATHS[CONFIG_PREFS].c_str());
+   vector<wstring> file_list{};
+   for (const auto item : fs::directory_iterator(path)) {
+      if (fileMask.length() < 1 || std::regex_match(item.path().filename().wstring(), std::wregex(fileMask)))
+         file_list.push_back(item.path().filename());
+   }
 
-   return wstring{ ftBuf };
-}
-
-void ConfigIO::setPrefString(const wstring& sectionName, const wstring& keyName, const wstring& value) {
-   WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), value.c_str(),
-      CONFIG_FILE_PATHS[CONFIG_PREFS].c_str());
+   return file_list;
 }
 
 bool ConfigIO::getCaretFramed() {
-   return getPrefString(L"Preferences", L"FramedCaret", L"Y") == L"Y";
+   return getConfigString(L"Preferences", L"FramedCaret", L"Y", CONFIG_FILE_PATHS[CONFIG_PREFS]) == L"Y";
 }
 
 void ConfigIO::setCaretFramed(bool framed) {
-   setPrefString(L"Preferences", L"FramedCaret", framed ? L"Y" : L"N");
+   setConfigString(L"Preferences", L"FramedCaret", framed ? L"Y" : L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }

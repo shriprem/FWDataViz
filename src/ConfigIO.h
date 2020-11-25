@@ -4,8 +4,10 @@
 #include <codecvt>
 #include <locale>
 #include <commdlg.h>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <regex>
 #include <ShlObj_core.h>
 #include <time.h>
 #include <unordered_map>
@@ -16,6 +18,8 @@ using std::vector;
 class ConfigIO {
 public:
    void init();
+
+   wstring getPluginConfigDir();
    int setCurrentConfigFile(const wstring& docFileType);
    void resetCurrentConfigFile();
 
@@ -41,7 +45,7 @@ public:
    wstring NarrowToWide(const string &str);
    string WideToNarrow(const wstring &wStr);
 
-   void setThemeFilePath(const wstring theme=L"VT_Basic");
+   void setThemeFilePath(const wstring theme=L"VT_Spectrum");
    wstring getStyleValue(const wstring& styleName);
    void getStyleColor(const wstring& styleName, int &color, bool foreColor);
    void getStyleBool(const wstring& styleName, int &var);
@@ -50,9 +54,8 @@ public:
    BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, wstring &backupConfigFile);
    void viewBackupFolder();
    int getBackupTempFileName(wstring &tempFileName);
+   vector<wstring> getFileList(const wstring& path, const wstring& fileMask);
 
-   wstring getPrefString(const wstring& sectionName, const wstring& keyName, const wstring& defaultValue = L"");
-   void setPrefString(const wstring& sectionName, const wstring& keyName, const wstring& value = L"");
    bool getCaretFramed();
    void setCaretFramed(bool framed);
 
@@ -65,11 +68,13 @@ protected:
    enum CF_TYPES {
       CONFIG_MAIN,
       CONFIG_PREFS,
-      CONFIG_BASIC_THEME,
+      CONFIG_THEME_SPECTRUM,
+      CONFIG_THEME_RAINBOW,
       CONFIG_FILE_COUNT
    };
 
-   const wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini",L"VT_Basic.ini"};
+   const wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini",
+      L"VT_Spectrum.ini", L"VT_Rainbow.ini"};
    wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
    wstring currentConfigFile{};
 

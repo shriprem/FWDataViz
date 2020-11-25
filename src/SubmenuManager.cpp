@@ -67,6 +67,10 @@ void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
 
    _vizPanel.clearVisualize();
    _vizPanel.setDocFileType(getCurrentScintilla(), gSampleFiles[cmdID].file_type);
+   _vizPanel.syncListFileTypes();
+   _vizPanel.enableThemeList(TRUE);
+   _vizPanel.setDocTheme(getCurrentScintilla(), gSampleFiles[cmdID].file_type, L"");
+   _vizPanel.setFocusOnEditor();
    _vizPanel.onBufferActivate();
 }
 

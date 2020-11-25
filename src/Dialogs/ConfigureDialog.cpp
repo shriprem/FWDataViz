@@ -68,6 +68,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    hFilesLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX);
    hFileEOL = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT);
+   hThemesLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST);
    hRecsLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX);
    hRecStart = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_START_EDIT);
    hRecRegex = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT);
@@ -482,32 +483,22 @@ int ConfigureDialog::loadConfigInfo() {
 
 void ConfigureDialog::fillFileTypes() {
    // Fill File Types Listbox
-   size_t fTypes;
-
    SendMessage(hFilesLB, LB_RESETCONTENT, NULL, NULL);
 
-   fTypes = vFileTypes.size();
-   for (size_t i{}; i < fTypes; i++) {
-      SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)vFileTypes[i].label.c_str());
+   for (const auto FT : vFileTypes) {
+      SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)FT.label.c_str());
    }
+
+   if (vFileTypes.size() > 0)
+      SendMessage(hFilesLB, LB_SETCURSEL, 0, NULL);
 
    // Fill Themes Droplist
-   wstring themes;
-   vector<wstring> themesList;
-   int themesCount;
+   SendMessage(hThemesLB, CB_RESETCONTENT, NULL, NULL);
 
-   themes = _configIO.getConfigString(L"Base", L"Themes");
-   themesCount = _configIO.Tokenize(themes, themesList);
+   vector<wstring> fileList = _configIO.getFileList(_configIO.getPluginConfigDir(), L"VT_.*\\.ini");
 
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_RESETCONTENT, NULL, NULL);
-
-   for (int i{}; i < themesCount; i++) {
-      SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_ADDSTRING, NULL, (LPARAM)themesList[i].c_str());
-   }
-
-   // Select first item
-   if (fTypes > 0) {
-      SendMessage(hFilesLB, LB_SETCURSEL, 0, NULL);
+   for (const auto item : fileList) {
+      SendMessage(hThemesLB, CB_ADDSTRING, NULL, (LPARAM)item.substr(0, item.length() - 4).c_str());
    }
 
    cleanConfigFile = TRUE;
@@ -546,7 +537,7 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
 
    newFile.label = L"";
    newFile.eol = "";
-   newFile.theme = L"VT_Basic";
+   newFile.theme = L"VT_Spectrum";
    newFile.vRecTypes = vector<RecordType>{ getNewRec() };
 
    return newFile;
@@ -704,20 +695,14 @@ void ConfigureDialog::fillRecTypes() {
    vector <RecordType> &recInfoList = fileInfo->vRecTypes;
 
    // Fill Rec Types Listbox
-   size_t recTypes;
-
    SendMessage(hRecsLB, LB_RESETCONTENT, NULL, NULL);
 
-   recTypes = recInfoList.size();
-
-   for (size_t i{}; i < recTypes; i++) {
-      SendMessage(hRecsLB, LB_ADDSTRING, NULL, (LPARAM)recInfoList[i].label.c_str());
+   for (const auto RT : recInfoList) {
+      SendMessage(hRecsLB, LB_ADDSTRING, NULL, (LPARAM)RT.label.c_str());
    }
 
-   // Select first item
-   if (recTypes > 0) {
+   if (recInfoList.size() > 0)
       SendMessage(hRecsLB, LB_SETCURSEL, 0, NULL);
-   }
 
    cleanRecVals = TRUE;
    onRecTypeSelect();
@@ -1119,7 +1104,7 @@ void ConfigureDialog::saveConfigInfo() {
    wstring fileData{}, fileTypes{}, themes{}, ftCode{}, ftConfig{};
 
    themes = _configIO.getConfigString(L"Base", L"Themes");
-   themes = themes.length() > 0 ? themes : L"VT_Basic";
+   themes = themes.length() > 0 ? themes : L"VT_Spectrum";
 
    _configIO.backupMoveConfigFile();
 

@@ -30,6 +30,19 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                ShowConfigDialog();
                break;
 
+            case IDC_VIZPANEL_THEME_SELECT:
+               switch HIWORD(wParam) {
+                  case LBN_SELCHANGE:
+                     visualizeTheme();
+                     break;
+               }
+               break;
+
+            case IDC_VIZPANEL_THEME_CONFIG:
+               MessageBox(_hSelf, L"Theme Configuration Dialog will be available in the next release.",
+                  L"Theme Configuration Dialog", MB_OK);
+               break;
+
             case IDC_VIZPANEL_CLEAR_BUTTON:
                clearVisualize();
                break;
@@ -74,14 +87,19 @@ void VisualizerPanel::initPanel() {
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDC_VIZPANEL_CONFIG_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_TIP_CONFIG, FALSE);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_FILE_CONFIG_TIP, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_THEME_CONFIG, IDC_VIZPANEL_CONFIG_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_THEME_CONFIG, NULL, VIZ_PANEL_THEME_CONFIG_TIP, FALSE);
 
    if (_gLanguage != LANG_ENGLISH) localize();
+   enableThemeList(FALSE);
 }
 
 void VisualizerPanel::localize() {
    SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FILETYPE_LABEL, VIZ_PANEL_FILETYPE_LABEL);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_THEME_LABEL, VIZ_PANEL_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BUTTON, VIZ_PANEL_CLEAR_BUTTON);
    SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
@@ -92,13 +110,15 @@ void VisualizerPanel::localize() {
 
 void VisualizerPanel::display(bool toShow) {
    DockingDlgInterface::display(toShow);
+
    hFTList = GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
+   hThemesLB = GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT);
 
    if (toShow) {
-      loadFileTypes();
-      SetFocus(hFTList);
-      syncListFileType();
+      syncListFileTypes();
+      syncListThemes();
       showCaretFramedState(_configIO.getCaretFramed());
+      SetFocus(hFTList);
    }
 }
 
@@ -110,8 +130,7 @@ void VisualizerPanel::showCaretFramedState(bool framed) {
    CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED, framed ? BST_CHECKED : BST_UNCHECKED);
 }
 
-
-void VisualizerPanel::loadFileTypes() {
+void VisualizerPanel::loadListFileTypes() {
    vector<wstring> fileTypes;
    wstring fileTypeList;
 
@@ -135,7 +154,17 @@ void VisualizerPanel::loadFileTypes() {
    }
 }
 
-void VisualizerPanel::syncListFileType() {
+void VisualizerPanel::loadListThemes() {
+   SendMessage(hThemesLB, CB_RESETCONTENT, NULL, NULL);
+
+   vector<wstring> fileList = _configIO.getFileList(_configIO.getPluginConfigDir(), L"VT_.*\\.ini");
+
+   for (const auto item : fileList) {
+      SendMessage(hThemesLB, CB_ADDSTRING, NULL, (LPARAM)item.substr(0, item.length() - 4).c_str());
+   }
+}
+
+void VisualizerPanel::syncListFileTypes() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -143,7 +172,7 @@ void VisualizerPanel::syncListFileType() {
 
    getDocFileType(hScintilla, fileType);
    _configIO.setCurrentConfigFile(fileType);
-   loadFileTypes();
+   loadListFileTypes();
 
    if (fileType.length() < 1) {
       SendMessage(hFTList, CB_SETCURSEL, (WPARAM)0, NULL);
@@ -154,23 +183,50 @@ void VisualizerPanel::syncListFileType() {
       SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)mapFileTypeToDesc[fileType].c_str()), NULL);
 }
 
+void VisualizerPanel::syncListThemes() {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   wstring theme;
+
+   getDocTheme(hScintilla, theme);
+   loadListThemes();
+
+   if (theme.length() < 1) {
+      SendMessage(hThemesLB, CB_SETCURSEL, (WPARAM)-1, NULL);
+      return;
+   }
+
+   SendMessage(hThemesLB, CB_SETCURSEL, (WPARAM)
+      SendMessage(hThemesLB, CB_FINDSTRING, (WPARAM)-1, (LPARAM)theme.c_str()), NULL);
+}
+
+void VisualizerPanel::enableThemeList(bool enable) {
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_CONFIG), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
+}
+
 void VisualizerPanel::visualizeFile() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
    wchar_t fDesc[MAX_PATH];
-   wstring sDesc;
+   wstring fileType;
 
    SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
-   sDesc =  mapFileDescToType[fDesc];
+   fileType =  mapFileDescToType[fDesc];
 
-   if (sDesc.length() < 2) {
+   if (fileType.length() < 2) {
       clearVisualize();
       return;
    }
 
    clearVisualize(FALSE);
-   setDocFileType(hScintilla, sDesc);
+   setDocFileType(hScintilla, fileType);
+   enableThemeList(TRUE);
+   setDocTheme(hScintilla, fileType, L"");
+   syncListThemes();
 
    loadStyles();
    applyStyles();
@@ -178,6 +234,22 @@ void VisualizerPanel::visualizeFile() {
    loadLexer();
    renderCurrentPage();
    setFocusOnEditor();
+}
+
+void VisualizerPanel::visualizeTheme() {
+   wchar_t fDesc[MAX_PATH];
+
+   SendMessage(hThemesLB, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
+   wstring theme{ fDesc };
+
+   if (theme.length() < 2) {
+      clearVisualize();
+      return;
+   }
+
+   setDocTheme(getCurrentScintilla(), L"", theme);
+   loadStyles();
+   applyStyles();
 }
 
 void VisualizerPanel::clearVisualize(bool sync) {
@@ -190,9 +262,14 @@ void VisualizerPanel::clearVisualize(bool sync) {
       SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
 
    setDocFileType(hScintilla, L"");
+   setDocTheme(hScintilla, L"", L"");
    clearLexer();
 
-   if (sync) syncListFileType();
+   if (sync) {
+      syncListFileTypes();
+      syncListThemes();
+      enableThemeList(FALSE);
+   }
 }
 
 int VisualizerPanel::loadStyles() {
@@ -203,13 +280,13 @@ int VisualizerPanel::loadStyles() {
    if (!getDocFileType(hScintilla, fileType)) return 0;
    _configIO.setCurrentConfigFile(fileType);
 
-   wstring fileTheme;
+   wstring theme;
+   if (!getDocTheme(hScintilla, theme)) return 0;
 
-   fileTheme = _configIO.getConfigString(fileType, L"FileTheme");
-   if (fileTheme == currentStyleTheme) return 0;
+   if (theme == currentStyleTheme) return 0;
 
-   _configIO.setThemeFilePath(fileTheme);
-   currentStyleTheme = fileTheme;
+   _configIO.setThemeFilePath(theme);
+   currentStyleTheme = theme;
 
    _configIO.getStyleColor(L"EOL_Back", styleEOL.backColor, FALSE);
    _configIO.getStyleColor(L"EOL_Fore", styleEOL.foreColor, TRUE);
@@ -651,15 +728,34 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& 
    return (fileType.length() > 0);
 }
 
+bool VisualizerPanel::getDocTheme(HWND hScintilla, wstring& theme) {
+   char fTheme[MAX_PATH];
+
+   SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)fTheme);
+   theme = _configIO.NarrowToWide(fTheme);
+
+   return (theme.length() > 0);
+}
+
 void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
    SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
       (LPARAM)_configIO.WideToNarrow(fileType).c_str());
 }
 
+void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring theme) {
+   if (fileType.length() > 0)
+      theme = _configIO.getConfigString(fileType, L"FileTheme");
+
+   SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
+   SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_THEME,
+      (LPARAM)_configIO.WideToNarrow(theme).c_str());
+}
+
 void VisualizerPanel::onBufferActivate() {
    if (isVisible()) {
-      syncListFileType();
+      syncListFileTypes();
+      syncListThemes();
       loadStyles();
       applyStyles();
    }

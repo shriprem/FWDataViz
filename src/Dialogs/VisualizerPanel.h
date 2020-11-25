@@ -47,19 +47,26 @@ public :
    virtual void display(bool toShow=true);
    void setParent(HWND parent2set);
    void showCaretFramedState(bool framed);
+   void setFocusOnEditor();
 
-   void loadFileTypes();
+   void loadListFileTypes();
+   void loadListThemes();
+   void syncListFileTypes();
    void setDocFileType(HWND hScintilla, wstring fileType);
+   void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
+   void enableThemeList(bool enable);
    void onBufferActivate();
    void renderCurrentPage();
    void clearVisualize(bool sync=TRUE);
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
-   bool getDocFileType(HWND hScintilla, wstring &fileType);
-   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring &fileType);
-   void syncListFileType();
+   bool getDocFileType(HWND hScintilla, wstring& fileType);
+   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
+   bool getDocTheme(HWND hScintilla, wstring& theme);
+   void syncListThemes();
    void visualizeFile();
+   void visualizeTheme();
 
    int loadStyles();
    int applyStyles();
@@ -67,13 +74,12 @@ protected :
    void applyLexer(const size_t startLine, const size_t endLine);
    void clearLexer();
 
-   static void setFocusOnEditor();
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();
    void showWordwrapInfo(bool show);
 
    // File Type data
-   HWND hFTList;
+   HWND hFTList, hThemesLB;
    std::unordered_map<wstring, wstring> mapFileDescToType;
    std::unordered_map<wstring, wstring> mapFileTypeToDesc;
 

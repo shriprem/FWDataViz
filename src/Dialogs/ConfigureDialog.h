@@ -24,7 +24,7 @@ public:
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
    int appendFileTypeConfigs(const wstring& sConfigFile);
 
-   HWND hFilesLB, hFileEOL, hRecsLB, hRecStart, hRecRegex, hFieldLabels, hFieldWidths;
+   HWND hFilesLB, hFileEOL, hThemesLB, hRecsLB, hRecStart, hRecRegex, hFieldLabels, hFieldWidths;
 
 protected:
    enum move_dir {
