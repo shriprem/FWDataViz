@@ -156,10 +156,10 @@ void VisualizerPanel::loadListFileTypes() {
 void VisualizerPanel::loadListThemes() {
    SendMessage(hThemesLB, CB_RESETCONTENT, NULL, NULL);
 
-   vector<wstring> fileList = _configIO.getFileList(_configIO.getPluginConfigDir(), L"VT_.*\\.ini");
+   vector<wstring> themesList = _configIO.getAvailableThemesList();
 
-   for (const auto item : fileList) {
-      SendMessage(hThemesLB, CB_ADDSTRING, NULL, (LPARAM)item.substr(0, item.length() - 4).c_str());
+   for (const auto theme : themesList) {
+      SendMessage(hThemesLB, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
    }
 }
 

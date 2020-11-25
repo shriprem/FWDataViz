@@ -327,13 +327,15 @@ int ConfigIO::getBackupTempFileName(wstring &tempFileName) {
    return 0;
 }
 
-vector<wstring> ConfigIO::getFileList(const wstring& path, const wstring& fileMask) {
+vector<wstring> ConfigIO::getAvailableThemesList() {
    namespace fs = std::filesystem;
 
+   const wstring fileMask{ L"VT_.*\\.ini" };
    vector<wstring> file_list{};
-   for (const auto item : fs::directory_iterator(path)) {
-      if (fileMask.length() < 1 || std::regex_match(item.path().filename().wstring(), std::wregex(fileMask)))
-         file_list.push_back(item.path().filename());
+
+   for (const auto item : fs::directory_iterator(pluginConfigDir)) {
+      if (std::regex_match(item.path().filename().wstring(), std::wregex(fileMask)))
+         file_list.push_back(item.path().stem());
    }
 
    return file_list;

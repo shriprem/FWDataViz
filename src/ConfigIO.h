@@ -54,7 +54,7 @@ public:
    BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, wstring &backupConfigFile);
    void viewBackupFolder();
    int getBackupTempFileName(wstring &tempFileName);
-   vector<wstring> getFileList(const wstring& path, const wstring& fileMask);
+   vector<wstring> getAvailableThemesList();
 
    bool getCaretFramed();
    void setCaretFramed(bool framed);
