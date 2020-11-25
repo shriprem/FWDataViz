@@ -43,36 +43,37 @@ public :
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
 
    void initPanel();
-   void localize();
    virtual void display(bool toShow=true);
    void setParent(HWND parent2set);
-   void showCaretFramedState(bool framed);
    void setFocusOnEditor();
+   void showCaretFramedState(bool framed);
 
    void loadListFileTypes();
    void loadListThemes();
-   void syncListFileTypes();
-   void setDocFileType(HWND hScintilla, wstring fileType);
-   void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
-   void enableThemeList(bool enable);
    void onBufferActivate();
    void renderCurrentPage();
-   void clearVisualize(bool sync=TRUE);
+   void visualizeFile(wstring fileType, bool syncFileTypesList);
 
 protected :
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
+   void localize();
    bool getDocFileType(HWND hScintilla, wstring& fileType);
    bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
    bool getDocTheme(HWND hScintilla, wstring& theme);
-   void syncListThemes();
-   void visualizeFile();
-   void visualizeTheme();
+   void setDocFileType(HWND hScintilla, wstring fileType);
+   void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
 
+   void enableThemeList(bool enable);
+   void syncListFileTypes();
+   void syncListThemes();
+
+   void clearVisualize(bool sync=TRUE);
    int loadStyles();
    int applyStyles();
    int loadLexer();
    void applyLexer(const size_t startLine, const size_t endLine);
    void clearLexer();
+   void visualizeTheme();
 
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();

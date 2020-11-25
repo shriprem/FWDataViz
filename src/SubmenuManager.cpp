@@ -65,13 +65,7 @@ void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
    nppMessage(NPPM_DOOPEN, NULL, (LPARAM)sampleFile);
    ShowVisualizerPanel(TRUE);
 
-   _vizPanel.clearVisualize();
-   _vizPanel.setDocFileType(getCurrentScintilla(), gSampleFiles[cmdID].file_type);
-   _vizPanel.syncListFileTypes();
-   _vizPanel.enableThemeList(TRUE);
-   _vizPanel.setDocTheme(getCurrentScintilla(), gSampleFiles[cmdID].file_type, L"");
-   _vizPanel.setFocusOnEditor();
-   _vizPanel.onBufferActivate();
+   _vizPanel.visualizeFile(gSampleFiles[cmdID].file_type, TRUE);
 }
 
 
@@ -79,8 +73,7 @@ HMENU SubmenuManager::getPluginSubMenu() {
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
    int menuItemCount = GetMenuItemCount(hPluginMenu);
 
-   for (int i{}; i < menuItemCount; i++)
-   {
+   for (int i{}; i < menuItemCount; i++) {
       TCHAR pluginItemText[MAX_PATH];
       int pluginItemLen{};
 

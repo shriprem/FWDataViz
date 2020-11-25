@@ -21,7 +21,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_VIZPANEL_FILETYPE_SELECT:
                switch HIWORD(wParam) {
                   case LBN_SELCHANGE:
-                     visualizeFile();
+                     visualizeFile(L"", FALSE);
                      break;
                }
                break;
@@ -39,8 +39,8 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_THEME_CONFIG:
-               MessageBox(_hSelf, L"Theme Configuration Dialog will be available in the next release.",
-                  L"Theme Configuration Dialog", MB_OK);
+               MessageBox(_hSelf, L"Visualizer Theme Editor will be available in the next release.",
+                  L"Visualizer Theme Editor", MB_OK);
                break;
 
             case IDC_VIZPANEL_CLEAR_BUTTON:
@@ -93,7 +93,6 @@ void VisualizerPanel::initPanel() {
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_THEME_CONFIG, NULL, VIZ_PANEL_THEME_CONFIG_TIP, FALSE);
 
    if (_gLanguage != LANG_ENGLISH) localize();
-   enableThemeList(FALSE);
 }
 
 void VisualizerPanel::localize() {
@@ -173,6 +172,7 @@ void VisualizerPanel::syncListFileTypes() {
    getDocFileType(hScintilla, fileType);
    _configIO.setCurrentConfigFile(fileType);
    loadListFileTypes();
+   enableThemeList(fileType.length() > 0);
 
    if (fileType.length() < 1) {
       SendMessage(hFTList, CB_SETCURSEL, (WPARAM)0, NULL);
@@ -203,19 +203,19 @@ void VisualizerPanel::syncListThemes() {
 
 void VisualizerPanel::enableThemeList(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), enable);
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_CONFIG), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
 }
 
-void VisualizerPanel::visualizeFile() {
+void VisualizerPanel::visualizeFile(wstring fileType, bool syncFileTypesList) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   wchar_t fDesc[MAX_PATH];
-   wstring fileType;
+   if (fileType.length() < 1) {
+      wchar_t fDesc[MAX_PATH];
 
-   SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
-   fileType =  mapFileDescToType[fDesc];
+      SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
+      fileType = mapFileDescToType[fDesc];
+   }
 
    if (fileType.length() < 2) {
       clearVisualize();
@@ -224,7 +224,8 @@ void VisualizerPanel::visualizeFile() {
 
    clearVisualize(FALSE);
    setDocFileType(hScintilla, fileType);
-   enableThemeList(TRUE);
+   if (syncFileTypesList) syncListFileTypes();
+
    setDocTheme(hScintilla, fileType, L"");
    syncListThemes();
 
@@ -268,7 +269,6 @@ void VisualizerPanel::clearVisualize(bool sync) {
    if (sync) {
       syncListFileTypes();
       syncListThemes();
-      enableThemeList(FALSE);
    }
 }
 
@@ -340,8 +340,7 @@ int VisualizerPanel::applyStyles() {
 
    if (currentStyleTheme.length() < 1) return 0;
 
-   if (sciFunc(sciPtr, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER)
-      return 0;
+   if (sciFunc(sciPtr, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER) return 0;
 
    sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.backColor);
    sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.foreColor);
@@ -469,13 +468,15 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    wstring fileType;
    if (!getDocFileType(sciFunc, sciPtr, fileType)) return;
 
+   const size_t styleCount{ styleSet.size() };
+   if (styleCount < 1) return;
+
    char lineTextCStr[FW_LINE_MAX_LENGTH];
    string recStartText{}, eolMarker;
    size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{},
       currentPos, startPos, endPos, recStartPos{};
 
    const size_t regexedCount{ recInfoList.size() };
-   const size_t styleCount{ styleSet.size() };
    bool newRec{ TRUE };
 
    eolMarker =  _configIO.getConfigStringA(fileType, L"RecordTerminator");
@@ -738,6 +739,7 @@ bool VisualizerPanel::getDocTheme(HWND hScintilla, wstring& theme) {
 }
 
 void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
+   enableThemeList(fileType.length() > 0);
    SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
       (LPARAM)_configIO.WideToNarrow(fileType).c_str());

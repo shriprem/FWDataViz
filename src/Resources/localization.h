@@ -13,13 +13,12 @@
 
 // Fixed Width Data Visualizer Panel
 #define VIZ_PANEL_FILETYPE_LABEL    L"&File Type:"
-#define VIZ_PANEL_THEME_LABEL       L"&Theme:"
-#define VIZ_PANEL_OK                L"&Visualize"
+#define VIZ_PANEL_THEME_LABEL       L"&Visualizer Theme:"
 #define VIZ_PANEL_CLEAR_BUTTON      L"&Clear"
 #define VIZ_PANEL_CLOSE             L"C&lose"
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
-#define VIZ_PANEL_FILE_CONFIG_TIP   L"Open File Type Configuration Dialog"
-#define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Theme Configuration Dialog"
+#define VIZ_PANEL_FILE_CONFIG_TIP   L"Open FileType Metadata Editor"
+#define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
 #define VIZ_PANEL_WORDWRAP_INFO     L"Visualizer is impaired when wordwrap is enabled."
 #define VIZ_PANEL_CARET_FRAMED      L"Framed Current Line"
 #define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
@@ -31,7 +30,7 @@
 #define ABOUT_BTN_LABEL_OK          L"&OK"
 
 // Configuration Dialog
-#define FWVIZ_DIALOG_TITLE          L"Fixed Width File Metadata"
+#define FWVIZ_DIALOG_TITLE          L"Fixed Width File Metadata Editor"
 #define FWVIZ_DEF_FILE_GROUP_BOX    L"File Types"
 #define FWVIZ_DEF_FILE_MOVE_DOWN    L"Move down the selected File Type"
 #define FWVIZ_DEF_FILE_MOVE_UP      L"Move up the selected File Type"
