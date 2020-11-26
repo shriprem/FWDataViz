@@ -19,7 +19,6 @@ class ConfigIO {
 public:
    void init();
 
-   wstring getPluginConfigDir();
    int setCurrentConfigFile(const wstring& docFileType);
    void resetCurrentConfigFile();
 
@@ -36,7 +35,7 @@ public:
 
    void flushConfigFile();
    void openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName = L"");
-   void saveConfigFile(const wstring &fileData, wstring fileName = L"");
+   void saveConfigFile(const wstring &fileData, bool bViz, wstring fileName = L"");
 
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
    int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim=L",");
@@ -50,8 +49,8 @@ public:
    void getFullStyle(const wstring& theme, const wstring& styleName,
       int& back, int& fore, int& bold, int& italics);
 
-   void backupMoveConfigFile();
-   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, wstring &backupConfigFile);
+   void backupConfigFile(bool bViz);
+   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, bool bViz, wstring &backupConfigFile);
    void viewBackupFolder();
    int getBackupTempFileName(wstring &tempFileName);
 
@@ -70,7 +69,7 @@ protected:
       CONFIG_FILE_COUNT
    };
 
-   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.ini", L"Preferences.ini" };
+   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.dat", L"Preferences.ini" };
    wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
    wstring currentConfigFile{};
 

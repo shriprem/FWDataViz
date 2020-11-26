@@ -332,7 +332,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                if (!promptDiscardChangesNo()) {
                   wstring sBackupConfigFile;
 
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, sBackupConfigFile)) {
+                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, TRUE, sBackupConfigFile)) {
                      configFile = sBackupConfigFile;
                      loadConfigInfo();
                      fillFileTypes();
@@ -537,7 +537,7 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
 
    newFile.label = L"";
    newFile.eol = "";
-   newFile.theme = L"VT_Spectrum";
+   newFile.theme = L"Spectrum";
    newFile.vRecTypes = vector<RecordType>{ getNewRec() };
 
    return newFile;
@@ -1101,12 +1101,7 @@ void ConfigureDialog::saveConfigInfo() {
    if (!cleanFileVals) fileEditAccept();
 
    size_t fileTypeCount;
-   wstring fileData{}, fileTypes{}, themes{}, ftCode{}, ftConfig{};
-
-   themes = _configIO.getConfigString(L"Base", L"Themes");
-   themes = themes.length() > 0 ? themes : L"VT_Spectrum";
-
-   _configIO.backupMoveConfigFile();
+   wstring fileData{}, fileTypes{}, ftCode{}, ftConfig{};
 
    fileTypeCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
 
@@ -1116,8 +1111,10 @@ void ConfigureDialog::saveConfigInfo() {
       fileData += ftConfig + L"\r\n";
    }
 
-   fileData = L"[Base]\r\nFileTypes=" + fileTypes + L"\r\nThemes=" + themes + L"\r\n\r\n" + fileData;
-   _configIO.saveConfigFile(fileData);
+   fileData = L"[Base]\r\nFileTypes=" + fileTypes + L"\r\n\r\n" + fileData;
+
+   _configIO.backupConfigFile(TRUE);
+   _configIO.saveConfigFile(fileData, TRUE);
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();

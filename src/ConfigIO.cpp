@@ -54,10 +54,6 @@ void ConfigIO::init() {
       (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
 }
 
-wstring ConfigIO::getPluginConfigDir() {
-   return wstring{ pluginConfigDir };
-}
-
 int ConfigIO::setCurrentConfigFile(const wstring& docFileType) {
    int sectionCount{};
    wstring sectionList{};
@@ -165,8 +161,9 @@ void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, wstrin
    fs.close();
 }
 
-void ConfigIO::saveConfigFile(const wstring &fileData, wstring fileName) {
-   if (fileName.length() < 1) fileName = currentConfigFile;
+void ConfigIO::saveConfigFile(const wstring &fileData, bool bViz, wstring fileName) {
+   if (fileName.length() < 1)
+      fileName = CONFIG_FILE_PATHS[bViz ? CONFIG_MAIN : CONFIG_THEMES];
 
    using std::ios;
    std::wofstream fs;
@@ -266,24 +263,44 @@ void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName,
    italics = stoi(val.substr(15, 1));
 }
 
-void ConfigIO::backupMoveConfigFile() {
-   char aFileName[50];
+void ConfigIO::backupConfigFile(bool bViz) {
+   string backupTemplate{};
+   wstring srcFile{};
+   char backupFile[50];
+   wchar_t backupFilePath[MAX_PATH];
+
+   if (bViz) {
+      if (currentConfigFile == CONFIG_FILE_PATHS[CONFIG_MAIN]) {
+         backupTemplate = "Visualizer_%Y%m%d_%H%M%S.ini";
+         srcFile = CONFIG_FILE_PATHS[CONFIG_MAIN];
+      }
+      else {
+         backupTemplate = "default_Visualizer_%Y%m%d_%H%M%S.ini";
+         srcFile = defaultConfigFile;
+      }
+   }
+   else {
+      backupTemplate = "Themes_%Y%m%d_%H%M%S.dat";
+      srcFile = CONFIG_FILE_PATHS[CONFIG_THEMES];
+   }
+
    time_t rawTime;
    struct tm* timeInfo;
 
    time(&rawTime);
    timeInfo = localtime(&rawTime);
-   strftime(aFileName, 50, "Visualizer_%Y%m%d_%H%M%S.ini", timeInfo);
+   strftime(backupFile, 50, backupTemplate.c_str(), timeInfo);
 
-   TCHAR backupFilePath[MAX_PATH];
-   wstring wFileName;
+   PathCombine(backupFilePath, pluginConfigBackupDir, NarrowToWide(backupFile).c_str());
 
-   wFileName = NarrowToWide(aFileName);
-   PathCombine(backupFilePath, pluginConfigBackupDir, wFileName.c_str());
-   MoveFile(CONFIG_FILE_PATHS[CONFIG_MAIN].c_str(), backupFilePath);
+   if (srcFile == defaultConfigFile)
+      CopyFile(srcFile.c_str(), backupFilePath, FALSE);
+   else
+      MoveFile(srcFile.c_str(), backupFilePath);
 }
 
-BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, wstring &backupConfigFile) {
+BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, bool bViz,
+   wstring &backupConfigFile) {
    OPENFILENAME ofn;
 
    TCHAR filePath[MAX_PATH];
@@ -294,7 +311,6 @@ BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, ws
    ofn.lpstrFile = filePath;
    ofn.lpstrFile[0] = '\0';
    ofn.nMaxFile = sizeof(filePath);
-   ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.ini\0";
    ofn.lpstrDefExt = L"ini";
    ofn.nFilterIndex = 2;
    ofn.lpstrFileTitle = NULL;
@@ -310,6 +326,11 @@ BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, ws
       ofn.lpstrInitialDir = desktopPath;
    }
 
+   if (bViz)
+      ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.ini\0";
+   else
+      ofn.lpstrFilter = L"All\0*.*\0DAT Files\0*.dat\0";
+
    BOOL bOK = bOpen ? GetOpenFileName(&ofn) : GetSaveFileName(&ofn);
 
    if (bOK) backupConfigFile = ofn.lpstrFile;
@@ -324,7 +345,7 @@ void ConfigIO::viewBackupFolder() {
 int ConfigIO::getBackupTempFileName(wstring &tempFileName) {
    TCHAR tmpFilePath[MAX_PATH];
 
-   if (GetTempFileName(pluginConfigBackupDir, L"FT_", 0, tmpFilePath) == 0) {
+   if (GetTempFileName(pluginConfigBackupDir, L"FWViz_", 0, tmpFilePath) == 0) {
       tempFileName = L"";
       return -1;
    }

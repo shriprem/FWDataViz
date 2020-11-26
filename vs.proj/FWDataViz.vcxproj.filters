@@ -130,7 +130,7 @@
     <Filter Include="Resources\Sample Data Files">
       <UniqueIdentifier>{7228c43a-d7b8-47a5-ad20-d9ecc6fcb699}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources\Default Ini Files">
+    <Filter Include="Resources\Default Config Files">
       <UniqueIdentifier>{4a1adc1a-c6ba-46d8-955d-7d51864e12ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -150,13 +150,13 @@
       <Filter>Resources\Sample Data Files</Filter>
     </None>
     <None Include="..\src\Resources\Default Ini Files\default_Preferences.ini">
-      <Filter>Resources\Default Ini Files</Filter>
-    </None>
-    <None Include="..\src\Resources\Default Ini Files\default_Themes.ini">
-      <Filter>Resources\Default Ini Files</Filter>
+      <Filter>Resources\Default Config Files</Filter>
     </None>
     <None Include="..\src\Resources\Default Ini Files\default_Visualizer.ini">
-      <Filter>Resources\Default Ini Files</Filter>
+      <Filter>Resources\Default Config Files</Filter>
+    </None>
+    <None Include="..\src\Resources\Default Ini Files\default_Themes.dat">
+      <Filter>Resources\Default Config Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

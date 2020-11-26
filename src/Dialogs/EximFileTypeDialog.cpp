@@ -80,7 +80,7 @@ void EximFileTypeDialog::appendExtractFile() {
    wstring tmpFile{};
 
    _configIO.getBackupTempFileName(tmpFile);
-   _configIO.saveConfigFile(getEditControlText(), tmpFile);
+   _configIO.saveConfigFile(getEditControlText(), TRUE, tmpFile);
 
    display(FALSE);
    _configDlg.appendFileTypeConfigs(tmpFile);
@@ -91,7 +91,7 @@ void EximFileTypeDialog::appendExtractFile() {
 void EximFileTypeDialog::loadExtractFile() {
    wstring sExtractFile{};
 
-   if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, sExtractFile)) {
+   if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, TRUE, sExtractFile)) {
       TCHAR sExtractData[FW_LINE_MAX_LENGTH];
 
       _configIO.openConfigFile(sExtractData, FW_LINE_MAX_LENGTH, sExtractFile);
@@ -102,8 +102,8 @@ void EximFileTypeDialog::loadExtractFile() {
 void EximFileTypeDialog::saveExtractFile() {
    wstring sExtractFile{};
 
-   if (_configIO.queryConfigFileName(_hSelf, FALSE, FALSE, sExtractFile)) {
-      _configIO.saveConfigFile(getEditControlText(), sExtractFile);
+   if (_configIO.queryConfigFileName(_hSelf, FALSE, FALSE, TRUE, sExtractFile)) {
+      _configIO.saveConfigFile(getEditControlText(), TRUE, sExtractFile);
    }
 }
 
