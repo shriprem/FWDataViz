@@ -66,9 +66,9 @@
     <Image Include="up.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\Resources\Default Ini Files\defaults_Visualizer.ini" />
-    <None Include="..\src\Resources\Default Ini Files\defaults_VisualizerPrefs.ini" />
-    <None Include="..\src\Resources\Default Ini Files\defaults_VT_Basic.ini" />
+    <None Include="..\src\Resources\Default Ini Files\default_Preferences.ini" />
+    <None Include="..\src\Resources\Default Ini Files\default_Themes.ini" />
+    <None Include="..\src\Resources\Default Ini Files\default_Visualizer.ini" />
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly" />
   </ItemGroup>
   <ItemGroup>

@@ -285,39 +285,35 @@ int VisualizerPanel::loadStyles() {
 
    if (theme == currentStyleTheme) return 0;
 
-   _configIO.setThemeFilePath(theme);
    currentStyleTheme = theme;
 
-   _configIO.getStyleColor(L"EOL_Back", styleEOL.backColor, FALSE);
-   _configIO.getStyleColor(L"EOL_Fore", styleEOL.foreColor, TRUE);
-   _configIO.getStyleBool(L"EOL_Bold", styleEOL.bold);
-   _configIO.getStyleBool(L"EOL_Italics", styleEOL.italics);
+   _configIO.getFullStyle(theme, L"EOL",
+      styleEOL.backColor, styleEOL.foreColor, styleEOL.bold, styleEOL.italics);
 
    int styleCount{};
-   wchar_t cPre[10];
-   wstring sPrefix;
+   wchar_t bufKey[8];
 
-   if (_configIO.getStyleValue(L"Count").length() > 0)
-      styleCount = std::stoi (_configIO.getStyleValue(L"Count"));
+   if (_configIO.getStyleValue(theme, L"Count").length() > 0)
+      styleCount = std::stoi (_configIO.getStyleValue(theme, L"Count"));
+
+   styleCount = (styleCount > 99) ? 99 : styleCount;
 
    styleSet.clear();
    styleSet.resize(styleCount);
 
    for (int i{}; i < styleCount; i++) {
-      swprintf(cPre, 10, L"C%02i_", i);
-      sPrefix = wstring(cPre);
-      _configIO.getStyleColor((sPrefix + L"Back"), styleSet[i].backColor, FALSE);
-      _configIO.getStyleColor((sPrefix + L"Fore"), styleSet[i].foreColor, TRUE);
-      _configIO.getStyleBool((sPrefix + L"Bold"), styleSet[i].bold);
-      _configIO.getStyleBool((sPrefix + L"Italics"), styleSet[i].italics);
+      swprintf(bufKey, 8, L"BFBI_%02i", i);
+      _configIO.getFullStyle(theme, bufKey,
+         styleSet[i].backColor, styleSet[i].foreColor, styleSet[i].bold, styleSet[i].italics);
    }
 
 #if FW_DEBUG_LOAD_STYLES
    wstring dbgMessage;
+   wstring sPrefix;
 
    for (int i{}; i < styleCount; i++) {
-      swprintf(cPre, 10, L"C%02i_", i);
-      sPrefix = wstring(cPre);
+      swprintf(bufKey, 8, L"BFBI_%02i", i);
+      sPrefix = wstring(bufKey);
       dbgMessage = sPrefix + L"_Back = " + to_wstring(styleSet[i].backColor) + L"\n" +
          sPrefix + L"_Fore = " + to_wstring(styleSet[i].foreColor) + L"\n" +
          sPrefix + L"_Bold = " + to_wstring(styleSet[i].bold) + L"\n" +

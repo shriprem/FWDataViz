@@ -4,7 +4,6 @@
 #include <codecvt>
 #include <locale>
 #include <commdlg.h>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <regex>
@@ -13,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 
+using std::stoi;
 using std::vector;
 
 class ConfigIO {
@@ -45,16 +45,15 @@ public:
    wstring NarrowToWide(const string &str);
    string WideToNarrow(const wstring &wStr);
 
-   void setThemeFilePath(const wstring theme=L"VT_Spectrum");
-   wstring getStyleValue(const wstring& styleName);
-   void getStyleColor(const wstring& styleName, int &color, bool foreColor);
-   void getStyleBool(const wstring& styleName, int &var);
+   vector<wstring> getAvailableThemesList();
+   wstring getStyleValue(const wstring& theme, const wstring& styleName);
+   void getFullStyle(const wstring& theme, const wstring& styleName,
+      int& back, int& fore, int& bold, int& italics);
 
    void backupMoveConfigFile();
    BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, wstring &backupConfigFile);
    void viewBackupFolder();
    int getBackupTempFileName(wstring &tempFileName);
-   vector<wstring> getAvailableThemesList();
 
    bool getCaretFramed();
    void setCaretFramed(bool framed);
@@ -62,19 +61,16 @@ public:
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
    TCHAR pluginConfigBackupDir[MAX_PATH];
-   TCHAR themeConfigFile[MAX_PATH];
    TCHAR defaultConfigFile[MAX_PATH];
 
    enum CF_TYPES {
       CONFIG_MAIN,
+      CONFIG_THEMES,
       CONFIG_PREFS,
-      CONFIG_THEME_SPECTRUM,
-      CONFIG_THEME_RAINBOW,
       CONFIG_FILE_COUNT
    };
 
-   const wstring CONFIG_FILES[CONFIG_FILE_COUNT] { L"Visualizer.ini", L"VisualizerPrefs.ini",
-      L"VT_Spectrum.ini", L"VT_Rainbow.ini"};
+   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.ini", L"Preferences.ini" };
    wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
    wstring currentConfigFile{};
 

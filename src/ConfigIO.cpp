@@ -29,7 +29,7 @@ void ConfigIO::init() {
    }
 
    // if config files are missing, copy them from the plugins folder
-   const wstring sDefaultsPrefix{ L"defaults_" };
+   const wstring sDefaultPrefix{ L"default_" };
 
    TCHAR sDefaultsFile[MAX_PATH];
    TCHAR sConfigFile[MAX_PATH];
@@ -39,14 +39,14 @@ void ConfigIO::init() {
       CONFIG_FILE_PATHS[i] = wstring{ sConfigFile };
 
       if (!PathFileExists(sConfigFile)) {
-         PathCombine(sDefaultsFile, sPluginDirectory, (sDefaultsPrefix + CONFIG_FILES[i]).c_str());
+         PathCombine(sDefaultsFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[i]).c_str());
          CopyFile(sDefaultsFile, sConfigFile, TRUE);
       }
    }
 
    // initialize instance variables
    resetCurrentConfigFile();
-   PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultsPrefix + CONFIG_FILES[CONFIG_MAIN]).c_str());
+   PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_MAIN]).c_str());
 
    defaultBackColor = static_cast<int>
       (nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
@@ -217,7 +217,7 @@ int ConfigIO::Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim)
    Tokenize(text, interims, delim);
 
    for (auto istr : interims)
-      results.emplace_back(std::stoi(istr));
+      results.emplace_back(stoi(istr));
 
    return static_cast<int>(results.size());
 }
@@ -234,30 +234,36 @@ string ConfigIO::WideToNarrow(const wstring &wStr) {
    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
 }
 
-void ConfigIO::setThemeFilePath(const wstring theme) {
-   PathCombine(themeConfigFile, pluginConfigDir, (theme + wstring{ L".ini" }).c_str());
+vector<wstring> ConfigIO::getAvailableThemesList() {
+   vector<wstring> themesVector;
+   wstring themesList;
+
+   themesList = getConfigString(L"Base", L"Themes", L"", CONFIG_FILE_PATHS[CONFIG_THEMES]);
+   Tokenize(themesList, themesVector);
+
+   return themesVector;
 }
 
-wstring ConfigIO::getStyleValue(const wstring& styleName) {
-   if (wstring{ themeConfigFile }.length() < 0)
-      setThemeFilePath();
-
-   return getConfigString(L"Styles", styleName, L"", themeConfigFile);
+wstring ConfigIO::getStyleValue(const wstring& theme, const wstring& styleName) {
+   return getConfigString(theme, styleName, L"", CONFIG_FILE_PATHS[CONFIG_THEMES]);
 }
 
-void ConfigIO::getStyleColor(const wstring& styleName, int &color, bool foreColor) {
-   vector<int> rgb;
+void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName,
+   int& back, int& fore, int& bold, int& italics) {
+   wstring val = getStyleValue(theme, styleName);
 
-   Tokenize(getStyleValue(styleName), rgb);
+   if (val.length() < 1) {
+      back = defaultBackColor;
+      fore = defaultForeColor;
+      bold = 1;
+      italics = 1;
+      return;
+   }
 
-   if (rgb.size() >= 3)
-      color = rgb[0] | (rgb[1] << 8) | (rgb[2] << 16);
-   else
-      color = foreColor ? defaultForeColor : defaultBackColor;
-}
-
-void ConfigIO::getStyleBool(const wstring& styleName, int &var) {
-   var = (getStyleValue(styleName) == L"Y") ? 1 : 0;
+   back = stoi(val.substr(0, 6), nullptr, 16);
+   fore = stoi(val.substr(7, 6), nullptr, 16);
+   bold = stoi(val.substr(14, 1));
+   italics = stoi(val.substr(15, 1));
 }
 
 void ConfigIO::backupMoveConfigFile() {
@@ -325,20 +331,6 @@ int ConfigIO::getBackupTempFileName(wstring &tempFileName) {
 
    tempFileName = tmpFilePath;
    return 0;
-}
-
-vector<wstring> ConfigIO::getAvailableThemesList() {
-   namespace fs = std::filesystem;
-
-   const wstring fileMask{ L"VT_.*\\.ini" };
-   vector<wstring> file_list{};
-
-   for (const auto item : fs::directory_iterator(pluginConfigDir)) {
-      if (std::regex_match(item.path().filename().wstring(), std::wregex(fileMask)))
-         file_list.push_back(item.path().stem());
-   }
-
-   return file_list;
 }
 
 bool ConfigIO::getCaretFramed() {

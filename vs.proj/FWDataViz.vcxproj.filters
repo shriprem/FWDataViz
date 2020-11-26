@@ -146,17 +146,17 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\Resources\Default Ini Files\defaults_Visualizer.ini">
-      <Filter>Resources\Default Ini Files</Filter>
-    </None>
-    <None Include="..\src\Resources\Default Ini Files\defaults_VisualizerPrefs.ini">
-      <Filter>Resources\Default Ini Files</Filter>
-    </None>
-    <None Include="..\src\Resources\Default Ini Files\defaults_VT_Basic.ini">
-      <Filter>Resources\Default Ini Files</Filter>
-    </None>
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly">
       <Filter>Resources\Sample Data Files</Filter>
+    </None>
+    <None Include="..\src\Resources\Default Ini Files\default_Preferences.ini">
+      <Filter>Resources\Default Ini Files</Filter>
+    </None>
+    <None Include="..\src\Resources\Default Ini Files\default_Themes.ini">
+      <Filter>Resources\Default Ini Files</Filter>
+    </None>
+    <None Include="..\src\Resources\Default Ini Files\default_Visualizer.ini">
+      <Filter>Resources\Default Ini Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
