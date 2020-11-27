@@ -30,6 +30,7 @@ protected:
 
    struct ThemeType {
       wstring label;
+      StyleInfo eolStyle;
       vector<StyleInfo> vStyleInfo;
    };
 
@@ -40,7 +41,7 @@ protected:
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    void indicateCleanStatus();
-   int addConfigInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile);
+   int addConfigInfo(int vIndex, const wstring& themeType);
    int loadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();

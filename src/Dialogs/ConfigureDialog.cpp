@@ -632,7 +632,7 @@ void ConfigureDialog::enableFileSelection() {
 }
 
 int ConfigureDialog::moveFileType(move_dir dir) {
-   int idxFT{ getCurrentFileTypeIndex() };
+   const int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return LB_ERR;
 
    switch(dir) {
@@ -742,10 +742,10 @@ void ConfigureDialog::enableRecSelection() {
 }
 
 int ConfigureDialog::moveRecType(move_dir dir) {
-   int idxFT{ getCurrentFileTypeIndex() };
+   const int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return LB_ERR;
 
-   int idxRec{ getCurrentRecIndex() };
+   const int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
    vector<RecordType>& recList = vFileTypes[idxFT].vRecTypes;
@@ -774,6 +774,8 @@ int ConfigureDialog::moveRecType(move_dir dir) {
       (LPARAM)recList[idxRec + dir].label.c_str());
    SendMessage(hRecsLB, LB_SETCURSEL, idxRec + dir, NULL);
 
+   cleanConfigFile = FALSE;
+   indicateCleanStatus();
    enableMoveRecButtons();
 
    return idxRec + dir;

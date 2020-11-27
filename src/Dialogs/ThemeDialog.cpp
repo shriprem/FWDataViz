@@ -120,31 +120,31 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
                return TRUE;
 
             case IDC_THEME_DEF_SAVE_CONFIG_BTN:
-               SetCursor(LoadCursor(NULL, IDC_WAIT));
-               saveConfigInfo();
-               SetCursor(LoadCursor(NULL, IDC_ARROW));
+               //SetCursor(LoadCursor(NULL, IDC_WAIT));
+               //saveConfigInfo();
+               //SetCursor(LoadCursor(NULL, IDC_ARROW));
                return TRUE;
 
             case IDC_THEME_DEF_RESET_BTN:
-               if (!promptDiscardChangesNo()) {
-                  configFile = L"";
-                  loadConfigInfo();
-                  fillThemes();
-               }
+               //if (!promptDiscardChangesNo()) {
+               //   configFile = L"";
+               //   loadConfigInfo();
+               //   fillThemes();
+               //}
                break;
 
             case IDC_THEME_DEF_BACKUP_LOAD_BTN:
-               if (!promptDiscardChangesNo()) {
-                  wstring sBackupConfigFile;
+               //if (!promptDiscardChangesNo()) {
+               //   wstring sBackupConfigFile;
 
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, TRUE, sBackupConfigFile)) {
-                     configFile = sBackupConfigFile;
-                     loadConfigInfo();
-                     fillThemes();
-                     cleanConfigFile = FALSE;
-                     enableThemeSelection();
-                  }
-               }
+               //   if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, TRUE, sBackupConfigFile)) {
+               //      configFile = sBackupConfigFile;
+               //      loadConfigInfo();
+               //      fillThemes();
+               //      cleanConfigFile = FALSE;
+               //      enableThemeSelection();
+               //   }
+               //}
                break;
 
             case IDC_THEME_DEF_BACKUP_VIEW_BTN:
@@ -152,15 +152,15 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
                break;
 
             case IDC_THEME_DEF_CLONE_BTN:
-               cloneConfigInfo();
+               //cloneConfigInfo();
                break;
 
             case IDC_THEME_DEF_EXTRACT_BTN:
-               showEximDialog(TRUE);
+               //showEximDialog(TRUE);
                break;
 
             case IDC_THEME_DEF_APPEND_BTN:
-               showEximDialog(FALSE);
+               //showEximDialog(FALSE);
                break;
          }
          break;
@@ -221,56 +221,52 @@ void ThemeDialog::indicateCleanStatus() {
    }
 }
 
-int ThemeDialog::addConfigInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
-   ThemeType& FT = vThemeTypes[vIndex];
+int ThemeDialog::addConfigInfo(int vIndex, const wstring& themeType) {
+   ThemeType& TT = vThemeTypes[vIndex];
 
-   FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", sConfigFile);
+   TT.label = themeType;
+   _configIO.getFullStyle(themeType, L"EOL", TT.eolStyle);
 
-   vector<wstring> recTypesList;
-   wstring recTypes;
-   int recTypeCount;
+   wchar_t styleIndex[8];
+   int styleCount;
 
-   recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"", sConfigFile);
-   recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
+   styleCount = stoi(_configIO.getStyleValue(themeType, L"Count"));
 
-   FT.vStyleInfo.clear();
-   FT.vStyleInfo.resize(recTypeCount);
+   TT.vStyleInfo.clear();
+   TT.vStyleInfo.resize(styleCount);
 
-   for (int j{}; j < recTypeCount; j++) {
-      //wstring& recType = recTypesList[j];
-      //StyleInfo& RT = FT.vStyleInfo[j];
-
-      //RT.back = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"), L"", sConfigFile);
+   for (int i{}; i < styleCount; i++) {
+      swprintf(styleIndex, 8, L"BFBI_%02i", i);
+      _configIO.getFullStyle(themeType, styleIndex, TT.vStyleInfo[i]);
    }
 
-   return recTypeCount;
+   return styleCount;
 }
 
 int ThemeDialog::loadConfigInfo() {
-   vector<wstring> fileTypeList;
-   wstring sFileTypes;
-   int fileTypeCount;
+   vector<wstring> themesList;
+   wstring sThemes;
+   int themesCount;
 
-   sFileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile);
-   fileTypeCount = _configIO.Tokenize(sFileTypes, fileTypeList);
+   sThemes = _configIO.getStyleValue(L"Base", L"Themes");
+   themesCount = _configIO.Tokenize(sThemes, themesList);
 
    vThemeTypes.clear();
-   vThemeTypes.resize(fileTypeCount);
+   vThemeTypes.resize(themesCount);
 
-   for (int i{}; i < fileTypeCount; i++) {
-      wstring &fileType = fileTypeList[i];
-      addConfigInfo(i, fileType, configFile);
+   for (int i{}; i < themesCount; i++) {
+      wstring &themeType = themesList[i];
+      addConfigInfo(i, themeType);
    }
 
    return static_cast<int>(vThemeTypes.size());
 }
 
 void ThemeDialog::fillThemes() {
-   // Fill File Types Listbox
    SendMessage(hThemesLB, LB_RESETCONTENT, NULL, NULL);
 
-   for (const auto FT : vThemeTypes) {
-      SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)FT.label.c_str());
+   for (const auto TT : vThemeTypes) {
+      SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)TT.label.c_str());
    }
 
    if (vThemeTypes.size() > 0)
@@ -358,25 +354,25 @@ bool ThemeDialog::getCurrentStyleInfo(StyleInfo*& recInfo) {
 }
 
 StyleInfo ThemeDialog::getNewStyle() {
-   StyleInfo newRec;
+   StyleInfo newStyle;
 
-   newRec.backColor = 0;
-   newRec.foreColor = 0;
-   newRec.bold = 0;
-   newRec.italics = 0;
-   return newRec;
+   newStyle.backColor = 0;
+   newStyle.foreColor = 0;
+   newStyle.bold = 0;
+   newStyle.italics = 0;
+   return newStyle;
 }
 
 void ThemeDialog::onThemeSelect() {
-   ThemeType* fileInfo;
+   ThemeType* themeInfo;
 
-   if (!getCurrentThemeInfo(fileInfo)) {
-      ThemeType newFile{ getNewTheme() };
-      fileInfo = &newFile;
+   if (!getCurrentThemeInfo(themeInfo)) {
+      ThemeType newTheme{ getNewTheme() };
+      themeInfo = &newTheme;
    }
 
    loadingEdits = TRUE;
-   SetDlgItemText(_hSelf, IDC_THEME_DEF_DESC_EDIT, fileInfo->label.c_str());
+   SetDlgItemText(_hSelf, IDC_THEME_DEF_DESC_EDIT, themeInfo->label.c_str());
    loadingEdits = FALSE;
 
    enableMoveThemeButtons();
@@ -412,86 +408,90 @@ void ThemeDialog::enableThemeSelection() {
 }
 
 int ThemeDialog::moveThemeType(move_dir dir) {
-   int idxFT{ getCurrentThemeIndex() };
-   if (idxFT == LB_ERR) return LB_ERR;
+   const int idxTheme{ getCurrentThemeIndex() };
+   if (idxTheme == LB_ERR) return LB_ERR;
 
    switch(dir) {
       case MOVE_DOWN:
-         if (idxFT >= static_cast<int>(vThemeTypes.size()) - 1) return LB_ERR;
+         if (idxTheme >= static_cast<int>(vThemeTypes.size()) - 1) return LB_ERR;
          break;
 
       case MOVE_UP:
-         if (idxFT == 0) return LB_ERR;
+         if (idxTheme == 0) return LB_ERR;
          break;
 
       default:
          return LB_ERR;
    }
 
-   ThemeType currType = vThemeTypes[idxFT];
-   ThemeType &adjType = vThemeTypes[idxFT + dir];
+   ThemeType currType = vThemeTypes[idxTheme];
+   ThemeType &adjType = vThemeTypes[idxTheme + dir];
 
-   vThemeTypes[idxFT] = adjType;
-   vThemeTypes[idxFT + dir] = currType;
+   vThemeTypes[idxTheme] = adjType;
+   vThemeTypes[idxTheme + dir] = currType;
 
-   SendMessage(hThemesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
-   SendMessage(hThemesLB, LB_INSERTSTRING, (WPARAM)(idxFT + dir),
-      (LPARAM)vThemeTypes[idxFT + dir].label.c_str());
-   SendMessage(hThemesLB, LB_SETCURSEL, idxFT + dir, NULL);
+   SendMessage(hThemesLB, LB_DELETESTRING, (WPARAM)idxTheme, NULL);
+   SendMessage(hThemesLB, LB_INSERTSTRING, (WPARAM)(idxTheme + dir),
+      (LPARAM)vThemeTypes[idxTheme + dir].label.c_str());
+   SendMessage(hThemesLB, LB_SETCURSEL, idxTheme + dir, NULL);
 
    cleanConfigFile = FALSE;
    indicateCleanStatus();
    enableMoveThemeButtons();
 
-   return idxFT + dir;
+   return idxTheme + dir;
 }
 
 void ThemeDialog::fillStyles() {
-   ThemeType* fileInfo;
+   ThemeType* themeInfo;
 
-   if (!getCurrentThemeInfo(fileInfo)) {
-      ThemeType newFile{ getNewTheme() };
-      fileInfo = &newFile;
+   if (!getCurrentThemeInfo(themeInfo)) {
+      ThemeType newTheme{ getNewTheme() };
+      themeInfo = &newTheme;
    }
 
-   vector <StyleInfo> &recInfoList = fileInfo->vStyleInfo;
+   wchar_t styleLabel[10];
+   vector <StyleInfo>& styleList{ themeInfo->vStyleInfo };
+   int styleCount{ static_cast<int>(styleList.size()) };
 
-   // Fill Rec Types Listbox
    SendMessage(hStylesLB, LB_RESETCONTENT, NULL, NULL);
 
-   for (const auto RT : recInfoList) {
-      //SendMessage(hStylesLB, LB_ADDSTRING, NULL, (LPARAM)RT.label.c_str());
+   for (int i{}; i < styleCount; i++) {
+      swprintf(styleLabel, 10, L"Style #%02i", i);
+      SendMessage(hStylesLB, LB_ADDSTRING, NULL, (LPARAM)styleLabel);
    }
 
-   if (recInfoList.size() > 0)
-      SendMessage(hStylesLB, LB_SETCURSEL, 0, NULL);
+   SendMessage(hStylesLB, LB_ADDSTRING, NULL, (LPARAM)L"EOL Marker Style");
+   SendMessage(hStylesLB, LB_SETCURSEL, 0, NULL);
 
    cleanStyleVals = TRUE;
    onStyleSelect();
 }
 
 void ThemeDialog::onStyleSelect() {
-   StyleInfo *recInfo;
+   int idxTheme{ getCurrentThemeIndex() };
+   if (idxTheme == LB_ERR) return;
 
-   if (!getCurrentStyleInfo(recInfo)) {
-      StyleInfo newRec{ getNewStyle() };
-      recInfo = &newRec;
-   }
+   int idxStyle{ getCurrentStyleIndex() };
+   if (idxStyle == LB_ERR) return;
 
+   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEL_BTN),
+      (idxStyle < static_cast<int>(vThemeTypes[idxTheme].vStyleInfo.size())));
    enableMoveStyleButtons();
    fillStyleDefs();
 }
 
 void ThemeDialog::enableMoveStyleButtons() {
-   int idxFT{ getCurrentThemeIndex() };
-   if (idxFT == LB_ERR) return;
+   int idxTheme{ getCurrentThemeIndex() };
+   if (idxTheme == LB_ERR) return;
 
-   int idxRec{ getCurrentStyleIndex() };
-   if (idxRec == LB_ERR) return;
+   int idxStyle{ getCurrentStyleIndex() };
+   if (idxStyle == LB_ERR) return;
 
-   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON),
-      (idxRec < static_cast<int>(vThemeTypes[idxFT].vStyleInfo.size()) - 1));
-   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_UP_BUTTON), (idxRec > 0));
+   int styleCount{ static_cast<int>(vThemeTypes[idxTheme].vStyleInfo.size()) };
+
+   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON), (idxStyle < styleCount - 1));
+   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_UP_BUTTON), (idxStyle > 0 && idxStyle < styleCount));
 }
 
 void ThemeDialog::enableStyleSelection() {
@@ -511,41 +511,45 @@ void ThemeDialog::enableStyleSelection() {
 }
 
 int ThemeDialog::moveStyleType(move_dir dir) {
-   int idxFT{ getCurrentThemeIndex() };
-   if (idxFT == LB_ERR) return LB_ERR;
+   const int idxTheme{ getCurrentThemeIndex() };
+   if (idxTheme == LB_ERR) return LB_ERR;
 
-   int idxRec{ getCurrentStyleIndex() };
-   if (idxRec == LB_ERR) return LB_ERR;
+   const int idxStyle{ getCurrentStyleIndex() };
+   if (idxStyle == LB_ERR) return LB_ERR;
 
-   vector<StyleInfo>& recList = vThemeTypes[idxFT].vStyleInfo;
+   vector<StyleInfo>& styleList = vThemeTypes[idxTheme].vStyleInfo;
 
    switch (dir) {
    case MOVE_DOWN:
-      if (idxRec >= static_cast<int>(recList.size()) - 1) return LB_ERR;
+      if (idxStyle >= static_cast<int>(styleList.size()) - 1) return LB_ERR;
       break;
 
    case MOVE_UP:
-      if (idxRec == 0) return LB_ERR;
+      if (idxStyle == 0) return LB_ERR;
       break;
 
    default:
       return LB_ERR;
    }
 
-   StyleInfo currType = recList[idxRec];
-   StyleInfo& adjType = recList[idxRec + dir];
+   StyleInfo currType = styleList[idxStyle];
+   StyleInfo& adjType = styleList[idxStyle + dir];
 
-   recList[idxRec] = adjType;
-   recList[idxRec + dir] = currType;
+   styleList[idxStyle] = adjType;
+   styleList[idxStyle + dir] = currType;
 
-   SendMessage(hStylesLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   //SendMessage(hStylesLB, LB_INSERTSTRING, (WPARAM)(idxRec + dir),
-   //   (LPARAM)recList[idxRec + dir].label.c_str());
-   SendMessage(hStylesLB, LB_SETCURSEL, idxRec + dir, NULL);
+   TCHAR itemText[100];
 
+   SendMessage(hStylesLB, LB_GETTEXT, (WPARAM)idxStyle, (LPARAM)itemText);
+   SendMessage(hStylesLB, LB_DELETESTRING, (WPARAM)idxStyle, NULL);
+   SendMessage(hStylesLB, LB_INSERTSTRING, (WPARAM)(idxStyle + dir), (LPARAM)itemText);
+   SendMessage(hStylesLB, LB_SETCURSEL, idxStyle + dir, NULL);
+
+   cleanConfigFile = FALSE;
+   indicateCleanStatus();
    enableMoveStyleButtons();
 
-   return idxRec + dir;
+   return idxStyle + dir;
 }
 
 void ThemeDialog::fillStyleDefs() {
@@ -583,7 +587,7 @@ void ThemeDialog::styleEditNew() {
 
    size_t moveTo = records.size() - 1;
 
-   //SendMessage(hStylesLB, LB_ADDSTRING, NULL, (LPARAM)newRec.label.c_str());
+   //SendMessage(hStylesLB, LB_ADDSTRING, NULL, (LPARAM)newStyle.label.c_str());
    SendMessage(hStylesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
    onStyleSelect();
 
@@ -654,7 +658,7 @@ int ThemeDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
          ThemeType newFile{ getNewTheme() };
 
          vThemeTypes.push_back(newFile);
-         addConfigInfo(static_cast<int>(vThemeTypes.size() - 1), sectionList[i], sConfigFile);
+         addConfigInfo(static_cast<int>(vThemeTypes.size() - 1), sectionList[i]);
          SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
          validCount++;
       }
