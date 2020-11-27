@@ -85,13 +85,6 @@ protected :
    std::unordered_map<wstring, wstring> mapFileTypeToDesc;
 
    // Styleset data
-   struct StyleInfo {
-      int backColor;
-      int foreColor;
-      int bold;
-      int italics;
-   };
-
    wstring currentStyleTheme{};
    StyleInfo styleEOL;
    vector<StyleInfo> styleSet;

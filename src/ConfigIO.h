@@ -12,6 +12,13 @@
 #include <unordered_map>
 #include <vector>
 
+struct StyleInfo {
+   int backColor;
+   int foreColor;
+   int bold;
+   int italics;
+};
+
 using std::stoi;
 using std::vector;
 
@@ -46,8 +53,7 @@ public:
 
    vector<wstring> getAvailableThemesList();
    wstring getStyleValue(const wstring& theme, const wstring& styleName);
-   void getFullStyle(const wstring& theme, const wstring& styleName,
-      int& back, int& fore, int& bold, int& italics);
+   void getFullStyle(const wstring& theme, const wstring& styleName, StyleInfo& style);
 
    void backupConfigFile(bool bViz);
    BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, bool bViz, wstring &backupConfigFile);

@@ -233,12 +233,12 @@ int ThemeDialog::addConfigInfo(int vIndex, const wstring& fileType, const wstrin
    recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"", sConfigFile);
    recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
 
-   FT.vStyleTypes.clear();
-   FT.vStyleTypes.resize(recTypeCount);
+   FT.vStyleInfo.clear();
+   FT.vStyleInfo.resize(recTypeCount);
 
    for (int j{}; j < recTypeCount; j++) {
       //wstring& recType = recTypesList[j];
-      //StyleType& RT = FT.vStyleTypes[j];
+      //StyleInfo& RT = FT.vStyleInfo[j];
 
       //RT.back = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"), L"", sConfigFile);
    }
@@ -311,7 +311,7 @@ ThemeDialog::ThemeType ThemeDialog::getNewTheme() {
    ThemeType newTheme;
 
    newTheme.label = L"";
-   newTheme.vStyleTypes = vector<StyleType>{ getNewStyle() };
+   newTheme.vStyleInfo = vector<StyleInfo>{ getNewStyle() };
 
    return newTheme;
 }
@@ -328,16 +328,16 @@ void ThemeDialog::getThemeConfig(size_t idxTh, bool cr_lf, wstring &ftCode, wstr
    swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxTh + 1), rawCode.c_str());
    _configIO.ToUpper(fileTypeCode);
 
-   recTypeCount = (FT.vStyleTypes.size() > 999) ? 999 : FT.vStyleTypes.size();
+   recTypeCount = (FT.vStyleInfo.size() > 999) ? 999 : FT.vStyleInfo.size();
 
    for (size_t j{}; j < recTypeCount; j++) {
-      StyleType& RT = FT.vStyleTypes[j];
+      //StyleInfo& RT = FT.vStyleInfo[j];
 
       swprintf(recTypeCode, 10, L"REC%03d", static_cast<int>(j + 1));
       recTypePrefix = wstring{ recTypeCode };
       recTypes += (j == 0 ? L"RecordTypes=" : L",") + recTypePrefix;
 
-      rtConfig += recTypePrefix + L"_FieldLabels=" + RT.back;
+      //rtConfig += recTypePrefix + L"_FieldLabels=" + RT.backColor;
    }
 
    ftCode = wstring{ fileTypeCode };
@@ -346,24 +346,24 @@ void ThemeDialog::getThemeConfig(size_t idxTh, bool cr_lf, wstring &ftCode, wstr
       recTypes + new_line + rtConfig;
 }
 
-bool ThemeDialog::getCurrentStyleInfo(StyleType*& recInfo) {
+bool ThemeDialog::getCurrentStyleInfo(StyleInfo*& recInfo) {
    int idxFT{ getCurrentThemeIndex() };
    if (idxFT == LB_ERR) return FALSE;
 
    int idxRec{ getCurrentStyleIndex() };
    if (idxRec == LB_ERR) return FALSE;
 
-   recInfo = &vThemeTypes[idxFT].vStyleTypes[idxRec];
+   recInfo = &vThemeTypes[idxFT].vStyleInfo[idxRec];
    return TRUE;
 }
 
-ThemeDialog::StyleType ThemeDialog::getNewStyle() {
-   StyleType newRec;
+StyleInfo ThemeDialog::getNewStyle() {
+   StyleInfo newRec;
 
-   newRec.back = L"";
-   newRec.fore = L"";
-   newRec.bold = L"";
-   newRec.italics = L"";
+   newRec.backColor = 0;
+   newRec.foreColor = 0;
+   newRec.bold = 0;
+   newRec.italics = 0;
    return newRec;
 }
 
@@ -454,7 +454,7 @@ void ThemeDialog::fillStyles() {
       fileInfo = &newFile;
    }
 
-   vector <StyleType> &recInfoList = fileInfo->vStyleTypes;
+   vector <StyleInfo> &recInfoList = fileInfo->vStyleInfo;
 
    // Fill Rec Types Listbox
    SendMessage(hStylesLB, LB_RESETCONTENT, NULL, NULL);
@@ -471,10 +471,10 @@ void ThemeDialog::fillStyles() {
 }
 
 void ThemeDialog::onStyleSelect() {
-   StyleType *recInfo;
+   StyleInfo *recInfo;
 
    if (!getCurrentStyleInfo(recInfo)) {
-      StyleType newRec{ getNewStyle() };
+      StyleInfo newRec{ getNewStyle() };
       recInfo = &newRec;
    }
 
@@ -490,7 +490,7 @@ void ThemeDialog::enableMoveStyleButtons() {
    if (idxRec == LB_ERR) return;
 
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON),
-      (idxRec < static_cast<int>(vThemeTypes[idxFT].vStyleTypes.size()) - 1));
+      (idxRec < static_cast<int>(vThemeTypes[idxFT].vStyleInfo.size()) - 1));
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_UP_BUTTON), (idxRec > 0));
 }
 
@@ -517,7 +517,7 @@ int ThemeDialog::moveStyleType(move_dir dir) {
    int idxRec{ getCurrentStyleIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
-   vector<StyleType>& recList = vThemeTypes[idxFT].vStyleTypes;
+   vector<StyleInfo>& recList = vThemeTypes[idxFT].vStyleInfo;
 
    switch (dir) {
    case MOVE_DOWN:
@@ -532,8 +532,8 @@ int ThemeDialog::moveStyleType(move_dir dir) {
       return LB_ERR;
    }
 
-   StyleType currType = recList[idxRec];
-   StyleType& adjType = recList[idxRec + dir];
+   StyleInfo currType = recList[idxRec];
+   StyleInfo& adjType = recList[idxRec + dir];
 
    recList[idxRec] = adjType;
    recList[idxRec + dir] = currType;
@@ -549,10 +549,10 @@ int ThemeDialog::moveStyleType(move_dir dir) {
 }
 
 void ThemeDialog::fillStyleDefs() {
-   StyleType *recInfo;
+   StyleInfo *recInfo;
 
    if (!getCurrentStyleInfo(recInfo)) {
-      StyleType newRec{ getNewStyle() };
+      StyleInfo newRec{ getNewStyle() };
       recInfo = &newRec;
    }
 
@@ -563,7 +563,7 @@ void ThemeDialog::fillStyleDefs() {
 void ThemeDialog::styleDefsAccept() {
    if (cleanStyleDefs) return;
 
-   StyleType *recInfo;
+   StyleInfo *recInfo;
    if (!getCurrentStyleInfo(recInfo)) return;
 
 
@@ -576,8 +576,8 @@ void ThemeDialog::styleEditNew() {
    int idxFT{ getCurrentThemeIndex() };
    if (idxFT == LB_ERR) return;
 
-   StyleType newRec{ getNewStyle() };
-   vector<StyleType> &records = vThemeTypes[idxFT].vStyleTypes;
+   StyleInfo newRec{ getNewStyle() };
+   vector<StyleInfo> &records = vThemeTypes[idxFT].vStyleInfo;
 
    records.push_back(newRec);
 
@@ -599,7 +599,7 @@ int ThemeDialog::styleEditDelete() {
    int idxRec{ getCurrentStyleIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
-   vector<StyleType> &records = vThemeTypes[idxFT].vStyleTypes;
+   vector<StyleInfo> &records = vThemeTypes[idxFT].vStyleInfo;
    records.erase(records.begin() + idxRec);
 
    int lastRec = static_cast<int>(records.size()) - 1;
@@ -748,14 +748,14 @@ void ThemeDialog::cloneConfigInfo() {
 
    NF.label = FT.label;
 
-   size_t recCount = FT.vStyleTypes.size();
-   NF.vStyleTypes.resize(recCount);
+   size_t recCount = FT.vStyleInfo.size();
+   NF.vStyleInfo.resize(recCount);
 
    for (size_t i{}; i < recCount; i++) {
-      NF.vStyleTypes[i].back = FT.vStyleTypes[i].back;
-      NF.vStyleTypes[i].fore = FT.vStyleTypes[i].fore;
-      NF.vStyleTypes[i].bold = FT.vStyleTypes[i].bold;
-      NF.vStyleTypes[i].italics = FT.vStyleTypes[i].italics;
+      NF.vStyleInfo[i].backColor = FT.vStyleInfo[i].backColor;
+      NF.vStyleInfo[i].foreColor = FT.vStyleInfo[i].foreColor;
+      NF.vStyleInfo[i].bold = FT.vStyleInfo[i].bold;
+      NF.vStyleInfo[i].italics = FT.vStyleInfo[i].italics;
    }
 
    vThemeTypes.push_back(NF);

@@ -245,22 +245,21 @@ wstring ConfigIO::getStyleValue(const wstring& theme, const wstring& styleName) 
    return getConfigString(theme, styleName, L"", CONFIG_FILE_PATHS[CONFIG_THEMES]);
 }
 
-void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName,
-   int& back, int& fore, int& bold, int& italics) {
+void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName, StyleInfo& style) {
    wstring val = getStyleValue(theme, styleName);
 
    if (val.length() < 1) {
-      back = defaultBackColor;
-      fore = defaultForeColor;
-      bold = 1;
-      italics = 1;
+      style.backColor = defaultBackColor;
+      style.foreColor = defaultForeColor;
+      style.bold = 1;
+      style.italics = 1;
       return;
    }
 
-   back = stoi(val.substr(0, 6), nullptr, 16);
-   fore = stoi(val.substr(7, 6), nullptr, 16);
-   bold = stoi(val.substr(14, 1));
-   italics = stoi(val.substr(15, 1));
+   style.backColor = stoi(val.substr(0, 6), nullptr, 16);
+   style.foreColor = stoi(val.substr(7, 6), nullptr, 16);
+   style.bold = stoi(val.substr(14, 1));
+   style.italics = stoi(val.substr(15, 1));
 }
 
 void ConfigIO::backupConfigFile(bool bViz) {

@@ -286,8 +286,7 @@ int VisualizerPanel::loadStyles() {
 
    currentStyleTheme = theme;
 
-   _configIO.getFullStyle(theme, L"EOL",
-      styleEOL.backColor, styleEOL.foreColor, styleEOL.bold, styleEOL.italics);
+   _configIO.getFullStyle(theme, L"EOL", styleEOL);
 
    int styleCount{};
    wchar_t bufKey[8];
@@ -302,8 +301,7 @@ int VisualizerPanel::loadStyles() {
 
    for (int i{}; i < styleCount; i++) {
       swprintf(bufKey, 8, L"BFBI_%02i", i);
-      _configIO.getFullStyle(theme, bufKey,
-         styleSet[i].backColor, styleSet[i].foreColor, styleSet[i].bold, styleSet[i].italics);
+      _configIO.getFullStyle(theme, bufKey, styleSet[i]);
    }
 
 #if FW_DEBUG_LOAD_STYLES

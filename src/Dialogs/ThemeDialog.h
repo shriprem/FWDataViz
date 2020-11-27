@@ -28,16 +28,9 @@ protected:
       MOVE_UP = -1
    };
 
-   struct StyleType {
-      wstring back;
-      wstring fore;
-      wstring bold;
-      wstring italics;
-   };
-
    struct ThemeType {
       wstring label;
-      vector<StyleType> vStyleTypes;
+      vector<StyleInfo> vStyleInfo;
    };
 
    wstring configFile{ L"" };
@@ -60,8 +53,8 @@ protected:
    void getThemeConfig(size_t idxTh, bool cr_lf, wstring &ftCode, wstring &ftConfig);
 
    int getCurrentStyleIndex();
-   bool getCurrentStyleInfo(StyleType* &recInfo);
-   StyleType getNewStyle();
+   bool getCurrentStyleInfo(StyleInfo* &styleInfo);
+   StyleInfo getNewStyle();
 
    void fillThemes();
    void onThemeSelect();
