@@ -63,7 +63,7 @@ protected:
    TCHAR defaultConfigFile[MAX_PATH];
 
    enum CF_TYPES {
-      CONFIG_MAIN,
+      CONFIG_VIZ,
       CONFIG_THEMES,
       CONFIG_PREFS,
       CONFIG_FILE_COUNT

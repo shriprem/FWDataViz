@@ -140,29 +140,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_FWVIZ_DEF_FILE_DESC_EDIT:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     if (!loadingEdits) {
-                        cleanFileVals = FALSE;
-                        enableFileSelection();
-                     }
-                     break;
-                  }
-               break;
-
             case IDC_FWVIZ_DEF_FILE_EOL_EDIT:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     if (!loadingEdits) {
-                        cleanFileVals = FALSE;
-                        enableFileSelection();
-                     }
-                     break;
-                  }
-               break;
-
             case IDC_FWVIZ_DEF_FILE_THEME_LIST:
                switch HIWORD(wParam) {
+                  case EN_CHANGE:
                   case LBN_SELCHANGE:
                      if (!loadingEdits) {
                         cleanFileVals = FALSE;
@@ -384,6 +365,7 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_TEXT, FWVIZ_DEF_FIELD_WIDTHS_TEXT);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_TEXT, FWVIZ_DEF_FIELD_LABELS_TEXT);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN, FWVIZ_DEF_FIELD_ACCEPT_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_RESET_BTN, FWVIZ_DEF_FIELD_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_SAVE_CONFIG_BTN, FWVIZ_DIALOG_SAVE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_RESET_BTN, FWVIZ_DIALOG_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_LOAD_BTN, FWVIZ_DIALOG_BKUP_LOAD_BTN);
@@ -610,11 +592,11 @@ void ConfigureDialog::onFileTypeSelect() {
 
    loadingEdits = TRUE;
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
-   SetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT, fileInfo->eol.c_str());
+   SetWindowTextA(hFileEOL, fileInfo->eol.c_str());
    loadingEdits = FALSE;
 
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_SETCURSEL, (WPARAM)
-      SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, CB_FINDSTRING, (WPARAM)-1,
+   SendMessage(hThemesLB, CB_SETCURSEL, (WPARAM)
+      SendMessage(hThemesLB, CB_FINDSTRING, (WPARAM)-1,
          (LPARAM)fileInfo->theme.c_str()), NULL);
 
    enableMoveFileButtons();
@@ -632,7 +614,7 @@ void ConfigureDialog::enableMoveFileButtons() {
 
 void ConfigureDialog::enableFileSelection() {
    bool enable{ cleanFileVals && cleanRecVals && cleanFieldVals };
-   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX), enable);
+   EnableWindow(hFilesLB, enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_CLONE_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN), enable);
@@ -745,7 +727,7 @@ void ConfigureDialog::enableMoveRecButtons() {
 
 void ConfigureDialog::enableRecSelection() {
    bool enable{ cleanRecVals && cleanFieldVals };
-   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX), enable);
+   EnableWindow(hRecsLB, enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN), enable);
 
    if (enable) {
@@ -933,7 +915,7 @@ void ConfigureDialog::recEditAccept() {
 
    char regexVal[MAX_PATH + 1];
 
-   GetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT, regexVal, MAX_PATH + 1);
+   GetWindowTextA(hRecRegex, regexVal, MAX_PATH + 1);
    recInfo.marker = regexVal;
 
    SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
@@ -1003,10 +985,10 @@ void ConfigureDialog::fileEditAccept() {
 
    char eolVal[MAX_PATH + 1];
 
-   GetDlgItemTextA(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT, eolVal, MAX_PATH + 1);
+   GetWindowTextA(hFileEOL, eolVal, MAX_PATH + 1);
    fileInfo.eol = eolVal;
 
-   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST, fileVal, MAX_PATH + 1);
+   GetWindowText(hThemesLB, fileVal, MAX_PATH + 1);
    fileInfo.theme = fileVal;
 
    SendMessage(hFilesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);

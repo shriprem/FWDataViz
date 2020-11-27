@@ -31,6 +31,9 @@
     <ClCompile Include="..\src\SubmenuManager.cpp">
       <Filter>Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Dialogs\ThemeDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -102,6 +105,9 @@
     <ClInclude Include="..\src\SubmenuManager.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Dialogs\ThemeDialog.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc">
@@ -144,6 +150,8 @@
     <Image Include="up.bmp">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="..\src\Resources\down.bmp" />
+    <Image Include="..\src\Resources\up.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly">

@@ -39,8 +39,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_THEME_CONFIG:
-               MessageBox(_hSelf, L"Visualizer Theme Editor will be available in the next release.",
-                  L"Visualizer Theme Editor", MB_OK);
+               ShowThemeDialog();
                break;
 
             case IDC_VIZPANEL_CLEAR_BUTTON:

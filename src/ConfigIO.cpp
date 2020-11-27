@@ -46,7 +46,7 @@ void ConfigIO::init() {
 
    // initialize instance variables
    resetCurrentConfigFile();
-   PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_MAIN]).c_str());
+   PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_VIZ]).c_str());
 
    defaultBackColor = static_cast<int>
       (nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
@@ -63,7 +63,7 @@ int ConfigIO::setCurrentConfigFile(const wstring& docFileType) {
       return 0;
    }
 
-   sectionCount = getConfigSectionList(sectionList, CONFIG_FILES[CONFIG_MAIN]);
+   sectionCount = getConfigSectionList(sectionList, CONFIG_FILES[CONFIG_VIZ]);
    if (sectionCount > 0 && sectionList.find(docFileType) != std::string::npos) {
       resetCurrentConfigFile();
       return 1;
@@ -80,7 +80,7 @@ int ConfigIO::setCurrentConfigFile(const wstring& docFileType) {
 }
 
 void ConfigIO::resetCurrentConfigFile() {
-   currentConfigFile = CONFIG_FILE_PATHS[CONFIG_MAIN];
+   currentConfigFile = CONFIG_FILE_PATHS[CONFIG_VIZ];
 }
 
 string ConfigIO::getConfigStringA(const wstring& sectionName, const wstring& keyName,
@@ -163,7 +163,7 @@ void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, wstrin
 
 void ConfigIO::saveConfigFile(const wstring &fileData, bool bViz, wstring fileName) {
    if (fileName.length() < 1)
-      fileName = CONFIG_FILE_PATHS[bViz ? CONFIG_MAIN : CONFIG_THEMES];
+      fileName = CONFIG_FILE_PATHS[bViz ? CONFIG_VIZ : CONFIG_THEMES];
 
    using std::ios;
    std::wofstream fs;
@@ -270,9 +270,9 @@ void ConfigIO::backupConfigFile(bool bViz) {
    wchar_t backupFilePath[MAX_PATH];
 
    if (bViz) {
-      if (currentConfigFile == CONFIG_FILE_PATHS[CONFIG_MAIN]) {
+      if (currentConfigFile == CONFIG_FILE_PATHS[CONFIG_VIZ]) {
          backupTemplate = "Visualizer_%Y%m%d_%H%M%S.ini";
-         srcFile = CONFIG_FILE_PATHS[CONFIG_MAIN];
+         srcFile = CONFIG_FILE_PATHS[CONFIG_VIZ];
       }
       else {
          backupTemplate = "default_Visualizer_%Y%m%d_%H%M%S.ini";

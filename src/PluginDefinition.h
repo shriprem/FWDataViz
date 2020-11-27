@@ -72,4 +72,5 @@ void RefreshVisualizerPanel();
 void DisplayCaretFrame();
 void ToggleCaretFramedState();
 void ShowConfigDialog();
+void ShowThemeDialog();
 void ShowAboutDialog();

@@ -19,6 +19,7 @@
 
 #include "Dialogs/VisualizerPanel.h"
 #include "Dialogs/ConfigureDialog.h"
+#include "Dialogs/ThemeDialog.h"
 #include "Dialogs/AboutDialog.h"
 
 #ifdef UNICODE
@@ -36,6 +37,7 @@ SubmenuManager _submenu;
 
 VisualizerPanel _vizPanel;
 ConfigureDialog _configDlg;
+ThemeDialog _themeDlg;
 AboutDialog _aboutDlg;
 
 void pluginInit(HANDLE hModule) {
@@ -163,6 +165,10 @@ void ToggleCaretFramedState() {
 
 void ShowConfigDialog() {
    _configDlg.doDialog((HINSTANCE)_gModule);
+}
+
+void ShowThemeDialog() {
+   _themeDlg.doDialog((HINSTANCE)_gModule);
 }
 
 void ShowAboutDialog() {
