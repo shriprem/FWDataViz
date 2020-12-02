@@ -5,6 +5,10 @@ extern HINSTANCE _gModule;
 extern ThemeDialog _themeDlg;
 extern EximFileTypeDialog _eximDlg;
 
+ThemeDialog::~ThemeDialog() {
+   if (hbr != NULL) DeleteObject(hbr);
+};
+
 void ThemeDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
@@ -28,6 +32,12 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_STYLE_UP_BUTTON, NULL, THEME_STYLE_MOVE_UP, FALSE);
 
+   bool recentOS = Utils::checkBaseOS(WV_VISTA);
+   wstring fontName = recentOS ? L"Consolas" : L"Courier New";
+   int fontHeight = recentOS ? 10 : 8;
+
+   Utils::setFont(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT, fontName, fontHeight);
+
    if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
@@ -37,7 +47,7 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    fillThemes();
 }
 
-INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
+INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
       case WM_COMMAND:
          switch LOWORD(wParam) {
@@ -104,6 +114,14 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
                styleEditDelete();
                break;
 
+            case IDC_THEME_STYLE_DEF_BACKCOLOR:
+               MessageBox(_hSelf, L"Back Color Dialog", L"", 0);
+               break;
+
+            case IDC_THEME_STYLE_DEF_FORECOLOR:
+               MessageBox(_hSelf, L"Fore Color Dialog", L"", 0);
+               break;
+
             case IDC_THEME_STYLE_DEF_ACCEPT_BTN:
                styleDefsAccept();
                break;
@@ -164,6 +182,34 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
                break;
          }
          break;
+
+      case WM_CTLCOLORSTATIC:
+         if (styleDefColor) {
+            HDC hdc = (HDC)wParam;
+            DWORD ctrlID = GetDlgCtrlID((HWND)lParam);
+
+            if (hbr != NULL) DeleteObject(hbr);
+
+            switch (ctrlID)
+            {
+               case IDC_THEME_STYLE_DEF_BACKCOLOR:
+                  SetBkColor(hdc, styleBack);
+                  hbr = CreateSolidBrush(styleBack);
+                  return (INT_PTR)hbr;
+
+               case IDC_THEME_STYLE_DEF_FORECOLOR:
+                  SetBkColor(hdc, styleFore);
+                  hbr = CreateSolidBrush(styleFore);
+                  return (INT_PTR)hbr;
+
+               case IDC_THEME_STYLE_DEF_OUTPUT:
+                  SetBkColor(hdc, styleBack);
+                  SetTextColor(hdc, styleFore);
+                  hbr = CreateSolidBrush(styleBack);
+                  return (INT_PTR)hbr;
+            }
+         }
+         break;
    }
 
    return FALSE;
@@ -180,6 +226,12 @@ void ThemeDialog::localize() {
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_NEW_BTN, THEME_STYLE_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEL_BTN, THEME_STYLE_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_GROUP_BOX, THEME_STYLE_DEF_GROUP_BOX);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_BACK_LABEL, THEME_STYLE_DEF_BACKCOLOR);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_FORE_LABEL, THEME_STYLE_DEF_FORECOLOR);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_BOLD, THEME_STYLE_DEF_BOLD);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_ITALICS, THEME_STYLE_DEF_ITALICS);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_OUT_LABEL, THEME_STYLE_DEF_OUT_LABEL);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT, THEME_STYLE_DEF_OUTPUT);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_ACCEPT_BTN, THEME_STYLE_DEF_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_RESET_BTN, THEME_STYLE_DEF_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_SAVE_CONFIG_BTN, THEME_DIALOG_SAVE_BTN);
@@ -346,20 +398,23 @@ bool ThemeDialog::getCurrentStyleInfo(StyleInfo*& recInfo) {
    int idxFT{ getCurrentThemeIndex() };
    if (idxFT == LB_ERR) return FALSE;
 
-   int idxRec{ getCurrentStyleIndex() };
-   if (idxRec == LB_ERR) return FALSE;
+   int idxStyle{ getCurrentStyleIndex() };
+   if (idxStyle == LB_ERR) return FALSE;
 
-   recInfo = &vThemeTypes[idxFT].vStyleInfo[idxRec];
+   recInfo = (idxStyle < static_cast<int>(vThemeTypes[idxFT].vStyleInfo.size())) ?
+      &vThemeTypes[idxFT].vStyleInfo[idxStyle] : &vThemeTypes[idxFT].eolStyle;
+
    return TRUE;
 }
 
 StyleInfo ThemeDialog::getNewStyle() {
    StyleInfo newStyle;
 
-   newStyle.backColor = 0;
-   newStyle.foreColor = 0;
+   newStyle.backColor = _configIO.defaultBackColor;
+   newStyle.foreColor = _configIO.defaultForeColor;
    newStyle.bold = 0;
    newStyle.italics = 0;
+
    return newStyle;
 }
 
@@ -553,12 +608,34 @@ int ThemeDialog::moveStyleType(move_dir dir) {
 }
 
 void ThemeDialog::fillStyleDefs() {
-   StyleInfo *recInfo;
+   StyleInfo* style;
 
-   if (!getCurrentStyleInfo(recInfo)) {
-      StyleInfo newRec{ getNewStyle() };
-      recInfo = &newRec;
+   if (!getCurrentStyleInfo(style)) {
+      StyleInfo newStyle{ getNewStyle() };
+      style = &newStyle;
    }
+
+   // Set styleBack & styleFore here. They will be used in WM_CTLCOLORSTATIC
+   styleDefColor = TRUE;
+   styleBack = RGB(GetRValue(style->backColor), GetGValue(style->backColor), GetBValue(style->backColor));
+   styleFore = RGB(GetRValue(style->foreColor), GetGValue(style->foreColor), GetBValue(style->foreColor));
+
+   TCHAR buf[10];
+
+   swprintf(buf, 10, L"%06X", style->backColor);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT, buf);
+
+   swprintf(buf, 10, L"%06X", style->foreColor);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT, buf);
+
+   CheckDlgButton(_hSelf, IDC_THEME_STYLE_DEF_BOLD, style->bold ? BST_CHECKED : BST_UNCHECKED);
+   CheckDlgButton(_hSelf, IDC_THEME_STYLE_DEF_ITALICS, style->italics ? BST_CHECKED : BST_UNCHECKED);
+
+   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_BACKCOLOR);
+   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_FORECOLOR);
+   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
+   if (style->bold) Utils::setFontBold(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
+   if (style->italics) Utils::setFontItalic(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
 
    cleanStyleDefs = TRUE;
    enableStyleSelection();
@@ -567,8 +644,8 @@ void ThemeDialog::fillStyleDefs() {
 void ThemeDialog::styleDefsAccept() {
    if (cleanStyleDefs) return;
 
-   StyleInfo *recInfo;
-   if (!getCurrentStyleInfo(recInfo)) return;
+   StyleInfo* style;
+   if (!getCurrentStyleInfo(style)) return;
 
 
    cleanConfigFile = FALSE;
@@ -580,19 +657,21 @@ void ThemeDialog::styleEditNew() {
    int idxFT{ getCurrentThemeIndex() };
    if (idxFT == LB_ERR) return;
 
-   StyleInfo newRec{ getNewStyle() };
-   vector<StyleInfo> &records = vThemeTypes[idxFT].vStyleInfo;
+   StyleInfo newStyle{ getNewStyle() };
+   vector<StyleInfo> &styles = vThemeTypes[idxFT].vStyleInfo;
+   int newIdx{ static_cast<int>(styles.size()) };
 
-   records.push_back(newRec);
+   wchar_t styleLabel[10];
+   swprintf(styleLabel, 10, L"Style #%02i", newIdx);
 
-   size_t moveTo = records.size() - 1;
+   styles.push_back(newStyle);
 
-   //SendMessage(hStylesLB, LB_ADDSTRING, NULL, (LPARAM)newStyle.label.c_str());
-   SendMessage(hStylesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hStylesLB, LB_INSERTSTRING, newIdx, (LPARAM)styleLabel);
+   SendMessage(hStylesLB, LB_SETCURSEL, (WPARAM)newIdx, NULL);
    onStyleSelect();
 
    cleanConfigFile = FALSE;
-   cleanStyleVals = FALSE;
+   cleanStyleVals = TRUE;
    enableStyleSelection();
 }
 

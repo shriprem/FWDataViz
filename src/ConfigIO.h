@@ -24,6 +24,9 @@ using std::vector;
 
 class ConfigIO {
 public:
+   int defaultBackColor{};
+   int defaultForeColor{};
+
    void init();
 
    int setCurrentConfigFile(const wstring& docFileType);
@@ -78,7 +81,4 @@ protected:
    const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.dat", L"Preferences.ini" };
    wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT] { };
    wstring currentConfigFile{};
-
-   int defaultBackColor{};
-   int defaultForeColor{};
 };

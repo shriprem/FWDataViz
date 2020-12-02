@@ -17,6 +17,8 @@ extern ConfigIO _configIO;
 class ThemeDialog : public StaticDialog {
 public:
    ThemeDialog() : StaticDialog() {};
+   ~ThemeDialog();
+
    void doDialog(HINSTANCE hInst);
    int appendFileTypeConfigs(const wstring& sConfigFile);
 
@@ -36,7 +38,10 @@ protected:
 
    wstring configFile{ L"" };
    vector<ThemeType> vThemeTypes;
-   bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleVals, cleanStyleDefs;
+   bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleVals, cleanStyleDefs, styleDefColor;
+
+   HBRUSH hbr;
+   COLORREF styleBack, styleFore;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
