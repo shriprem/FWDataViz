@@ -23,6 +23,8 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style) {
    switch (style) {
       case FS_REGULAR:
          lf.lfWeight = FW_REGULAR;
+         lf.lfItalic = FALSE;
+         lf.lfUnderline = FALSE;
          break;
 
       case FS_BOLD:
@@ -35,9 +37,6 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style) {
 
       case FS_UNDERLINE:
          lf.lfUnderline = TRUE;
-         break;
-
-      default:
          break;
    }
 
@@ -207,4 +206,8 @@ bool Utils::setFontItalic(HWND hDlg, int controlID) {
 
 bool Utils::setFontUnderline(HWND hDlg, int controlID) {
    return changeFontStyle(hDlg, controlID, FS_UNDERLINE);
+}
+
+COLORREF Utils::intToRGB(int color) {
+    return RGB(GetRValue(color), GetGValue(color), GetBValue(color));
 }

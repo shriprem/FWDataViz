@@ -41,7 +41,7 @@ protected:
    bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleVals, cleanStyleDefs, styleDefColor;
 
    HBRUSH hbr;
-   COLORREF styleBack, styleFore;
+   COLORREF styleBack, styleFore, customColors[16];
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
@@ -79,8 +79,12 @@ protected:
    void styleEditNew();
    int styleEditDelete();
 
+   int getStyleDefColor(bool back);
+   void setStyleDefColor(int color, bool back);
    void fillStyleDefs();
    void styleDefsAccept();
-};
 
+   INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
+   void chooseStyleDefColor(bool back);
+};
 

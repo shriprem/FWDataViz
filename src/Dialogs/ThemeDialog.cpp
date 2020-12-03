@@ -115,11 +115,11 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                break;
 
             case IDC_THEME_STYLE_DEF_BACKCOLOR:
-               MessageBox(_hSelf, L"Back Color Dialog", L"", 0);
+               chooseStyleDefColor(TRUE);
                break;
 
             case IDC_THEME_STYLE_DEF_FORECOLOR:
-               MessageBox(_hSelf, L"Fore Color Dialog", L"", 0);
+               chooseStyleDefColor(FALSE);
                break;
 
             case IDC_THEME_STYLE_DEF_ACCEPT_BTN:
@@ -184,32 +184,8 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          break;
 
       case WM_CTLCOLORSTATIC:
-         if (styleDefColor) {
-            HDC hdc = (HDC)wParam;
-            DWORD ctrlID = GetDlgCtrlID((HWND)lParam);
-
-            if (hbr != NULL) DeleteObject(hbr);
-
-            switch (ctrlID)
-            {
-               case IDC_THEME_STYLE_DEF_BACKCOLOR:
-                  SetBkColor(hdc, styleBack);
-                  hbr = CreateSolidBrush(styleBack);
-                  return (INT_PTR)hbr;
-
-               case IDC_THEME_STYLE_DEF_FORECOLOR:
-                  SetBkColor(hdc, styleFore);
-                  hbr = CreateSolidBrush(styleFore);
-                  return (INT_PTR)hbr;
-
-               case IDC_THEME_STYLE_DEF_OUTPUT:
-                  SetBkColor(hdc, styleBack);
-                  SetTextColor(hdc, styleFore);
-                  hbr = CreateSolidBrush(styleBack);
-                  return (INT_PTR)hbr;
-            }
-         }
-         break;
+         if (styleDefColor)
+            return colorStaticControl(wParam, lParam);
    }
 
    return FALSE;
@@ -607,6 +583,28 @@ int ThemeDialog::moveStyleType(move_dir dir) {
    return idxStyle + dir;
 }
 
+int ThemeDialog::getStyleDefColor(bool back)
+{
+   TCHAR buf[10];
+
+   GetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf, 10);
+   return stoi(buf, nullptr, 16);
+}
+
+void ThemeDialog::setStyleDefColor(int color, bool back) {
+   TCHAR buf[10];
+
+   swprintf(buf, 10, L"%06X", color);
+
+   SetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf);
+
+   // Set styleBack | styleFore here. Will be used in WM_CTLCOLORSTATIC, triggered by the setFontRegular() calls
+   styleDefColor = TRUE;
+   (back ? styleBack : styleFore) = Utils::intToRGB(color);
+   Utils::setFontRegular(_hSelf, back ? IDC_THEME_STYLE_DEF_BACKCOLOR : IDC_THEME_STYLE_DEF_FORECOLOR);
+   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
+}
+
 void ThemeDialog::fillStyleDefs() {
    StyleInfo* style;
 
@@ -615,25 +613,12 @@ void ThemeDialog::fillStyleDefs() {
       style = &newStyle;
    }
 
-   // Set styleBack & styleFore here. They will be used in WM_CTLCOLORSTATIC
-   styleDefColor = TRUE;
-   styleBack = RGB(GetRValue(style->backColor), GetGValue(style->backColor), GetBValue(style->backColor));
-   styleFore = RGB(GetRValue(style->foreColor), GetGValue(style->foreColor), GetBValue(style->foreColor));
-
-   TCHAR buf[10];
-
-   swprintf(buf, 10, L"%06X", style->backColor);
-   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT, buf);
-
-   swprintf(buf, 10, L"%06X", style->foreColor);
-   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT, buf);
+   setStyleDefColor(style->backColor, TRUE);
+   setStyleDefColor(style->foreColor, FALSE);
 
    CheckDlgButton(_hSelf, IDC_THEME_STYLE_DEF_BOLD, style->bold ? BST_CHECKED : BST_UNCHECKED);
    CheckDlgButton(_hSelf, IDC_THEME_STYLE_DEF_ITALICS, style->italics ? BST_CHECKED : BST_UNCHECKED);
 
-   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_BACKCOLOR);
-   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_FORECOLOR);
-   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
    if (style->bold) Utils::setFontBold(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
    if (style->italics) Utils::setFontItalic(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
 
@@ -642,14 +627,72 @@ void ThemeDialog::fillStyleDefs() {
 }
 
 void ThemeDialog::styleDefsAccept() {
-   if (cleanStyleDefs) return;
+   //if (cleanStyleDefs) return;
 
    StyleInfo* style;
    if (!getCurrentStyleInfo(style)) return;
 
+   style->backColor = getStyleDefColor(TRUE);
+   style->foreColor = getStyleDefColor(FALSE);
+   style->bold = (IsDlgButtonChecked(_hSelf, IDC_THEME_STYLE_DEF_BOLD) == BST_CHECKED);
+   style->italics = (IsDlgButtonChecked(_hSelf, IDC_THEME_STYLE_DEF_ITALICS) == BST_CHECKED);
 
    cleanConfigFile = FALSE;
    cleanStyleDefs = TRUE;
+   enableStyleSelection();
+}
+
+INT_PTR ThemeDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
+   HDC hdc = (HDC)wParam;
+   DWORD ctrlID = GetDlgCtrlID((HWND)lParam);
+
+   if (hbr != NULL) DeleteObject(hbr);
+
+   switch (ctrlID)
+   {
+   case IDC_THEME_STYLE_DEF_BACKCOLOR:
+      SetBkColor(hdc, styleBack);
+      hbr = CreateSolidBrush(styleBack);
+      return (INT_PTR)hbr;
+
+   case IDC_THEME_STYLE_DEF_FORECOLOR:
+      SetBkColor(hdc, styleFore);
+      hbr = CreateSolidBrush(styleFore);
+      return (INT_PTR)hbr;
+
+   case IDC_THEME_STYLE_DEF_OUTPUT:
+      SetBkColor(hdc, styleBack);
+      SetTextColor(hdc, styleFore);
+      hbr = CreateSolidBrush(styleBack);
+      return (INT_PTR)hbr;
+
+   default:
+      return NULL;
+   }
+}
+
+void ThemeDialog::chooseStyleDefColor(bool back) {
+   StyleInfo* style;
+   if (!getCurrentStyleInfo(style)) return;
+
+   int color = getStyleDefColor(back);
+
+   CHOOSECOLOR cc;
+   ZeroMemory(&cc, sizeof(cc));
+
+   cc.lStructSize = sizeof(cc);
+   cc.hwndOwner = _hSelf;
+   cc.rgbResult = Utils::intToRGB(color);
+   cc.lpCustColors = (LPDWORD) customColors;
+   cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+   if (!ChooseColor(&cc)) return;
+
+   color = static_cast<int>(cc.rgbResult);
+   setStyleDefColor(color, back);
+
+   cleanConfigFile = FALSE;
+   cleanStyleDefs = FALSE;
    enableStyleSelection();
 }
 
