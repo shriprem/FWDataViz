@@ -24,9 +24,6 @@ using std::vector;
 
 class ConfigIO {
 public:
-   int defaultBackColor{};
-   int defaultForeColor{};
-
    void init();
 
    int setCurrentConfigFile(const wstring& docFileType);

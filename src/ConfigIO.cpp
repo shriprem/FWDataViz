@@ -47,11 +47,6 @@ void ConfigIO::init() {
    // initialize instance variables
    resetCurrentConfigFile();
    PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_VIZ]).c_str());
-
-   defaultBackColor = static_cast<int>
-      (nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
-   defaultForeColor = static_cast<int>
-      (nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
 }
 
 int ConfigIO::setCurrentConfigFile(const wstring& docFileType) {
@@ -249,8 +244,8 @@ void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName, Styl
    wstring val = getStyleValue(theme, styleName);
 
    if (val.length() < 1) {
-      style.backColor = defaultBackColor;
-      style.foreColor = defaultForeColor;
+      style.backColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
+      style.foreColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
       style.bold = 1;
       style.italics = 1;
       return;

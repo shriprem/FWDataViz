@@ -1,9 +1,39 @@
 #include "ThemeDialog.h"
 #include "EximFileTypeDialog.h"
 
+#define HEX_COL_LEN 6
+
 extern HINSTANCE _gModule;
 extern ThemeDialog _themeDlg;
 extern EximFileTypeDialog _eximDlg;
+
+LRESULT CALLBACK procHexColorEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
+   LPARAM lParam, UINT_PTR, DWORD_PTR) {
+   switch (messageId) {
+      case WM_CHAR:
+      {
+         char ch{ static_cast<char>(wParam) };
+         if (!((ch == VK_BACK) || (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))) {
+            showEditBalloonTip(hwnd, THEME_DIALOG_HEX_TITLE, THEME_DIALOG_HEX_CHARS_ONLY);
+            return FALSE;
+         }
+         break;
+      }
+
+      case WM_PASTE:
+      {
+         wstring clipText;
+         Utils::getClipboardText(GetParent(hwnd), clipText);
+         if (!regex_match(clipText, std::wregex(L"^[0-9A-Fa-f]{0,6}$"))) {
+            showEditBalloonTip(hwnd, THEME_DIALOG_HEX_TITLE, THEME_DIALOG_HEX_CHARS_ONLY);
+            return FALSE;
+         }
+         break;
+      }
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}
 
 ThemeDialog::~ThemeDialog() {
    if (hbr != NULL) DeleteObject(hbr);
@@ -19,6 +49,11 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    hStylesLB = GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX);
 
    SendDlgItemMessage(_hSelf, IDC_THEME_DEF_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT, EM_LIMITTEXT, HEX_COL_LEN, NULL);
+   SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT, EM_LIMITTEXT, HEX_COL_LEN, NULL);
+
+   SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT), procHexColorEditControl, NULL, NULL);
+   SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT), procHexColorEditControl, NULL, NULL);
 
    Utils::loadBitmap(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, NULL, THEME_DEF_MOVE_DOWN, FALSE);
@@ -34,7 +69,7 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
-   int fontHeight = recentOS ? 10 : 8;
+   int fontHeight = recentOS ? 8 : 7;
 
    Utils::setFont(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT, fontName, fontHeight);
 
@@ -45,6 +80,7 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
 
    loadConfigInfo();
    fillThemes();
+   setPangram();
 }
 
 INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -106,12 +142,28 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                moveStyleType(MOVE_UP);
                break;
 
+            case IDC_THEME_STYLE_CLONE_BTN:
+               styleEditNew(TRUE);
+               break;
+
             case IDC_THEME_STYLE_NEW_BTN:
-               styleEditNew();
+               styleEditNew(FALSE);
                break;
 
             case IDC_THEME_STYLE_DEL_BTN:
                styleEditDelete();
+               break;
+
+            case IDC_THEME_STYLE_DEF_BACK_EDIT:
+            case IDC_THEME_STYLE_DEF_FORE_EDIT:
+               switch (HIWORD(wParam)) {
+                  case EN_CHANGE:
+                     bool back = (LOWORD(wParam) == IDC_THEME_STYLE_DEF_BACK_EDIT);
+                     setStyleDefColor(FALSE, getStyleDefColor(back), back);
+                     cleanStyleDefs = FALSE;
+                     enableStyleSelection();
+                     break;
+               }
                break;
 
             case IDC_THEME_STYLE_DEF_BACKCOLOR:
@@ -120,6 +172,17 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 
             case IDC_THEME_STYLE_DEF_FORECOLOR:
                chooseStyleDefColor(FALSE);
+               break;
+
+            case IDC_THEME_STYLE_DEF_BOLD:
+            case IDC_THEME_STYLE_DEF_ITALICS:
+               setOutputFontStyle();
+               cleanStyleDefs = FALSE;
+               enableStyleSelection();
+               break;
+
+            case IDC_THEME_STYLE_DEF_OUTPUT:
+               setPangram();
                break;
 
             case IDC_THEME_STYLE_DEF_ACCEPT_BTN:
@@ -133,7 +196,6 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
             case IDCANCEL:
             case IDCLOSE:
                if (promptDiscardChangesNo()) return TRUE;
-
                display(FALSE);
                return TRUE;
 
@@ -199,6 +261,7 @@ void ThemeDialog::localize() {
    SetDlgItemText(_hSelf, IDC_THEME_DEF_ACCEPT_BTN, THEME_DEF_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_DEL_BTN, THEME_DEF_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_GROUP_BOX, THEME_STYLE_GROUP_BOX);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_CLONE_BTN, THEME_STYLE_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_NEW_BTN, THEME_STYLE_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEL_BTN, THEME_STYLE_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_GROUP_BOX, THEME_STYLE_DEF_GROUP_BOX);
@@ -207,7 +270,6 @@ void ThemeDialog::localize() {
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_BOLD, THEME_STYLE_DEF_BOLD);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_ITALICS, THEME_STYLE_DEF_ITALICS);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_OUT_LABEL, THEME_STYLE_DEF_OUT_LABEL);
-   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT, THEME_STYLE_DEF_OUTPUT);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_ACCEPT_BTN, THEME_STYLE_DEF_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_RESET_BTN, THEME_STYLE_DEF_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_SAVE_CONFIG_BTN, THEME_DIALOG_SAVE_BTN);
@@ -386,8 +448,8 @@ bool ThemeDialog::getCurrentStyleInfo(StyleInfo*& recInfo) {
 StyleInfo ThemeDialog::getNewStyle() {
    StyleInfo newStyle;
 
-   newStyle.backColor = _configIO.defaultBackColor;
-   newStyle.foreColor = _configIO.defaultForeColor;
+   newStyle.backColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
+   newStyle.foreColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
    newStyle.bold = 0;
    newStyle.italics = 0;
 
@@ -528,6 +590,7 @@ void ThemeDialog::enableMoveStyleButtons() {
 void ThemeDialog::enableStyleSelection() {
    bool enable{ cleanStyleVals && cleanStyleDefs };
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_CLONE_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_NEW_BTN), enable);
 
    if (enable) {
@@ -583,20 +646,20 @@ int ThemeDialog::moveStyleType(move_dir dir) {
    return idxStyle + dir;
 }
 
-int ThemeDialog::getStyleDefColor(bool back)
-{
+int ThemeDialog::getStyleDefColor(bool back) {
    TCHAR buf[10];
 
-   GetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf, 10);
-   return stoi(buf, nullptr, 16);
+   GetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf, HEX_COL_LEN + 1);
+
+   return (wstring(buf).length() > 0) ? stoi(buf, nullptr, 16) : 0;
 }
 
-void ThemeDialog::setStyleDefColor(int color, bool back) {
-   TCHAR buf[10];
-
-   swprintf(buf, 10, L"%06X", color);
-
-   SetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf);
+void ThemeDialog::setStyleDefColor(bool setEdit, int color, bool back) {
+   if (setEdit) {
+      TCHAR buf[10];
+      swprintf(buf, HEX_COL_LEN + 1, L"%06X", color);
+      SetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf);
+   }
 
    // Set styleBack | styleFore here. Will be used in WM_CTLCOLORSTATIC, triggered by the setFontRegular() calls
    styleDefColor = TRUE;
@@ -613,21 +676,19 @@ void ThemeDialog::fillStyleDefs() {
       style = &newStyle;
    }
 
-   setStyleDefColor(style->backColor, TRUE);
-   setStyleDefColor(style->foreColor, FALSE);
+   setStyleDefColor(TRUE, style->backColor, TRUE);
+   setStyleDefColor(TRUE, style->foreColor, FALSE);
 
    CheckDlgButton(_hSelf, IDC_THEME_STYLE_DEF_BOLD, style->bold ? BST_CHECKED : BST_UNCHECKED);
    CheckDlgButton(_hSelf, IDC_THEME_STYLE_DEF_ITALICS, style->italics ? BST_CHECKED : BST_UNCHECKED);
-
-   if (style->bold) Utils::setFontBold(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
-   if (style->italics) Utils::setFontItalic(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
+   setOutputFontStyle();
 
    cleanStyleDefs = TRUE;
    enableStyleSelection();
 }
 
 void ThemeDialog::styleDefsAccept() {
-   //if (cleanStyleDefs) return;
+   if (cleanStyleDefs) return;
 
    StyleInfo* style;
    if (!getCurrentStyleInfo(style)) return;
@@ -671,6 +732,16 @@ INT_PTR ThemeDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
    }
 }
 
+void ThemeDialog::setOutputFontStyle() {
+   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
+
+   if (IsDlgButtonChecked(_hSelf, IDC_THEME_STYLE_DEF_BOLD) == BST_CHECKED)
+      Utils::setFontBold(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
+
+   if (IsDlgButtonChecked(_hSelf, IDC_THEME_STYLE_DEF_ITALICS) == BST_CHECKED)
+      Utils::setFontItalic(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
+}
+
 void ThemeDialog::chooseStyleDefColor(bool back) {
    StyleInfo* style;
    if (!getCurrentStyleInfo(style)) return;
@@ -689,16 +760,38 @@ void ThemeDialog::chooseStyleDefColor(bool back) {
    if (!ChooseColor(&cc)) return;
 
    color = static_cast<int>(cc.rgbResult);
-   setStyleDefColor(color, back);
+   setStyleDefColor(TRUE, color, back);
 
    cleanConfigFile = FALSE;
    cleanStyleDefs = FALSE;
    enableStyleSelection();
 }
 
-void ThemeDialog::styleEditNew() {
+void ThemeDialog::setPangram() {
+   constexpr int count{ 10 };
+
+   wstring pangrams[count] = {
+      L"SPHINX OF BLACK QUARTZ,\r\nJUDGE MY VOW.",
+      L"A QUART JAR OF OIL\r\nMIXED WITH ZINC OXIDE\r\nMAKES A VERY BRIGHT PAINT.",
+      L"A WIZARD'S JOB IS TO\r\nVEX CHUMPS QUICKLY IN FOG.",
+      L"AMAZINGLY FEW DISCOTHEQUES\r\nPROVIDE JUKEBOXES.",
+      L"PACK MY BOX WITH\r\nFIVE DOZEN LIQUOR JUGS.",
+      L"THE LAZY MAJOR WAS FIXING\r\nCUPID'S BROKEN QUIVER.",
+      L"MY FAXED JOKE WON A PAGER\r\nIN THE CABLE TV QUIZ SHOW.",
+      L"THE FIVE BOXING WIZARDS\r\nJUMP QUICKLY.",
+      L"FEW BLACK TAXIS\r\nDRIVE UP MAJOR ROADS\r\nON QUIET HAZY NIGHTS.",
+      L"WE PROMPTLY JUDGED\r\nANTIQUE IVORY BUCKLES\r\nFOR THE NEXT PRIZE."
+   };
+
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT, (pangrams[rand() % count]).c_str());
+}
+
+void ThemeDialog::styleEditNew(bool clone) {
    int idxFT{ getCurrentThemeIndex() };
    if (idxFT == LB_ERR) return;
+
+   int idxST{ getCurrentStyleIndex() };
+   if (clone && idxST == LB_ERR) return;
 
    StyleInfo newStyle{ getNewStyle() };
    vector<StyleInfo> &styles = vThemeTypes[idxFT].vStyleInfo;
@@ -706,6 +799,13 @@ void ThemeDialog::styleEditNew() {
 
    wchar_t styleLabel[10];
    swprintf(styleLabel, 10, L"Style #%02i", newIdx);
+
+   if (clone) {
+      newStyle.backColor = styles[idxST].backColor;
+      newStyle.foreColor = styles[idxST].foreColor;
+      newStyle.bold = styles[idxST].bold;
+      newStyle.italics = styles[idxST].italics;
+   }
 
    styles.push_back(newStyle);
 

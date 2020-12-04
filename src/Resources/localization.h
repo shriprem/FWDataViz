@@ -72,7 +72,7 @@
 #define FWVIZ_SAVE_BKUP_CONFIG_DLG  L"Save Backup Configuration File"
 
 // Theme Dialog
-#define THEME_DIALOG_TITLE          L"Fixed Width File Metadata Editor"
+#define THEME_DIALOG_TITLE          L"Fixed Width File Theme Editor"
 #define THEME_DEF_GROUP_BOX         L"Themes"
 #define THEME_DEF_MOVE_DOWN         L"Move down the selected Theme"
 #define THEME_DEF_MOVE_UP           L"Move up the selected Theme"
@@ -83,6 +83,7 @@
 #define THEME_STYLE_GROUP_BOX       L"Styles"
 #define THEME_STYLE_MOVE_DOWN       L"Move down the selected Style"
 #define THEME_STYLE_MOVE_UP         L"Move up the selected Style"
+#define THEME_STYLE_CLONE_BTN       L"Clone"
 #define THEME_STYLE_NEW_BTN         L"New"
 #define THEME_STYLE_DEL_BTN         L"Delete"
 #define THEME_STYLE_DEF_GROUP_BOX   L"Style Definition"
@@ -102,6 +103,9 @@
 #define THEME_DIALOG_EXTRACT_BTN    L"E&xtract Selected Theme Data"
 #define THEME_DIALOG_APPEND_BTN     L"&Append New Theme Data"
 #define THEME_DIALOG_CLOSE_BTN      L"Clos&e"
+
+#define THEME_DIALOG_HEX_TITLE      L"Hexadecimal characters only!"
+#define THEME_DIALOG_HEX_CHARS_ONLY L"This edit field will only accept characters in the following range: 0-9|A-F|a-f"
 
 #define THEME_DISCARD_CHANGES       L"Discard changes?"
 #define THEME_OPEN_BKUP_CONFIG_DLG  L"Open Backup Themes File"

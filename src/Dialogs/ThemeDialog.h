@@ -76,13 +76,15 @@ protected:
    void enableMoveStyleButtons();
    void enableStyleSelection();
    int moveStyleType(move_dir dir);
-   void styleEditNew();
+   void styleEditNew(bool clone);
    int styleEditDelete();
 
    int getStyleDefColor(bool back);
-   void setStyleDefColor(int color, bool back);
+   void setStyleDefColor(bool setEdit, int color, bool back);
+   void setOutputFontStyle();
    void fillStyleDefs();
    void styleDefsAccept();
+   void setPangram();
 
    INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
    void chooseStyleDefColor(bool back);
