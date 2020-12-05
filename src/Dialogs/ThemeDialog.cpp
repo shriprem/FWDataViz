@@ -311,7 +311,26 @@ void ThemeDialog::indicateCleanStatus() {
    }
 }
 
-int ThemeDialog::addThemeInfo(int vIndex, const wstring& themeType, const wstring& sThemeFile) {
+int ThemeDialog::loadConfigInfo() {
+   vector<wstring> themesList;
+   wstring sThemes;
+   int themesCount;
+
+   sThemes = _configIO.getStyleValue(L"Base", L"Themes", themeFile);
+   themesCount = _configIO.Tokenize(sThemes, themesList);
+
+   vThemeTypes.clear();
+   vThemeTypes.resize(themesCount);
+
+   for (int i{}; i < themesCount; i++) {
+      wstring &themeType = themesList[i];
+      loadThemeInfo(i, themeType, themeFile);
+   }
+
+   return static_cast<int>(vThemeTypes.size());
+}
+
+int ThemeDialog::loadThemeInfo(int vIndex, const wstring& themeType, const wstring& sThemeFile) {
    ThemeType& TT = vThemeTypes[vIndex];
 
    TT.label = themeType;
@@ -331,25 +350,6 @@ int ThemeDialog::addThemeInfo(int vIndex, const wstring& themeType, const wstrin
    }
 
    return styleCount;
-}
-
-int ThemeDialog::loadConfigInfo() {
-   vector<wstring> themesList;
-   wstring sThemes;
-   int themesCount;
-
-   sThemes = _configIO.getStyleValue(L"Base", L"Themes", themeFile);
-   themesCount = _configIO.Tokenize(sThemes, themesList);
-
-   vThemeTypes.clear();
-   vThemeTypes.resize(themesCount);
-
-   for (int i{}; i < themesCount; i++) {
-      wstring &themeType = themesList[i];
-      addThemeInfo(i, themeType, themeFile);
-   }
-
-   return static_cast<int>(vThemeTypes.size());
 }
 
 void ThemeDialog::fillThemes() {
@@ -854,25 +854,21 @@ void ThemeDialog::themeEditAccept() {
    enableThemeSelection();
 }
 
-int ThemeDialog::appendFileTypeConfigs(const wstring& sThemeFile) {
+int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
+   int sectionCount{}, validCount{};
    wstring sections{};
-   int sectionCount{};
+   vector<wstring> sectionList{};
 
    sectionCount = _configIO.getConfigSectionList(sections, sThemeFile);
-
-   vector<wstring> sectionList{};
    sectionCount = _configIO.Tokenize(sections, sectionList);
 
-   wstring sectionLabel{};
-   int validCount{};
    for (int i{}; i < sectionCount; i++) {
-      sectionLabel = _configIO.getConfigString(sectionList[i], L"FileLabel", L"", sThemeFile);
-      if (sectionLabel.length() > 0) {
-         ThemeType newFile{ getNewTheme() };
+      if (_configIO.getConfigString(sectionList[i], L"Count", L"", sThemeFile).length() > 0) {
+         ThemeType newTheme{ getNewTheme() };
 
-         vThemeTypes.push_back(newFile);
-         addThemeInfo(static_cast<int>(vThemeTypes.size() - 1), sectionList[i], sThemeFile);
-         SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
+         vThemeTypes.push_back(newTheme);
+         loadThemeInfo(static_cast<int>(vThemeTypes.size() - 1), sectionList[i], sThemeFile);
+         SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)sectionList[i].c_str());
          validCount++;
       }
    }
@@ -987,7 +983,7 @@ void ThemeDialog::cloneThemeInfo() {
 
 void ThemeDialog::showEximDialog(bool bExtract) {
    _eximDlg.doDialog((HINSTANCE)_gModule);
-   _eximDlg.initDialog(bExtract);
+   _eximDlg.initDialog(bExtract, FALSE);
 
    if (bExtract) {
       int idxTT{ getCurrentThemeIndex() };

@@ -11,8 +11,10 @@ void EximFileTypeDialog::doDialog(HINSTANCE hInst) {
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
-void EximFileTypeDialog::initDialog(bool bExtract) {
+void EximFileTypeDialog::initDialog(bool bExtract, bool bViz) {
+   vizMode = bViz;
    localize(bExtract);
+
 
    ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_SAVE_FILE), bExtract ? SW_SHOW : SW_HIDE);
    ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_LOAD_FILE), bExtract ? SW_HIDE : SW_SHOW);
@@ -31,8 +33,10 @@ void EximFileTypeDialog::setFileTypeData(const wstring& ftConfig) {
 }
 
 void EximFileTypeDialog::localize(bool bExtract) {
-   SetWindowText(_hSelf, bExtract ? FT_EXIM_EXTRACT_DLG_TITLE : FT_EXIM_APPEND_DLG_TITLE);
-   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_LABEL, FT_EXIM_EDIT_LABEL);
+   SetWindowText(_hSelf, vizMode ?
+      bExtract ? FT_EXIM_EXTRACT_FT_TITLE : FT_EXIM_APPEND_FT_TITLE :
+      bExtract ? FT_EXIM_EXTRACT_THEME_TITLE : FT_EXIM_APPEND_THEME_TITLE);
+   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_LABEL, vizMode ? FT_EXIM_EDIT_FT_LABEL : FT_EXIM_EDIT_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, NULL);
    SetDlgItemText(_hSelf, IDCLOSE, FT_EXIM_CLOSE_BTN);
 
@@ -80,10 +84,17 @@ void EximFileTypeDialog::appendExtractFile() {
    wstring tmpFile{};
 
    _configIO.getBackupTempFileName(tmpFile);
-   _configIO.saveConfigFile(getEditControlText(), TRUE, tmpFile);
-
+   _configIO.saveConfigFile(getEditControlText(), vizMode, tmpFile);
    display(FALSE);
-   _configDlg.appendFileTypeConfigs(tmpFile);
+
+   if (vizMode) {
+      _configDlg.appendFileTypeConfigs(tmpFile);
+      SetFocus(_configDlg.getHSelf());
+   }
+   else {
+      _themeDlg.appendThemeConfigs(tmpFile);
+      SetFocus(_themeDlg.getHSelf());
+   }
 
    DeleteFile(tmpFile.c_str());
 }
@@ -91,7 +102,7 @@ void EximFileTypeDialog::appendExtractFile() {
 void EximFileTypeDialog::loadExtractFile() {
    wstring sExtractFile{};
 
-   if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, TRUE, sExtractFile)) {
+   if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, vizMode, sExtractFile)) {
       TCHAR sExtractData[FW_LINE_MAX_LENGTH];
 
       _configIO.openConfigFile(sExtractData, FW_LINE_MAX_LENGTH, sExtractFile);
@@ -102,8 +113,8 @@ void EximFileTypeDialog::loadExtractFile() {
 void EximFileTypeDialog::saveExtractFile() {
    wstring sExtractFile{};
 
-   if (_configIO.queryConfigFileName(_hSelf, FALSE, FALSE, TRUE, sExtractFile)) {
-      _configIO.saveConfigFile(getEditControlText(), TRUE, sExtractFile);
+   if (_configIO.queryConfigFileName(_hSelf, FALSE, FALSE, vizMode, sExtractFile)) {
+      _configIO.saveConfigFile(getEditControlText(), vizMode, sExtractFile);
    }
 }
 

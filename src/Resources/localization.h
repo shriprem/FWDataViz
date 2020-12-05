@@ -112,9 +112,12 @@
 #define THEME_SAVE_BKUP_CONFIG_DLG  L"Save Backup Themes File"
 
 // Exim File Type Dialog
-#define FT_EXIM_EXTRACT_DLG_TITLE   L"Extract File Type Data"
-#define FT_EXIM_APPEND_DLG_TITLE    L"Append File Type Data"
-#define FT_EXIM_EDIT_LABEL          L"File Type Metadata:"
+#define FT_EXIM_EXTRACT_FT_TITLE    L"Extract File Type Data"
+#define FT_EXIM_APPEND_FT_TITLE     L"Append File Type Data"
+#define FT_EXIM_EDIT_FT_LABEL       L"File Type Metadata:"
+#define FT_EXIM_EXTRACT_THEME_TITLE L"Extract Theme Data"
+#define FT_EXIM_APPEND_THEME_TITLE  L"Append Theme Data"
+#define FT_EXIM_EDIT_THEME_LABEL    L"Theme Metadata:"
 #define FT_EXIM_LOAD_FILE_BTN       L"&Load from a File"
 #define FT_EXIM_SAVE_FILE_BTN       L"&Save to a File"
 #define FT_EXIM_APPEND_BTN          L"&Append File Type"

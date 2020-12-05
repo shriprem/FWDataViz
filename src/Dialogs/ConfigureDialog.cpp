@@ -414,7 +414,26 @@ void ConfigureDialog::indicateCleanStatus() {
    }
 }
 
-int ConfigureDialog::addFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
+int ConfigureDialog::loadConfigInfo() {
+   vector<wstring> fileTypeList;
+   wstring sFileTypes;
+   int fileTypeCount;
+
+   sFileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile);
+   fileTypeCount = _configIO.Tokenize(sFileTypes, fileTypeList);
+
+   vFileTypes.clear();
+   vFileTypes.resize(fileTypeCount);
+
+   for (int i{}; i < fileTypeCount; i++) {
+      wstring &fileType = fileTypeList[i];
+      loadFileTypeInfo(i, fileType, configFile);
+   }
+
+   return static_cast<int>(vFileTypes.size());
+}
+
+int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
    FileType& FT = vFileTypes[vIndex];
 
    FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", sConfigFile);
@@ -442,25 +461,6 @@ int ConfigureDialog::addFileTypeInfo(int vIndex, const wstring& fileType, const 
    }
 
    return recTypeCount;
-}
-
-int ConfigureDialog::loadConfigInfo() {
-   vector<wstring> fileTypeList;
-   wstring sFileTypes;
-   int fileTypeCount;
-
-   sFileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile);
-   fileTypeCount = _configIO.Tokenize(sFileTypes, fileTypeList);
-
-   vFileTypes.clear();
-   vFileTypes.resize(fileTypeCount);
-
-   for (int i{}; i < fileTypeCount; i++) {
-      wstring &fileType = fileTypeList[i];
-      addFileTypeInfo(i, fileType, configFile);
-   }
-
-   return static_cast<int>(vFileTypes.size());
 }
 
 void ConfigureDialog::fillFileTypes() {
@@ -1003,23 +1003,20 @@ void ConfigureDialog::fileEditAccept() {
 }
 
 int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
-   wstring sections{};
-   int sectionCount{};
+   int sectionCount{}, validCount{};
+   wstring sections{}, sectionLabel{};
+   vector<wstring> sectionList{};
 
    sectionCount = _configIO.getConfigSectionList(sections, sConfigFile);
-
-   vector<wstring> sectionList{};
    sectionCount = _configIO.Tokenize(sections, sectionList);
 
-   wstring sectionLabel{};
-   int validCount{};
    for (int i{}; i < sectionCount; i++) {
       sectionLabel = _configIO.getConfigString(sectionList[i], L"FileLabel", L"", sConfigFile);
       if (sectionLabel.length() > 0) {
          FileType newFile{ getNewFileType() };
 
          vFileTypes.push_back(newFile);
-         addFileTypeInfo(static_cast<int>(vFileTypes.size() - 1), sectionList[i], sConfigFile);
+         loadFileTypeInfo(static_cast<int>(vFileTypes.size() - 1), sectionList[i], sConfigFile);
          SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
          validCount++;
       }
@@ -1138,7 +1135,7 @@ void ConfigureDialog::cloneFileTypeInfo() {
 
 void ConfigureDialog::showEximDialog(bool bExtract) {
    _eximDlg.doDialog((HINSTANCE)_gModule);
-   _eximDlg.initDialog(bExtract);
+   _eximDlg.initDialog(bExtract, TRUE);
 
    if (bExtract) {
       int idxFT{ getCurrentFileTypeIndex() };

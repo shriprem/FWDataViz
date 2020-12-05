@@ -20,7 +20,7 @@ public:
    ~ThemeDialog();
 
    void doDialog(HINSTANCE hInst);
-   int appendFileTypeConfigs(const wstring& sThemeFile);
+   int appendThemeConfigs(const wstring& sThemeFile);
 
    HWND hThemesLB, hStylesLB;
 
@@ -46,8 +46,8 @@ protected:
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    void indicateCleanStatus();
-   int addThemeInfo(int vIndex, const wstring& themeType, const wstring& sThemeFile);
    int loadConfigInfo();
+   int loadThemeInfo(int vIndex, const wstring& themeType, const wstring& sThemeFile);
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void cloneThemeInfo();
