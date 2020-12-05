@@ -328,7 +328,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_FWVIZ_DEF_CLONE_BTN:
-               cloneConfigInfo();
+               cloneFileTypeInfo();
                break;
 
             case IDC_FWVIZ_DEF_EXTRACT_BTN:
@@ -525,7 +525,7 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
    return newFile;
 }
 
-void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring &ftCode, wstring &ftConfig) {
+void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig) {
    size_t recTypeCount;
    wchar_t fileTypeCode[60], recTypeCode[10];
    wstring new_line, rawCode, recTypes{}, rtConfig{}, recTypePrefix;
@@ -1105,14 +1105,14 @@ void ConfigureDialog::saveConfigInfo() {
    RefreshVisualizerPanel();
 }
 
-void ConfigureDialog::cloneConfigInfo() {
+void ConfigureDialog::cloneFileTypeInfo() {
    int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return;
 
    FileType& FT = vFileTypes[idxFT];
    FileType NF{};
 
-   NF.label = FT.label;
+   NF.label = FT.label + L"_clone";
    NF.eol = FT.eol;
    NF.theme = FT.theme;
 

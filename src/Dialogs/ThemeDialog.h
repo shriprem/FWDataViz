@@ -50,13 +50,13 @@ protected:
    int loadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();
-   void cloneConfigInfo();
+   void cloneThemeInfo();
    void showEximDialog(bool bExtract);
 
    int getCurrentThemeIndex();
    bool getCurrentThemeInfo(ThemeType* &fileInfo);
    ThemeType getNewTheme();
-   void getThemeConfig(size_t idxTh, bool cr_lf, wstring &ftCode, wstring &ftConfig);
+   void getThemeConfig(size_t idxTh, bool cr_lf, wstring& themeLabel, wstring& ttConfig);
 
    int getCurrentStyleIndex();
    bool getCurrentStyleInfo(StyleInfo* &styleInfo);
@@ -83,6 +83,7 @@ protected:
    void setStyleDefColor(bool setEdit, int color, bool back);
    void setOutputFontStyle();
    void fillStyleDefs();
+   wstring getStyleConfig(int idx, StyleInfo& style);
    void styleDefsAccept();
    void setPangram();
 

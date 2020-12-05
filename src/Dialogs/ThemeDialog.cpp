@@ -200,9 +200,9 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                return TRUE;
 
             case IDC_THEME_DEF_SAVE_CONFIG_BTN:
-               //SetCursor(LoadCursor(NULL, IDC_WAIT));
-               //saveConfigInfo();
-               //SetCursor(LoadCursor(NULL, IDC_ARROW));
+               SetCursor(LoadCursor(NULL, IDC_WAIT));
+               saveConfigInfo();
+               SetCursor(LoadCursor(NULL, IDC_ARROW));
                return TRUE;
 
             case IDC_THEME_DEF_RESET_BTN:
@@ -232,15 +232,15 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                break;
 
             case IDC_THEME_DEF_CLONE_BTN:
-               //cloneConfigInfo();
+               cloneThemeInfo();
                break;
 
             case IDC_THEME_DEF_EXTRACT_BTN:
-               //showEximDialog(TRUE);
+               showEximDialog(TRUE);
                break;
 
             case IDC_THEME_DEF_APPEND_BTN:
-               //showEximDialog(FALSE);
+               showEximDialog(FALSE);
                break;
          }
          break;
@@ -402,34 +402,26 @@ ThemeDialog::ThemeType ThemeDialog::getNewTheme() {
    return newTheme;
 }
 
-void ThemeDialog::getThemeConfig(size_t idxTh, bool cr_lf, wstring &ftCode, wstring &ftConfig) {
-   size_t recTypeCount;
-   wchar_t fileTypeCode[60], recTypeCode[10];
-   wstring new_line, rawCode, recTypes{}, rtConfig{}, recTypePrefix;
+wstring ThemeDialog::getStyleConfig(int idx, StyleInfo& style) {
+   wchar_t styleDef[25];
 
-   ThemeType& FT = vThemeTypes[idxTh];
-   new_line = cr_lf ? L"\r\n" : L"\n";
+   swprintf(styleDef, 25, L"BFBI_%02i=%06X %06X ", idx, style.backColor, style.foreColor);
+   return wstring{ styleDef } + (style.bold ? L"1" : L"0") + (style.italics ? L"1" : L"0");
+}
 
-   rawCode = regex_replace(FT.label, wregex(L"( |,|=|\\[|\\])"), L"_").substr(0, 50);
-   swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxTh + 1), rawCode.c_str());
-   _configIO.ToUpper(fileTypeCode);
+void ThemeDialog::getThemeConfig(size_t idxTh, bool cr_lf, wstring& themeLabel, wstring& ttConfig) {
+   wstring new_line = cr_lf ? L"\r\n" : L"\n";
+   ThemeType& TT = vThemeTypes[idxTh];
+   size_t styleCount = (TT.vStyleInfo.size() > 99) ? 99 : TT.vStyleInfo.size();
 
-   recTypeCount = (FT.vStyleInfo.size() > 999) ? 999 : FT.vStyleInfo.size();
+   themeLabel = TT.label;
+   ttConfig = L"[" + themeLabel + L"]" + new_line +
+      L"Count=" + to_wstring(styleCount) + new_line +
+      L"EOL=" + getStyleConfig(0, TT.eolStyle).substr(8) + new_line;
 
-   for (size_t j{}; j < recTypeCount; j++) {
-      //StyleInfo& RT = FT.vStyleInfo[j];
-
-      swprintf(recTypeCode, 10, L"REC%03d", static_cast<int>(j + 1));
-      recTypePrefix = wstring{ recTypeCode };
-      recTypes += (j == 0 ? L"RecordTypes=" : L",") + recTypePrefix;
-
-      //rtConfig += recTypePrefix + L"_FieldLabels=" + RT.backColor;
+   for (size_t j{}; j < styleCount; j++) {
+      ttConfig += getStyleConfig(static_cast<int>(j), TT.vStyleInfo[j]) + new_line;
    }
-
-   ftCode = wstring{ fileTypeCode };
-   ftConfig = L"[" + ftCode + L"]" + new_line +
-      L"FileLabel=" + FT.label + new_line +
-      recTypes + new_line + rtConfig;
 }
 
 bool ThemeDialog::getCurrentStyleInfo(StyleInfo*& recInfo) {
@@ -944,20 +936,20 @@ void ThemeDialog::saveConfigInfo() {
    if (!cleanStyleDefs) styleDefsAccept();
    if (!cleanThemeVals) themeEditAccept();
 
-   size_t fileTypeCount;
-   wstring fileData{}, fileTypes{}, ftCode{}, ftConfig{};
+   size_t themeCount;
+   wstring fileData{}, themes{}, ttCode{}, ttConfig{};
 
-   fileTypeCount = (vThemeTypes.size() > 999) ? 999 : vThemeTypes.size();
+   themeCount = (vThemeTypes.size() > 999) ? 999 : vThemeTypes.size();
 
-   for (size_t i{}; i < fileTypeCount; i++) {
-      getThemeConfig(i, TRUE, ftCode, ftConfig);
-      fileTypes += (i == 0 ? L"" : L",") + ftCode;
-      fileData += ftConfig + L"\r\n";
+   for (size_t i{}; i < themeCount; i++) {
+      getThemeConfig(i, TRUE, ttCode, ttConfig);
+      themes += (i == 0 ? L"" : L",") + ttCode;
+      fileData += ttConfig + L"\r\n";
    }
 
-   fileData = L"[Base]\r\nFileTypes=" + fileTypes + L"\r\n\r\n" + fileData;
+   fileData = L"[Base]\r\nThemes=" + themes + L"\r\n\r\n" + fileData;
 
-   _configIO.backupConfigFile(TRUE);
+   _configIO.backupConfigFile(FALSE);
    _configIO.saveConfigFile(fileData, FALSE);
 
    cleanConfigFile = TRUE;
@@ -965,28 +957,28 @@ void ThemeDialog::saveConfigInfo() {
    RefreshVisualizerPanel();
 }
 
-void ThemeDialog::cloneConfigInfo() {
-   int idxFT{ getCurrentThemeIndex() };
-   if (idxFT == LB_ERR) return;
+void ThemeDialog::cloneThemeInfo() {
+   int idxTT{ getCurrentThemeIndex() };
+   if (idxTT == LB_ERR) return;
 
-   ThemeType& FT = vThemeTypes[idxFT];
-   ThemeType NF{};
+   ThemeType& TT = vThemeTypes[idxTT];
+   ThemeType NT{};
 
-   NF.label = FT.label;
+   NT.label = TT.label + L"_clone";
 
-   size_t recCount = FT.vStyleInfo.size();
-   NF.vStyleInfo.resize(recCount);
+   size_t recCount = TT.vStyleInfo.size();
+   NT.vStyleInfo.resize(recCount);
 
    for (size_t i{}; i < recCount; i++) {
-      NF.vStyleInfo[i].backColor = FT.vStyleInfo[i].backColor;
-      NF.vStyleInfo[i].foreColor = FT.vStyleInfo[i].foreColor;
-      NF.vStyleInfo[i].bold = FT.vStyleInfo[i].bold;
-      NF.vStyleInfo[i].italics = FT.vStyleInfo[i].italics;
+      NT.vStyleInfo[i].backColor = TT.vStyleInfo[i].backColor;
+      NT.vStyleInfo[i].foreColor = TT.vStyleInfo[i].foreColor;
+      NT.vStyleInfo[i].bold = TT.vStyleInfo[i].bold;
+      NT.vStyleInfo[i].italics = TT.vStyleInfo[i].italics;
    }
 
-   vThemeTypes.push_back(NF);
+   vThemeTypes.push_back(NT);
 
-   SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)NF.label.c_str());
+   SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)NT.label.c_str());
    SendMessage(hThemesLB, LB_SETCURSEL, (WPARAM)(vThemeTypes.size() - 1), NULL);
 
    onThemeSelect();
@@ -999,11 +991,11 @@ void ThemeDialog::showEximDialog(bool bExtract) {
    _eximDlg.initDialog(bExtract);
 
    if (bExtract) {
-      int idxFT{ getCurrentThemeIndex() };
-      if (idxFT == LB_ERR) return;
+      int idxTT{ getCurrentThemeIndex() };
+      if (idxTT == LB_ERR) return;
 
-      wstring ftCode{}, ftConfig{};
-      getThemeConfig(idxFT, TRUE, ftCode, ftConfig);
-      _eximDlg.setFileTypeData(ftConfig);
+      wstring ttCode{}, ttConfig{};
+      getThemeConfig(idxTT, TRUE, ttCode, ttConfig);
+      _eximDlg.setFileTypeData(ttConfig);
    }
 }

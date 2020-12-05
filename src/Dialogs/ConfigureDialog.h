@@ -57,14 +57,14 @@ protected:
    int loadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();
-   void cloneConfigInfo();
+   void cloneFileTypeInfo();
    void showEximDialog(bool bExtract);
    string getOnlyStartsWith(string txt);
 
    int getCurrentFileTypeIndex();
    bool getCurrentFileTypeInfo(FileType* &fileInfo);
    FileType getNewFileType();
-   void getFileTypeConfig(size_t idxFT, bool cr_lf, wstring &ftCode, wstring &ftConfig);
+   void getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig);
 
    int getCurrentRecIndex();
    bool getCurrentRecInfo(RecordType* &recInfo);
