@@ -414,7 +414,7 @@ void ConfigureDialog::indicateCleanStatus() {
    }
 }
 
-int ConfigureDialog::addConfigInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
+int ConfigureDialog::addFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
    FileType& FT = vFileTypes[vIndex];
 
    FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", sConfigFile);
@@ -457,7 +457,7 @@ int ConfigureDialog::loadConfigInfo() {
 
    for (int i{}; i < fileTypeCount; i++) {
       wstring &fileType = fileTypeList[i];
-      addConfigInfo(i, fileType, configFile);
+      addFileTypeInfo(i, fileType, configFile);
    }
 
    return static_cast<int>(vFileTypes.size());
@@ -1019,7 +1019,7 @@ int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
          FileType newFile{ getNewFileType() };
 
          vFileTypes.push_back(newFile);
-         addConfigInfo(static_cast<int>(vFileTypes.size() - 1), sectionList[i], sConfigFile);
+         addFileTypeInfo(static_cast<int>(vFileTypes.size() - 1), sectionList[i], sConfigFile);
          SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
          validCount++;
       }

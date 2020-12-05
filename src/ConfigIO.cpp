@@ -209,9 +209,16 @@ int ConfigIO::Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim)
    Tokenize(text, interims, delim);
 
    for (auto istr : interims)
-      results.emplace_back(stoi(istr));
+      results.emplace_back(StringtoInt(istr));
 
    return static_cast<int>(results.size());
+}
+
+int ConfigIO::StringtoInt(const wstring& str, int base) {
+   if (str.length() < 1)
+      return 0;
+   else
+      return stoi(str, nullptr, base);
 }
 
 LPCWSTR ConfigIO::ToUpper(LPWSTR str) {
@@ -236,12 +243,15 @@ vector<wstring> ConfigIO::getAvailableThemesList() {
    return themesVector;
 }
 
-wstring ConfigIO::getStyleValue(const wstring& theme, const wstring& styleName) {
-   return getConfigString(theme, styleName, L"", CONFIG_FILE_PATHS[CONFIG_THEMES]);
+wstring ConfigIO::getStyleValue(const wstring& theme, const wstring& styleName, wstring fileName) {
+   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_THEMES];
+   return getConfigString(theme, styleName, L"", fileName);
 }
 
-void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName, StyleInfo& style) {
-   wstring val = getStyleValue(theme, styleName);
+void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName, StyleInfo& style, wstring fileName) {
+   if (fileName.length() < 1) fileName = CONFIG_FILE_PATHS[CONFIG_THEMES];
+
+   wstring val = getStyleValue(theme, styleName, fileName);
 
    if (val.length() < 1) {
       style.backColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
@@ -251,10 +261,10 @@ void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName, Styl
       return;
    }
 
-   style.backColor = stoi(val.substr(0, 6), nullptr, 16);
-   style.foreColor = stoi(val.substr(7, 6), nullptr, 16);
-   style.bold = stoi(val.substr(14, 1));
-   style.italics = stoi(val.substr(15, 1));
+   style.backColor = StringtoInt(val.substr(0, 6), 16);
+   style.foreColor = StringtoInt(val.substr(7, 6), 16);
+   style.bold = StringtoInt(val.substr(14, 1));
+   style.italics = StringtoInt(val.substr(15, 1));
 }
 
 void ConfigIO::backupConfigFile(bool bViz) {
@@ -293,8 +303,7 @@ void ConfigIO::backupConfigFile(bool bViz) {
       MoveFile(srcFile.c_str(), backupFilePath);
 }
 
-BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, bool bViz,
-   wstring &backupConfigFile) {
+BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring &backupConfigFile) {
    OPENFILENAME ofn;
 
    TCHAR filePath[MAX_PATH];
@@ -312,7 +321,7 @@ BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, bo
    ofn.lpstrTitle = bOpen ? FWVIZ_OPEN_BKUP_CONFIG_DLG : FWVIZ_SAVE_BKUP_CONFIG_DLG;
    ofn.Flags = bOpen ? (OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST) : OFN_OVERWRITEPROMPT;
 
-   if (bBackupFolder)
+   if (backupFolder)
       ofn.lpstrInitialDir = pluginConfigBackupDir;
    else {
       TCHAR desktopPath[MAX_PATH];

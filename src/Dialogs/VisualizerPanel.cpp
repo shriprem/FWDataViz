@@ -291,9 +291,7 @@ int VisualizerPanel::loadStyles() {
    int styleCount{};
    wchar_t bufKey[8];
 
-   if (_configIO.getStyleValue(theme, L"Count").length() > 0)
-      styleCount = std::stoi (_configIO.getStyleValue(theme, L"Count"));
-
+   styleCount = _configIO.StringtoInt(_configIO.getStyleValue(theme, L"Count"));
    styleCount = (styleCount > 99) ? 99 : styleCount;
 
    styleSet.clear();

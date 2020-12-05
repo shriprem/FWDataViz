@@ -20,7 +20,7 @@ public:
    ~ThemeDialog();
 
    void doDialog(HINSTANCE hInst);
-   int appendFileTypeConfigs(const wstring& sConfigFile);
+   int appendFileTypeConfigs(const wstring& sThemeFile);
 
    HWND hThemesLB, hStylesLB;
 
@@ -36,7 +36,7 @@ protected:
       vector<StyleInfo> vStyleInfo;
    };
 
-   wstring configFile{ L"" };
+   wstring themeFile{ L"" };
    vector<ThemeType> vThemeTypes;
    bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleVals, cleanStyleDefs, styleDefColor;
 
@@ -46,7 +46,7 @@ protected:
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    void indicateCleanStatus();
-   int addConfigInfo(int vIndex, const wstring& themeType);
+   int addThemeInfo(int vIndex, const wstring& themeType, const wstring& sThemeFile);
    int loadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();

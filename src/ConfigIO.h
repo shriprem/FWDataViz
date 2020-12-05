@@ -19,7 +19,6 @@ struct StyleInfo {
    int italics;
 };
 
-using std::stoi;
 using std::vector;
 
 class ConfigIO {
@@ -47,16 +46,17 @@ public:
    int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
    int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim=L",");
 
+   int StringtoInt(const wstring& str, int base=10);
    LPCWSTR ToUpper(LPWSTR str);
    wstring NarrowToWide(const string &str);
    string WideToNarrow(const wstring &wStr);
 
    vector<wstring> getAvailableThemesList();
-   wstring getStyleValue(const wstring& theme, const wstring& styleName);
-   void getFullStyle(const wstring& theme, const wstring& styleName, StyleInfo& style);
+   wstring getStyleValue(const wstring& theme, const wstring& styleName, wstring fileName = L"");
+   void getFullStyle(const wstring& theme, const wstring& styleName, StyleInfo& style, wstring fileName = L"");
 
    void backupConfigFile(bool bViz);
-   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool bBackupFolder, bool bViz, wstring &backupConfigFile);
+   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring &backupConfigFile);
    void viewBackupFolder();
    int getBackupTempFileName(wstring &tempFileName);
 

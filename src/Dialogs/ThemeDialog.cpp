@@ -206,25 +206,25 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                return TRUE;
 
             case IDC_THEME_DEF_RESET_BTN:
-               //if (!promptDiscardChangesNo()) {
-               //   configFile = L"";
-               //   loadConfigInfo();
-               //   fillThemes();
-               //}
+               if (!promptDiscardChangesNo()) {
+                  themeFile = L"";
+                  loadConfigInfo();
+                  fillThemes();
+               }
                break;
 
             case IDC_THEME_DEF_BACKUP_LOAD_BTN:
-               //if (!promptDiscardChangesNo()) {
-               //   wstring sBackupConfigFile;
+               if (!promptDiscardChangesNo()) {
+                  wstring backupThemeFile;
 
-               //   if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, TRUE, sBackupConfigFile)) {
-               //      configFile = sBackupConfigFile;
-               //      loadConfigInfo();
-               //      fillThemes();
-               //      cleanConfigFile = FALSE;
-               //      enableThemeSelection();
-               //   }
-               //}
+                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, FALSE, backupThemeFile)) {
+                     themeFile = backupThemeFile;
+                     loadConfigInfo();
+                     fillThemes();
+                     cleanConfigFile = FALSE;
+                     enableThemeSelection();
+                  }
+               }
                break;
 
             case IDC_THEME_DEF_BACKUP_VIEW_BTN:
@@ -311,23 +311,23 @@ void ThemeDialog::indicateCleanStatus() {
    }
 }
 
-int ThemeDialog::addConfigInfo(int vIndex, const wstring& themeType) {
+int ThemeDialog::addThemeInfo(int vIndex, const wstring& themeType, const wstring& sThemeFile) {
    ThemeType& TT = vThemeTypes[vIndex];
 
    TT.label = themeType;
-   _configIO.getFullStyle(themeType, L"EOL", TT.eolStyle);
+   _configIO.getFullStyle(themeType, L"EOL", TT.eolStyle, sThemeFile);
 
-   wchar_t styleIndex[8];
+   wchar_t buf[10];
    int styleCount;
 
-   styleCount = stoi(_configIO.getStyleValue(themeType, L"Count"));
+   styleCount = _configIO.StringtoInt(_configIO.getStyleValue(themeType, L"Count", sThemeFile));
 
    TT.vStyleInfo.clear();
    TT.vStyleInfo.resize(styleCount);
 
    for (int i{}; i < styleCount; i++) {
-      swprintf(styleIndex, 8, L"BFBI_%02i", i);
-      _configIO.getFullStyle(themeType, styleIndex, TT.vStyleInfo[i]);
+      swprintf(buf, 8, L"BFBI_%02i", i);
+      _configIO.getFullStyle(themeType, buf, TT.vStyleInfo[i], sThemeFile);
    }
 
    return styleCount;
@@ -338,7 +338,7 @@ int ThemeDialog::loadConfigInfo() {
    wstring sThemes;
    int themesCount;
 
-   sThemes = _configIO.getStyleValue(L"Base", L"Themes");
+   sThemes = _configIO.getStyleValue(L"Base", L"Themes", themeFile);
    themesCount = _configIO.Tokenize(sThemes, themesList);
 
    vThemeTypes.clear();
@@ -346,7 +346,7 @@ int ThemeDialog::loadConfigInfo() {
 
    for (int i{}; i < themesCount; i++) {
       wstring &themeType = themesList[i];
-      addConfigInfo(i, themeType);
+      addThemeInfo(i, themeType, themeFile);
    }
 
    return static_cast<int>(vThemeTypes.size());
@@ -651,7 +651,7 @@ int ThemeDialog::getStyleDefColor(bool back) {
 
    GetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf, HEX_COL_LEN + 1);
 
-   return (wstring(buf).length() > 0) ? stoi(buf, nullptr, 16) : 0;
+   return _configIO.StringtoInt(buf, 16);
 }
 
 void ThemeDialog::setStyleDefColor(bool setEdit, int color, bool back) {
@@ -863,11 +863,11 @@ void ThemeDialog::themeEditAccept() {
    enableThemeSelection();
 }
 
-int ThemeDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
+int ThemeDialog::appendFileTypeConfigs(const wstring& sThemeFile) {
    wstring sections{};
    int sectionCount{};
 
-   sectionCount = _configIO.getConfigSectionList(sections, sConfigFile);
+   sectionCount = _configIO.getConfigSectionList(sections, sThemeFile);
 
    vector<wstring> sectionList{};
    sectionCount = _configIO.Tokenize(sections, sectionList);
@@ -875,12 +875,12 @@ int ThemeDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
    wstring sectionLabel{};
    int validCount{};
    for (int i{}; i < sectionCount; i++) {
-      sectionLabel = _configIO.getConfigString(sectionList[i], L"FileLabel", L"", sConfigFile);
+      sectionLabel = _configIO.getConfigString(sectionList[i], L"FileLabel", L"", sThemeFile);
       if (sectionLabel.length() > 0) {
          ThemeType newFile{ getNewTheme() };
 
          vThemeTypes.push_back(newFile);
-         addConfigInfo(static_cast<int>(vThemeTypes.size() - 1), sectionList[i]);
+         addThemeInfo(static_cast<int>(vThemeTypes.size() - 1), sectionList[i], sThemeFile);
          SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
          validCount++;
       }
@@ -958,7 +958,7 @@ void ThemeDialog::saveConfigInfo() {
    fileData = L"[Base]\r\nFileTypes=" + fileTypes + L"\r\n\r\n" + fileData;
 
    _configIO.backupConfigFile(TRUE);
-   _configIO.saveConfigFile(fileData, TRUE);
+   _configIO.saveConfigFile(fileData, FALSE);
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();

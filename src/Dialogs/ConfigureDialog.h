@@ -53,7 +53,7 @@ protected:
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    void indicateCleanStatus();
-   int addConfigInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile);
+   int addFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile);
    int loadConfigInfo();
    bool promptDiscardChangesNo();
    void saveConfigInfo();
