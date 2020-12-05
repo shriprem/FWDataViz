@@ -657,7 +657,7 @@ void ThemeDialog::setStyleDefColor(bool setEdit, int color, bool back) {
    styleDefColor = TRUE;
    (back ? styleBack : styleFore) = Utils::intToRGB(color);
    Utils::setFontRegular(_hSelf, back ? IDC_THEME_STYLE_DEF_BACKCOLOR : IDC_THEME_STYLE_DEF_FORECOLOR);
-   Utils::setFontRegular(_hSelf, IDC_THEME_STYLE_DEF_OUTPUT);
+   setOutputFontStyle();
 }
 
 void ThemeDialog::fillStyleDefs() {
@@ -668,12 +668,11 @@ void ThemeDialog::fillStyleDefs() {
       style = &newStyle;
    }
 
-   setStyleDefColor(TRUE, style->backColor, TRUE);
-   setStyleDefColor(TRUE, style->foreColor, FALSE);
-
    CheckDlgButton(_hSelf, IDC_THEME_STYLE_DEF_BOLD, style->bold ? BST_CHECKED : BST_UNCHECKED);
    CheckDlgButton(_hSelf, IDC_THEME_STYLE_DEF_ITALICS, style->italics ? BST_CHECKED : BST_UNCHECKED);
-   setOutputFontStyle();
+
+   setStyleDefColor(TRUE, style->backColor, TRUE);
+   setStyleDefColor(TRUE, style->foreColor, FALSE);
 
    cleanStyleDefs = TRUE;
    enableStyleSelection();
