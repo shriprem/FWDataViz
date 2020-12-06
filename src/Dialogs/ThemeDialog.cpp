@@ -698,6 +698,7 @@ void ThemeDialog::styleDefsAccept() {
    cleanConfigFile = FALSE;
    cleanStyleDefs = TRUE;
    enableStyleSelection();
+   initPreviewSwatch();
 }
 
 INT_PTR ThemeDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {

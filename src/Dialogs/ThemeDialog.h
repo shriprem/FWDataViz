@@ -25,7 +25,7 @@ public:
    HWND hThemesLB, hStylesLB;
 
 protected:
-   const int styleItemLimit{ 18 };
+   const int styleItemLimit{ 28 };
 
    enum move_dir {
       MOVE_DOWN = 1,
