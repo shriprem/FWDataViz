@@ -242,6 +242,9 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
             case IDC_THEME_DEF_APPEND_BTN:
                showEximDialog(FALSE);
                break;
+
+            default:
+               processSwatchClick(LOWORD(wParam));
          }
          break;
 
@@ -372,28 +375,28 @@ void ThemeDialog::fillThemes() {
 }
 
 int ThemeDialog::getCurrentThemeIndex() {
-   int idxFT;
+   int idxTT;
 
-   idxFT = static_cast<int>(SendMessage(hThemesLB, LB_GETCURSEL, NULL, NULL));
-   if (idxFT == LB_ERR) return LB_ERR;
+   idxTT = static_cast<int>(SendMessage(hThemesLB, LB_GETCURSEL, NULL, NULL));
+   if (idxTT == LB_ERR) return LB_ERR;
 
-   return idxFT;
+   return idxTT;
 }
 
 int ThemeDialog::getCurrentStyleIndex() {
-   int idxRec;
+   int idxStyle;
 
-   idxRec = static_cast<int>(SendMessage(hStylesLB, LB_GETCURSEL, NULL, NULL));
-   if (idxRec == LB_ERR) return LB_ERR;
+   idxStyle = static_cast<int>(SendMessage(hStylesLB, LB_GETCURSEL, NULL, NULL));
+   if (idxStyle == LB_ERR) return LB_ERR;
 
-   return idxRec;
+   return idxStyle;
 }
 
 bool ThemeDialog::getCurrentThemeInfo(ThemeType* &themeInfo) {
-   int idxFT{ getCurrentThemeIndex() };
-   if (idxFT == LB_ERR) return FALSE;
+   int idxTT{ getCurrentThemeIndex() };
+   if (idxTT == LB_ERR) return FALSE;
 
-   themeInfo = &vThemeTypes[idxFT];
+   themeInfo = &vThemeTypes[idxTT];
    return TRUE;
 }
 
@@ -429,14 +432,14 @@ void ThemeDialog::getThemeConfig(size_t idxTh, bool cr_lf, wstring& themeLabel, 
 }
 
 bool ThemeDialog::getCurrentStyleInfo(StyleInfo*& recInfo) {
-   int idxFT{ getCurrentThemeIndex() };
-   if (idxFT == LB_ERR) return FALSE;
+   int idxTT{ getCurrentThemeIndex() };
+   if (idxTT == LB_ERR) return FALSE;
 
    int idxStyle{ getCurrentStyleIndex() };
    if (idxStyle == LB_ERR) return FALSE;
 
-   recInfo = (idxStyle < static_cast<int>(vThemeTypes[idxFT].vStyleInfo.size())) ?
-      &vThemeTypes[idxFT].vStyleInfo[idxStyle] : &vThemeTypes[idxFT].eolStyle;
+   recInfo = (idxStyle < static_cast<int>(vThemeTypes[idxTT].vStyleInfo.size())) ?
+      &vThemeTypes[idxTT].vStyleInfo[idxStyle] : &vThemeTypes[idxTT].eolStyle;
 
    return TRUE;
 }
@@ -690,15 +693,17 @@ void ThemeDialog::styleDefsAccept() {
    StyleInfo* style;
    if (!getCurrentStyleInfo(style)) return;
 
+   int idxStyle = getCurrentStyleIndex();
+
    style->backColor = getStyleDefColor(TRUE);
    style->foreColor = getStyleDefColor(FALSE);
    style->bold = (IsDlgButtonChecked(_hSelf, IDC_THEME_STYLE_DEF_BOLD) == BST_CHECKED);
    style->italics = (IsDlgButtonChecked(_hSelf, IDC_THEME_STYLE_DEF_ITALICS) == BST_CHECKED);
+   initPreviewSwatch(idxStyle, idxStyle);
 
    cleanConfigFile = FALSE;
    cleanStyleDefs = TRUE;
    enableStyleSelection();
-   initPreviewSwatch();
 }
 
 INT_PTR ThemeDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
@@ -709,24 +714,24 @@ INT_PTR ThemeDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
 
    switch (ctrlID)
    {
-   case IDC_THEME_STYLE_DEF_BACKCOLOR:
-      SetBkColor(hdc, styleBack);
-      hbr = CreateSolidBrush(styleBack);
-      return (INT_PTR)hbr;
+      case IDC_THEME_STYLE_DEF_BACKCOLOR:
+         SetBkColor(hdc, styleBack);
+         hbr = CreateSolidBrush(styleBack);
+         return (INT_PTR)hbr;
 
-   case IDC_THEME_STYLE_DEF_FORECOLOR:
-      SetBkColor(hdc, styleFore);
-      hbr = CreateSolidBrush(styleFore);
-      return (INT_PTR)hbr;
+      case IDC_THEME_STYLE_DEF_FORECOLOR:
+         SetBkColor(hdc, styleFore);
+         hbr = CreateSolidBrush(styleFore);
+         return (INT_PTR)hbr;
 
-   case IDC_THEME_STYLE_DEF_OUTPUT:
-      SetBkColor(hdc, styleBack);
-      SetTextColor(hdc, styleFore);
-      hbr = CreateSolidBrush(styleBack);
-      return (INT_PTR)hbr;
+      case IDC_THEME_STYLE_DEF_OUTPUT:
+         SetBkColor(hdc, styleBack);
+         SetTextColor(hdc, styleFore);
+         hbr = CreateSolidBrush(styleBack);
+         return (INT_PTR)hbr;
 
-   default:
-      return NULL;
+      default:
+         return NULL;
    }
 }
 
@@ -746,7 +751,7 @@ INT_PTR ThemeDialog::colorPreviewSwatch(WPARAM wParam, LPARAM lParam) {
 
    // Back color swatches
    ctrlIDOffset = static_cast<int>(ctrlID) - IDC_THEME_SWATCH_BACK_00;
-   if (ctrlIDOffset >= 0 && ctrlIDOffset < styleItemLimit) {
+   if (ctrlIDOffset >= 0 && ctrlIDOffset < STYLE_ITEM_LIMIT) {
       if (ctrlIDOffset + topIdx < styleCount)
          brushColor = Utils::intToRGB(TT.vStyleInfo[ctrlIDOffset + topIdx].backColor);
       else if (ctrlIDOffset + topIdx == styleCount)
@@ -761,7 +766,7 @@ INT_PTR ThemeDialog::colorPreviewSwatch(WPARAM wParam, LPARAM lParam) {
 
    // Fore color swatches
    ctrlIDOffset = static_cast<int>(ctrlID) - IDC_THEME_SWATCH_FORE_00;
-   if (ctrlIDOffset >= 0 && ctrlIDOffset < styleItemLimit) {
+   if (ctrlIDOffset >= 0 && ctrlIDOffset < STYLE_ITEM_LIMIT) {
       if (ctrlIDOffset + topIdx < styleCount)
          brushColor = Utils::intToRGB(TT.vStyleInfo[ctrlIDOffset + topIdx].foreColor);
       else if (ctrlIDOffset + topIdx == styleCount)
@@ -777,7 +782,7 @@ INT_PTR ThemeDialog::colorPreviewSwatch(WPARAM wParam, LPARAM lParam) {
    return NULL;
 }
 
-void ThemeDialog::initPreviewSwatch() {
+void ThemeDialog::initPreviewSwatch(int idxStart, int idxEnd) {
    const int idxTheme{ getCurrentThemeIndex() };
    if (idxTheme == LB_ERR) return;
    ThemeType& TT = vThemeTypes[idxTheme];
@@ -785,12 +790,26 @@ void ThemeDialog::initPreviewSwatch() {
    int topIdx = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
    int styleCount = static_cast<int>(TT.vStyleInfo.size());
 
-   for (int i{}; i <= styleItemLimit; i++) {
+   for (int i{idxStart}; i <= idxEnd; i++) {
       ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_BACK_00 + i), (i + topIdx <= styleCount));
       Utils::setFontRegular(_hSelf, IDC_THEME_SWATCH_BACK_00 + i);
 
       ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_FORE_00 + i), (i + topIdx <= styleCount));
       Utils::setFontRegular(_hSelf, IDC_THEME_SWATCH_FORE_00 + i);
+   }
+}
+
+void ThemeDialog::processSwatchClick(int ctrlID) {
+   int topIdx = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
+
+   if (ctrlID >= IDC_THEME_SWATCH_BACK_00 && ctrlID <= IDC_THEME_SWATCH_BACK_00 + STYLE_ITEM_LIMIT) {
+      SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_SETCURSEL, ctrlID - IDC_THEME_SWATCH_BACK_00 + topIdx, NULL);
+      onStyleSelect();
+   }
+
+   if (ctrlID >= IDC_THEME_SWATCH_FORE_00 && ctrlID <= IDC_THEME_SWATCH_FORE_00 + STYLE_ITEM_LIMIT) {
+      SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_SETCURSEL, ctrlID - IDC_THEME_SWATCH_FORE_00 + topIdx, NULL);
+      onStyleSelect();
    }
 }
 

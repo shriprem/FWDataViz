@@ -6,6 +6,8 @@
 #include <regex>
 #include <vector>
 
+#define STYLE_ITEM_LIMIT 28
+
 using std::wregex;
 using std::regex_replace;
 using std::vector;
@@ -25,8 +27,6 @@ public:
    HWND hThemesLB, hStylesLB;
 
 protected:
-   const int styleItemLimit{ 28 };
-
    enum move_dir {
       MOVE_DOWN = 1,
       MOVE_UP = -1
@@ -91,7 +91,8 @@ protected:
 
    INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
    INT_PTR colorPreviewSwatch(WPARAM wParam, LPARAM lParam);
-   void initPreviewSwatch();
+   void initPreviewSwatch(int idxStart=0, int idxEnd=STYLE_ITEM_LIMIT);
+   void processSwatchClick(int ctrlID);
    void chooseStyleDefColor(bool back);
 };
 
