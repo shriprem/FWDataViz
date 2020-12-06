@@ -1,7 +1,7 @@
 #include "ThemeDialog.h"
 #include "EximFileTypeDialog.h"
 
-#define HEX_COL_LEN 6
+//#define HEX_COL_LEN 6
 
 extern HINSTANCE _gModule;
 extern ThemeDialog _themeDlg;
@@ -49,8 +49,8 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    hStylesLB = GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX);
 
    SendDlgItemMessage(_hSelf, IDC_THEME_DEF_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT, EM_LIMITTEXT, HEX_COL_LEN, NULL);
-   SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT, EM_LIMITTEXT, HEX_COL_LEN, NULL);
+   SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT, EM_LIMITTEXT, 6, NULL);
+   SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT, EM_LIMITTEXT, 6, NULL);
 
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT), procHexColorEditControl, NULL, NULL);
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT), procHexColorEditControl, NULL, NULL);
@@ -246,8 +246,12 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          break;
 
       case WM_CTLCOLORSTATIC:
-         if (styleDefColor)
-            return colorStaticControl(wParam, lParam);
+         if (styleDefColor) {
+            INT_PTR ptr = colorStaticControl(wParam, lParam);
+            if (ptr == NULL)
+               ptr = colorPreviewSwatch(wParam, lParam);
+            return ptr;
+         }
    }
 
    return FALSE;
@@ -551,6 +555,7 @@ void ThemeDialog::fillStyles() {
 
    cleanStyleVals = TRUE;
    onStyleSelect();
+   initPreviewSwatch();
 }
 
 void ThemeDialog::onStyleSelect() {
@@ -634,6 +639,7 @@ int ThemeDialog::moveStyleType(move_dir dir) {
    cleanConfigFile = FALSE;
    indicateCleanStatus();
    enableMoveStyleButtons();
+   initPreviewSwatch();
 
    return idxStyle + dir;
 }
@@ -641,7 +647,7 @@ int ThemeDialog::moveStyleType(move_dir dir) {
 int ThemeDialog::getStyleDefColor(bool back) {
    TCHAR buf[10];
 
-   GetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf, HEX_COL_LEN + 1);
+   GetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf, 7);
 
    return _configIO.StringtoInt(buf, 16);
 }
@@ -649,7 +655,7 @@ int ThemeDialog::getStyleDefColor(bool back) {
 void ThemeDialog::setStyleDefColor(bool setEdit, int color, bool back) {
    if (setEdit) {
       TCHAR buf[10];
-      swprintf(buf, HEX_COL_LEN + 1, L"%06X", color);
+      swprintf(buf, 7, L"%06X", color);
       SetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf);
    }
 
@@ -720,6 +726,70 @@ INT_PTR ThemeDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
 
    default:
       return NULL;
+   }
+}
+
+INT_PTR ThemeDialog::colorPreviewSwatch(WPARAM wParam, LPARAM lParam) {
+   const int idxTheme{ getCurrentThemeIndex() };
+   if (idxTheme == LB_ERR) return NULL;
+   ThemeType& TT = vThemeTypes[idxTheme];
+
+   int topIdx = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
+   int styleCount = static_cast<int>(TT.vStyleInfo.size());
+   int ctrlIDOffset, brushColor;
+
+   HDC hdc = (HDC)wParam;
+   DWORD ctrlID = GetDlgCtrlID((HWND)lParam);
+
+   if (hbr != NULL) DeleteObject(hbr);
+
+   // Back color swatches
+   ctrlIDOffset = static_cast<int>(ctrlID) - IDC_THEME_SWATCH_BACK_00;
+   if (ctrlIDOffset >= 0 && ctrlIDOffset < styleItemLimit) {
+      if (ctrlIDOffset + topIdx < styleCount)
+         brushColor = Utils::intToRGB(TT.vStyleInfo[ctrlIDOffset + topIdx].backColor);
+      else if (ctrlIDOffset + topIdx == styleCount)
+         brushColor = Utils::intToRGB(TT.eolStyle.backColor);
+      else
+         return NULL;
+
+      SetBkColor(hdc, brushColor);
+      hbr = CreateSolidBrush(brushColor);
+      return (INT_PTR)hbr;
+   }
+
+   // Fore color swatches
+   ctrlIDOffset = static_cast<int>(ctrlID) - IDC_THEME_SWATCH_FORE_00;
+   if (ctrlIDOffset >= 0 && ctrlIDOffset < styleItemLimit) {
+      if (ctrlIDOffset + topIdx < styleCount)
+         brushColor = Utils::intToRGB(TT.vStyleInfo[ctrlIDOffset + topIdx].foreColor);
+      else if (ctrlIDOffset + topIdx == styleCount)
+         brushColor = Utils::intToRGB(TT.eolStyle.foreColor);
+      else
+         return NULL;
+
+      SetBkColor(hdc, brushColor);
+      hbr = CreateSolidBrush(brushColor);
+      return (INT_PTR)hbr;
+   }
+
+   return NULL;
+}
+
+void ThemeDialog::initPreviewSwatch() {
+   const int idxTheme{ getCurrentThemeIndex() };
+   if (idxTheme == LB_ERR) return;
+   ThemeType& TT = vThemeTypes[idxTheme];
+
+   int topIdx = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
+   int styleCount = static_cast<int>(TT.vStyleInfo.size());
+
+   for (int i{}; i <= styleItemLimit; i++) {
+      ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_BACK_00 + i), (i + topIdx <= styleCount));
+      Utils::setFontRegular(_hSelf, IDC_THEME_SWATCH_BACK_00 + i);
+
+      ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_FORE_00 + i), (i + topIdx <= styleCount));
+      Utils::setFontRegular(_hSelf, IDC_THEME_SWATCH_FORE_00 + i);
    }
 }
 

@@ -25,6 +25,8 @@ public:
    HWND hThemesLB, hStylesLB;
 
 protected:
+   const int styleItemLimit{ 18 };
+
    enum move_dir {
       MOVE_DOWN = 1,
       MOVE_UP = -1
@@ -88,6 +90,8 @@ protected:
    void setPangram();
 
    INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
+   INT_PTR colorPreviewSwatch(WPARAM wParam, LPARAM lParam);
+   void initPreviewSwatch();
    void chooseStyleDefColor(bool back);
 };
 
