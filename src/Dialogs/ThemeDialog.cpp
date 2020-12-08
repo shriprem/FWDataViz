@@ -122,6 +122,10 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                themeEditNew();
                break;
 
+            case IDC_THEME_DEF_CLONE_BTN:
+               cloneThemeInfo();
+               break;
+
             case IDC_THEME_DEF_DEL_BTN:
                themeEditDelete();
                break;
@@ -142,12 +146,12 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                moveStyleType(MOVE_UP);
                break;
 
-            case IDC_THEME_STYLE_CLONE_BTN:
-               styleEditNew(TRUE);
-               break;
-
             case IDC_THEME_STYLE_NEW_BTN:
                styleEditNew(FALSE);
+               break;
+
+            case IDC_THEME_STYLE_CLONE_BTN:
+               styleEditNew(TRUE);
                break;
 
             case IDC_THEME_STYLE_DEL_BTN:
@@ -231,10 +235,6 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                _configIO.viewBackupFolder();
                break;
 
-            case IDC_THEME_DEF_CLONE_BTN:
-               cloneThemeInfo();
-               break;
-
             case IDC_THEME_DEF_EXTRACT_BTN:
                showEximDialog(TRUE);
                break;
@@ -264,12 +264,13 @@ void ThemeDialog::localize() {
    SetWindowText(_hSelf, THEME_DIALOG_TITLE);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_GROUP_BOX, THEME_DEF_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_DESC_LABEL, THEME_DEF_DESC_LABEL);
-   SetDlgItemText(_hSelf, IDC_THEME_DEF_NEW_BTN, THEME_DEF_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_ACCEPT_BTN, THEME_DEF_ACCEPT_BTN);
+   SetDlgItemText(_hSelf, IDC_THEME_DEF_NEW_BTN, THEME_DEF_NEW_BTN);
+   SetDlgItemText(_hSelf, IDC_THEME_DEF_CLONE_BTN, THEME_DEF_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_DEL_BTN, THEME_DEF_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_GROUP_BOX, THEME_STYLE_GROUP_BOX);
-   SetDlgItemText(_hSelf, IDC_THEME_STYLE_CLONE_BTN, THEME_STYLE_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_NEW_BTN, THEME_STYLE_NEW_BTN);
+   SetDlgItemText(_hSelf, IDC_THEME_STYLE_CLONE_BTN, THEME_STYLE_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEL_BTN, THEME_STYLE_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_GROUP_BOX, THEME_STYLE_DEF_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_BACK_LABEL, THEME_STYLE_DEF_BACKCOLOR);
@@ -283,7 +284,6 @@ void ThemeDialog::localize() {
    SetDlgItemText(_hSelf, IDC_THEME_DEF_RESET_BTN, THEME_DIALOG_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_BACKUP_LOAD_BTN, THEME_DIALOG_BKUP_LOAD_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_BACKUP_VIEW_BTN, THEME_DIALOG_BKUP_VIEW_BTN);
-   SetDlgItemText(_hSelf, IDC_THEME_DEF_CLONE_BTN, THEME_DIALOG_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_EXTRACT_BTN, THEME_DIALOG_EXTRACT_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_APPEND_BTN, THEME_DIALOG_APPEND_BTN);
    SetDlgItemText(_hSelf, IDCLOSE, THEME_DIALOG_CLOSE_BTN);
@@ -893,6 +893,7 @@ void ThemeDialog::styleEditNew(bool clone) {
    SendMessage(hStylesLB, LB_INSERTSTRING, newIdx, (LPARAM)styleLabel);
    SendMessage(hStylesLB, LB_SETCURSEL, (WPARAM)newIdx, NULL);
    onStyleSelect();
+   initPreviewSwatch();
 
    cleanConfigFile = FALSE;
    cleanStyleVals = TRUE;
@@ -918,6 +919,7 @@ int ThemeDialog::styleEditDelete() {
    cleanConfigFile = FALSE;
    cleanStyleVals = TRUE;
    onStyleSelect();
+   initPreviewSwatch();
 
    return moveTo;
 }

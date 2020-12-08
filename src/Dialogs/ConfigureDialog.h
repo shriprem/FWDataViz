@@ -87,7 +87,7 @@ protected:
    void onRecStartEditChange();
    void onRecRegexEditChange();
    void recEditAccept();
-   void recEditNew();
+   void recEditNew(bool clone);
    int recEditDelete();
 
    void fillFieldTypes();

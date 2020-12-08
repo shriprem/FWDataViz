@@ -161,6 +161,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                fileEditNew();
                break;
 
+            case IDC_FWVIZ_DEF_FILE_CLONE_BTN:
+               cloneFileTypeInfo();
+               break;
+
             case IDC_FWVIZ_DEF_FILE_DEL_BTN:
                fileEditDelete();
                break;
@@ -233,7 +237,11 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_FWVIZ_DEF_REC_NEW_BTN:
-               recEditNew();
+               recEditNew(FALSE);
+               break;
+
+            case IDC_FWVIZ_DEF_REC_CLONE_BTN:
+               recEditNew(TRUE);
                break;
 
             case IDC_FWVIZ_DEF_REC_DEL_BTN:
@@ -327,10 +335,6 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                _configIO.viewBackupFolder();
                break;
 
-            case IDC_FWVIZ_DEF_CLONE_BTN:
-               cloneFileTypeInfo();
-               break;
-
             case IDC_FWVIZ_DEF_EXTRACT_BTN:
                showEximDialog(TRUE);
                break;
@@ -351,15 +355,17 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_LABEL, FWVIZ_DEF_FILE_DESC_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_LABEL, FWVIZ_DEF_FILE_EOL_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LABEL, FWVIZ_DEF_FILE_THEME_LABEL);
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN, FWVIZ_DEF_FILE_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_ACCEPT_BTN, FWVIZ_DEF_FILE_ACCEPT_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN, FWVIZ_DEF_FILE_NEW_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_CLONE_BTN, FWVIZ_DEF_FILE_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DEL_BTN, FWVIZ_DEF_FILE_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_GROUP_BOX, FWVIZ_DEF_REC_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_LABEL, FWVIZ_DEF_REC_DESC_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_START_LABEL, FWVIZ_DEF_REC_START_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_LABEL, FWVIZ_DEF_REC_REGEX_LABEL);
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN, FWVIZ_DEF_REC_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_ACCEPT_BTN, FWVIZ_DEF_REC_ACCEPT_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN, FWVIZ_DEF_REC_NEW_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_CLONE_BTN, FWVIZ_DEF_REC_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DEL_BTN, FWVIZ_DEF_REC_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_GROUP_BOX, FWVIZ_DEF_FIELD_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_TEXT, FWVIZ_DEF_FIELD_WIDTHS_TEXT);
@@ -370,7 +376,6 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_RESET_BTN, FWVIZ_DIALOG_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_LOAD_BTN, FWVIZ_DIALOG_BKUP_LOAD_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_VIEW_BTN, FWVIZ_DIALOG_BKUP_VIEW_BTN);
-   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_CLONE_BTN, FWVIZ_DIALOG_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN, FWVIZ_DIALOG_EXTRACT_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_APPEND_BTN, FWVIZ_DIALOG_APPEND_BTN);
    SetDlgItemText(_hSelf, IDCLOSE, FWVIZ_DIALOG_CLOSE_BTN);
@@ -616,7 +621,7 @@ void ConfigureDialog::enableFileSelection() {
    bool enable{ cleanFileVals && cleanRecVals && cleanFieldVals };
    EnableWindow(hFilesLB, enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN), enable);
-   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_CLONE_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_CLONE_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_APPEND_BTN), enable);
 
@@ -729,6 +734,7 @@ void ConfigureDialog::enableRecSelection() {
    bool enable{ cleanRecVals && cleanFieldVals };
    EnableWindow(hRecsLB, enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_CLONE_BTN), enable);
 
    if (enable) {
       enableMoveRecButtons();
@@ -929,12 +935,22 @@ void ConfigureDialog::recEditAccept() {
    enableRecSelection();
 }
 
-void ConfigureDialog::recEditNew() {
+void ConfigureDialog::recEditNew(bool clone) {
    int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return;
 
+   int idxRT{ getCurrentRecIndex() };
+   if (clone && idxRT == LB_ERR) return;
+
    RecordType newRec{ getNewRec() };
    vector<RecordType> &records = vFileTypes[idxFT].vRecTypes;
+
+   if (clone) {
+      newRec.label = records[idxRT].label;
+      newRec.marker = records[idxRT].marker;
+      newRec.fieldLabels = records[idxRT].fieldLabels;
+      newRec.fieldWidths = records[idxRT].fieldWidths;
+   }
 
    records.push_back(newRec);
 
@@ -945,7 +961,7 @@ void ConfigureDialog::recEditNew() {
    onRecTypeSelect();
 
    cleanConfigFile = FALSE;
-   cleanRecVals = FALSE;
+   cleanRecVals = clone;
    enableRecSelection();
 }
 
