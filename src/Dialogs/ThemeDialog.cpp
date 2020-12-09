@@ -144,6 +144,7 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                switch HIWORD(wParam) {
                   case LBN_SELCHANGE:
                      onStyleSelect();
+                     initPreviewSwatch();
                      break;
                }
                break;
@@ -174,8 +175,10 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                   case EN_CHANGE:
                      bool back = (LOWORD(wParam) == IDC_THEME_STYLE_DEF_BACK_EDIT);
                      setStyleDefColor(FALSE, getStyleDefColor(back), back);
-                     cleanStyleDefs = FALSE;
-                     enableStyleSelection();
+                     if (!loadingEdits) {
+                        cleanStyleDefs = FALSE;
+                        enableStyleSelection();
+                     }
                      break;
                }
                break;
@@ -671,7 +674,9 @@ void ThemeDialog::setStyleDefColor(bool setEdit, int color, bool back) {
       TCHAR buf[10];
       swprintf(buf, 7, L"%06X", color);
 
+      loadingEdits = TRUE;
       SetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf);
+      loadingEdits = FALSE;
    }
 
    // Set styleBack | styleFore here. Will be used in WM_CTLCOLORSTATIC, triggered by the setFontRegular() calls

@@ -6,7 +6,7 @@
 #include <regex>
 #include <vector>
 
-#define STYLE_ITEM_LIMIT 28
+#define STYLE_ITEM_LIMIT 29
 
 using std::wregex;
 using std::regex_replace;
