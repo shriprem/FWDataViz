@@ -56,7 +56,7 @@ void commandMenuInit() {
    shKeyOpen->_isShift = false;
    shKeyOpen->_key = VK_F8;
 
-   setCommand(MI_GOTO_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
+   setCommand(MI_FWVIZ_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
    setCommand(MI_CARET_FRAMED, MENU_CARET_FRAMED, ToggleCaretFramedState, NULL, _configIO.getCaretFramed());
    setCommand(MI_CONFIG_DIALOG, MENU_CONFIG, ShowConfigDialog);
    setCommand(MI_SEPARATOR_1, L"-", NULL);
@@ -69,7 +69,7 @@ void commandMenuInit() {
 
 
 void commandMenuCleanUp() {
-   delete pluginMenuItems[MI_GOTO_PANEL]._pShKey;
+   delete pluginMenuItems[MI_FWVIZ_PANEL]._pShKey;
 }
 
 // Initialize plugin commands
@@ -119,7 +119,7 @@ void ShowVisualizerPanel(bool show) {
 
          data.uMask = DWS_DF_CONT_RIGHT;
          data.pszModuleName = _vizPanel.getPluginFileName();
-         data.dlgID = MI_GOTO_PANEL;
+         data.dlgID = MI_FWVIZ_PANEL;
          data.pszName = MENU_PANEL_NAME;
 
          nppMessage(NPPM_DMMREGASDCKDLG, 0, (LPARAM)& data);
@@ -129,9 +129,7 @@ void ShowVisualizerPanel(bool show) {
    }
 
    _vizPanel.display(show);
-
-   CheckMenuItem(GetMenu(nppData._nppHandle), pluginMenuItems[MI_GOTO_PANEL]._cmdID,
-      MF_BYCOMMAND | (show ? MF_CHECKED : MF_UNCHECKED));
+   nppMessage(NPPM_SETMENUITEMCHECK, pluginMenuItems[MI_FWVIZ_PANEL]._cmdID, show);
 }
 
 void ToggleVisualizerPanel() {
@@ -153,13 +151,9 @@ void ToggleCaretFramedState() {
    _configIO.setCaretFramed(framed);
 
    DisplayCaretFrame();
+   nppMessage(NPPM_SETMENUITEMCHECK, pluginMenuItems[MI_CARET_FRAMED]._cmdID, framed);
 
-   CheckMenuItem(GetMenu(nppData._nppHandle), pluginMenuItems[MI_CARET_FRAMED]._cmdID,
-      MF_BYCOMMAND | (framed ? MF_CHECKED : MF_UNCHECKED));
-
-   if (_vizPanel.isVisible())
-      _vizPanel.showCaretFramedState(framed);
-
+   if (_vizPanel.isVisible()) _vizPanel.showCaretFramedState(framed);
    _vizPanel.setFocusOnEditor();
 }
 

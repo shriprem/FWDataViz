@@ -152,6 +152,8 @@
     </Image>
     <Image Include="..\src\Resources\down.bmp" />
     <Image Include="..\src\Resources\up.bmp" />
+    <Image Include="..\src\Resources\fields.bmp" />
+    <Image Include="..\src\Resources\framed.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly">

@@ -23,6 +23,7 @@ public:
 
    void doDialog(HINSTANCE hInst);
    int appendThemeConfigs(const wstring& sThemeFile);
+   void initPreviewSwatch(int idxStart=0, int idxEnd=STYLE_ITEM_LIMIT);
 
    HWND hThemesLB, hStylesLB;
 
@@ -91,7 +92,6 @@ protected:
 
    INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
    INT_PTR colorPreviewSwatch(WPARAM wParam, LPARAM lParam);
-   void initPreviewSwatch(int idxStart=0, int idxEnd=STYLE_ITEM_LIMIT);
    void processSwatchClick(int ctrlID);
    void chooseStyleDefColor(bool back);
 };

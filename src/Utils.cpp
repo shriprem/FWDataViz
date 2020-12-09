@@ -1,6 +1,7 @@
 #include "Utils.h"
 
 extern HINSTANCE _gModule;
+extern FuncItem pluginMenuItems[MI_COUNT];
 
 // ***************** PRIVATE *****************
 
@@ -81,6 +82,19 @@ HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage,
    SendMessage(hwndTip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)PREFS_TIP_MAX_WIDTH);
 
    return hwndTip;
+}
+
+void Utils::addToolbarIcon(int menuIndex, int resource) {
+   toolbarIcons tbIcon{};
+
+   tbIcon.hToolbarBmp = LoadBitmap(_gModule, MAKEINTRESOURCE(resource));
+   tbIcon.hToolbarIcon = NULL;
+
+   nppMessage(NPPM_ADDTOOLBARICON, pluginMenuItems[menuIndex]._cmdID, (LPARAM)&tbIcon);
+}
+
+void Utils::checkMenuItem(int menuIndex, bool check) {
+   nppMessage(NPPM_SETMENUITEMCHECK, pluginMenuItems[menuIndex]._cmdID, check);
 }
 
 void Utils::showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text) {

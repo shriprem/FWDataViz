@@ -68,6 +68,11 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
          _vizPanel.onBufferActivate();
          break;
 
+      case NPPN_TBMODIFICATION:
+         Utils::addToolbarIcon(MI_FWVIZ_PANEL, IDC_VIZPANEL_FIELDS_TOOLBAR);
+         Utils::addToolbarIcon(MI_CARET_FRAMED, IDC_VIZPANEL_FRAMED_TOOLBAR);
+         break;
+
       case SCN_UPDATEUI:
          _vizPanel.renderCurrentPage();
          break;

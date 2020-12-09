@@ -5,8 +5,7 @@ extern HINSTANCE _gModule;
 extern ConfigureDialog _configDlg;
 EximFileTypeDialog _eximDlg;
 
-LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
-   LPARAM lParam, UINT_PTR, DWORD_PTR) {
+LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
 
    switch (messageId) {
       case WM_CHAR:
@@ -33,8 +32,7 @@ LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
    return DefSubclassProc(hwnd, messageId, wParam, lParam);
 }
 
-LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
-   LPARAM lParam, UINT_PTR, DWORD_PTR) {
+LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
 
    HWND hThis{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldLabels : _configDlg.hFieldWidths };
    HWND hThat{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldWidths : _configDlg.hFieldLabels };

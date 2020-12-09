@@ -7,8 +7,17 @@ extern HINSTANCE _gModule;
 extern ThemeDialog _themeDlg;
 extern EximFileTypeDialog _eximDlg;
 
-LRESULT CALLBACK procHexColorEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
-   LPARAM lParam, UINT_PTR, DWORD_PTR) {
+LRESULT CALLBACK procStylesListBox(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
+   switch (messageId) {
+      case WM_VSCROLL:
+         _themeDlg.initPreviewSwatch();
+         break;
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}
+
+LRESULT CALLBACK procHexColorEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
    switch (messageId) {
       case WM_CHAR:
       {
@@ -48,10 +57,11 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    hThemesLB = GetDlgItem(_hSelf, IDC_THEME_DEF_LIST_BOX);
    hStylesLB = GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX);
 
-   SendDlgItemMessage(_hSelf, IDC_THEME_DEF_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendDlgItemMessage(_hSelf, IDC_THEME_DEF_DESC_EDIT, EM_LIMITTEXT, MAX_PATH, NULL);
    SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT, EM_LIMITTEXT, 6, NULL);
    SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT, EM_LIMITTEXT, 6, NULL);
 
+   SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX), procStylesListBox, NULL, NULL);
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT), procHexColorEditControl, NULL, NULL);
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT), procHexColorEditControl, NULL, NULL);
 
@@ -255,6 +265,7 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                ptr = colorPreviewSwatch(wParam, lParam);
             return ptr;
          }
+         break;
    }
 
    return FALSE;
@@ -659,6 +670,7 @@ void ThemeDialog::setStyleDefColor(bool setEdit, int color, bool back) {
    if (setEdit) {
       TCHAR buf[10];
       swprintf(buf, 7, L"%06X", color);
+
       SetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf);
    }
 

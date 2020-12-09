@@ -40,7 +40,7 @@ using std::to_wstring;
 static int _gLanguage = LANG_ENGLISH;
 
 const enum MenuIndex {
-   MI_GOTO_PANEL,
+   MI_FWVIZ_PANEL,
    MI_CARET_FRAMED,
    MI_CONFIG_DIALOG,
    MI_SEPARATOR_1,

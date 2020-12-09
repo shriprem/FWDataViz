@@ -49,7 +49,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDCANCEL:
             case IDCLOSE:
                setFocusOnEditor();
-               ShowVisualizerPanel(false);
+               ShowVisualizerPanel(FALSE);
                break;
 
             case IDC_VIZPANEL_CARET_FRAMED:
@@ -57,7 +57,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_WORDWRAP_BUTTON:
-               SendMessage(nppData._nppHandle, NPPM_MENUCOMMAND, 0, IDM_VIEW_WRAP);
+               nppMessage(NPPM_MENUCOMMAND, 0, IDM_VIEW_WRAP);
                setFocusOnEditor();
                break;
          }
@@ -68,6 +68,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case WM_MBUTTONDOWN:
       case WM_RBUTTONDOWN:
          SetFocus(_hSelf);
+         break;
+
+      case WM_SHOWWINDOW:
+         if (hFTList && !wParam) Utils::checkMenuItem(MI_FWVIZ_PANEL, FALSE);
          break;
 
       default :

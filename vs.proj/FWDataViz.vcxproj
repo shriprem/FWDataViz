@@ -64,6 +64,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\src\Resources\down.bmp" />
+    <Image Include="..\src\Resources\fields.bmp" />
+    <Image Include="..\src\Resources\framed.bmp" />
     <Image Include="..\src\Resources\gear.bmp" />
     <Image Include="..\src\Resources\up.bmp" />
     <Image Include="down.bmp" />
