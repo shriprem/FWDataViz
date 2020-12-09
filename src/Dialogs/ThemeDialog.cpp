@@ -133,7 +133,7 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                break;
 
             case IDC_THEME_DEF_CLONE_BTN:
-               cloneThemeInfo();
+               themeEditClone();
                break;
 
             case IDC_THEME_DEF_DEL_BTN:
@@ -144,7 +144,9 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                switch HIWORD(wParam) {
                   case LBN_SELCHANGE:
                      onStyleSelect();
-                     initPreviewSwatch();
+                     if (swatchTopIndex !=
+                        static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL)))
+                        initPreviewSwatch();
                      break;
                }
                break;
@@ -768,7 +770,7 @@ INT_PTR ThemeDialog::colorPreviewSwatch(WPARAM wParam, LPARAM lParam) {
 
    // Back color swatches
    ctrlIDOffset = static_cast<int>(ctrlID) - IDC_THEME_SWATCH_BACK_00;
-   if (ctrlIDOffset >= 0 && ctrlIDOffset < STYLE_ITEM_LIMIT) {
+   if (ctrlIDOffset >= 0 && ctrlIDOffset < SWATCH_ITEM_COUNT) {
       if (ctrlIDOffset + topIdx < styleCount)
          brushColor = Utils::intToRGB(TT.vStyleInfo[ctrlIDOffset + topIdx].backColor);
       else if (ctrlIDOffset + topIdx == styleCount)
@@ -783,7 +785,7 @@ INT_PTR ThemeDialog::colorPreviewSwatch(WPARAM wParam, LPARAM lParam) {
 
    // Fore color swatches
    ctrlIDOffset = static_cast<int>(ctrlID) - IDC_THEME_SWATCH_FORE_00;
-   if (ctrlIDOffset >= 0 && ctrlIDOffset < STYLE_ITEM_LIMIT) {
+   if (ctrlIDOffset >= 0 && ctrlIDOffset < SWATCH_ITEM_COUNT) {
       if (ctrlIDOffset + topIdx < styleCount)
          brushColor = Utils::intToRGB(TT.vStyleInfo[ctrlIDOffset + topIdx].foreColor);
       else if (ctrlIDOffset + topIdx == styleCount)
@@ -804,14 +806,14 @@ void ThemeDialog::initPreviewSwatch(int idxStart, int idxEnd) {
    if (idxTheme == LB_ERR) return;
    ThemeType& TT = vThemeTypes[idxTheme];
 
-   int topIdx = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
+   swatchTopIndex = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
    int styleCount = static_cast<int>(TT.vStyleInfo.size());
 
    for (int i{idxStart}; i <= idxEnd; i++) {
-      ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_BACK_00 + i), (i + topIdx <= styleCount));
+      ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_BACK_00 + i), (i + swatchTopIndex <= styleCount));
       Utils::setFontRegular(_hSelf, IDC_THEME_SWATCH_BACK_00 + i);
 
-      ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_FORE_00 + i), (i + topIdx <= styleCount));
+      ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_FORE_00 + i), (i + swatchTopIndex <= styleCount));
       Utils::setFontRegular(_hSelf, IDC_THEME_SWATCH_FORE_00 + i);
    }
 }
@@ -819,12 +821,12 @@ void ThemeDialog::initPreviewSwatch(int idxStart, int idxEnd) {
 void ThemeDialog::processSwatchClick(int ctrlID) {
    int topIdx = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
 
-   if (ctrlID >= IDC_THEME_SWATCH_BACK_00 && ctrlID <= IDC_THEME_SWATCH_BACK_00 + STYLE_ITEM_LIMIT) {
+   if (ctrlID >= IDC_THEME_SWATCH_BACK_00 && ctrlID <= IDC_THEME_SWATCH_BACK_00 + SWATCH_ITEM_COUNT) {
       SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_SETCURSEL, ctrlID - IDC_THEME_SWATCH_BACK_00 + topIdx, NULL);
       onStyleSelect();
    }
 
-   if (ctrlID >= IDC_THEME_SWATCH_FORE_00 && ctrlID <= IDC_THEME_SWATCH_FORE_00 + STYLE_ITEM_LIMIT) {
+   if (ctrlID >= IDC_THEME_SWATCH_FORE_00 && ctrlID <= IDC_THEME_SWATCH_FORE_00 + SWATCH_ITEM_COUNT) {
       SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_SETCURSEL, ctrlID - IDC_THEME_SWATCH_FORE_00 + topIdx, NULL);
       onStyleSelect();
    }
@@ -894,6 +896,13 @@ void ThemeDialog::styleEditNew(bool clone) {
    StyleInfo newStyle{ getNewStyle() };
    vector<StyleInfo> &styles = vThemeTypes[idxFT].vStyleInfo;
    int newIdx{ static_cast<int>(styles.size()) };
+
+   if (newIdx >= STYLE_ITEM_LIMIT) {
+      TCHAR buf[100];
+      swprintf(buf, 100, THEME_STYLE_LIMIT_ERROR, STYLE_ITEM_LIMIT);
+      MessageBox(_hSelf, buf, clone ? THEME_STYLE_CLONE_ACTION : THEME_STYLE_NEW_ACTION, MB_OK | MB_ICONSTOP);
+      return;
+   }
 
    wchar_t styleLabel[10];
    swprintf(styleLabel, 10, L"Style #%02i", newIdx);
@@ -973,6 +982,8 @@ int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
 
    for (int i{}; i < sectionCount; i++) {
       if (_configIO.getConfigString(sectionList[i], L"Count", L"", sThemeFile).length() > 0) {
+         if (!checkThemeLimit(FALSE)) break;
+
          ThemeType newTheme{ getNewTheme() };
 
          vThemeTypes.push_back(newTheme);
@@ -992,6 +1003,8 @@ int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
 }
 
 void ThemeDialog::themeEditNew() {
+   if (!checkThemeLimit(FALSE)) return;
+
    ThemeType newFile{ getNewTheme() };
 
    vThemeTypes.push_back(newFile);
@@ -1004,6 +1017,37 @@ void ThemeDialog::themeEditNew() {
 
    cleanConfigFile = FALSE;
    cleanThemeVals = FALSE;
+   enableThemeSelection();
+}
+
+void ThemeDialog::themeEditClone() {
+   if (!checkThemeLimit(TRUE)) return;
+
+   int idxTT{ getCurrentThemeIndex() };
+   if (idxTT == LB_ERR) return;
+
+   ThemeType& TT = vThemeTypes[idxTT];
+   ThemeType NT{};
+
+   NT.label = TT.label + L"_clone";
+
+   size_t recCount = TT.vStyleInfo.size();
+   NT.vStyleInfo.resize(recCount);
+
+   for (size_t i{}; i < recCount; i++) {
+      NT.vStyleInfo[i].backColor = TT.vStyleInfo[i].backColor;
+      NT.vStyleInfo[i].foreColor = TT.vStyleInfo[i].foreColor;
+      NT.vStyleInfo[i].bold = TT.vStyleInfo[i].bold;
+      NT.vStyleInfo[i].italics = TT.vStyleInfo[i].italics;
+   }
+
+   vThemeTypes.push_back(NT);
+
+   SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)NT.label.c_str());
+   SendMessage(hThemesLB, LB_SETCURSEL, (WPARAM)(vThemeTypes.size() - 1), NULL);
+
+   onThemeSelect();
+   cleanConfigFile = FALSE;
    enableThemeSelection();
 }
 
@@ -1024,6 +1068,15 @@ int ThemeDialog::themeEditDelete() {
    onThemeSelect();
 
    return moveTo;
+}
+
+bool ThemeDialog::checkThemeLimit(bool clone) {
+   if (vThemeTypes.size() < THEME_ITEM_LIMIT) return TRUE;
+
+   TCHAR buf[100];
+   swprintf(buf, 100, THEME_DEF_LIMIT_ERROR, THEME_ITEM_LIMIT);
+   MessageBox(_hSelf, buf, clone ? THEME_DEF_CLONE_ACTION : THEME_DEF_NEW_ACTION, MB_OK | MB_ICONSTOP);
+   return FALSE;
 }
 
 bool ThemeDialog::promptDiscardChangesNo() {
@@ -1059,35 +1112,6 @@ void ThemeDialog::saveConfigInfo() {
    cleanConfigFile = TRUE;
    indicateCleanStatus();
    RefreshVisualizerPanel();
-}
-
-void ThemeDialog::cloneThemeInfo() {
-   int idxTT{ getCurrentThemeIndex() };
-   if (idxTT == LB_ERR) return;
-
-   ThemeType& TT = vThemeTypes[idxTT];
-   ThemeType NT{};
-
-   NT.label = TT.label + L"_clone";
-
-   size_t recCount = TT.vStyleInfo.size();
-   NT.vStyleInfo.resize(recCount);
-
-   for (size_t i{}; i < recCount; i++) {
-      NT.vStyleInfo[i].backColor = TT.vStyleInfo[i].backColor;
-      NT.vStyleInfo[i].foreColor = TT.vStyleInfo[i].foreColor;
-      NT.vStyleInfo[i].bold = TT.vStyleInfo[i].bold;
-      NT.vStyleInfo[i].italics = TT.vStyleInfo[i].italics;
-   }
-
-   vThemeTypes.push_back(NT);
-
-   SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)NT.label.c_str());
-   SendMessage(hThemesLB, LB_SETCURSEL, (WPARAM)(vThemeTypes.size() - 1), NULL);
-
-   onThemeSelect();
-   cleanConfigFile = FALSE;
-   enableThemeSelection();
 }
 
 void ThemeDialog::showEximDialog(bool bExtract) {

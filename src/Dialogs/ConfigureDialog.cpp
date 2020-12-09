@@ -160,7 +160,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_FWVIZ_DEF_FILE_CLONE_BTN:
-               cloneFileTypeInfo();
+               fileEditClone();
                break;
 
             case IDC_FWVIZ_DEF_FILE_DEL_BTN:
@@ -940,8 +940,16 @@ void ConfigureDialog::recEditNew(bool clone) {
    int idxRT{ getCurrentRecIndex() };
    if (clone && idxRT == LB_ERR) return;
 
-   RecordType newRec{ getNewRec() };
    vector<RecordType> &records = vFileTypes[idxFT].vRecTypes;
+
+   if (static_cast<int>(records.size()) >= REC_TYPE_LIMIT) {
+      TCHAR buf[100];
+      swprintf(buf, 100, FWVIZ_RT_LIMIT_ERROR, REC_TYPE_LIMIT);
+      MessageBox(_hSelf, buf, clone ? FWVIZ_RT_CLONE_ACTION : FWVIZ_RT_NEW_ACTION, MB_OK | MB_ICONSTOP);
+      return;
+   }
+
+   RecordType newRec{ getNewRec() };
 
    if (clone) {
       newRec.label = records[idxRT].label;
@@ -1027,6 +1035,8 @@ int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
    for (int i{}; i < sectionCount; i++) {
       sectionLabel = _configIO.getConfigString(sectionList[i], L"FileLabel", L"", sConfigFile);
       if (sectionLabel.length() > 0) {
+         if (!checkFTLimit(FALSE)) break;
+
          FileType newFile{ getNewFileType() };
 
          vFileTypes.push_back(newFile);
@@ -1046,6 +1056,8 @@ int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
 }
 
 void ConfigureDialog::fileEditNew() {
+   if (!checkFTLimit(FALSE)) return;
+
    FileType newFile{ getNewFileType() };
 
    vFileTypes.push_back(newFile);
@@ -1058,6 +1070,39 @@ void ConfigureDialog::fileEditNew() {
 
    cleanConfigFile = FALSE;
    cleanFileVals = FALSE;
+   enableFileSelection();
+}
+
+void ConfigureDialog::fileEditClone() {
+   if (!checkFTLimit(TRUE)) return;
+
+   int idxFT{ getCurrentFileTypeIndex() };
+   if (idxFT == LB_ERR) return;
+
+   FileType& FT = vFileTypes[idxFT];
+   FileType NF{};
+
+   NF.label = FT.label + L"_clone";
+   NF.eol = FT.eol;
+   NF.theme = FT.theme;
+
+   size_t recCount = FT.vRecTypes.size();
+   NF.vRecTypes.resize(recCount);
+
+   for (size_t i{}; i < recCount; i++) {
+      NF.vRecTypes[i].label = FT.vRecTypes[i].label;
+      NF.vRecTypes[i].marker = FT.vRecTypes[i].marker;
+      NF.vRecTypes[i].fieldLabels = FT.vRecTypes[i].fieldLabels;
+      NF.vRecTypes[i].fieldWidths = FT.vRecTypes[i].fieldWidths;
+   }
+
+   vFileTypes.push_back(NF);
+
+   SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)NF.label.c_str());
+   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)(vFileTypes.size() - 1), NULL);
+
+   onFileTypeSelect();
+   cleanConfigFile = FALSE;
    enableFileSelection();
 }
 
@@ -1078,6 +1123,15 @@ int ConfigureDialog::fileEditDelete() {
    onFileTypeSelect();
 
    return moveTo;
+}
+
+bool ConfigureDialog::checkFTLimit(bool clone) {
+   if (vFileTypes.size() < FILE_TYPE_LIMIT) return TRUE;
+
+   TCHAR buf[100];
+   swprintf(buf, 100, FWVIZ_FT_LIMIT_ERROR, FILE_TYPE_LIMIT);
+   MessageBox(_hSelf, buf, clone ? FWVIZ_FT_CLONE_ACTION : FWVIZ_FT_NEW_ACTION, MB_OK | MB_ICONSTOP);
+   return FALSE;
 }
 
 bool ConfigureDialog::promptDiscardChangesNo() {
@@ -1114,37 +1168,6 @@ void ConfigureDialog::saveConfigInfo() {
    cleanConfigFile = TRUE;
    indicateCleanStatus();
    RefreshVisualizerPanel();
-}
-
-void ConfigureDialog::cloneFileTypeInfo() {
-   int idxFT{ getCurrentFileTypeIndex() };
-   if (idxFT == LB_ERR) return;
-
-   FileType& FT = vFileTypes[idxFT];
-   FileType NF{};
-
-   NF.label = FT.label + L"_clone";
-   NF.eol = FT.eol;
-   NF.theme = FT.theme;
-
-   size_t recCount = FT.vRecTypes.size();
-   NF.vRecTypes.resize(recCount);
-
-   for (size_t i{}; i < recCount; i++) {
-      NF.vRecTypes[i].label = FT.vRecTypes[i].label;
-      NF.vRecTypes[i].marker = FT.vRecTypes[i].marker;
-      NF.vRecTypes[i].fieldLabels = FT.vRecTypes[i].fieldLabels;
-      NF.vRecTypes[i].fieldWidths = FT.vRecTypes[i].fieldWidths;
-   }
-
-   vFileTypes.push_back(NF);
-
-   SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)NF.label.c_str());
-   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)(vFileTypes.size() - 1), NULL);
-
-   onFileTypeSelect();
-   cleanConfigFile = FALSE;
-   enableFileSelection();
 }
 
 void ConfigureDialog::showEximDialog(bool bExtract) {

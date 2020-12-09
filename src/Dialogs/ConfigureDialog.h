@@ -6,6 +6,9 @@
 #include <regex>
 #include <vector>
 
+#define FILE_TYPE_LIMIT 999
+#define REC_TYPE_LIMIT 999
+
 using std::wregex;
 using std::regex_replace;
 using std::vector;
@@ -57,7 +60,6 @@ protected:
    int loadFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile);
    bool promptDiscardChangesNo();
    void saveConfigInfo();
-   void cloneFileTypeInfo();
    void showEximDialog(bool bExtract);
    string getOnlyStartsWith(string txt);
 
@@ -77,7 +79,9 @@ protected:
    int moveFileType(move_dir dir);
    void fileEditAccept();
    void fileEditNew();
+   void fileEditClone();
    int fileEditDelete();
+   bool checkFTLimit(bool clone);
 
    void fillRecTypes();
    void onRecTypeSelect();

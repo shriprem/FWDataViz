@@ -71,6 +71,13 @@
 #define FWVIZ_DISCARD_CHANGES       L"Discard changes?"
 #define FWVIZ_OPEN_BKUP_CONFIG_DLG  L"Open Backup Configuration File"
 #define FWVIZ_SAVE_BKUP_CONFIG_DLG  L"Save Backup Configuration File"
+#define FWVIZ_FT_NEW_ACTION         L"Add New File Type"
+#define FWVIZ_FT_CLONE_ACTION       L"Clone Selected File Type"
+#define FWVIZ_FT_APPEND_ACTION      L"Append File Type(s)"
+#define FWVIZ_FT_LIMIT_ERROR        L"Only %i File Types can be defined."
+#define FWVIZ_RT_NEW_ACTION         L"Add New Record Types"
+#define FWVIZ_RT_CLONE_ACTION       L"Clone Selected Record Types"
+#define FWVIZ_RT_LIMIT_ERROR        L"Only %i Record Types can be defined per File Type."
 
 // Theme Dialog
 #define THEME_DIALOG_TITLE          L"Fixed Width File Theme Editor"
@@ -107,6 +114,13 @@
 
 #define THEME_DIALOG_HEX_TITLE      L"Hexadecimal characters only!"
 #define THEME_DIALOG_HEX_CHARS_ONLY L"This edit field will only accept characters in the following range: 0-9|A-F|a-f"
+#define THEME_DEF_NEW_ACTION        L"Add New Theme"
+#define THEME_DEF_CLONE_ACTION      L"Clone Selected Theme"
+#define THEME_DEF_APPEND_ACTION     L"Append Theme(s)"
+#define THEME_DEF_LIMIT_ERROR       L"Only %i Themes can be defined."
+#define THEME_STYLE_NEW_ACTION      L"Add New Style"
+#define THEME_STYLE_CLONE_ACTION    L"Clone Selected Style"
+#define THEME_STYLE_LIMIT_ERROR     L"Only %i Styles can be defined per Theme."
 
 #define THEME_DISCARD_CHANGES       L"Discard changes?"
 #define THEME_OPEN_BKUP_CONFIG_DLG  L"Open Backup Themes File"

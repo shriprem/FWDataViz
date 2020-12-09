@@ -6,7 +6,9 @@
 #include <regex>
 #include <vector>
 
-#define STYLE_ITEM_LIMIT 29
+#define THEME_ITEM_LIMIT 999
+#define STYLE_ITEM_LIMIT 99
+#define SWATCH_ITEM_COUNT 29
 
 using std::wregex;
 using std::regex_replace;
@@ -23,9 +25,8 @@ public:
 
    void doDialog(HINSTANCE hInst);
    int appendThemeConfigs(const wstring& sThemeFile);
-   void initPreviewSwatch(int idxStart=0, int idxEnd=STYLE_ITEM_LIMIT);
+   void initPreviewSwatch(int idxStart=0, int idxEnd=SWATCH_ITEM_COUNT);
 
-   HWND hThemesLB, hStylesLB;
 
 protected:
    enum move_dir {
@@ -39,10 +40,12 @@ protected:
       vector<StyleInfo> vStyleInfo;
    };
 
-   wstring themeFile{ L"" };
    vector<ThemeType> vThemeTypes;
+   wstring themeFile{ L"" };
+   int swatchTopIndex{};
    bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleVals, cleanStyleDefs, styleDefColor;
 
+   HWND hThemesLB, hStylesLB;
    HBRUSH hbr;
    COLORREF styleBack, styleFore, customColors[16];
 
@@ -53,7 +56,6 @@ protected:
    int loadThemeInfo(int vIndex, const wstring& themeType, const wstring& sThemeFile);
    bool promptDiscardChangesNo();
    void saveConfigInfo();
-   void cloneThemeInfo();
    void showEximDialog(bool bExtract);
 
    int getCurrentThemeIndex();
@@ -72,7 +74,9 @@ protected:
    int moveThemeType(move_dir dir);
    void themeEditAccept();
    void themeEditNew();
+   void themeEditClone();
    int themeEditDelete();
+   bool checkThemeLimit(bool clone);
 
    void fillStyles();
    void onStyleSelect();
