@@ -129,7 +129,6 @@ void ShowVisualizerPanel(bool show) {
    }
 
    _vizPanel.display(show);
-   nppMessage(NPPM_SETMENUITEMCHECK, pluginMenuItems[MI_FWVIZ_PANEL]._cmdID, show);
 }
 
 void ToggleVisualizerPanel() {

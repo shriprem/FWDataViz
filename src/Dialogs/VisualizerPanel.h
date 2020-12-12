@@ -41,8 +41,6 @@ public :
    void visualizeFile(wstring fileType, bool syncFileTypesList);
 
 protected :
-   bool panelVisible{};
-
    // Field Info tracking
    int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos;
 
