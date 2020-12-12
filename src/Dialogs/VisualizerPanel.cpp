@@ -65,7 +65,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case WM_SHOWWINDOW:
-         if (hFTList && !wParam) Utils::checkMenuItem(MI_FWVIZ_PANEL, FALSE);
+         if (panelVisible && !wParam) Utils::checkMenuItem(MI_FWVIZ_PANEL, FALSE);
          break;
 
       default :
@@ -107,6 +107,7 @@ void VisualizerPanel::localize() {
 
 void VisualizerPanel::display(bool toShow) {
    DockingDlgInterface::display(toShow);
+   panelVisible = TRUE;
 
    hFTList = GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
    hThemesLB = GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT);

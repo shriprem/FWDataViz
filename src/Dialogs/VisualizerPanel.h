@@ -41,30 +41,10 @@ public :
    void visualizeFile(wstring fileType, bool syncFileTypesList);
 
 protected :
-   virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
-   void localize();
-   bool getDocFileType(HWND hScintilla, wstring& fileType);
-   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
-   bool getDocTheme(HWND hScintilla, wstring& theme);
-   void setDocFileType(HWND hScintilla, wstring fileType);
-   void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
+   bool panelVisible{};
 
-   void enableThemeList(bool enable);
-   void syncListFileTypes();
-   void syncListThemes();
-
-   void clearVisualize(bool sync=TRUE);
-   int loadStyles();
-   int applyStyles();
-   int loadLexer();
-   void applyLexer(const size_t startLine, const size_t endLine);
-   void clearLexer();
-   void visualizeTheme();
-
-   void showJumpDialog();
-   void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
-   void clearCaretFieldInfo();
-   void showWordwrapInfo(bool show);
+   // Field Info tracking
+   int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos;
 
    // File Type data
    HWND hFTList, hThemesLB;
@@ -90,6 +70,29 @@ protected :
 
    vector<RecordInfo> recInfoList;
 
-   // Field Info tracking
-   int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos;
+   virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
+   void localize();
+   bool getDocFileType(HWND hScintilla, wstring& fileType);
+   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
+   bool getDocTheme(HWND hScintilla, wstring& theme);
+   void setDocFileType(HWND hScintilla, wstring fileType);
+   void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
+
+   void enableThemeList(bool enable);
+   void syncListFileTypes();
+   void syncListThemes();
+
+   void clearVisualize(bool sync=TRUE);
+   int loadStyles();
+   int applyStyles();
+   int loadLexer();
+   void applyLexer(const size_t startLine, const size_t endLine);
+   void clearLexer();
+   void visualizeTheme();
+
+   void showJumpDialog();
+   void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
+   void clearCaretFieldInfo();
+   void showWordwrapInfo(bool show);
+
 };
