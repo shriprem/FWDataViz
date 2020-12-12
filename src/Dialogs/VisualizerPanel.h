@@ -39,10 +39,11 @@ public :
    void onBufferActivate();
    void renderCurrentPage();
    void visualizeFile(wstring fileType, bool syncFileTypesList);
+   void jumpToField(const int recordIndex, const int fieldIdx);
 
 protected :
    // Field Info tracking
-   int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos;
+   int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos, caretFieldIndex;
 
    // File Type data
    HWND hFTList, hThemesLB;
@@ -88,9 +89,8 @@ protected :
    void clearLexer();
    void visualizeTheme();
 
-   void showJumpDialog();
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();
+   void showJumpDialog();
    void showWordwrapInfo(bool show);
-
 };

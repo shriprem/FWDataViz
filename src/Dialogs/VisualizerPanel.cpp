@@ -235,6 +235,28 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool syncFileTypesList) {
    setFocusOnEditor();
 }
 
+void VisualizerPanel::jumpToField(const int recordIndex, const int fieldIdx) {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   if (recordIndex != caretRecordRegIndex) {
+      MessageBox(_hSelf, VIZ_PANEL_JUMP_FIELD_ERROR, VIZ_PANEL_JUMP_FIELD_TITLE, MB_OK | MB_ICONSTOP);
+      return;
+   }
+
+   RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
+
+   int gotoPos{ caretRecordStartPos };
+
+   if (fieldIdx < static_cast<int>(FLD.fieldStarts.size()))
+      gotoPos += FLD.fieldStarts[fieldIdx];
+
+   SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
+   SendMessage(hScintilla, SCI_GOTOPOS, gotoPos, 0);
+
+   setFocusOnEditor();
+}
+
 void VisualizerPanel::visualizeTheme() {
    wchar_t fDesc[MAX_PATH];
 
@@ -619,11 +641,6 @@ void VisualizerPanel::clearCaretFieldInfo() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, L"");
 }
 
-void VisualizerPanel::showJumpDialog() {
-   _jumpDlg.doDialog((HINSTANCE)_gModule);
-   _jumpDlg.initDialog();
-}
-
 void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
@@ -636,6 +653,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    int caretColumnPos;
    size_t caretLine;
 
+   caretFieldIndex = -1;
    caretColumnPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
    caretLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION, caretColumnPos, NULL);
 
@@ -680,6 +698,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          fieldInfoText += L"\n    Overflow!";
       }
       else {
+         caretFieldIndex = matchedField;
          fieldInfoText += L"\n Field Label: ";
 
          if (fieldLabelCount == 0 || matchedField >= fieldLabelCount) {
@@ -704,10 +723,31 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_SHOW);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_SHOW);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN), SW_SHOW);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN),
+      caretRecordRegIndex < 0 ? SW_HIDE : SW_SHOW);
 }
 
-/// *** Private Functions: *** ///
+void VisualizerPanel::showJumpDialog() {
+   RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
+
+   int fieldCount = static_cast<int>(FLD.fieldStarts.size());
+   int fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
+
+   vector<wstring> fieldLabels;
+   fieldLabels.resize(fieldCount);
+
+   for (int i{}; i < fieldCount; i++) {
+      if (fieldLabelCount == 0 || i >= fieldLabelCount) {
+         fieldLabels[i] = L"Field #" + to_wstring(i + 1);
+      }
+      else {
+         fieldLabels[i] = FLD.fieldLabels[i];
+      }
+   }
+
+   _jumpDlg.doDialog((HINSTANCE)_gModule);
+   _jumpDlg.initDialog(caretRecordRegIndex, caretFieldIndex, fieldLabels);
+}
 
 bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
    char fType[MAX_PATH];

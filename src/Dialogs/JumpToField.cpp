@@ -1,4 +1,7 @@
 #include "JumpToField.h"
+#include "VisualizerPanel.h"
+
+extern VisualizerPanel _vizPanel;
 
 void JumpToField::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
@@ -12,8 +15,21 @@ void JumpToField::doDialog(HINSTANCE hInst) {
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
-void JumpToField::initDialog() {
-   SetFocus(GetDlgItem(_hSelf, IDC_JUMP_FIELD_LIST));
+void JumpToField::initDialog(int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels) {
+   caretRecordRegIndex = recordIndex;
+
+   hFieldList = GetDlgItem(_hSelf, IDC_JUMP_FIELD_LIST);
+
+   SendMessage(hFieldList, CB_RESETCONTENT, NULL, NULL);
+
+   for (const auto label : fieldLabels) {
+      SendMessage(hFieldList, CB_ADDSTRING, NULL, (LPARAM)label.c_str());
+   }
+
+   if (fieldLabels.size() > 0)
+      SendMessage(hFieldList, CB_SETCURSEL, fieldIndex < 0 ? 0 : fieldIndex, NULL);
+
+   SetFocus(hFieldList);
 }
 
 void JumpToField::setFileTypeData(const wstring& ftConfig) {
@@ -32,12 +48,12 @@ INT_PTR CALLBACK JumpToField::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
             case IDC_JUMP_FIELD_LIST:
                switch HIWORD(wParam) {
                   case LBN_SELCHANGE:
-                     //visualizeTheme();
                      break;
                   }
                break;
 
             case IDC_JUMP_FIELD_GO_BTN:
+               onJumpBtnClick();
                break;
          }
          break;
@@ -52,3 +68,11 @@ void JumpToField::localize() {
    SetDlgItemText(_hSelf, IDC_JUMP_FIELD_GO_BTN, JUMP_FIELD_GO_BTN);
    SetDlgItemText(_hSelf, IDCLOSE, JUMP_FIELD_CLOSE_BTN);
 }
+
+void JumpToField::onJumpBtnClick() {
+   display(FALSE);
+
+   _vizPanel.jumpToField(caretRecordRegIndex,
+      static_cast<int>(SendMessage(hFieldList, CB_GETCURSEL, NULL, NULL)));
+}
+

@@ -23,6 +23,8 @@
 #define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open FileType Metadata Editor"
 #define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
+#define VIZ_PANEL_JUMP_FIELD_TITLE  L"Jump to Field"
+#define VIZ_PANEL_JUMP_FIELD_ERROR  L"Caret has moved to a different Record Type.\r\n\r\nUnable to jump to the specified field."
 
 
 // About Dialog
