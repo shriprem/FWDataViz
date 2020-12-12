@@ -34,6 +34,9 @@
     <ClCompile Include="..\src\Dialogs\ThemeDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Dialogs\JumpToField.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -106,6 +109,9 @@
       <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Dialogs\ThemeDialog.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Dialogs\JumpToField.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>

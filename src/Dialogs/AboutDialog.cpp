@@ -42,7 +42,7 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                display(FALSE);
                return TRUE;
          }
-         return FALSE;
+         break;
 
       case WM_NOTIFY:
          switch (((LPNMHDR)lParam)->code) {
@@ -52,9 +52,8 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                display(FALSE);
                return TRUE;
          }
-         return FALSE;
-
-      default:
-         return FALSE;
+         break;
    }
+
+   return FALSE;
 }

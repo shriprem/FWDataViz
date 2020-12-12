@@ -87,6 +87,7 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
+   SetFocus(_hSelf);
 
    loadConfigInfo();
    fillThemes();

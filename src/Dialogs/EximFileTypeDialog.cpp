@@ -15,7 +15,6 @@ void EximFileTypeDialog::initDialog(bool bExtract, bool bViz) {
    vizMode = bViz;
    localize(bExtract);
 
-
    ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_SAVE_FILE), bExtract ? SW_SHOW : SW_HIDE);
    ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_LOAD_FILE), bExtract ? SW_HIDE : SW_SHOW);
    ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_APPEND), bExtract ? SW_HIDE : SW_SHOW);
@@ -70,14 +69,10 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
                appendExtractFile();
                break;
          }
-         return FALSE;
-
-      case WM_NOTIFY:
-         return FALSE;
-
-      default:
-         return FALSE;
+         break;
    }
+
+   return FALSE;
 }
 
 void EximFileTypeDialog::appendExtractFile() {

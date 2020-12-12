@@ -1,18 +1,8 @@
-//This program is free software; you can redistribute it and/or
-//modify it under the terms of the GNU General Public License
-//as published by the Free Software Foundation; either
-//version 2 of the License, or (at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program; if not, write to the Free Software
-//Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
 #include "VisualizerPanel.h"
+#include "JumpToField.h"
+
+extern HINSTANCE _gModule;
+JumpToField _jumpDlg;
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
@@ -42,7 +32,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                ShowThemeDialog();
                break;
 
-            case IDC_VIZPANEL_CLEAR_BUTTON:
+            case IDC_VIZPANEL_CLEAR_BTN:
                clearVisualize();
                break;
 
@@ -50,6 +40,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDCLOSE:
                setFocusOnEditor();
                ShowVisualizerPanel(FALSE);
+               break;
+
+            case IDC_VIZPANEL_JUMP_FIELD_BTN:
+               showJumpDialog();
                break;
 
             case IDC_VIZPANEL_CARET_FRAMED:
@@ -102,11 +96,12 @@ void VisualizerPanel::localize() {
    SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FILETYPE_LABEL, VIZ_PANEL_FILETYPE_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_THEME_LABEL, VIZ_PANEL_THEME_LABEL);
-   SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BUTTON, VIZ_PANEL_CLEAR_BUTTON);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BTN, VIZ_PANEL_CLEAR_BUTTON);
    SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
-   SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO, VIZ_PANEL_WORDWRAP_INFO);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO, VIZ_PANEL_WORDWRAP_INFO);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON, VIZ_PANEL_WORDWRAP_BUTTON);
 }
 
@@ -619,7 +614,14 @@ void VisualizerPanel::renderCurrentPage() {
 void VisualizerPanel::clearCaretFieldInfo() {
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_HIDE);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN), SW_HIDE);
+
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, L"");
+}
+
+void VisualizerPanel::showJumpDialog() {
+   _jumpDlg.doDialog((HINSTANCE)_gModule);
+   _jumpDlg.initDialog();
 }
 
 void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
@@ -702,6 +704,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_SHOW);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_SHOW);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN), SW_SHOW);
 }
 
 /// *** Private Functions: *** ///

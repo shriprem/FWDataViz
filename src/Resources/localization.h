@@ -17,11 +17,12 @@
 #define VIZ_PANEL_CLEAR_BUTTON      L"&Clear"
 #define VIZ_PANEL_CLOSE             L"C&lose"
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
+#define VIZ_PANEL_JUMP_FIELD_BTN    L"&Jump to Field"
+#define VIZ_PANEL_CARET_FRAMED      L"Framed Current Line"
+#define VIZ_PANEL_WORDWRAP_INFO     L"Visualizer is impaired when wordwrap is enabled."
+#define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open FileType Metadata Editor"
 #define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
-#define VIZ_PANEL_WORDWRAP_INFO     L"Visualizer is impaired when wordwrap is enabled."
-#define VIZ_PANEL_CARET_FRAMED      L"Framed Current Line"
-#define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
 
 
 // About Dialog
@@ -137,3 +138,9 @@
 #define FT_EXIM_SAVE_FILE_BTN       L"&Save to a File"
 #define FT_EXIM_APPEND_BTN          L"&Append File Type"
 #define FT_EXIM_CLOSE_BTN           L"&Close"
+
+// Jump Field Dialog
+#define JUMP_FIELD_DIALOG_TITLE     L"Extract File Type Data"
+#define JUMP_FIELD_SELECT_LABEL     L"&Select Field:"
+#define JUMP_FIELD_GO_BTN           L"&Jump"
+#define JUMP_FIELD_CLOSE_BTN        L"&Cancel"
