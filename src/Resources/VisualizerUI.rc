@@ -30,6 +30,7 @@ CAPTION "<Fixed Width Data Visualizer>"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "&File Type:",IDC_VIZPANEL_FILETYPE_LABEL,8,9,55,8
+    PUSHBUTTON      "...", IDC_VIZPANEL_FILE_SAMPLES_BTN,148,7,15,13,BS_BITMAP
     PUSHBUTTON      "...",IDC_VIZPANEL_FILETYPE_CONFIG,166,7,15,13,BS_BITMAP
     COMBOBOX        IDC_VIZPANEL_FILETYPE_SELECT,8,21,173,14,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "&Visualizer Theme:",IDC_VIZPANEL_THEME_LABEL,8,48,55,8
@@ -291,15 +292,19 @@ END
 // Bitmap
 //
 
-IDC_VIZPANEL_FIELDS_TOOLBAR BITMAP                  "fields.bmp"
+IDC_VIZ_COLOR_CONFIG_BITMAP BITMAP                    "color_config.bmp"
 
-IDC_VIZPANEL_FRAMED_TOOLBAR BITMAP                  "framed.bmp"
+IDC_VIZPANEL_FIELDS_TOOLBAR BITMAP                    "fields.bmp"
 
-IDC_VIZPANEL_CONFIG_BITMAP BITMAP                  "gear.bmp"
+IDC_VIZ_FILE_CONFIG_BITMAP BITMAP                     "file_config.bmp"
 
-IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP BITMAP                  "down.bmp"
+IDC_VIZ_FILE_SAMPLES_BITMAP BITMAP                    "file_samples.bmp"
 
-IDC_FWVIZ_DEF_MOVE_UP_BITMAP BITMAP                  "up.bmp"
+IDC_VIZPANEL_FRAMED_TOOLBAR BITMAP                    "framed.bmp"
+
+IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP BITMAP                 "down.bmp"
+
+IDC_FWVIZ_DEF_MOVE_UP_BITMAP BITMAP                   "up.bmp"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

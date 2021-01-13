@@ -21,6 +21,7 @@
 #define VIZ_PANEL_CARET_FRAMED      L"Framed Current Line"
 #define VIZ_PANEL_WORDWRAP_INFO     L"Visualizer is impaired when wordwrap is enabled."
 #define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
+#define VIZ_PANEL_FILE_SAMPLES_TIP  L"View Sample Files"
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open FileType Metadata Editor"
 #define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
 #define VIZ_PANEL_JUMP_FIELD_TITLE  L"Jump to Field"

@@ -68,6 +68,20 @@ void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
    _vizPanel.visualizeFile(gSampleFiles[cmdID].file_type, TRUE);
 }
 
+void SubmenuManager::initSamplesPopup(HMENU hPopup) {
+   HMENU hSubMenu = getPluginSubMenu();
+   if (hSubMenu == NULL) return;
+
+   HMENU hMenuSingle = GetSubMenu(hSubMenu, MI_DEMO_SINGLE_REC_FILES);
+   AppendMenu(hPopup, MF_POPUP, (UINT_PTR)hMenuSingle, MENU_DEMO_SINGLE_REC_FILES);
+
+   HMENU hMenuMultiRec = GetSubMenu(hSubMenu, MI_DEMO_MULTI_REC_FILES);
+   AppendMenu(hPopup, MF_POPUP, (UINT_PTR)hMenuMultiRec, MENU_DEMO_MULTI_REC_FILES);
+
+   HMENU hMenuMultiLine = GetSubMenu(hSubMenu, MI_DEMO_MULTI_LINE_FILES);
+   AppendMenu(hPopup, MF_POPUP, (UINT_PTR)hMenuMultiLine, MENU_DEMO_MULTI_LINE_FILES);
+}
+
 
 HMENU SubmenuManager::getPluginSubMenu() {
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
@@ -79,7 +93,7 @@ HMENU SubmenuManager::getPluginSubMenu() {
 
       pluginItemLen = GetMenuString(hPluginMenu, i, pluginItemText, MAX_PATH, MF_BYPOSITION);
       if (pluginItemLen > 0 && wstring{ pluginItemText } == MENU_PANEL_NAME) {
-         HMENU hSubMenu = ::GetSubMenu(hPluginMenu, i);
+         HMENU hSubMenu = GetSubMenu(hPluginMenu, i);
 
          if (GetMenuState(hSubMenu, (UINT)pluginMenuItems[0]._cmdID, MF_BYCOMMAND) != -1)
             return hSubMenu;

@@ -147,9 +147,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\src\Resources\gear.bmp">
-      <Filter>Resources</Filter>
-    </Image>
     <Image Include="down.bmp">
       <Filter>Resources</Filter>
     </Image>

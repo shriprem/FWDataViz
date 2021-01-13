@@ -19,7 +19,6 @@
 
 extern NppData nppData;
 extern ConfigIO _configIO;
-extern SubmenuManager _submenu;
 
 using std::regex;
 using std::vector;
@@ -93,4 +92,5 @@ protected :
    void clearCaretFieldInfo();
    void showJumpDialog();
    void showWordwrapInfo(bool show);
+   void popupSamplesMenu();
 };

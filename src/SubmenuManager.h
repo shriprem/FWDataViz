@@ -7,6 +7,7 @@ class SubmenuManager {
 public:
    void listSampleFiles();
    void loadSampleFile(WPARAM wParam, LPARAM lParam);
+   void initSamplesPopup(HMENU hPopup);
 
 private:
    size_t itemCount;

@@ -1,7 +1,9 @@
 #include "VisualizerPanel.h"
 #include "JumpToField.h"
+#include <WindowsX.h>
 
 extern HINSTANCE _gModule;
+extern SubmenuManager _submenu;
 JumpToField _jumpDlg;
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -14,6 +16,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                      visualizeFile(L"", FALSE);
                      break;
                }
+               break;
+
+            case IDC_VIZPANEL_FILE_SAMPLES_BTN:
+               popupSamplesMenu();
                break;
 
             case IDC_VIZPANEL_FILETYPE_CONFIG:
@@ -61,7 +67,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case WM_LBUTTONDOWN:
       case WM_MBUTTONDOWN:
       case WM_RBUTTONDOWN:
-         SetFocus(_hSelf);
+         SetFocus(hFTList);
          break;
 
       case WM_SHOWWINDOW:
@@ -83,10 +89,13 @@ void VisualizerPanel::initPanel() {
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
-   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDC_VIZPANEL_CONFIG_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, IDC_VIZ_FILE_SAMPLES_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, NULL, VIZ_PANEL_FILE_SAMPLES_TIP, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDC_VIZ_FILE_CONFIG_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_FILE_CONFIG_TIP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_THEME_CONFIG, IDC_VIZPANEL_CONFIG_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_THEME_CONFIG, IDC_VIZ_COLOR_CONFIG_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_THEME_CONFIG, NULL, VIZ_PANEL_THEME_CONFIG_TIP, FALSE);
 
    if (_gLanguage != LANG_ENGLISH) localize();
@@ -816,4 +825,27 @@ void VisualizerPanel::clearLexer() {
 void VisualizerPanel::showWordwrapInfo(bool show) {
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO), show ? SW_SHOW : SW_HIDE);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON), show ? SW_SHOW : SW_HIDE);
+}
+
+void VisualizerPanel::popupSamplesMenu() {
+   HMENU hPopupMenu = CreatePopupMenu();
+   _submenu.initSamplesPopup(hPopupMenu);
+
+   RECT rc;
+   GetWindowRect(GetDlgItem(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN), &rc);
+
+   int cmd = TrackPopupMenu(hPopupMenu, TPM_RIGHTALIGN | TPM_TOPALIGN | TPM_LEFTBUTTON | TPM_RETURNCMD,
+      rc.right, rc.bottom, 0, _hSelf, NULL);
+
+   if (cmd) nppMessage(NPPM_MENUCOMMAND, NULL, cmd);
+
+   // Calling RemoveMenu is needed since the appended items are being referenced from the NPP Main menu.
+   // In RemoveMenu, zero is used as the position since items shift down with each remove call.
+   // 'i' is used only as a loopcounter.
+   int itemCount = GetMenuItemCount(hPopupMenu);
+
+   for (int i{}; i < itemCount; i++) {
+      RemoveMenu(hPopupMenu, 0, MF_BYPOSITION);
+   }
+   DestroyMenu(hPopupMenu);
 }
