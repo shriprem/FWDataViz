@@ -1,0 +1,38 @@
+name: CI_build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        build_configuration: [Release, Debug]
+        build_platform: [x64, Win32]
+        
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1
+
+    - name: MSBuild of plugin dll
+      working-directory: vs.proj
+      run: msbuild FWDataViz.vcxproj /m /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}" /p:PlatformToolset="v142"
+
+    - name: Archive artifacts for x64
+      if: matrix.build_platform == 'x64' && matrix.build_configuration == 'Release'
+      uses: actions/upload-artifact@v1
+      with:
+          name: plugin_dll_x64
+          path: bin64\FWDataViz.dll
+
+    - name: Archive artifacts for Win32
+      if: matrix.build_platform == 'Win32' && matrix.build_configuration == 'Release'
+      uses: actions/upload-artifact@v1
+      with:
+          name: plugin_dll_x86
+          path: bin\FWDataViz.dll
