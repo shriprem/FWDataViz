@@ -1,15 +1,17 @@
 # FWDataViz
-Fixed Width Data Visualizer plugin for Notepad++
+#### Fixed Width Data Visualizer plugin for Notepad++
+![FWDataViz](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_weather_stations.png)
 
 * Visualizes fields within fixed-width data files with distinct colors and font styles.
-* Displays record, field and byte information at cursor position.
-* Feature to jump to a specific field of the current record.
-* Configuration dialog to define and edit file, record and field types.
-* Configuration dialog to define and edit themes and colors for data visualization.
-* Can handle files with:
-   * Homogenous record-type data 
-   * Mixed record-types data
-   * Multiple-line-spanning record-types data
+* <a href="#plugin-panel">Displays record, field and byte information at cursor position.</a>
+* <a href="#jump-to-field-popup">Feature to jump to a specific field of the current record.</a>
+* <a href="#file-record--field-configuration-dialog">Configuration dialog to define and customize file, record and field types.</a>
+* <a href="#theme--color-configuration-dialog">Configuration dialog to define and customize themes and colors for data visualization.</a>
+* Easily share customized <a href="#file-type-extract-dialog">FileType</a> and <a href="#theme-extract-dialog">Color Theme</a> configurations.
+* <a href="#sample-data-files">Sample Data files</a> in the plugin package demonstrating:
+   * <a href="#homogenous-record-type-fixed-width-data-files">Homogenous record-type data</a>
+   * <a href="#mixed-record-type-fixed-width-data-files">Mixed record-types data</a>
+   * <a href="#multi-line-record-type-fixed-width-data-files">Multiple-line-spanning record-types data</a>
 
 ## User Interface
 
@@ -21,6 +23,8 @@ The Framed Current Line feature preserves the color highlights of data fields on
 
 #### Plugin Panel:
 ![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
+
+To see the plugin in action, click on the _View Sample Files_ icon, and choose from the menu options to view the <a href="#sample-data-files">various sample files</a>.
 
 #### Jump to Field popup:
 ![Jump_to_Field_popup](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/jump_to_field.png) »»
