@@ -19,7 +19,7 @@
 ![Show_Panel_icon](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/show_panel_toolbutton.png)
 ![Framed_Caret_icon](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/framed_caret_line_toolbutton.png)
 
-The Framed Current Line feature preserves the color highlights of data fields on the caret line, while still indicating its current line status. This feature is functional even when the fixed-width data visualiztion is not active.
+The Framed Current Line feature preserves the color highlights of data fields on the caret line, while still indicating its current line status. This feature is functional even when the fixed-width data visualization is not active.
 
 #### Plugin Panel:
 ![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
