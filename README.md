@@ -19,7 +19,7 @@
 ![Show_Panel_icon](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/show_panel_toolbutton.png)
 ![Framed_Caret_icon](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/framed_caret_line_toolbutton.png)
 
-The Framed Current Line feature preserves the color highlights of data fields on the caret line, while still indicating its current line status. This feature is functional even when the fixed-width data visualization is not active.
+The _Framed Current Line_ feature preserves the color highlights of data fields on the caret line, while still indicating its current line status. This feature is functional even when the fixed-width data visualization is not active.
 
 #### Plugin Panel:
 ![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
@@ -27,10 +27,9 @@ The Framed Current Line feature preserves the color highlights of data fields on
 To see the plugin in action, click on the _View Sample Files_ icon, and choose from the menu options to view the <a href="#sample-data-files">various sample files</a>.
 
 #### Jump to Field popup:
-![Jump_to_Field_popup](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/jump_to_field.png) »»
 ![Jump_to_Field_list](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/jump_to_field_with_list.png)
 
-Useful for jumping between fields on long records with dozens of fields.
+Useful for navigating between fields on long records with dozens of fields.
 
 
 ## Configuration Dialogs
