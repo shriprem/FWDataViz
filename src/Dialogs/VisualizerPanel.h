@@ -45,7 +45,7 @@ protected :
    int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos, caretFieldIndex;
 
    // File Type data
-   HWND hFTList, hThemesLB;
+   HWND hFTList, hThemesLB, hFieldInfo;
    std::unordered_map<wstring, wstring> mapFileDescToType;
    std::unordered_map<wstring, wstring> mapFileTypeToDesc;
 
@@ -90,6 +90,7 @@ protected :
 
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();
+   void resizeCaretFieldInfo(int width);
    void showJumpDialog();
    void showWordwrapInfo(bool show);
    void popupSamplesMenu();

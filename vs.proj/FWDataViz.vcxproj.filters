@@ -145,18 +145,32 @@
     <Filter Include="Resources\Default Config Files">
       <UniqueIdentifier>{4a1adc1a-c6ba-46d8-955d-7d51864e12ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\Bitmaps">
+      <UniqueIdentifier>{067827ee-8c8c-483b-9a48-3986e0244ea1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="down.bmp">
-      <Filter>Resources</Filter>
+    <Image Include="..\src\Resources\color_config.bmp">
+      <Filter>Resources\Bitmaps</Filter>
     </Image>
-    <Image Include="up.bmp">
-      <Filter>Resources</Filter>
+    <Image Include="..\src\Resources\down.bmp">
+      <Filter>Resources\Bitmaps</Filter>
     </Image>
-    <Image Include="..\src\Resources\down.bmp" />
-    <Image Include="..\src\Resources\up.bmp" />
-    <Image Include="..\src\Resources\fields.bmp" />
-    <Image Include="..\src\Resources\framed.bmp" />
+    <Image Include="..\src\Resources\fields.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\file_config.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\file_samples.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\framed.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\up.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly">

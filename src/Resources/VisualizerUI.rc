@@ -30,7 +30,7 @@ CAPTION "<Fixed Width Data Visualizer>"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     LTEXT           "&File Type:",IDC_VIZPANEL_FILETYPE_LABEL,8,9,55,8
-    PUSHBUTTON      "...", IDC_VIZPANEL_FILE_SAMPLES_BTN,148,7,15,13,BS_BITMAP
+    PUSHBUTTON      "...",IDC_VIZPANEL_FILE_SAMPLES_BTN,148,7,15,13,BS_BITMAP
     PUSHBUTTON      "...",IDC_VIZPANEL_FILETYPE_CONFIG,166,7,15,13,BS_BITMAP
     COMBOBOX        IDC_VIZPANEL_FILETYPE_SELECT,8,21,173,14,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "&Visualizer Theme:",IDC_VIZPANEL_THEME_LABEL,8,48,55,8
@@ -39,8 +39,8 @@ BEGIN
     PUSHBUTTON      "&Clear",IDC_VIZPANEL_CLEAR_BTN,33,85,50,14
     PUSHBUTTON      "C&lose",IDCLOSE,106,85,50,14
     LTEXT           "Cursor Position Data",IDC_VIZPANEL_FIELD_LABEL,8,112,173,11
-    LTEXT           "",IDC_VIZPANEL_FIELD_INFO,8,126,173,79
-    PUSHBUTTON      "&Jump to Field",IDC_VIZPANEL_JUMP_FIELD_BTN,53,211,82,14,NOT WS_VISIBLE
+    EDITTEXT        IDC_VIZPANEL_FIELD_INFO,8,126,173,82,ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_HSCROLL
+    PUSHBUTTON      "&Jump to Field",IDC_VIZPANEL_JUMP_FIELD_BTN,53,214,82,14,NOT WS_VISIBLE
     CONTROL         "Framed Current Line",IDC_VIZPANEL_CARET_FRAMED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,238,173,11
     CTEXT           "Visualizer is impaired when wordwrap is enabled.",IDC_VIZPANEL_WORDWRAP_INFO,4,262,182,10,NOT WS_VISIBLE
     PUSHBUTTON      "Turnoff Wordwrap",IDC_VIZPANEL_WORDWRAP_BUTTON,53,274,82,14,NOT WS_VISIBLE
@@ -260,7 +260,7 @@ GUIDELINES DESIGNINFO
 BEGIN
     IDD_VISUALIZER_DOCKPANEL, DIALOG
     BEGIN
-        BOTTOMMARGIN, 301
+        BOTTOMMARGIN, 316
     END
 
     IDD_FWVIZ_DEFINER_DIALOG, DIALOG
@@ -292,19 +292,19 @@ END
 // Bitmap
 //
 
-IDC_VIZ_COLOR_CONFIG_BITMAP BITMAP                    "color_config.bmp"
+IDC_VIZ_COLOR_CONFIG_BITMAP BITMAP                  "color_config.bmp"
 
-IDC_VIZPANEL_FIELDS_TOOLBAR BITMAP                    "fields.bmp"
+IDC_VIZPANEL_FIELDS_TOOLBAR BITMAP                  "fields.bmp"
 
-IDC_VIZ_FILE_CONFIG_BITMAP BITMAP                     "file_config.bmp"
+IDC_VIZ_FILE_CONFIG_BITMAP BITMAP                  "file_config.bmp"
 
-IDC_VIZ_FILE_SAMPLES_BITMAP BITMAP                    "file_samples.bmp"
+IDC_VIZ_FILE_SAMPLES_BITMAP BITMAP                  "file_samples.bmp"
 
-IDC_VIZPANEL_FRAMED_TOOLBAR BITMAP                    "framed.bmp"
+IDC_VIZPANEL_FRAMED_TOOLBAR BITMAP                  "framed.bmp"
 
-IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP BITMAP                 "down.bmp"
+IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP BITMAP                  "down.bmp"
 
-IDC_FWVIZ_DEF_MOVE_UP_BITMAP BITMAP                   "up.bmp"
+IDC_FWVIZ_DEF_MOVE_UP_BITMAP BITMAP                  "up.bmp"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

@@ -74,6 +74,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          Utils::checkMenuItem(MI_FWVIZ_PANEL, wParam);
          break;
 
+      case WM_SIZE:
+         resizeCaretFieldInfo(LOWORD(lParam));
+         break;
+
       default :
          return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
    }
@@ -119,6 +123,7 @@ void VisualizerPanel::display(bool toShow) {
 
    hFTList = GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
    hThemesLB = GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT);
+   hFieldInfo = GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO);
 
    if (toShow) {
       syncListFileTypes();
@@ -644,10 +649,21 @@ void VisualizerPanel::renderCurrentPage() {
 
 void VisualizerPanel::clearCaretFieldInfo() {
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_HIDE);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_HIDE);
+   ShowWindow(hFieldInfo, SW_HIDE);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN), SW_HIDE);
 
-   SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, L"");
+   SetWindowText(hFieldInfo, L"");
+}
+
+void VisualizerPanel::resizeCaretFieldInfo(int width) {
+   RECT rcInfo;
+   GetWindowRect(hFieldInfo, &rcInfo);
+
+   // Get fieldInfo top-left coordinates relative to dock panel
+   POINT pt{ rcInfo.left, rcInfo.top };
+   ScreenToClient(_hSelf, &pt);
+
+   MoveWindow(hFieldInfo, pt.x, pt.y, (width - pt.x), (rcInfo.bottom - rcInfo.top), TRUE);
 }
 
 void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
@@ -691,7 +707,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 };
 
       caretColumn = caretColumnPos - caretRecordStartPos;
-      fieldInfoText = L" Record Type: " + FLD.label;
+      fieldInfoText = L"  Record Type: " + FLD.label;
       fieldCount = static_cast<int>(FLD.fieldStarts.size());
       fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
 
@@ -699,16 +715,18 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          cumulativeWidth += FLD.fieldWidths[i];
          if (caretColumn >= FLD.fieldStarts[i] && caretColumn < cumulativeWidth) {
             matchedField = i;
-            break;
          }
       }
 
+      fieldInfoText += L"\r\nRecord Length: " +
+         to_wstring(caretEolMarkerPos - caretRecordStartPos) + L" / " + to_wstring(cumulativeWidth);
+
       if (matchedField < 0) {
-         fieldInfoText += L"\n    Overflow!";
+         fieldInfoText += L"\r\n    Overflow!";
       }
       else {
          caretFieldIndex = matchedField;
-         fieldInfoText += L"\n Field Label: ";
+         fieldInfoText += L"\r\n  Field Label: ";
 
          if (fieldLabelCount == 0 || matchedField >= fieldLabelCount) {
             fieldInfoText += L"Field #" + to_wstring(matchedField + 1);
@@ -717,21 +735,21 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
             fieldInfoText += FLD.fieldLabels[matchedField];
          }
 
-         fieldInfoText += L"\n Field Start: " + to_wstring(FLD.fieldStarts[matchedField] + 1);
-         fieldInfoText += L"\n Field Width: " + to_wstring(FLD.fieldWidths[matchedField]);
-         fieldInfoText += L"\nField Column: " + to_wstring(caretColumn - FLD.fieldStarts[matchedField] + 1);
+         fieldInfoText += L"\r\n  Field Start: " + to_wstring(FLD.fieldStarts[matchedField] + 1);
+         fieldInfoText += L"\r\n  Field Width: " + to_wstring(FLD.fieldWidths[matchedField]);
+         fieldInfoText += L"\r\n Field Column: " + to_wstring(caretColumn - FLD.fieldStarts[matchedField] + 1);
       }
    }
 
    wchar_t ansiInfo[200];
    UCHAR atChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretColumnPos, 0));
    swprintf(ansiInfo, 200, L"0x%X [%u]", atChar, atChar);
-   fieldInfoText += L"\n   ANSI Byte: " + wstring(ansiInfo);
+   fieldInfoText += L"\r\n    ANSI Byte: " + wstring(ansiInfo);
 
-   SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_INFO, fieldInfoText.c_str());
+   SetWindowText(hFieldInfo, fieldInfoText.c_str());
 
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_SHOW);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO), SW_SHOW);
+   ShowWindow(hFieldInfo, SW_SHOW);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN),
       caretRecordRegIndex < 0 ? SW_HIDE : SW_SHOW);
 }

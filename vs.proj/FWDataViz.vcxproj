@@ -65,12 +65,13 @@
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\src\Resources\color_config.bmp" />
     <Image Include="..\src\Resources\down.bmp" />
     <Image Include="..\src\Resources\fields.bmp" />
+    <Image Include="..\src\Resources\file_config.bmp" />
+    <Image Include="..\src\Resources\file_samples.bmp" />
     <Image Include="..\src\Resources\framed.bmp" />
     <Image Include="..\src\Resources\up.bmp" />
-    <Image Include="down.bmp" />
-    <Image Include="up.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Default Ini Files\default_Preferences.ini" />
