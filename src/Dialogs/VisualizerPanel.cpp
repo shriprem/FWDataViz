@@ -663,7 +663,7 @@ void VisualizerPanel::resizeCaretFieldInfo(int width) {
    POINT pt{ rcInfo.left, rcInfo.top };
    ScreenToClient(_hSelf, &pt);
 
-   MoveWindow(hFieldInfo, pt.x, pt.y, (width - pt.x), (rcInfo.bottom - rcInfo.top), TRUE);
+   MoveWindow(hFieldInfo, pt.x, pt.y, (width - pt.x - 3), (rcInfo.bottom - rcInfo.top), TRUE);
 }
 
 void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
@@ -719,7 +719,8 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       }
 
       fieldInfoText += L"\r\nRecord Length: " +
-         to_wstring(caretEolMarkerPos - caretRecordStartPos) + L" / " + to_wstring(cumulativeWidth);
+         to_wstring(caretEolMarkerPos - caretRecordStartPos) + L"/" + to_wstring(cumulativeWidth) +
+         L" [Current/Defined]";
 
       if (matchedField < 0) {
          fieldInfoText += L"\r\n    Overflow!";
