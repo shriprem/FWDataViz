@@ -208,7 +208,7 @@ int ConfigIO::Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim)
 
    Tokenize(text, interims, delim);
 
-   for (auto istr : interims)
+   for (wstring istr : interims)
       results.emplace_back(StringtoInt(istr));
 
    return static_cast<int>(results.size());

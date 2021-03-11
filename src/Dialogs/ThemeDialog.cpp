@@ -379,7 +379,7 @@ int ThemeDialog::loadThemeInfo(int vIndex, const wstring& themeType, const wstri
 void ThemeDialog::fillThemes() {
    SendMessage(hThemesLB, LB_RESETCONTENT, NULL, NULL);
 
-   for (const auto TT : vThemeTypes) {
+   for (const ThemeType TT : vThemeTypes) {
       SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)TT.label.c_str());
    }
 

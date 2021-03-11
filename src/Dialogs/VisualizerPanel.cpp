@@ -154,7 +154,7 @@ void VisualizerPanel::loadListFileTypes() {
    SendMessage(hFTList, CB_RESETCONTENT, NULL, NULL);
    SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
 
-   for (auto fType : fileTypes) {
+   for (wstring fType : fileTypes) {
       wstring fileLabel;
 
       fileLabel = _configIO.getConfigString(fType, L"FileLabel");
@@ -170,7 +170,7 @@ void VisualizerPanel::loadListThemes() {
 
    vector<wstring> themesList = _configIO.getAvailableThemesList();
 
-   for (const auto theme : themesList) {
+   for (const wstring theme : themesList) {
       SendMessage(hThemesLB, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
    }
 }

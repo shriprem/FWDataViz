@@ -22,7 +22,7 @@ void JumpToField::initDialog(int recordIndex, int fieldIndex, const vector<wstri
 
    SendMessage(hFieldList, CB_RESETCONTENT, NULL, NULL);
 
-   for (const auto label : fieldLabels) {
+   for (const wstring label : fieldLabels) {
       SendMessage(hFieldList, CB_ADDSTRING, NULL, (LPARAM)label.c_str());
    }
 

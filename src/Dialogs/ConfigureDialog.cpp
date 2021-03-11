@@ -470,7 +470,7 @@ void ConfigureDialog::fillFileTypes() {
    // Fill File Types Listbox
    SendMessage(hFilesLB, LB_RESETCONTENT, NULL, NULL);
 
-   for (const auto FT : vFileTypes) {
+   for (const FileType FT : vFileTypes) {
       SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)FT.label.c_str());
    }
 
@@ -482,7 +482,7 @@ void ConfigureDialog::fillFileTypes() {
 
    vector<wstring> themesList = _configIO.getAvailableThemesList();
 
-   for (const auto theme : themesList) {
+   for (const wstring theme : themesList) {
       SendMessage(hThemesLB, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
    }
 
@@ -682,7 +682,7 @@ void ConfigureDialog::fillRecTypes() {
    // Fill Rec Types Listbox
    SendMessage(hRecsLB, LB_RESETCONTENT, NULL, NULL);
 
-   for (const auto RT : recInfoList) {
+   for (const RecordType RT : recInfoList) {
       SendMessage(hRecsLB, LB_ADDSTRING, NULL, (LPARAM)RT.label.c_str());
    }
 
