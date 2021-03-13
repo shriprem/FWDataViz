@@ -440,7 +440,7 @@ int VisualizerPanel::loadLexer() {
 
       RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), recType);
       RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L".");
-      RT.regExpr = regex{ RT.marker + ".*(\r\n|\n|\r)?" };
+      RT.regExpr = regex{ RT.marker + ".*" };
 
       wstring fieldWidthList;
       int fieldCount;
@@ -799,6 +799,9 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& 
 }
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
+   char lineTextCStr[FW_LINE_MAX_LENGTH]{};
+   size_t startPos, endPos;
+
    vector<wstring> fileTypes;
    wstring fileTypeList;
 
@@ -820,15 +823,15 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
          int line = _configIO.StringtoInt(strLine) - 1;
          if (line < 0) continue;
 
-         if (strRegex.substr(strRegex.length() - 1) == "$")
-            strRegex = strRegex.substr(0, strRegex.length() - 1);
-         else
+         if (strRegex.substr(strRegex.length() - 1) != "$")
             strRegex += ".*";
 
-         char lineTextCStr[FW_LINE_MAX_LENGTH]{};
          SendMessage(hScintilla, SCI_GETLINE, (WPARAM)line, (LPARAM)lineTextCStr);
+         startPos = SendMessage(hScintilla, SCI_POSITIONFROMLINE, line, NULL);
+         endPos = SendMessage(hScintilla, SCI_GETLINEENDPOSITION, line, NULL);
+         string_view lineText{ lineTextCStr, endPos - startPos };
 
-         if (regex_match(lineTextCStr, regex{ strRegex + "(\r\n|\n|\r)?" }))
+         if (regex_match(string{ lineText }, regex{ strRegex }))
             matched = TRUE;
          else {
             matched = FALSE;
