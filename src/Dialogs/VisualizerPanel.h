@@ -41,11 +41,12 @@ public :
    void jumpToField(const int recordIndex, const int fieldIdx);
 
 protected :
+   HWND hFTList, hThemesLB, hFieldInfo;
+
    // Field Info tracking
    int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos, caretFieldIndex;
 
    // File Type data
-   HWND hFTList, hThemesLB, hFieldInfo;
    std::unordered_map<wstring, wstring> mapFileDescToType;
    std::unordered_map<wstring, wstring> mapFileTypeToDesc;
 
@@ -72,6 +73,7 @@ protected :
    void localize();
    bool getDocFileType(HWND hScintilla, wstring& fileType);
    bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
+   bool detectFileType(HWND hScintilla, wstring& fileType);
    bool getDocTheme(HWND hScintilla, wstring& theme);
    void setDocFileType(HWND hScintilla, wstring fileType);
    void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);

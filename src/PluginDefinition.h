@@ -30,6 +30,7 @@
 #include "Resources/localization.h"
 
 #define PLUGIN_FOLDER_NAME L"FWDataViz"
+#define ADFT_MAX 3
 
 using std::string;
 using std::string_view;

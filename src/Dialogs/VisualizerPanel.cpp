@@ -183,6 +183,9 @@ void VisualizerPanel::syncListFileTypes() {
 
    getDocFileType(hScintilla, fileType);
    _configIO.setCurrentConfigFile(fileType);
+
+   if (fileType.length() < 1) detectFileType(hScintilla, fileType);
+
    loadListFileTypes();
    enableThemeList(fileType.length() > 0);
 
@@ -223,7 +226,7 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool syncFileTypesList) {
    if (!hScintilla) return;
 
    if (fileType.length() < 1) {
-      wchar_t fDesc[MAX_PATH];
+      wchar_t fDesc[MAX_PATH]{};
 
       SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
       fileType = mapFileDescToType[fDesc];
@@ -272,7 +275,7 @@ void VisualizerPanel::jumpToField(const int recordIndex, const int fieldIdx) {
 }
 
 void VisualizerPanel::visualizeTheme() {
-   wchar_t fDesc[MAX_PATH];
+   wchar_t fDesc[MAX_PATH]{};
 
    SendMessage(hThemesLB, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
    wstring theme{ fDesc };
@@ -497,7 +500,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    const size_t styleCount{ styleSet.size() };
    if (styleCount < 1) return;
 
-   char lineTextCStr[FW_LINE_MAX_LENGTH];
+   char lineTextCStr[FW_LINE_MAX_LENGTH]{};
    string recStartText{}, eolMarker;
    size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{},
       currentPos, startPos, endPos, recStartPos{};
@@ -778,7 +781,7 @@ void VisualizerPanel::showJumpDialog() {
 }
 
 bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
-   char fType[MAX_PATH];
+   char fType[MAX_PATH]{};
 
    SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
    fileType = _configIO.NarrowToWide(fType);
@@ -787,7 +790,7 @@ bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
 }
 
 bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& fileType) {
-   char fType[MAX_PATH];
+   char fType[MAX_PATH]{};
 
    sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
    fileType = _configIO.NarrowToWide(fType);
@@ -795,8 +798,57 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& 
    return (fileType.length() > 0);
 }
 
+bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
+   vector<wstring> fileTypes;
+   wstring fileTypeList;
+
+   fileTypeList = _configIO.getConfigString(L"Base", L"FileTypes");
+   _configIO.Tokenize(fileTypeList, fileTypes);
+
+   for (wstring fType : fileTypes) {
+      bool matched{ FALSE };
+
+      for (int i{ 1 }; i <= ADFT_MAX; i++) {
+         wchar_t idx[5];
+         swprintf(idx, 5, L"%02d", i);
+
+         wstring strLine = _configIO.getConfigString(fType, L"ADFT_Line_" + wstring{ idx });
+         string strRegex = _configIO.getConfigStringA(fType, L"ADFT_Regex_" + wstring{ idx });
+
+         if (strLine.length() < 1 || strRegex.length() < 1) continue;
+
+         int line = _configIO.StringtoInt(strLine) - 1;
+         if (line < 0) continue;
+
+         if (strRegex.substr(strRegex.length() - 1) == "$")
+            strRegex = strRegex.substr(0, strRegex.length() - 1);
+         else
+            strRegex += ".*";
+
+         char lineTextCStr[FW_LINE_MAX_LENGTH]{};
+         SendMessage(hScintilla, SCI_GETLINE, (WPARAM)line, (LPARAM)lineTextCStr);
+
+         if (regex_match(lineTextCStr, regex{ strRegex + "(\r\n|\n|\r)?" }))
+            matched = TRUE;
+         else {
+            matched = FALSE;
+            break;
+         }
+      }
+
+      if (matched) {
+         fileType = fType;
+         setDocFileType(hScintilla, fileType);
+         setDocTheme(hScintilla, fileType, L"");
+         break;
+      }
+   }
+
+   return (fileType.length() > 0);
+}
+
 bool VisualizerPanel::getDocTheme(HWND hScintilla, wstring& theme) {
-   char fTheme[MAX_PATH];
+   char fTheme[MAX_PATH]{};
 
    SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)fTheme);
    theme = _configIO.NarrowToWide(fTheme);

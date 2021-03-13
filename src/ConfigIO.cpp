@@ -1,7 +1,7 @@
 #include "ConfigIO.h"
 
 void ConfigIO::init() {
-   TCHAR sPluginDirectory[MAX_PATH];
+   TCHAR sPluginDirectory[MAX_PATH]{};
 
    nppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)sPluginDirectory);
    PathAppend(sPluginDirectory, PLUGIN_FOLDER_NAME);
@@ -306,7 +306,7 @@ void ConfigIO::backupConfigFile(bool bViz) {
 BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring &backupConfigFile) {
    OPENFILENAME ofn;
 
-   TCHAR filePath[MAX_PATH];
+   TCHAR filePath[MAX_PATH]{};
 
    ZeroMemory(&ofn, sizeof(ofn));
    ofn.lStructSize = sizeof(ofn);

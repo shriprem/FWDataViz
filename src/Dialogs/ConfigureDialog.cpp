@@ -524,6 +524,7 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
    newFile.eol = "";
    newFile.theme = L"Spectrum";
    newFile.vRecTypes = vector<RecordType>{ getNewRec() };
+   newFile.vADFT = vector<ADFT>{};
 
    return newFile;
 }

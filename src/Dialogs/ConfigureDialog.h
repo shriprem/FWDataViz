@@ -42,11 +42,18 @@ protected:
       wstring fieldWidths;
    };
 
+   // ADFT: Auto-Detect File Type
+   struct ADFT {
+      vector<int> lineNum;
+      vector<string> regExpr;
+   };
+
    struct FileType {
       wstring label;
       string eol;
       wstring theme;
       vector<RecordType> vRecTypes;
+      vector<ADFT> vADFT;
    };
 
    wstring configFile{ L"" };
