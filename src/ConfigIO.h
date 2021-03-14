@@ -60,6 +60,9 @@ public:
    void viewBackupFolder();
    int getBackupTempFileName(wstring &tempFileName);
 
+   bool getAutoDetectFileType();
+   void setAutoDetectFileType(bool detect);
+
    bool getCaretFramed();
    void setCaretFramed(bool framed);
 

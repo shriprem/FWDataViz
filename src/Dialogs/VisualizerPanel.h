@@ -77,6 +77,7 @@ protected :
    bool getDocTheme(HWND hScintilla, wstring& theme);
    void setDocFileType(HWND hScintilla, wstring fileType);
    void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
+   void setAutoDetectFileType();
 
    void enableThemeList(bool enable);
    void syncListFileTypes();

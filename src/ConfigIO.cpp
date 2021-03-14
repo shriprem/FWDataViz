@@ -357,6 +357,14 @@ int ConfigIO::getBackupTempFileName(wstring &tempFileName) {
    return 0;
 }
 
+bool ConfigIO::getAutoDetectFileType() {
+   return getConfigString(L"Preferences", L"AutoDetectFileType", L"Y", CONFIG_FILE_PATHS[CONFIG_PREFS]) == L"Y";
+}
+
+void ConfigIO::setAutoDetectFileType(bool detect) {
+   setConfigString(L"Preferences", L"AutoDetectFileType", detect ? L"Y" : L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]);
+}
+
 bool ConfigIO::getCaretFramed() {
    return getConfigString(L"Preferences", L"FramedCaret", L"Y", CONFIG_FILE_PATHS[CONFIG_PREFS]) == L"Y";
 }

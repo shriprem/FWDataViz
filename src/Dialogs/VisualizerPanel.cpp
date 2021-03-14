@@ -48,12 +48,16 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                ShowVisualizerPanel(FALSE);
                break;
 
-            case IDC_VIZPANEL_JUMP_FIELD_BTN:
-               showJumpDialog();
+            case IDC_VIZPANEL_AUTO_DETECT_FT:
+               setAutoDetectFileType();
                break;
 
             case IDC_VIZPANEL_CARET_FRAMED:
                ToggleCaretFramedState();
+               break;
+
+            case IDC_VIZPANEL_JUMP_FIELD_BTN:
+               showJumpDialog();
                break;
 
             case IDC_VIZPANEL_WORDWRAP_BUTTON:
@@ -128,6 +132,8 @@ void VisualizerPanel::display(bool toShow) {
    if (toShow) {
       syncListFileTypes();
       syncListThemes();
+      CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT,
+         _configIO.getAutoDetectFileType() ? BST_CHECKED : BST_UNCHECKED);
       showCaretFramedState(_configIO.getCaretFramed());
       SetFocus(hFTList);
    }
@@ -184,7 +190,8 @@ void VisualizerPanel::syncListFileTypes() {
    getDocFileType(hScintilla, fileType);
    _configIO.setCurrentConfigFile(fileType);
 
-   if (fileType.length() < 1) detectFileType(hScintilla, fileType);
+   if (fileType.length() < 1 && _configIO.getAutoDetectFileType())
+      detectFileType(hScintilla, fileType);
 
    loadListFileTypes();
    enableThemeList(fileType.length() > 0);
@@ -873,6 +880,16 @@ void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring the
    SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_THEME,
       (LPARAM)_configIO.WideToNarrow(theme).c_str());
+}
+
+void VisualizerPanel::setAutoDetectFileType() {
+   bool checked{ IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED };
+
+   _configIO.setAutoDetectFileType(checked);
+   if (checked) {
+      syncListFileTypes();
+      visualizeFile(L"", FALSE);
+   }
 }
 
 void VisualizerPanel::onBufferActivate() {
