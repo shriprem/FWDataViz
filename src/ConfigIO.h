@@ -32,6 +32,8 @@ public:
       const wstring& defaultValue = L"", wstring fileName = L"");
    wstring getConfigString(const wstring& sectionName, const wstring& keyName,
       const wstring& defaultValue = L"", wstring fileName = L"");
+   int getConfigInt(const wstring& sectionName, const wstring& keyName,
+      const int& defaultValue = 0, wstring fileName = L"");
    int getConfigSectionList(wstring& sections, wstring fileName);
 
    void setConfigStringA(const wstring& sectionName, const wstring& keyName,

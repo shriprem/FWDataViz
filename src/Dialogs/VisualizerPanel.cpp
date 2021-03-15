@@ -819,9 +819,9 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
    for (wstring fType : fileTypes) {
       bool matched{ FALSE };
 
-      for (int i{ 1 }; i <= ADFT_MAX; i++) {
+      for (int i{}; i < ADFT_MAX; i++) {
          wchar_t idx[5];
-         swprintf(idx, 5, L"%02d", i);
+         swprintf(idx, 5, L"%02d", i + 1);
 
          wstring strLine = _configIO.getConfigString(fType, L"ADFT_Line_" + wstring{ idx });
          string strRegex = _configIO.getConfigStringA(fType, L"ADFT_Regex_" + wstring{ idx });

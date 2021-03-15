@@ -41,7 +41,7 @@ LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
          int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
 
          if (LOWORD(editSel) == 0) {
-            wchar_t editText[MAX_PATH];
+            wchar_t editText[MAX_PATH + 1];
             GetWindowText(hwnd, editText, MAX_PATH);
 
             if (HIWORD(editSel) == 0 && editText[0] == '-')
@@ -64,7 +64,7 @@ LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
 
          int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
 
-         wchar_t editText[MAX_PATH];
+         wchar_t editText[MAX_PATH + 1];
          GetWindowText(hwnd, editText, MAX_PATH);
 
          wstring clipValid{ (editText[0] == '-' && (LOWORD(editSel) > 0 || HIWORD(editSel) == 0)) ? L"" : L"-?" };
@@ -121,20 +121,20 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    hFieldLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hFieldWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
 
-   hADFTLine_1 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01);
-   hADFTRegex_1 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_01);
-   hADFTLine_2 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_02);
-   hADFTRegex_2 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_02);
-   hADFTLine_3 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_03);
-   hADFTRegex_3 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03);
+   hADFTLine[0] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01);
+   hADFTRegex[0] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_01);
+   hADFTLine[1] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_02);
+   hADFTRegex[1] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_02);
+   hADFTLine[2] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_03);
+   hADFTRegex[2] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03);
 
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
 
    SendMessage(hFileEOL, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hADFTRegex_1, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hADFTRegex_2, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hADFTRegex_3, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendMessage(hADFTRegex[0], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendMessage(hADFTRegex[1], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendMessage(hADFTRegex[2], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendMessage(hRecStart, EM_LIMITTEXT, (WPARAM)(MAX_PATH - 1), NULL);
    SendMessage(hRecRegex, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendMessage(hFieldLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
@@ -146,12 +146,12 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    SetWindowSubclass(hFieldLabels, procFieldEditMessages, NULL, NULL);
    SetWindowSubclass(hFieldWidths, procFieldEditMessages, NULL, NULL);
 
-   SetWindowSubclass(hADFTLine_1, procNumberEditControl, NULL, NULL);
-   SetWindowSubclass(hADFTRegex_1, procANSIEditControl, NULL, NULL);
-   SetWindowSubclass(hADFTLine_2, procNumberEditControl, NULL, NULL);
-   SetWindowSubclass(hADFTRegex_2, procANSIEditControl, NULL, NULL);
-   SetWindowSubclass(hADFTLine_3, procNumberEditControl, NULL, NULL);
-   SetWindowSubclass(hADFTRegex_3, procANSIEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTLine[0], procNumberEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTRegex[0], procANSIEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTLine[1], procNumberEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTRegex[1], procANSIEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTLine[2], procNumberEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTRegex[2], procANSIEditControl, NULL, NULL);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
@@ -207,6 +207,12 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_FILE_DESC_EDIT:
             case IDC_FWVIZ_DEF_FILE_EOL_EDIT:
             case IDC_FWVIZ_DEF_FILE_THEME_LIST:
+            case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01:
+            case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_01:
+            case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_02:
+            case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_02:
+            case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_03:
+            case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
                   case LBN_SELCHANGE:
@@ -513,6 +519,16 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const
    FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", sConfigFile);
    FT.theme = _configIO.getConfigString(fileType, L"FileTheme", L"", sConfigFile);
 
+   // Load ADFT data
+   for (int i{}; i < ADFT_MAX; i++) {
+      wchar_t idx[5];
+      swprintf(idx, 5, L"%02d", i + 1);
+
+      FT.lineNums[i] = _configIO.getConfigInt(fileType, L"ADFT_Line_" + wstring{ idx }, 0, sConfigFile);
+      FT.regExprs[i] = _configIO.getConfigStringA(fileType, L"ADFT_Regex_" + wstring{ idx }, L"", sConfigFile);
+   }
+
+   // Load Record Type data
    vector<wstring> recTypesList;
    wstring recTypes;
    int recTypeCount;
@@ -590,11 +606,8 @@ bool ConfigureDialog::getCurrentFileTypeInfo(FileType* &fileInfo) {
 ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
    FileType newFile;
 
-   newFile.label = L"";
-   newFile.eol = "";
    newFile.theme = L"Spectrum";
    newFile.vRecTypes = vector<RecordType>{ getNewRec() };
-   newFile.vADFT = vector<ADFT>{};
 
    return newFile;
 }
@@ -602,7 +615,7 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
 void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig) {
    size_t recTypeCount;
    wchar_t fileTypeCode[60], recTypeCode[10];
-   wstring new_line, rawCode, recTypes{}, rtConfig{}, recTypePrefix;
+   wstring new_line, rawCode, adft{}, recTypes{}, rtConfig{}, recTypePrefix;
 
    FileType& FT = vFileTypes[idxFT];
    new_line = cr_lf ? L"\r\n" : L"\n";
@@ -611,6 +624,20 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
    swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxFT + 1), rawCode.c_str());
    _configIO.ToUpper(fileTypeCode);
 
+   // ADFT Info
+   for (int i{}; i < ADFT_MAX; i++) {
+      wchar_t idx[5];
+      swprintf(idx, 5, L"%02d", i + 1);
+
+      wstring lineNum{ (FT.lineNums[i] == 0) ? L"" : to_wstring(FT.lineNums[i]) };
+
+      adft +=
+         L"ADFT_Line_" + wstring{ idx } + L"=" + lineNum + new_line +
+         L"ADFT_Regex_" + wstring{ idx } + L"=" + _configIO.NarrowToWide(FT.regExprs[i]) + new_line;
+   }
+
+
+   // Rec Info
    recTypeCount = (FT.vRecTypes.size() > 999) ? 999 : FT.vRecTypes.size();
 
    for (size_t j{}; j < recTypeCount; j++) {
@@ -627,12 +654,13 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
          recTypePrefix + L"_FieldWidths=" + RT.fieldWidths + new_line;
    }
 
+   // Output
    ftCode = wstring{ fileTypeCode };
    ftConfig = L"[" + ftCode + L"]" + new_line +
       L"FileLabel=" + FT.label + new_line +
       L"FileTheme=" + FT.theme + new_line +
       L"RecordTerminator=" + _configIO.NarrowToWide(FT.eol) + new_line +
-      recTypes + new_line + rtConfig;
+      adft + recTypes + new_line + rtConfig;
 }
 
 bool ConfigureDialog::getCurrentRecInfo(RecordType*& recInfo) {
@@ -667,6 +695,14 @@ void ConfigureDialog::onFileTypeSelect() {
    loadingEdits = TRUE;
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
    SetWindowTextA(hFileEOL, fileInfo->eol.c_str());
+
+   for (int i{}; i <ADFT_MAX; i++) {
+      wstring lineNum{ (fileInfo->lineNums[i] == 0) ? L"" : to_wstring(fileInfo->lineNums[i]) };
+
+      SetWindowText(hADFTLine[i], lineNum.c_str());
+      SetWindowTextA(hADFTRegex[i], fileInfo->regExprs[i].c_str());
+   }
+
    loadingEdits = FALSE;
 
    SendMessage(hThemesLB, CB_SETCURSEL, (WPARAM)
@@ -956,7 +992,7 @@ void ConfigureDialog::fieldEditsAccept() {
 }
 
 void ConfigureDialog::onRecStartEditChange() {
-   char startChars[MAX_PATH];
+   char startChars[MAX_PATH + 1];
    GetWindowTextA(hRecStart, startChars, MAX_PATH);
 
    string startText = string{ startChars };
@@ -966,7 +1002,7 @@ void ConfigureDialog::onRecStartEditChange() {
 }
 
 void ConfigureDialog::onRecRegexEditChange() {
-   char regexChars[MAX_PATH];
+   char regexChars[MAX_PATH + 1];
    GetWindowTextA(hRecRegex, regexChars, MAX_PATH);
 
    string regexText{ regexChars };
@@ -987,12 +1023,12 @@ void ConfigureDialog::recEditAccept() {
 
    wchar_t recDesc[MAX_PATH + 1];
 
-   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recDesc, MAX_PATH + 1);
+   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recDesc, MAX_PATH);
    recInfo.label = recDesc;
 
    char regexVal[MAX_PATH + 1];
 
-   GetWindowTextA(hRecRegex, regexVal, MAX_PATH + 1);
+   GetWindowTextA(hRecRegex, regexVal, MAX_PATH);
    recInfo.marker = regexVal;
 
    SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
@@ -1075,17 +1111,30 @@ void ConfigureDialog::fileEditAccept() {
 
    wchar_t fileVal[MAX_PATH + 1];
 
-   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileVal, MAX_PATH + 1);
+   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileVal, MAX_PATH);
    fileInfo.label = fileVal;
 
    char eolVal[MAX_PATH + 1];
 
-   GetWindowTextA(hFileEOL, eolVal, MAX_PATH + 1);
+   GetWindowTextA(hFileEOL, eolVal, MAX_PATH);
    fileInfo.eol = eolVal;
 
-   GetWindowText(hThemesLB, fileVal, MAX_PATH + 1);
+   GetWindowText(hThemesLB, fileVal, MAX_PATH);
    fileInfo.theme = fileVal;
 
+   // ADFT Info
+   wchar_t lineNum[MAX_PATH + 1];
+   char regExpr[MAX_PATH + 1];
+
+   for (int i{}; i < ADFT_MAX; i++) {
+      GetWindowText(hADFTLine[i], lineNum, MAX_PATH);
+      fileInfo.lineNums[i] = _configIO.StringtoInt(lineNum);
+
+      GetWindowTextA(hADFTRegex[i], regExpr, MAX_PATH);
+      fileInfo.regExprs[i] = regExpr;
+   }
+
+   // Update FT Listbox Entry
    SendMessage(hFilesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
    SendMessage(hFilesLB, LB_INSERTSTRING, (WPARAM)idxFT, (LPARAM)fileInfo.label.c_str());
    SendMessage(hFilesLB, LB_SETCURSEL, idxFT, NULL);
@@ -1157,6 +1206,13 @@ void ConfigureDialog::fileEditClone() {
    NF.eol = FT.eol;
    NF.theme = FT.theme;
 
+   // ADFT Info
+   for (int i{}; i < ADFT_MAX; i++) {
+      NF.lineNums[i] = FT.lineNums[i];
+      NF.regExprs[i] = FT.regExprs[i];
+   }
+
+   // Rec Info
    size_t recCount = FT.vRecTypes.size();
    NF.vRecTypes.resize(recCount);
 

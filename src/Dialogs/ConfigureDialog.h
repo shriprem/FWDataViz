@@ -28,7 +28,7 @@ public:
    int appendFileTypeConfigs(const wstring& sConfigFile);
 
    HWND hFilesLB, hFileEOL, hThemesLB, hRecsLB, hRecStart, hRecRegex, hFieldLabels, hFieldWidths,
-      hADFTLine_1, hADFTRegex_1, hADFTLine_2, hADFTRegex_2, hADFTLine_3, hADFTRegex_3;
+      hADFTLine[ADFT_MAX], hADFTRegex[ADFT_MAX];
 
 protected:
    enum move_dir {
@@ -43,18 +43,13 @@ protected:
       wstring fieldWidths;
    };
 
-   // ADFT: Auto-Detect File Type
-   struct ADFT {
-      vector<int> lineNum;
-      vector<string> regExpr;
-   };
-
    struct FileType {
-      wstring label;
-      string eol;
-      wstring theme;
+      wstring label{};
+      string eol{};
+      wstring theme{};
       vector<RecordType> vRecTypes;
-      vector<ADFT> vADFT;
+      int lineNums[ADFT_MAX]{};
+      string regExprs[ADFT_MAX]{};
    };
 
    wstring configFile{ L"" };

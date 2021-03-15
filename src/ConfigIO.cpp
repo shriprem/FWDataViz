@@ -96,6 +96,11 @@ wstring ConfigIO::getConfigString(const wstring& sectionName, const wstring& key
    return wstring{ ftBuf };
 }
 
+int ConfigIO::getConfigInt(const wstring& sectionName, const wstring& keyName,
+   const int& defaultValue, wstring fileName) {
+   return StringtoInt(getConfigString(sectionName, keyName, to_wstring(defaultValue), fileName));
+}
+
 int ConfigIO::getConfigSectionList(wstring& sections, wstring fileName) {
    const int bufSize{ 32000 };
    wchar_t ftBuf[bufSize];
