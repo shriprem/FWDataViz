@@ -32,7 +32,6 @@ LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam, L
 }
 
 LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-
    switch (messageId) {
       case WM_CHAR:
       {
@@ -83,7 +82,6 @@ LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam,
 }
 
 LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-
    HWND hThis{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldLabels : _configDlg.hFieldWidths };
    HWND hThat{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldWidths : _configDlg.hFieldLabels };
 
