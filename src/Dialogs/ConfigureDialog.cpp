@@ -6,7 +6,6 @@ extern ConfigureDialog _configDlg;
 EximFileTypeDialog _eximDlg;
 
 LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-
    switch (messageId) {
       case WM_CHAR:
          if (static_cast<WCHAR>(wParam) > 255) {
@@ -21,8 +20,59 @@ LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam, L
 
          Utils::getClipboardText(GetParent(hwnd), clipText);
 
-         if (!regex_match(clipText, std::wregex(L"^[\x20-\xFF]*$"))) {
+         if (!regex_match(clipText, wregex(L"^[\x20-\xFF]*$"))) {
             showEditBalloonTip(hwnd, FWVIZ_DIALOG_ANSI_TITLE, FWVIZ_DIALOG_ANSI_MESSAGE);
+            return FALSE;
+         }
+         break;
+      }
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}
+
+LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
+
+   switch (messageId) {
+      case WM_CHAR:
+      {
+         wchar_t editChar{ static_cast<WCHAR>(wParam) };
+         bool valid{ editChar < ' ' || (editChar >= '0' && editChar <= '9') };
+
+         int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
+
+         if (LOWORD(editSel) == 0) {
+            wchar_t editText[MAX_PATH];
+            GetWindowText(hwnd, editText, MAX_PATH);
+
+            if (HIWORD(editSel) == 0 && editText[0] == '-')
+               valid = editChar < ' ';
+            else
+               valid |= editChar == '-';
+         }
+
+         if (!valid) {
+            showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
+            return FALSE;
+         }
+         break;
+      }
+
+      case WM_PASTE:
+      {
+         wstring clipText;
+         Utils::getClipboardText(GetParent(hwnd), clipText);
+
+         int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
+
+         wchar_t editText[MAX_PATH];
+         GetWindowText(hwnd, editText, MAX_PATH);
+
+         wstring clipValid{ (editText[0] == '-' && (LOWORD(editSel) > 0 || HIWORD(editSel) == 0)) ? L"" : L"-?" };
+         clipValid += L"[0-9]*";
+
+         if (!regex_match(clipText, wregex(clipValid))) {
+            showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
             return FALSE;
          }
          break;
@@ -73,10 +123,20 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    hFieldLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hFieldWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
 
+   hADFTLine_1 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01);
+   hADFTRegex_1 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_01);
+   hADFTLine_2 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_02);
+   hADFTRegex_2 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_02);
+   hADFTLine_3 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_03);
+   hADFTRegex_3 = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03);
+
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
 
    SendMessage(hFileEOL, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendMessage(hADFTRegex_1, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendMessage(hADFTRegex_2, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendMessage(hADFTRegex_3, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendMessage(hRecStart, EM_LIMITTEXT, (WPARAM)(MAX_PATH - 1), NULL);
    SendMessage(hRecRegex, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendMessage(hFieldLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
@@ -87,6 +147,13 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    SetWindowSubclass(hRecRegex, procANSIEditControl, NULL, NULL);
    SetWindowSubclass(hFieldLabels, procFieldEditMessages, NULL, NULL);
    SetWindowSubclass(hFieldWidths, procFieldEditMessages, NULL, NULL);
+
+   SetWindowSubclass(hADFTLine_1, procNumberEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTRegex_1, procANSIEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTLine_2, procNumberEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTRegex_2, procANSIEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTLine_3, procNumberEditControl, NULL, NULL);
+   SetWindowSubclass(hADFTRegex_3, procANSIEditControl, NULL, NULL);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
@@ -104,7 +171,9 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
    int fontHeight = recentOS ? 8 : 7;
 
+   Utils::setFontUnderline(_hSelf, IDC_FWVIZ_DEF_ADFT_GROUP_LABEL);
    Utils::setFont(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
+   Utils::setFont(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
    Utils::setFont(_hSelf, IDC_FWVIZ_DEF_REC_START_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
    Utils::setFont(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
 
@@ -352,6 +421,9 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_GROUP_BOX, FWVIZ_DEF_FILE_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_LABEL, FWVIZ_DEF_FILE_DESC_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_LABEL, FWVIZ_DEF_FILE_EOL_LABEL);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_ADFT_GROUP_LABEL, FWVIZ_DEF_ADFT_GROUP_LABEL);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_LABEL, FWVIZ_DEF_ADFT_LINE_LABEL);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_LABEL, FWVIZ_DEF_ADFT_REGEX_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LABEL, FWVIZ_DEF_FILE_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_ACCEPT_BTN, FWVIZ_DEF_FILE_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN, FWVIZ_DEF_FILE_NEW_BTN);

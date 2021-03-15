@@ -115,9 +115,10 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_THEME_LABEL, VIZ_PANEL_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BTN, VIZ_PANEL_CLEAR_BUTTON);
    SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, VIZ_PANEL_AUTO_DETECT_FT);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
-   SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO, VIZ_PANEL_WORDWRAP_INFO);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON, VIZ_PANEL_WORDWRAP_BUTTON);
 }
@@ -827,8 +828,11 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
 
          if (strLine.length() < 1 || strRegex.length() < 1) continue;
 
-         int line = _configIO.StringtoInt(strLine) - 1;
-         if (line < 0) continue;
+         int lineCount = static_cast<int>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
+         int line = _configIO.StringtoInt(strLine);
+
+         line += (line < 0) ? lineCount : -1;
+         if (line < 0 || line >= lineCount) continue;
 
          if (strRegex.substr(strRegex.length() - 1) != "$")
             strRegex += ".*";
