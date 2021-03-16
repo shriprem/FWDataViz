@@ -159,11 +159,17 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_UP, FALSE);
 
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
@@ -202,6 +208,14 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_FWVIZ_DEF_FILE_UP_BUTTON:
                moveFileType(MOVE_UP);
+               break;
+
+            case IDC_FWVIZ_DEF_ADFT_INFO_BUTTON:
+               ShellExecute(NULL, L"open", FWVIZ_ADFT_DEF_INFO_README, NULL, NULL, SW_SHOW);
+               break;
+
+            case IDC_FWVIZ_DEF_INFO_BUTTON:
+               ShellExecute(NULL, L"open", FWVIZ_DEF_INFO_README, NULL, NULL, SW_SHOW);
                break;
 
             case IDC_FWVIZ_DEF_FILE_DESC_EDIT:

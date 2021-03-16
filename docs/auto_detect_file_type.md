@@ -1,0 +1,1 @@
+# Auto-detect File Type Configuration

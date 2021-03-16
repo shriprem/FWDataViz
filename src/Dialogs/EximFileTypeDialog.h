@@ -19,10 +19,10 @@ public:
    void setFileTypeData(const wstring& ftConfig);
 
 protected:
-   bool vizMode{};
+   bool vizMode{}, extractMode{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
-   void localize(bool bExtract);
+   void localize();
 
    void appendExtractFile();
    void loadExtractFile();

@@ -71,6 +71,7 @@
     <Image Include="..\src\Resources\file_config.bmp" />
     <Image Include="..\src\Resources\file_samples.bmp" />
     <Image Include="..\src\Resources\framed.bmp" />
+    <Image Include="..\src\Resources\information.bmp" />
     <Image Include="..\src\Resources\up.bmp" />
   </ItemGroup>
   <ItemGroup>

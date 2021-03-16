@@ -77,6 +77,9 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_STYLE_UP_BUTTON, NULL, THEME_STYLE_MOVE_UP, FALSE);
 
+   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_THEME_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
    int fontHeight = recentOS ? 8 : 7;
@@ -112,6 +115,10 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 
             case IDC_THEME_DEF_UP_BUTTON:
                moveThemeType(MOVE_UP);
+               break;
+
+            case IDC_THEME_DEF_INFO_BUTTON:
+               ShellExecute(NULL, L"open", THEME_DEF_INFO_README, NULL, NULL, SW_SHOW);
                break;
 
             case IDC_THEME_DEF_DESC_EDIT:

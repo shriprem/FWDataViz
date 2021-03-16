@@ -18,6 +18,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                }
                break;
 
+            case IDC_VIZPANEL_INFO_BUTTON:
+               ShellExecute(NULL, L"open", VIZPANEL_INFO_README, NULL, NULL, SW_SHOW);
+               break;
+
             case IDC_VIZPANEL_FILE_SAMPLES_BTN:
                popupSamplesMenu();
                break;
@@ -96,6 +100,9 @@ void VisualizerPanel::initPanel() {
 
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
+
+   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, IDC_VIZ_FILE_SAMPLES_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, NULL, VIZ_PANEL_FILE_SAMPLES_TIP, FALSE);

@@ -1,0 +1,1 @@
+# File Type Configuration Dialog

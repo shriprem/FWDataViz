@@ -8,16 +8,20 @@ void EximFileTypeDialog::doDialog(HINSTANCE hInst) {
 
    goToCenter();
 
+   Utils::loadBitmap(_hSelf, IDC_FTEXIM_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_FTEXIM_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
 void EximFileTypeDialog::initDialog(bool bExtract, bool bViz) {
+   extractMode = bExtract;
    vizMode = bViz;
-   localize(bExtract);
+   localize();
 
-   ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_SAVE_FILE), bExtract ? SW_SHOW : SW_HIDE);
-   ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_LOAD_FILE), bExtract ? SW_HIDE : SW_SHOW);
-   ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_APPEND), bExtract ? SW_HIDE : SW_SHOW);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_SAVE_FILE), extractMode ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_LOAD_FILE), extractMode ? SW_HIDE : SW_SHOW);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_APPEND), extractMode ? SW_HIDE : SW_SHOW);
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
@@ -31,15 +35,15 @@ void EximFileTypeDialog::setFileTypeData(const wstring& ftConfig) {
    SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, ftConfig.c_str());
 }
 
-void EximFileTypeDialog::localize(bool bExtract) {
+void EximFileTypeDialog::localize() {
    SetWindowText(_hSelf, vizMode ?
-      bExtract ? FT_EXIM_EXTRACT_FT_TITLE : FT_EXIM_APPEND_FT_TITLE :
-      bExtract ? FT_EXIM_EXTRACT_THEME_TITLE : FT_EXIM_APPEND_THEME_TITLE);
+      extractMode ? FT_EXIM_EXTRACT_FT_TITLE : FT_EXIM_APPEND_FT_TITLE :
+      extractMode ? FT_EXIM_EXTRACT_THEME_TITLE : FT_EXIM_APPEND_THEME_TITLE);
    SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_LABEL, vizMode ? FT_EXIM_EDIT_FT_LABEL : FT_EXIM_EDIT_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, NULL);
    SetDlgItemText(_hSelf, IDCLOSE, FT_EXIM_CLOSE_BTN);
 
-   if (bExtract) {
+   if (extractMode) {
       SetDlgItemText(_hSelf, IDC_FTEXIM_SAVE_FILE, FT_EXIM_SAVE_FILE_BTN);
    }
    else {
@@ -52,10 +56,17 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
    switch (message) {
       case WM_COMMAND:
          switch LOWORD(wParam) {
+            case IDC_FTEXIM_INFO_BUTTON:
+               ShellExecute(NULL, L"open", vizMode ?
+                  extractMode ? FILE_EXTRACT_INFO_README : FILE_APPEND_INFO_README:
+                  extractMode ? THEME_EXTRACT_INFO_README : THEME_APPEND_INFO_README,
+                  NULL, NULL, SW_SHOW);
+               break;
+
             case IDCANCEL:
-            case IDCLOSE:
-               display(FALSE);
-               return TRUE;
+               case IDCLOSE:
+                  display(FALSE);
+                  return TRUE;
 
             case IDC_FTEXIM_LOAD_FILE:
                loadExtractFile();

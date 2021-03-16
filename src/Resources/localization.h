@@ -22,6 +22,7 @@
 #define VIZ_PANEL_JUMP_FIELD_BTN    L"&Jump to Field"
 #define VIZ_PANEL_WORDWRAP_INFO     L"Visualizer is impaired when wordwrap is enabled."
 #define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
+#define VIZ_PANEL_INFO_TIP          L"View Readme Online"
 #define VIZ_PANEL_FILE_SAMPLES_TIP  L"View Sample Files"
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open FileType Metadata Editor"
 #define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
@@ -153,3 +154,13 @@
 #define JUMP_FIELD_SELECT_LABEL     L"&Select Field:"
 #define JUMP_FIELD_GO_BTN           L"&Jump"
 #define JUMP_FIELD_CLOSE_BTN        L"&Cancel"
+
+// Info Button Links
+#define VIZPANEL_INFO_README        L"https://github.com/shriprem/FWDataViz/blob/master/README.md"
+#define FWVIZ_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md"
+#define FWVIZ_ADFT_DEF_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md"
+#define THEME_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md"
+#define FILE_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md"
+#define FILE_APPEND_INFO_README     L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md"
+#define THEME_EXTRACT_INFO_README   L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md"
+#define THEME_APPEND_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md"
