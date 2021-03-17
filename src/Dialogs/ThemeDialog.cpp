@@ -65,19 +65,19 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT), procHexColorEditControl, NULL, NULL);
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT), procHexColorEditControl, NULL, NULL);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, IDC_VIZ_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, NULL, THEME_DEF_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_UP_BUTTON, IDC_VIZ_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_DEF_UP_BUTTON, NULL, THEME_DEF_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, IDC_VIZ_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, NULL, THEME_STYLE_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_UP_BUTTON, IDC_VIZ_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_STYLE_UP_BUTTON, NULL, THEME_STYLE_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_INFO_BUTTON, IDC_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
@@ -469,7 +469,7 @@ bool ThemeDialog::getCurrentStyleInfo(StyleInfo*& recInfo) {
 }
 
 StyleInfo ThemeDialog::getNewStyle() {
-   StyleInfo newStyle;
+   StyleInfo newStyle{};
 
    newStyle.backColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
    newStyle.foreColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
@@ -656,7 +656,7 @@ int ThemeDialog::moveStyleType(move_dir dir) {
    styleList[idxStyle] = adjType;
    styleList[idxStyle + dir] = currType;
 
-   TCHAR itemText[100];
+   TCHAR itemText[100]{};
 
    SendMessage(hStylesLB, LB_GETTEXT, (WPARAM)idxStyle, (LPARAM)itemText);
    SendMessage(hStylesLB, LB_DELETESTRING, (WPARAM)idxStyle, NULL);
@@ -830,12 +830,14 @@ void ThemeDialog::processSwatchClick(int ctrlID) {
    int topIdx = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
 
    if (ctrlID >= IDC_THEME_SWATCH_BACK_00 && ctrlID <= IDC_THEME_SWATCH_BACK_00 + SWATCH_ITEM_COUNT) {
-      SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_SETCURSEL, ctrlID - IDC_THEME_SWATCH_BACK_00 + topIdx, NULL);
+      SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_SETCURSEL,
+         ctrlID - IDC_THEME_SWATCH_BACK_00 + topIdx, NULL);
       onStyleSelect();
    }
 
    if (ctrlID >= IDC_THEME_SWATCH_FORE_00 && ctrlID <= IDC_THEME_SWATCH_FORE_00 + SWATCH_ITEM_COUNT) {
-      SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_SETCURSEL, ctrlID - IDC_THEME_SWATCH_FORE_00 + topIdx, NULL);
+      SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_SETCURSEL,
+         ctrlID - IDC_THEME_SWATCH_FORE_00 + topIdx, NULL);
       onStyleSelect();
    }
 }

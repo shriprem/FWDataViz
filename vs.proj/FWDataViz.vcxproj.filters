@@ -171,7 +171,9 @@
     <Image Include="..\src\Resources\up.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
-    <Image Include="..\src\Resources\information.bmp" />
+    <Image Include="..\src\Resources\information.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly">

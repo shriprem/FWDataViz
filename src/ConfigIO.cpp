@@ -9,8 +9,7 @@ void ConfigIO::init() {
    nppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
 
    // if no existing config path, create it
-   if (!PathFileExists(pluginConfigDir))
-   {
+   if (!PathFileExists(pluginConfigDir)) {
       CreateDirectory(pluginConfigDir, NULL);
    }
 
@@ -58,7 +57,7 @@ int ConfigIO::setCurrentConfigFile(const wstring& docFileType) {
       return 0;
    }
 
-   sectionCount = getConfigSectionList(sectionList, CONFIG_FILES[CONFIG_VIZ]);
+   sectionCount = getConfigSectionList(sectionList, CONFIG_FILE_PATHS[CONFIG_VIZ]);
    if (sectionCount > 0 && sectionList.find(docFileType) != std::string::npos) {
       resetCurrentConfigFile();
       return 1;

@@ -51,7 +51,7 @@ END
 
 IDD_FWVIZ_DEFINER_DIALOG DIALOGEX 0, 0, 663, 303
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Fixed Width File Metadata Editor"
+CAPTION "File Type Metadata Editor"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     GROUPBOX        "File Types",IDC_FWVIZ_DEF_FILE_GROUP_BOX,5,6,152,291
@@ -115,7 +115,7 @@ END
 
 IDD_THEME_DEFINER_DIALOG DIALOGEX 0, 0, 609, 303
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Fixed Width File Theme Editor"
+CAPTION "Visualizer Theme Editor"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     GROUPBOX        "Themes",IDC_THEME_DEF_GROUP_BOX,5,6,152,291
@@ -249,17 +249,17 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include <windows.h>\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\0"
 END
@@ -319,11 +319,11 @@ IDC_VIZ_FILE_SAMPLES_BITMAP BITMAP                  "file_samples.bmp"
 
 IDC_VIZPANEL_FRAMED_TOOLBAR BITMAP                  "framed.bmp"
 
-IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP BITMAP                  "down.bmp"
+IDC_VIZ_MOVE_DOWN_BITMAP BITMAP                  "down.bmp"
 
-IDC_FWVIZ_DEF_MOVE_UP_BITMAP BITMAP                  "up.bmp"
+IDC_VIZ_MOVE_UP_BITMAP BITMAP                  "up.bmp"
 
-IDC_FWVIZ_DEF_INFO_BITMAP BITMAP                  "information.bmp"
+IDC_VIZ_INFO_BITMAP BITMAP                  "information.bmp"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

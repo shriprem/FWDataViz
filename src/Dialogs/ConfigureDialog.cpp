@@ -121,12 +121,10 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    hFieldLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hFieldWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
 
-   hADFTLine[0] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01);
-   hADFTRegex[0] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_01);
-   hADFTLine[1] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_02);
-   hADFTRegex[1] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_02);
-   hADFTLine[2] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_EDIT_03);
-   hADFTRegex[2] = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03);
+   for (int i{}, id{IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01}; i < ADFT_MAX; i++) {
+      hADFTLine[i] = GetDlgItem(_hSelf, id++);
+      hADFTRegex[i] = GetDlgItem(_hSelf, id++);
+   }
 
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
@@ -135,7 +133,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    SendMessage(hADFTRegex[0], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendMessage(hADFTRegex[1], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendMessage(hADFTRegex[2], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hRecStart, EM_LIMITTEXT, (WPARAM)(MAX_PATH - 1), NULL);
+   SendMessage(hRecStart, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendMessage(hRecRegex, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
    SendMessage(hFieldLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
    SendMessage(hFieldWidths, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
@@ -153,22 +151,22 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    SetWindowSubclass(hADFTLine[2], procNumberEditControl, NULL, NULL);
    SetWindowSubclass(hADFTRegex[2], procANSIEditControl, NULL, NULL);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDC_VIZ_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDC_VIZ_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, IDC_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, IDC_FWVIZ_DEF_MOVE_DOWN_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, IDC_VIZ_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDC_FWVIZ_DEF_MOVE_UP_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDC_VIZ_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDC_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
@@ -649,7 +647,6 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
          L"ADFT_Line_" + wstring{ idx } + L"=" + lineNum + new_line +
          L"ADFT_Regex_" + wstring{ idx } + L"=" + _configIO.NarrowToWide(FT.regExprs[i]) + new_line;
    }
-
 
    // Rec Info
    recTypeCount = (FT.vRecTypes.size() > 999) ? 999 : FT.vRecTypes.size();

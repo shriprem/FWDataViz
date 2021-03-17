@@ -101,7 +101,7 @@ void VisualizerPanel::initPanel() {
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
-   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_INFO_BUTTON, IDC_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, IDC_VIZ_FILE_SAMPLES_BITMAP);

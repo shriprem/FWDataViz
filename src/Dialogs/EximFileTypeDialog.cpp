@@ -8,7 +8,7 @@ void EximFileTypeDialog::doDialog(HINSTANCE hInst) {
 
    goToCenter();
 
-   Utils::loadBitmap(_hSelf, IDC_FTEXIM_INFO_BUTTON, IDC_FWVIZ_DEF_INFO_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_FTEXIM_INFO_BUTTON, IDC_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FTEXIM_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);

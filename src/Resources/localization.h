@@ -24,7 +24,7 @@
 #define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
 #define VIZ_PANEL_INFO_TIP          L"View Readme Online"
 #define VIZ_PANEL_FILE_SAMPLES_TIP  L"View Sample Files"
-#define VIZ_PANEL_FILE_CONFIG_TIP   L"Open FileType Metadata Editor"
+#define VIZ_PANEL_FILE_CONFIG_TIP   L"Open File Type Metadata Editor"
 #define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
 #define VIZ_PANEL_JUMP_FIELD_TITLE  L"Jump to Field"
 #define VIZ_PANEL_JUMP_FIELD_ERROR  L"Caret has moved to a different Record Type.\r\n\r\nUnable to jump to the specified field."
@@ -36,7 +36,7 @@
 #define ABOUT_BTN_LABEL_OK          L"&OK"
 
 // Configuration Dialog
-#define FWVIZ_DIALOG_TITLE          L"Fixed Width File Metadata Editor"
+#define FWVIZ_DIALOG_TITLE          L"File Type Metadata Editor"
 #define FWVIZ_DEF_FILE_GROUP_BOX    L"File Type"
 #define FWVIZ_DEF_FILE_MOVE_DOWN    L"Move down the selected File Type"
 #define FWVIZ_DEF_FILE_MOVE_UP      L"Move up the selected File Type"
@@ -91,7 +91,7 @@
 #define FWVIZ_RT_LIMIT_ERROR        L"Only %i Record Types can be defined per File Type."
 
 // Theme Dialog
-#define THEME_DIALOG_TITLE          L"Fixed Width File Theme Editor"
+#define THEME_DIALOG_TITLE          L"Visualizer Theme Editor"
 #define THEME_DEF_GROUP_BOX         L"Themes"
 #define THEME_DEF_MOVE_DOWN         L"Move down the selected Theme"
 #define THEME_DEF_MOVE_UP           L"Move up the selected Theme"
@@ -138,12 +138,12 @@
 #define THEME_SAVE_BKUP_CONFIG_DLG  L"Save Backup Themes File"
 
 // Exim File Type Dialog
-#define FT_EXIM_EXTRACT_FT_TITLE    L"Extract File Type Data"
-#define FT_EXIM_APPEND_FT_TITLE     L"Append File Type Data"
+#define FT_EXIM_EXTRACT_FT_TITLE    L"Extract File Type Metadata"
+#define FT_EXIM_APPEND_FT_TITLE     L"Append File Type Metadata"
 #define FT_EXIM_EDIT_FT_LABEL       L"File Type Metadata:"
-#define FT_EXIM_EXTRACT_THEME_TITLE L"Extract Theme Data"
-#define FT_EXIM_APPEND_THEME_TITLE  L"Append Theme Data"
-#define FT_EXIM_EDIT_THEME_LABEL    L"Theme Metadata:"
+#define FT_EXIM_EXTRACT_THEME_TITLE L"Extract Visualizer Theme Data"
+#define FT_EXIM_APPEND_THEME_TITLE  L"Append Visualizer Theme Data"
+#define FT_EXIM_EDIT_THEME_LABEL    L"Visualizer Theme Data:"
 #define FT_EXIM_LOAD_FILE_BTN       L"&Load from a File"
 #define FT_EXIM_SAVE_FILE_BTN       L"&Save to a File"
 #define FT_EXIM_APPEND_BTN          L"&Append File Type"

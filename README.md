@@ -21,38 +21,20 @@
 
 The _Framed Current Line_ feature preserves the color highlights of data fields on the caret line, while still indicating its current line status. This feature is functional even when the fixed-width data visualization is not active.
 
-#### Plugin Panel:
+#### Fixed-Width Data Visualizer Panel:
 ![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
 
-To see the plugin in action, click on the _View Sample Files_ icon, and choose from the menu options to view the <a href="#sample-data-files">various sample files</a>.
+* Click on the _View Sample Files_ icon: ![View Sample Files](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_samples.bmp), and choose from the menu options to view the various <a href="#sample-data-files">sample files</a>.
+
+* Click on the _File Type Metadata Editor_ icon: ![File Type Metadata Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_config.bmp), to view, modify or create your custom File Type definitions. For more information, see: [File Type Metadata Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/docs/file_type_config_dialog.md)
+
+* Click on the _Visualizer Theme Editor_ icon: ![Visualizer Theme Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/color_config.bmp), to view, modify or create your custom Visualizer Theme definitions. For more information, see: [Visualizer Theme Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/docs/theme_config_dialog.md)
 
 #### Jump to Field popup:
 ![Jump_to_Field_list](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/jump_to_field_with_list.png)
 
 Useful for navigating between fields on long records with dozens of fields.
 
-
-## Configuration Dialogs
-
-#### File, Record & Field Configuration Dialog:
-![FileType_Config](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/file_type_editor.png)
-
-Heirarchical configuration of File Type, Record Type, and Field Labels & Widths. Previous configurations are automatically backed up with each save.
-
-#### File Type Extract Dialog:
-![FileType_Extract](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/file_type_extract.png)
-
-Useful for sharing of customized File Type definitions within teams, and between collaborators.
-
-#### Theme & Color Configuration Dialog:
-![Theme_Config](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/color_theme_editor.png)
-
-Heirarchical configuration of Themes and Colors. Previous configurations are automatically backed up with each save.
-
-#### Theme Extract Dialog:
-![Theme_Extract](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/color_theme_extract.png)
-
-Useful for sharing of customized Theme definitions within teams, and between collaborators.
 
 ## Sample data files
 
@@ -83,4 +65,10 @@ Owing to such a marker, records for these files can be of varying width.
 
 __Weather Stations List with location wiki and Daily Weather data__ _(A contrived format, for concept illustration)_
 ![Multi_Line](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_line_record_file.png)
+
+
+## Attributions
+* Most of the icons used in this plugin are the originals or derivatives of the [*Fugue Icons*](https://p.yusukekamiyamane.com) designed by **Yusuke Kamiyamane**.
+
+* The core visualizer algorithm of this plugin was first [protyped](https://raw.githubusercontent.com/shriprem/FWDataViz/master/docs/Visualizer_prototype.py) in Python using **David Brotherstone's** *Python Script* plugin for Notepad++.
 

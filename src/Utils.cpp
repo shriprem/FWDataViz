@@ -98,7 +98,7 @@ void Utils::checkMenuItem(int menuIndex, bool check) {
 }
 
 void Utils::showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text) {
-   EDITBALLOONTIP tip;
+   EDITBALLOONTIP tip{};
 
    tip.cbStruct = sizeof(tip);
    tip.pszTitle = title;
@@ -149,7 +149,7 @@ wstring Utils::getVersionInfo(LPCWSTR key) {
    struct LANGANDCODEPAGE {
       WORD wLanguage;
       WORD wCodePage;
-   } *lpTranslate;
+   } *lpTranslate{};
 
    GetModuleFileName(_gModule, sModuleFilePath, MAX_PATH);
    verSize = GetFileVersionInfoSize(sModuleFilePath, &verHandle);
