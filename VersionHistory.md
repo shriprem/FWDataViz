@@ -1,5 +1,9 @@
 ## Version History
 
+### Version 1.0.2.0
+#### Enhancements:
+1. Automatic Detection of File Types
+
 ### Version 1.0.1.0
 #### Enhancements:
 1. *Cursor Position Data* display will shrink or grow to the dock panel width.

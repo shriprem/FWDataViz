@@ -6,4 +6,4 @@ Useful for importing customized Theme definitions within teams, and between coll
 
 **Tip:** You can import more than one Theme definition at a time from a consolidated file.
 
-**See also**: [Extract Visualizer Theme Data](https://raw.githubusercontent.com/shriprem/FWDataViz/master/docs/theme_extract_dialog.md)
+**See also**: [Extract Visualizer Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md)
