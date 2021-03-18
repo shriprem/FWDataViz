@@ -3,7 +3,7 @@
 ![FWDataViz](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_weather_stations.png)
 
 * Visualizes fields within fixed-width data files with distinct colors and font styles.
-* <a href="#plugin-panel">Displays record, field and byte information at cursor position.</a>
+* <a href="#fixed-width-data-visualizer-panel">Displays record, field and byte information at cursor position.</a>
 * <a href="#jump-to-field-popup">Feature to jump to a specific field of the current record.</a>
 * [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) to define and customize file, record and field types.
 * [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md) to define and customize themes and colors for data visualization.
