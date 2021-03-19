@@ -35,6 +35,7 @@
 #define ABOUT_PLUGIN_NAME           L"Fixed Width Data Visualizer Plugin for Notepad++"
 #define ABOUT_BTN_LABEL_OK          L"&OK"
 
+
 // Configuration Dialog
 #define FWVIZ_DIALOG_TITLE          L"File Type Metadata Editor"
 #define FWVIZ_DEF_FILE_GROUP_BOX    L"File Type"
@@ -89,6 +90,9 @@
 #define FWVIZ_RT_NEW_ACTION         L"Add New Record Types"
 #define FWVIZ_RT_CLONE_ACTION       L"Clone Selected Record Types"
 #define FWVIZ_RT_LIMIT_ERROR        L"Only %i Record Types can be defined per File Type."
+#define FWVIZ_DEF_ADFT_HINT_TITLE   L"ADFT in a Nutshell"
+#define FWVIZ_DEF_ADFT_HINT_TEXT    L"1. Line Numbers begin at '1', counting forwards from the start of file. Negative line numbers will count backwards from the end of file. Zero and numbers (+ve or -ve) beyond file line count will fail ADFT matching.\r\n\r\n2. ADFT Regexes with no terminating '$' will be used as *starts-with* match. Whereas, those with terminating '$' will be used as *full-line* match. ADFT Regexes will have an implicit caret(^) at the start if it has not been explicitly included.\r\n\r\nClick the (i) icon to view the full ADFT documentation."
+
 
 // Theme Dialog
 #define THEME_DIALOG_TITLE          L"Visualizer Theme Editor"

@@ -1,4 +1,4 @@
-## Auto-Detect File Type
+## Auto-Detect File Type (ADFT)
 
 With the Auto-Detect File Type (ADFT) feature, the plugin quickly scans a file during file load or tab activation to determine if the file fits the template specification of a particular fixed-width data file type. If there is a match, the plugin will automatically visualize the file with the matching file-type configuration. Thus, this plugin can be a time saver for users handling numerous fixed width data files as part of their workflow.
 
@@ -9,10 +9,23 @@ For ADFT to work, it requires:
 
 * The ADFT configuration for a file type to have been specified in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md)
 
----
-### Auto-Detect File Type Configuration
+
+## ADFT in a Nutshell
 
 ![Theme_Extract](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/file_type_adft.png)
+
+1. Line Numbers begin at '1', counting forwards from the start of file. Negative line numbers count backwards from the end of file. Zero and numbers (+ve or -ve) beyond file line count will fail ADFT matching.
+
+2. ADFT Regexes with no terminating '\$' will be used as _starts-with_ match. Whereas, those with terminating '\$' will be used as _full-line_ match. ADFT Regexes will have an implicit caret (\^) at the start if it has not been explicitly included.
+
+3. The ADFT expression between the optional '\^' and '\$' signs shall be a valid regular expression.
+
+With reference to the sample clip above, for a valid ADFT match on a file:
+* Line 1 must start with: _PCA_
+* Line 2 must start with: _BIPAC_
+* Line 3 must start with an _H_, and must be followed by exactly 46, 47 or 48 characters, before the end of line.
+
+## ADFT Usage Hints
 
 ADFT feature works by utilizing up to three pairs of line numbers and their corresponding regular expressions for a template match with a file type. Reasonable familiarity with regular expressions is therefore desirable to configure the ADFT feature.
 
