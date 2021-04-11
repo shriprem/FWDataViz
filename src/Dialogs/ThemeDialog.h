@@ -43,7 +43,7 @@ protected:
    vector<ThemeType> vThemeTypes;
    wstring themeFile{ L"" };
    int swatchTopIndex{};
-   bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleVals, cleanStyleDefs, styleDefColor;
+   bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleDefs, styleDefColor;
 
    HWND hThemesLB, hStylesLB;
    HBRUSH hbr;

@@ -267,7 +267,8 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                break;
 
             default:
-               processSwatchClick(LOWORD(wParam));
+               if (cleanStyleDefs)
+                  processSwatchClick(LOWORD(wParam));
          }
          break;
 
@@ -505,7 +506,7 @@ void ThemeDialog::enableMoveThemeButtons() {
 }
 
 void ThemeDialog::enableThemeSelection() {
-   bool enable{ cleanThemeVals && cleanStyleVals && cleanStyleDefs };
+   bool enable{ cleanThemeVals && cleanStyleDefs };
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_LIST_BOX), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_NEW_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_CLONE_BTN), enable);
@@ -580,7 +581,6 @@ void ThemeDialog::fillStyles() {
    SendMessage(hStylesLB, LB_ADDSTRING, NULL, (LPARAM)L"EOL Marker Style");
    SendMessage(hStylesLB, LB_SETCURSEL, 0, NULL);
 
-   cleanStyleVals = TRUE;
    onStyleSelect();
    initPreviewSwatch();
 }
@@ -612,17 +612,16 @@ void ThemeDialog::enableMoveStyleButtons() {
 }
 
 void ThemeDialog::enableStyleSelection() {
-   bool enable{ cleanStyleVals && cleanStyleDefs };
-   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX), enable);
-   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_CLONE_BTN), enable);
-   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_NEW_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX), cleanStyleDefs);
+   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_CLONE_BTN), cleanStyleDefs);
+   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_NEW_BTN), cleanStyleDefs);
 
-   if (enable) {
+   if (cleanStyleDefs) {
       enableMoveStyleButtons();
    }
    else {
-      EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON), FALSE);
-      EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_UP_BUTTON), FALSE);
+      EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON), cleanStyleDefs);
+      EnableWindow(GetDlgItem(_hSelf, IDC_THEME_STYLE_UP_BUTTON), cleanStyleDefs);
    }
 
    enableThemeSelection();
@@ -932,7 +931,6 @@ void ThemeDialog::styleEditNew(bool clone) {
    initPreviewSwatch();
 
    cleanConfigFile = FALSE;
-   cleanStyleVals = TRUE;
    enableStyleSelection();
 }
 
@@ -953,7 +951,6 @@ int ThemeDialog::styleEditDelete() {
    SendMessage(hStylesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
 
    cleanConfigFile = FALSE;
-   cleanStyleVals = TRUE;
    onStyleSelect();
    initPreviewSwatch();
 
@@ -1090,7 +1087,7 @@ bool ThemeDialog::checkThemeLimit(bool clone) {
 }
 
 bool ThemeDialog::promptDiscardChangesNo() {
-   if (!(cleanConfigFile && cleanThemeVals && cleanStyleVals && cleanStyleDefs)) {
+   if (!(cleanConfigFile && cleanThemeVals && cleanStyleDefs)) {
       if (MessageBox(_hSelf, THEME_DISCARD_CHANGES, THEME_DIALOG_TITLE,
          MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
          return TRUE;

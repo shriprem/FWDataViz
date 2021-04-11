@@ -114,10 +114,11 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    hFilesLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX);
    hFileEOL = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_EDIT);
-   hThemesLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST);
+   hFileThemes = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LIST);
    hRecsLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_LIST_BOX);
    hRecStart = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_START_EDIT);
    hRecRegex = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_EDIT);
+   hRecThemes = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_THEME_LIST);
    hFieldLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hFieldWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
 
@@ -271,8 +272,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_FWVIZ_DEF_REC_DESC_EDIT:
+            case IDC_FWVIZ_DEF_REC_THEME_LIST:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
+                  case LBN_SELCHANGE:
                      if (!loadingEdits) {
                         cleanRecVals = FALSE;
                         enableRecSelection();
@@ -451,6 +454,7 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_LABEL, FWVIZ_DEF_REC_DESC_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_START_LABEL, FWVIZ_DEF_REC_START_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_LABEL, FWVIZ_DEF_REC_REGEX_LABEL);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_THEME_LABEL, FWVIZ_DEF_REC_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_ACCEPT_BTN, FWVIZ_DEF_REC_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN, FWVIZ_DEF_REC_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_CLONE_BTN, FWVIZ_DEF_REC_CLONE_BTN);
@@ -559,6 +563,7 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const
 
       RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), L"", sConfigFile);
       RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L"", sConfigFile);
+      RT.theme = _configIO.getConfigString(fileType, (recType + L"_Theme"), L"", sConfigFile);
       RT.fieldWidths = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"), L"", sConfigFile);
       RT.fieldLabels = _configIO.getConfigString(fileType, (recType + L"_FieldLabels"), L"", sConfigFile);
    }
@@ -577,13 +582,16 @@ void ConfigureDialog::fillFileTypes() {
    if (vFileTypes.size() > 0)
       SendMessage(hFilesLB, LB_SETCURSEL, 0, NULL);
 
-   // Fill Themes Droplist
-   SendMessage(hThemesLB, CB_RESETCONTENT, NULL, NULL);
+   // Fill Files & Records Themes Droplists
+   SendMessage(hFileThemes, CB_RESETCONTENT, NULL, NULL);
+   SendMessage(hRecThemes, CB_RESETCONTENT, NULL, NULL);
+   SendMessage(hRecThemes, CB_ADDSTRING, NULL, (LPARAM)FWVIZ_DEF_REC_THEME_FROM_FT);
 
    vector<wstring> themesList = _configIO.getAvailableThemesList();
 
    for (const wstring theme : themesList) {
-      SendMessage(hThemesLB, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
+      SendMessage(hFileThemes, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
+      SendMessage(hRecThemes, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
    }
 
    cleanConfigFile = TRUE;
@@ -665,6 +673,9 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
          recTypePrefix + L"_Marker=" + _configIO.NarrowToWide(RT.marker) + new_line +
          recTypePrefix + L"_FieldLabels=" + RT.fieldLabels + new_line +
          recTypePrefix + L"_FieldWidths=" + RT.fieldWidths + new_line;
+
+      if ((RT.theme != L"") && (RT.theme != FWVIZ_DEF_REC_THEME_FROM_FT) && (RT.theme != FT.theme))
+         rtConfig += recTypePrefix + L"_Theme=" + RT.theme + new_line;
    }
 
    // Output
@@ -694,6 +705,7 @@ ConfigureDialog::RecordType ConfigureDialog::getNewRec() {
    newRec.marker = "";
    newRec.fieldLabels = L"";
    newRec.fieldWidths = L"";
+   newRec.theme = L"";
    return newRec;
 }
 
@@ -718,8 +730,8 @@ void ConfigureDialog::onFileTypeSelect() {
 
    loadingEdits = FALSE;
 
-   SendMessage(hThemesLB, CB_SETCURSEL, (WPARAM)
-      SendMessage(hThemesLB, CB_FINDSTRING, (WPARAM)-1,
+   SendMessage(hFileThemes, CB_SETCURSEL, (WPARAM)
+      SendMessage(hFileThemes, CB_FINDSTRING, (WPARAM)-1,
          (LPARAM)fileInfo->theme.c_str()), NULL);
 
    enableMoveFileButtons();
@@ -831,6 +843,13 @@ void ConfigureDialog::onRecTypeSelect() {
    SetWindowTextA(hRecStart, getOnlyStartsWith(regExpr).c_str());
 
    loadingEdits = FALSE;
+
+   if (recInfo->theme == L"")
+      recInfo->theme = FWVIZ_DEF_REC_THEME_FROM_FT;
+
+   SendMessage(hRecThemes, CB_SETCURSEL, (WPARAM)
+      SendMessage(hRecThemes, CB_FINDSTRING, (WPARAM)-1,
+         (LPARAM)recInfo->theme.c_str()), NULL);
 
    enableMoveRecButtons();
    fillFieldTypes();
@@ -1044,6 +1063,11 @@ void ConfigureDialog::recEditAccept() {
    GetWindowTextA(hRecRegex, regexVal, MAX_PATH);
    recInfo.marker = regexVal;
 
+   wchar_t themeVal[MAX_PATH + 1];
+
+   GetWindowText(hRecThemes, themeVal, MAX_PATH);
+   recInfo.theme = (wstring{ themeVal } == FWVIZ_DEF_REC_THEME_FROM_FT) ? L"" : themeVal;
+
    SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
    SendMessage(hRecsLB, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recDesc);
    SendMessage(hRecsLB, LB_SETCURSEL, idxRec, NULL);
@@ -1132,7 +1156,7 @@ void ConfigureDialog::fileEditAccept() {
    GetWindowTextA(hFileEOL, eolVal, MAX_PATH);
    fileInfo.eol = eolVal;
 
-   GetWindowText(hThemesLB, fileVal, MAX_PATH);
+   GetWindowText(hFileThemes, fileVal, MAX_PATH);
    fileInfo.theme = fileVal;
 
    // ADFT Info

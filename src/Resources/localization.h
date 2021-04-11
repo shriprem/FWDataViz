@@ -2,7 +2,7 @@
 
 // Common
 #define MENU_PANEL_NAME             L"Fixed-Width Data Visualizer"
-#define MENU_SHOW_PANEL             L"&Show Panel"
+#define MENU_SHOW_PANEL             L"&Show FWDataViz Panel"
 #define MENU_CARET_FRAMED           L"Framed Current Line"
 #define MENU_CONFIG                 L"&Configure File Types"
 #define MENU_DEMO_SINGLE_REC_FILES  L"Sample Single-Record-Type Files"
@@ -57,6 +57,8 @@
 #define FWVIZ_DEF_REC_DESC_LABEL    L"Record Type Label:"
 #define FWVIZ_DEF_REC_START_LABEL   L"Record Starts With:"
 #define FWVIZ_DEF_REC_REGEX_LABEL   L"Record Regex Key:"
+#define FWVIZ_DEF_REC_THEME_LABEL   L"Record Color Theme:"
+#define FWVIZ_DEF_REC_THEME_FROM_FT L"[Use FileType Theme]"
 #define FWVIZ_DEF_REC_ACCEPT_BTN    L"Accept"
 #define FWVIZ_DEF_REC_NEW_BTN       L"New"
 #define FWVIZ_DEF_REC_CLONE_BTN     L"Clone"
