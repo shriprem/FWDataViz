@@ -259,7 +259,7 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool syncFileTypesList) {
    setDocTheme(hScintilla, fileType, L"");
    syncListThemes();
 
-   loadStyles();
+   loadUsedThemes();
    applyStyles();
 
    loadLexer();
@@ -301,7 +301,7 @@ void VisualizerPanel::visualizeTheme() {
    }
 
    setDocTheme(getCurrentScintilla(), L"", theme);
-   loadStyles();
+   loadUsedThemes();
    applyStyles();
 }
 
@@ -324,35 +324,28 @@ void VisualizerPanel::clearVisualize(bool sync) {
    }
 }
 
-int VisualizerPanel::loadStyles() {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return -1;
+int VisualizerPanel::loadTheme(const wstring theme) {
+   ThemeInfo TI{};
 
-   wstring fileType;
-   if (!getDocFileType(hScintilla, fileType)) return 0;
-   _configIO.setCurrentConfigFile(fileType);
-
-   wstring theme;
-   if (!getDocTheme(hScintilla, theme)) return 0;
-
-   if (theme == currentStyleTheme) return 0;
-
-   currentStyleTheme = theme;
-
-   _configIO.getFullStyle(theme, L"EOL", styleEOL);
+   TI.name = theme;
+   _configIO.getFullStyle(theme, L"EOL", TI.styleEOL);
 
    int styleCount{};
    wchar_t bufKey[8];
 
    styleCount = _configIO.StringtoInt(_configIO.getStyleValue(theme, L"Count"));
-   styleCount = (styleCount > 99) ? 99 : styleCount;
 
-   styleSet.clear();
-   styleSet.resize(styleCount);
+   // Do not load more than FW_STYLE_CACHE_LENGTH styles (including EOL style)
+   styleCount = (loadedStyleCount + styleCount >= FW_STYLE_CACHE_LENGTH) ?
+      (FW_STYLE_CACHE_LENGTH - loadedStyleCount) : styleCount;
+   if (styleCount < 1) return 0;
+
+   TI.styleSet.clear();
+   TI.styleSet.resize(styleCount);
 
    for (int i{}; i < styleCount; i++) {
       swprintf(bufKey, 8, L"BFBI_%02i", i);
-      _configIO.getFullStyle(theme, bufKey, styleSet[i]);
+      _configIO.getFullStyle(theme, bufKey, TI.styleSet[i]);
    }
 
 #if FW_DEBUG_LOAD_STYLES
@@ -362,15 +355,52 @@ int VisualizerPanel::loadStyles() {
    for (int i{}; i < styleCount; i++) {
       swprintf(bufKey, 8, L"BFBI_%02i", i);
       sPrefix = wstring(bufKey);
-      dbgMessage = sPrefix + L"_Back = " + to_wstring(styleSet[i].backColor) + L"\n" +
-         sPrefix + L"_Fore = " + to_wstring(styleSet[i].foreColor) + L"\n" +
-         sPrefix + L"_Bold = " + to_wstring(styleSet[i].bold) + L"\n" +
-         sPrefix + L"_Italics = " + to_wstring(styleSet[i].italics) + L"\n";
+      dbgMessage = sPrefix + L"_Back = " + to_wstring(TI.styleSet[i].backColor) + L"\n" +
+         sPrefix + L"_Fore = " + to_wstring(TI.styleSet[i].foreColor) + L"\n" +
+         sPrefix + L"_Bold = " + to_wstring(TI.styleSet[i].bold) + L"\n" +
+         sPrefix + L"_Italics = " + to_wstring(TI.styleSet[i].italics) + L"\n";
       MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
    }
 #endif
 
-   return styleCount;
+   themeSet.emplace_back(TI);
+
+   return styleCount + 1;  // Add 1 to include EOL style
+}
+
+int VisualizerPanel::loadUsedThemes() {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return -1;
+
+   loadedStyleCount = 0;
+   themeSet.clear();
+
+   wstring fileType;
+   if (!getDocFileType(hScintilla, fileType)) return 0;
+   _configIO.setCurrentConfigFile(fileType);
+
+   wstring fileTheme;
+   if (!getDocTheme(hScintilla, fileTheme)) return 0;
+
+   loadedStyleCount += loadTheme(fileTheme);
+
+   // Load Record Type themes different than File Type theme
+   vector<wstring> recTypesList;
+   wstring recTypes;
+   int recTypeCount;
+
+   recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"");
+   recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
+
+   for (int i{}; i < recTypeCount; i++) {
+      wstring recTheme{};
+      recTheme = _configIO.getConfigString(fileType, (recTypesList[i] + L"_Theme"), L"");
+
+      if ((recTheme != L"") && (recTheme != fileTheme))
+         loadedStyleCount += loadTheme(recTheme);
+   }
+
+   return static_cast<int>(themeSet.size());
 }
 
 int VisualizerPanel::applyStyles() {
@@ -379,47 +409,50 @@ int VisualizerPanel::applyStyles() {
 
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
-   wstring fileType;
-   if (!getDocFileType(sciFunc, sciPtr, fileType)) return 0;
+   const size_t themeCount{ themeSet.size() };
+   if (themeCount < 1) return 0;
 
-   if (currentStyleTheme.length() < 1) return 0;
+   int styleIndex{ FW_STYLE_CACHE_START_INDEX };
 
-   if (sciFunc(sciPtr, SCI_GETLEXER, NULL, NULL) == SCLEX_CONTAINER) return 0;
+   for (size_t i{}; i < themeCount; i++) {
+      ThemeInfo& TI = themeSet[i];
 
-   sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.backColor);
-   sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.foreColor);
-   sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.bold);
-   sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)FW_STYLE_EOL, (LPARAM)styleEOL.italics);
+      sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)TI.styleEOL.backColor);
+      sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)TI.styleEOL.foreColor);
+      sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)TI.styleEOL.bold);
+      sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)TI.styleEOL.italics);
+      styleIndex++;
 
-   const int styleCount{ static_cast<int>(styleSet.size()) };
+      const int styleCount{ static_cast<int>(TI.styleSet.size()) };
+      TI.rangeStartIndex = styleIndex;
 
-   for (int i{}; i < styleCount; i++) {
-      sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].backColor);
-      sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].foreColor);
-      sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].bold);
-      sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), (LPARAM)styleSet[i].italics);
-   }
-
-   sciFunc(sciPtr, SCI_SETLEXER, (WPARAM)SCLEX_CONTAINER, NULL);
+      for (int j{}; j < styleCount; j++) {
+         sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)TI.styleSet[j].backColor);
+         sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)TI.styleSet[j].foreColor);
+         sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)TI.styleSet[j].bold);
+         sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)TI.styleSet[j].italics);
+         styleIndex++;
+      }
 
 #if FW_DEBUG_SET_STYLES
-   wstring dbgMessage;
-   int back, fore, bold, italics;
+      wstring dbgMessage;
+      int back, fore, bold, italics;
 
-   for (int i{ -1 }; i < styleCount; i++) {
-      back = sciFunc(sciPtr, SCI_STYLEGETBACK, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      fore = sciFunc(sciPtr, SCI_STYLEGETFORE, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      bold = sciFunc(sciPtr, SCI_STYLEGETBOLD, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
-      italics = sciFunc(sciPtr, SCI_STYLEGETITALIC, (WPARAM)(FW_STYLE_RANGE_START + i), NULL);
+      for (int i{ styleIndex - styleCount }; i < styleIndex; i++) {
+         back = sciFunc(sciPtr, SCI_STYLEGETBACK, (WPARAM)i, NULL);
+         fore = sciFunc(sciPtr, SCI_STYLEGETFORE, (WPARAM)i, NULL);
+         bold = sciFunc(sciPtr, SCI_STYLEGETBOLD, (WPARAM)i, NULL);
+         italics = sciFunc(sciPtr, SCI_STYLEGETITALIC, (WPARAM)i, NULL);
 
-      dbgMessage = L"C0" + to_wstring(i) + L"_STYLES = " +
-         to_wstring(back) + L", " + to_wstring(fore) + L", " +
-         to_wstring(bold) + L", " + to_wstring(italics);
-      MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
-   }
+         dbgMessage = L"C0" + to_wstring(i - styleIndex + styleCount) + L"_STYLES = " +
+            to_wstring(back) + L", " + to_wstring(fore) + L", " +
+            to_wstring(bold) + L", " + to_wstring(italics);
+         MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
+      }
 #endif
+   }
 
-   return styleCount;
+   return styleIndex - FW_STYLE_CACHE_START_INDEX;
 }
 
 int VisualizerPanel::loadLexer() {
@@ -456,6 +489,7 @@ int VisualizerPanel::loadLexer() {
       RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), recType);
       RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L".");
       RT.regExpr = regex{ RT.marker + ".*" };
+      RT.theme = _configIO.getConfigString(fileType, (recType + L"_Theme"), L"");
 
       wstring fieldWidthList;
       int fieldCount;
@@ -488,7 +522,9 @@ int VisualizerPanel::loadLexer() {
       RecordInfo &RT = recInfoList[i];
 
       dbgMessage = recType + L"\nRec_Label = " + RT.label +
-         L"\nRec_Marker = " + _configIO.NarrowToWide(RT.marker) + L"\nFieldWidths=\n";
+         L"\nRec_Marker = " + _configIO.NarrowToWide(RT.marker) +
+         L"\nRec_Theme = " + RT.theme +
+         L"\nFieldWidths=\n";
 
       fieldCount = static_cast<int>(RT.fieldWidths.size());
 
@@ -512,8 +548,11 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    wstring fileType;
    if (!getDocFileType(sciFunc, sciPtr, fileType)) return;
 
-   const size_t styleCount{ styleSet.size() };
-   if (styleCount < 1) return;
+   wstring fileTheme;
+   if (!getDocTheme(sciFunc, sciPtr, fileTheme)) return;
+
+   if (themeSet.size() < 1) return;
+   if (themeSet[0].styleSet.size() < 1) return;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
    string recStartText{}, eolMarker;
@@ -596,6 +635,23 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
       const vector<int> recFieldWidths{ recInfoList[regexIndex].fieldWidths };
       const size_t fieldCount{ recFieldWidths.size() };
+
+      wstring recTheme{ recInfoList[regexIndex].theme };
+      size_t themeIndex{};
+
+      if ((recTheme != L"") && (recTheme != fileTheme)) {
+         for (size_t i{0}; i < themeSet.size(); i++) {
+            if (recTheme == themeSet[i].name) {
+               themeIndex = i;
+               break;
+            }
+         }  // if no match for recTheme, themeIndex will fallback to 0. i.e., fileTheme
+      }
+
+      const int styleRangeStart{ themeSet[themeIndex].rangeStartIndex };
+      const size_t styleCount{ themeSet[themeIndex].styleSet.size() };
+      if (styleCount < 1) continue;
+
       int unstyledLen{};
 
 #if FW_DEBUG_APPLY_LEXER
@@ -621,22 +677,22 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
          if (recFieldWidths[i] < unstyledLen) {
             sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
-               FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
+               styleRangeStart + ((i + colorOffset) % styleCount));
          }
          else {
             sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)unstyledLen,
-               FW_STYLE_RANGE_START + ((i + colorOffset) % styleCount));
+               styleRangeStart + ((i + colorOffset) % styleCount));
             unstyledLen = 0;
 
             sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
-            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, FW_STYLE_EOL);
+            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, styleRangeStart - 1);
             break;
          }
       }
 
       if (fieldCount > 0 && unstyledLen > 0) {
          sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-         sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), FW_STYLE_EOL);
+         sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), styleRangeStart - 1);
       }
    }
 }
@@ -877,9 +933,17 @@ bool VisualizerPanel::getDocTheme(HWND hScintilla, wstring& theme) {
    return (theme.length() > 0);
 }
 
+bool VisualizerPanel::getDocTheme(PSCIFUNC_T sciFunc, void* sciPtr, wstring& theme) {
+   char fTheme[MAX_PATH]{};
+
+   sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)fTheme);
+   theme = _configIO.NarrowToWide(fTheme);
+
+   return (theme.length() > 0);
+}
+
 void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
    enableThemeList(fileType.length() > 0);
-   SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
       (LPARAM)_configIO.WideToNarrow(fileType).c_str());
 }
@@ -888,7 +952,6 @@ void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring the
    if (fileType.length() > 0)
       theme = _configIO.getConfigString(fileType, L"FileTheme");
 
-   SendMessage(hScintilla, SCI_SETLEXER, (WPARAM)SCLEX_NULL, NULL);
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_THEME,
       (LPARAM)_configIO.WideToNarrow(theme).c_str());
 }
@@ -907,7 +970,7 @@ void VisualizerPanel::onBufferActivate() {
    if (isVisible()) {
       syncListFileTypes();
       syncListThemes();
-      loadStyles();
+      loadUsedThemes();
       applyStyles();
    }
 }

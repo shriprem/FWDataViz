@@ -14,8 +14,8 @@
 
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
-#define FW_STYLE_EOL 100
-#define FW_STYLE_RANGE_START 101
+#define FW_STYLE_CACHE_START_INDEX 100
+#define FW_STYLE_CACHE_LENGTH 128
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -51,9 +51,15 @@ protected :
    std::unordered_map<wstring, wstring> mapFileTypeToDesc;
 
    // Styleset data
-   wstring currentStyleTheme{};
-   StyleInfo styleEOL;
-   vector<StyleInfo> styleSet;
+   struct ThemeInfo {
+      wstring name{};
+      StyleInfo styleEOL;
+      int rangeStartIndex;
+      vector<StyleInfo> styleSet;
+   };
+
+   vector<ThemeInfo> themeSet;
+   int loadedStyleCount;
 
    // Regex data
    wstring fwVizRegexed{};
@@ -62,6 +68,7 @@ protected :
       wstring label;
       string marker;
       regex regExpr;
+      wstring theme;
       vector<int> fieldStarts;
       vector<int> fieldWidths;
       vector<wstring> fieldLabels;
@@ -75,6 +82,7 @@ protected :
    bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
    bool detectFileType(HWND hScintilla, wstring& fileType);
    bool getDocTheme(HWND hScintilla, wstring& theme);
+   bool getDocTheme(PSCIFUNC_T sci_func, void* sci_ptr, wstring& theme);
    void setDocFileType(HWND hScintilla, wstring fileType);
    void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
    void setAutoDetectFileType();
@@ -84,7 +92,8 @@ protected :
    void syncListThemes();
 
    void clearVisualize(bool sync=TRUE);
-   int loadStyles();
+   int loadTheme(const wstring theme);
+   int loadUsedThemes();
    int applyStyles();
    int loadLexer();
    void applyLexer(const size_t startLine, const size_t endLine);
