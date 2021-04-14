@@ -335,9 +335,9 @@ int VisualizerPanel::loadTheme(const wstring theme) {
 
    styleCount = _configIO.StringtoInt(_configIO.getStyleValue(theme, L"Count"));
 
-   // Do not load more than FW_STYLE_CACHE_LENGTH styles (including EOL style)
-   styleCount = (loadedStyleCount + styleCount >= FW_STYLE_CACHE_LENGTH) ?
-      (FW_STYLE_CACHE_LENGTH - loadedStyleCount) : styleCount;
+   // Do not load more than FW_STYLE_CACHE_ITEMS_LIMIT styles (including EOL style)
+   styleCount = (loadedStyleCount + styleCount >= FW_STYLE_CACHE_ITEMS_LIMIT) ?
+      (FW_STYLE_CACHE_ITEMS_LIMIT - loadedStyleCount) : styleCount;
    if (styleCount < 1) return 0;
 
    TI.styleSet.clear();
@@ -645,7 +645,10 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
                themeIndex = i;
                break;
             }
-         }  // if no match for recTheme, themeIndex will fallback to 0. i.e., fileTheme
+         }
+         // If no match for recTheme, themeIndex will fallback to 0. i.e., fileTheme
+         // For a recTheme, set colorOffset to zero
+         colorOffset = (themeIndex > 0) ? 0 : colorOffset;
       }
 
       const int styleRangeStart{ themeSet[themeIndex].rangeStartIndex };

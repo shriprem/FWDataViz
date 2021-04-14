@@ -61,6 +61,7 @@ __Treasury IPAC File__
 _(real format, but with fake data)_
 ![Multi_Rec](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_ipac_file.png)
 
+In the above clip, the _Transaction Header_ records are being visualized with a different theme. For more information on this, see: [Record Type Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md)
 
 ### Multi-Line Record-type Fixed-width Data Files
 Files with data records that span multiple lines. End of record is indicated by a marker. For example: _<END_REC>_

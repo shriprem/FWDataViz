@@ -12,7 +12,7 @@ For ADFT to work, it requires:
 
 ## ADFT in a Nutshell
 
-![Theme_Extract](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/file_type_adft.png)
+![ADFT_Edit_Fields](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/file_type_adft.png)
 
 1. Line Numbers begin at '1', counting forwards from the start of file. Negative line numbers count backwards from the end of file. Zero and numbers (+ve or -ve) beyond file line count will fail ADFT matching.
 

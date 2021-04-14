@@ -17,6 +17,7 @@ This editor is organized in a three-level hierarchy:
   * All Auto-Detect File Type fields
   * Record Starts With
   * Record Regex Key
+  * Record Color Theme
 
 * Field Labels and Field Widths are synchronized for editing and scrolling.
 
@@ -28,4 +29,4 @@ This editor is organized in a three-level hierarchy:
 
 * Previous configurations are automatically backed up with each save. Use _Load Backup Configuration File_ to load a backup file.
 
-**See also**: [Auto-Detect File Type Configuration](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md) | [Extract File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md) | [Append File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md)
+**See also**: [Auto-Detect File Type Configuration](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md) | [Record Type Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md) | [Extract File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md) | [Append File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md)

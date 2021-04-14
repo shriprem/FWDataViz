@@ -169,6 +169,11 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDC_VIZ_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
 
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN, IDC_VIZ_INFO_BITMAP);
+   HWND hTipRTTheme = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN,
+      FWVIZ_DEF_RECTHEME_HINT_HDR, FWVIZ_DEF_RECTHEME_HINT_TXT, TRUE);
+   SendMessage(hTipRTTheme, TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
+
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDC_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
@@ -213,6 +218,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_FWVIZ_DEF_ADFT_INFO_BUTTON:
                ShellExecute(NULL, L"open", FWVIZ_ADFT_DEF_INFO_README, NULL, NULL, SW_SHOW);
+               break;
+
+            case IDC_FWVIZ_DEF_REC_THEME_INFOBTN:
+               ShellExecute(NULL, L"open", FWVIZ_RT_THEME_INFO_README, NULL, NULL, SW_SHOW);
                break;
 
             case IDC_FWVIZ_DEF_INFO_BUTTON:

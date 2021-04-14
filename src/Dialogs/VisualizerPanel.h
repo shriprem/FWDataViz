@@ -15,7 +15,7 @@
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
 #define FW_STYLE_CACHE_START_INDEX 100
-#define FW_STYLE_CACHE_LENGTH 128
+#define FW_STYLE_CACHE_ITEMS_LIMIT 128
 
 extern NppData nppData;
 extern ConfigIO _configIO;

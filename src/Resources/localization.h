@@ -93,8 +93,9 @@
 #define FWVIZ_RT_CLONE_ACTION       L"Clone Selected Record Types"
 #define FWVIZ_RT_LIMIT_ERROR        L"Only %i Record Types can be defined per File Type."
 #define FWVIZ_DEF_ADFT_HINT_TITLE   L"ADFT in a Nutshell"
-#define FWVIZ_DEF_ADFT_HINT_TEXT    L"1. Line Numbers begin at '1', counting forwards from the start of file. Negative line numbers will count backwards from the end of file. Zero and numbers (+ve or -ve) beyond file line count will fail ADFT matching.\r\n\r\n2. ADFT Regexes with no terminating '$' will be used as *starts-with* match. Whereas, those with terminating '$' will be used as *full-line* match. ADFT Regexes will have an implicit caret(^) at the start if it has not been explicitly included.\r\n\r\nClick the (i) icon to view the full ADFT documentation."
-
+#define FWVIZ_DEF_ADFT_HINT_TEXT    L"1. Line Numbers begin at '1', counting forwards from the start of file. Negative line numbers will count backwards from the end of file. Zero and numbers (+ve or -ve) beyond file line count will fail ADFT matching.\r\n\r\n2. ADFT Regexes with no terminating '$' will be used as *starts-with* match. Whereas, those with terminating '$' will be used as *full-line* match. ADFT Regexes will have an implicit caret(^) at the start if it has not been explicitly included.\r\n\r\nClick the (i) icon to view the online ADFT documentation."
+#define FWVIZ_DEF_RECTHEME_HINT_HDR L"Record-type Theme"
+#define FWVIZ_DEF_RECTHEME_HINT_TXT L"Specify a different color theme than the file-type theme for select-few record types to make them distinctive.\r\n\r\nFor an example, see: 'Transaction Headers' inside the Samples » Treasury IPAC file.\r\n\r\nClick the (i) icon to view the online documentation."
 
 // Theme Dialog
 #define THEME_DIALOG_TITLE          L"Visualizer Theme Editor"
@@ -165,6 +166,7 @@
 #define VIZPANEL_INFO_README        L"https://github.com/shriprem/FWDataViz/blob/master/README.md"
 #define FWVIZ_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md"
 #define FWVIZ_ADFT_DEF_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md"
+#define FWVIZ_RT_THEME_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/record_level_theme.md"
 #define THEME_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md"
 #define FILE_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md"
 #define FILE_APPEND_INFO_README     L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md"
