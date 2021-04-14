@@ -52,4 +52,7 @@ With some file types the ADFT can be unambiguous and reliable. With some others,
 
 * _Daily Weather data_: In this sample file, it is only reasonably possible to check for the constant line length of a record. So for the sake of better certainty, this same check is repeated over three distinct lines before confirming a file type match.
 
-* _ICD-10 Diagnosis Codes_ and _ICD-10 Procedure Codes_: These two sample file types have the same basic record template: `^.{7} .{1,392}$`. In this scenario, whichever file type is listed higher will be identified as the matching file type by ADFT. In such situations, use the File Type Move Up/Down buttons in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) to prioritize your file types for ADFT.
+* _ICD-10 Diagnosis Codes_ and _ICD-10 Procedure Codes_: These two sample file types have the same basic record template: `^.{7} .{1,392}$`. In this scenario, whichever file type is listed higher will be identified as the matching file type by ADFT. In such situations, use the File Type Move Up/Down buttons in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) to prioritize your file
+types for ADFT.
+
+See also: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md)

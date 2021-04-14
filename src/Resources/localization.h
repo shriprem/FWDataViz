@@ -166,7 +166,7 @@
 #define VIZPANEL_INFO_README        L"https://github.com/shriprem/FWDataViz/blob/master/README.md"
 #define FWVIZ_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md"
 #define FWVIZ_ADFT_DEF_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md"
-#define FWVIZ_RT_THEME_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/record_level_theme.md"
+#define FWVIZ_RT_THEME_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md"
 #define THEME_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md"
 #define FILE_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md"
 #define FILE_APPEND_INFO_README     L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md"
