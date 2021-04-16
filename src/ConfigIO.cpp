@@ -257,7 +257,7 @@ void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName, Styl
 
    wstring val = getStyleValue(theme, styleName, fileName);
 
-   if (val.length() < 1) {
+   if (val.length() < 16) {
       style.backColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
       style.foreColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
       style.bold = 1;
