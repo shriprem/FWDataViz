@@ -68,15 +68,15 @@
     <Image Include="..\src\Resources\color_config.bmp" />
     <Image Include="..\src\Resources\down.bmp" />
     <Image Include="..\src\Resources\fields.bmp" />
-    <Image Include="..\src\Resources\fields_filled.ico" />
+    <Image Include="..\src\Resources\fields_dark.ico" />
     <Image Include="..\src\Resources\file_config.bmp" />
     <Image Include="..\src\Resources\file_samples.bmp" />
     <Image Include="..\src\Resources\framed.bmp" />
     <Image Include="..\src\Resources\framed.ico" />
-    <Image Include="..\src\Resources\framed_filled.ico" />
+    <Image Include="..\src\Resources\framed_dark.ico" />
     <Image Include="..\src\Resources\information.bmp" />
     <Image Include="..\src\Resources\up.bmp" />
-    <Image Include="fields.ico" />
+    <Image Include="..\src\Resources\fields.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Default Ini Files\default_Preferences.ini" />

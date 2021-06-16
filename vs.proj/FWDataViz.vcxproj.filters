@@ -177,16 +177,16 @@
     <Image Include="..\src\Resources\information.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
-    <Image Include="fields.ico">
+    <Image Include="..\src\Resources\fields.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
-    <Image Include="..\src\Resources\fields_filled.ico">
+    <Image Include="..\src\Resources\fields_dark.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
     <Image Include="..\src\Resources\framed.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
-    <Image Include="..\src\Resources\framed_filled.ico">
+    <Image Include="..\src\Resources\framed_dark.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
   </ItemGroup>
