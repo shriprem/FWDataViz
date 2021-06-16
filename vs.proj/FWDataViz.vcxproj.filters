@@ -148,6 +148,9 @@
     <Filter Include="Resources\Bitmaps">
       <UniqueIdentifier>{067827ee-8c8c-483b-9a48-3986e0244ea1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\Icons">
+      <UniqueIdentifier>{8fe69672-5428-4dcc-b70a-68725733d6e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\src\Resources\color_config.bmp">
@@ -173,6 +176,18 @@
     </Image>
     <Image Include="..\src\Resources\information.bmp">
       <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="fields.ico">
+      <Filter>Resources\Icons</Filter>
+    </Image>
+    <Image Include="..\src\Resources\fields_filled.ico">
+      <Filter>Resources\Icons</Filter>
+    </Image>
+    <Image Include="..\src\Resources\framed.ico">
+      <Filter>Resources\Icons</Filter>
+    </Image>
+    <Image Include="..\src\Resources\framed_filled.ico">
+      <Filter>Resources\Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

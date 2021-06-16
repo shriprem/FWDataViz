@@ -69,8 +69,10 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
          break;
 
       case NPPN_TBMODIFICATION:
-         Utils::addToolbarIcon(MI_FWVIZ_PANEL, IDC_VIZPANEL_FIELDS_TOOLBAR);
-         Utils::addToolbarIcon(MI_CARET_FRAMED, IDC_VIZPANEL_FRAMED_TOOLBAR);
+         Utils::addToolbarIcon(MI_FWVIZ_PANEL, IDB_VIZ_TOOL_BTN_STD_FIELDS,
+            IDI_VIZ_TOOL_BTN_FLUENT_FIELDS, IDI_VIZ_TOOL_BTN_DARK_FIELDS);
+         Utils::addToolbarIcon(MI_CARET_FRAMED, IDB_VIZ_TOOL_BTN_STD_FRAMED,
+            IDI_VIZ_TOOL_BTN_FLUENT_FRAMED, IDI_VIZ_TOOL_BTN_DARK_FRAMED);
          break;
 
       case SCN_UPDATEUI:

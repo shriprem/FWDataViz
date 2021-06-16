@@ -312,21 +312,37 @@ END
 // Bitmap
 //
 
-IDC_VIZ_COLOR_CONFIG_BITMAP BITMAP                  "color_config.bmp"
+IDB_VIZ_COLOR_CONFIG_BITMAP BITMAP                  "color_config.bmp"
 
-IDC_VIZPANEL_FIELDS_TOOLBAR BITMAP                  "fields.bmp"
+IDB_VIZ_TOOL_BTN_STD_FIELDS BITMAP                  "fields.bmp"
 
-IDC_VIZ_FILE_CONFIG_BITMAP BITMAP                  "file_config.bmp"
+IDB_VIZ_TOOL_BTN_STD_FRAMED BITMAP                  "framed.bmp"
 
-IDC_VIZ_FILE_SAMPLES_BITMAP BITMAP                  "file_samples.bmp"
+IDB_VIZ_FILE_CONFIG_BITMAP BITMAP                  "file_config.bmp"
 
-IDC_VIZPANEL_FRAMED_TOOLBAR BITMAP                  "framed.bmp"
+IDB_VIZ_FILE_SAMPLES_BITMAP BITMAP                  "file_samples.bmp"
 
-IDC_VIZ_MOVE_DOWN_BITMAP BITMAP                  "down.bmp"
+IDB_VIZ_MOVE_DOWN_BITMAP BITMAP                  "down.bmp"
 
-IDC_VIZ_MOVE_UP_BITMAP BITMAP                  "up.bmp"
+IDB_VIZ_MOVE_UP_BITMAP  BITMAP                  "up.bmp"
 
-IDC_VIZ_INFO_BITMAP BITMAP                  "information.bmp"
+IDB_VIZ_INFO_BITMAP     BITMAP                  "information.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_VIZ_TOOL_BTN_FLUENT_FIELDS ICON                    "fields.ico"
+
+IDI_VIZ_TOOL_BTN_DARK_FIELDS ICON                    "fields_dark.ico"
+
+IDI_VIZ_TOOL_BTN_FLUENT_FRAMED ICON                    "framed.ico"
+
+IDI_VIZ_TOOL_BTN_DARK_FRAMED ICON                    "framed_dark.ico"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

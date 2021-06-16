@@ -6,7 +6,7 @@
 
 namespace Utils {
    HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, BOOL bBalloon=TRUE);
-   void addToolbarIcon(int menuIndex, int resource);
+   void addToolbarIcon(int menuIndex, int std, int fluent, int dark);
    void checkMenuItem(int menuIndex, bool check);
    void showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text);
    bool checkBaseOS(winVer os);

@@ -1,0 +1,8 @@
+C:\Users\Atharva\source\repos\notepad-plus-plus\PowerEditor\src\WinControls\DockingWnd\Docking.h
+C:\Users\Atharva\source\repos\notepad-plus-plus\PowerEditor\src\WinControls\DockingWnd\dockingResource.h
+C:\Users\Atharva\source\repos\notepad-plus-plus\PowerEditor\src\menuCmdID.h
+C:\Users\Atharva\source\repos\notepad-plus-plus\PowerEditor\src\MISC\PluginsManager\Notepad_plus_msgs.h
+C:\Users\Atharva\source\repos\notepad-plus-plus\scintilla\include\Sci_Position.h
+C:\Users\Atharva\source\repos\notepad-plus-plus\scintilla\include\SciLexer.h
+C:\Users\Atharva\source\repos\notepad-plus-plus\scintilla\include\Scintilla.h
+C:\Users\Atharva\source\repos\notepad-plus-plus\PowerEditor\src\WinControls\Window.h

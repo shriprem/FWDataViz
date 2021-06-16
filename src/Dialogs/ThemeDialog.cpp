@@ -65,19 +65,19 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_BACK_EDIT), procHexColorEditControl, NULL, NULL);
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_DEF_FORE_EDIT), procHexColorEditControl, NULL, NULL);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, IDC_VIZ_MOVE_DOWN_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, NULL, THEME_DEF_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_UP_BUTTON, IDC_VIZ_MOVE_UP_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_DEF_UP_BUTTON, NULL, THEME_DEF_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, IDC_VIZ_MOVE_DOWN_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, NULL, THEME_STYLE_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_UP_BUTTON, IDC_VIZ_MOVE_UP_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_STYLE_UP_BUTTON, NULL, THEME_STYLE_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_INFO_BUTTON, IDC_VIZ_INFO_BITMAP);
+   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
