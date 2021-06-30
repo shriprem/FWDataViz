@@ -181,4 +181,4 @@
 #define FILE_APPEND_INFO_README     L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md"
 #define THEME_EXTRACT_INFO_README   L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md"
 #define THEME_APPEND_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md"
-#define DATA_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md"
+#define DATA_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/DataExtractFeature/docs/data_extract_dialog.md"
