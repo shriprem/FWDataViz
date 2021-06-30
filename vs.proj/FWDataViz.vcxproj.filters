@@ -195,6 +195,9 @@
     <Image Include="..\src\Resources\framed_dark.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
+    <Image Include="..\src\Resources\cross_circle.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly">

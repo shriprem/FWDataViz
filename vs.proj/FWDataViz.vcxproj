@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\src\Resources\color_config.bmp" />
+    <Image Include="..\src\Resources\cross_circle.bmp" />
     <Image Include="..\src\Resources\down.bmp" />
     <Image Include="..\src\Resources\fields.bmp" />
     <Image Include="..\src\Resources\fields_dark.ico" />

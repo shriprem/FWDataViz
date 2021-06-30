@@ -166,9 +166,22 @@
 
 
 // Data Extraction Dialog
+#define DATA_EXTRACT_DIALOG_TITLE   L"Data Extraction"
+#define DATA_EXTRACT_PREFIX_LABEL   L"Prefix Text"
+#define DATA_EXTRACT_RECORD_LABEL   L"Record Type"
+#define DATA_EXTRACT_FIELD_LABEL    L"Field"
+#define DATA_EXTRACT_SUFFIX_LABEL   L"Suffix Text"
+#define DATA_EXTRACT_DELETE_ITEM    L"Delete this Item"
 #define DATA_EXTRACT_MOVE_DOWN      L"Move down the selected Item"
 #define DATA_EXTRACT_MOVE_UP        L"Move up the selected Item"
-#define DATA_EXTRACT_DELETE_ITEM    L"Delete this Item"
+#define DATA_EXTRACT_EXTRACT_BTN    L"E&xtract Data"
+#define DATA_EXTRACT_CLOSE_BTN      L"&Close"
+#define DATA_EXTRACT_TEMPLATE_GROUP L"Reusable Templates"
+#define DATA_EXTRACT_TEMPLATE_LOAD  L"Load Template:"
+#define DATA_EXTRACT_TEMPLATE_NAME  L"Template Name:"
+#define DATA_EXTRACT_TEMPLATE_SAVE  L"&Save Template"
+#define DATA_EXTRACT_TEMPLATE_NEW   L"&New"
+#define DATA_EXTRACT_TEMPLATE_DEL   L"&Delete"
 
 
 // Info Button Links
