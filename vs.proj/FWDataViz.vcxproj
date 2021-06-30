@@ -30,6 +30,7 @@
     <ClInclude Include="..\src\ConfigIO.h" />
     <ClInclude Include="..\src\Dialogs\AboutDialog.h" />
     <ClInclude Include="..\src\Dialogs\ConfigureDialog.h" />
+    <ClInclude Include="..\src\Dialogs\DataExtractDialog.h" />
     <ClInclude Include="..\src\Dialogs\EximFileTypeDialog.h" />
     <ClInclude Include="..\src\Dialogs\JumpToField.h" />
     <ClInclude Include="..\src\Dialogs\ThemeDialog.h" />
@@ -57,6 +58,7 @@
     <ClCompile Include="..\src\ConfigIO.cpp" />
     <ClCompile Include="..\src\Dialogs\AboutDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\ConfigureDialog.cpp" />
+    <ClCompile Include="..\src\Dialogs\DataExtractDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\EximFileTypeDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\JumpToField.cpp" />
     <ClCompile Include="..\src\Dialogs\ThemeDialog.cpp" />
@@ -180,7 +182,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\arm64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

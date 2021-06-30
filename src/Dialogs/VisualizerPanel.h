@@ -38,7 +38,7 @@ public :
    void onBufferActivate();
    void renderCurrentPage();
    void visualizeFile(wstring fileType, bool syncFileTypesList);
-   void jumpToField(const int recordIndex, const int fieldIdx);
+   void jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx);
 
 protected :
    HWND hFTList, hThemesLB, hFieldInfo;
@@ -104,6 +104,7 @@ protected :
    void clearCaretFieldInfo();
    void resizeCaretFieldInfo(int width);
    void showJumpDialog();
+   void showExtractDialog();
    void showWordwrapInfo(bool show);
    void popupSamplesMenu();
 };

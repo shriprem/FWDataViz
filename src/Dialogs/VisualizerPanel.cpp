@@ -1,10 +1,12 @@
 #include "VisualizerPanel.h"
 #include "JumpToField.h"
+#include "DataExtractDialog.h"
 #include <WindowsX.h>
 
 extern HINSTANCE _gModule;
 extern SubmenuManager _submenu;
 JumpToField _jumpDlg;
+DataExtractDialog _dataExtractDlg;
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
@@ -62,6 +64,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_VIZPANEL_JUMP_FIELD_BTN:
                showJumpDialog();
+               break;
+
+            case IDC_VIZPANEL_EXTRACT_DATA_BTN:
+               showExtractDialog();
                break;
 
             case IDC_VIZPANEL_WORDWRAP_BUTTON:
@@ -126,6 +132,7 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN, VIZ_PANEL_EXTRACT_DATA_BTN);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO, VIZ_PANEL_WORDWRAP_INFO);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON, VIZ_PANEL_WORDWRAP_BUTTON);
 }
@@ -267,12 +274,18 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool syncFileTypesList) {
    setFocusOnEditor();
 }
 
-void VisualizerPanel::jumpToField(const int recordIndex, const int fieldIdx) {
+void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
+   wstring currFileType{};
+   if (!getDocFileType(hScintilla, currFileType) || (fileType != currFileType)) {
+      MessageBox(_hSelf, VIZ_PANEL_JUMP_CHANGED_DOC, VIZ_PANEL_JUMP_FIELD_TITLE, MB_OK | MB_ICONSTOP);
+      return;
+   }
+
    if (recordIndex != caretRecordRegIndex) {
-      MessageBox(_hSelf, VIZ_PANEL_JUMP_FIELD_ERROR, VIZ_PANEL_JUMP_FIELD_TITLE, MB_OK | MB_ICONSTOP);
+      MessageBox(_hSelf, VIZ_PANEL_JUMP_CHANGED_REC, VIZ_PANEL_JUMP_FIELD_TITLE, MB_OK | MB_ICONSTOP);
       return;
    }
 
@@ -728,6 +741,7 @@ void VisualizerPanel::clearCaretFieldInfo() {
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_HIDE);
    ShowWindow(hFieldInfo, SW_HIDE);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN), SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN), SW_HIDE);
 
    SetWindowText(hFieldInfo, L"");
 }
@@ -830,9 +844,17 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    ShowWindow(hFieldInfo, SW_SHOW);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN),
       caretRecordRegIndex < 0 ? SW_HIDE : SW_SHOW);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN),
+      caretRecordRegIndex < 0 ? SW_HIDE : SW_SHOW);
 }
 
 void VisualizerPanel::showJumpDialog() {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   wstring fileType;
+   if (!getDocFileType(hScintilla, fileType)) return;
+
    RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
 
    int fieldCount = static_cast<int>(FLD.fieldStarts.size());
@@ -851,7 +873,18 @@ void VisualizerPanel::showJumpDialog() {
    }
 
    _jumpDlg.doDialog((HINSTANCE)_gModule);
-   _jumpDlg.initDialog(caretRecordRegIndex, caretFieldIndex, fieldLabels);
+   _jumpDlg.initDialog(fileType, caretRecordRegIndex, caretFieldIndex, fieldLabels);
+}
+
+void VisualizerPanel::showExtractDialog() {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   wstring fileType;
+   if (!getDocFileType(hScintilla, fileType)) return;
+
+   _dataExtractDlg.doDialog((HINSTANCE)_gModule);
+   _dataExtractDlg.initDialog(fileType);
 }
 
 bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {

@@ -20,6 +20,7 @@
 #define VIZ_PANEL_CARET_FRAMED      L"Framed Current Line"
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
 #define VIZ_PANEL_JUMP_FIELD_BTN    L"&Jump to Field"
+#define VIZ_PANEL_EXTRACT_DATA_BTN  L"&Data Extraction"
 #define VIZ_PANEL_WORDWRAP_INFO     L"Visualizer is impaired when wordwrap is enabled."
 #define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
 #define VIZ_PANEL_INFO_TIP          L"View Readme Online"
@@ -27,7 +28,8 @@
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open File Type Metadata Editor"
 #define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
 #define VIZ_PANEL_JUMP_FIELD_TITLE  L"Jump to Field"
-#define VIZ_PANEL_JUMP_FIELD_ERROR  L"Caret has moved to a different Record Type.\r\n\r\nUnable to jump to the specified field."
+#define VIZ_PANEL_JUMP_CHANGED_DOC  L"The currently active document is of a different File Type.\r\n\r\nUnable to jump to the specified field."
+#define VIZ_PANEL_JUMP_CHANGED_REC  L"Caret has moved to a different Record Type.\r\n\r\nUnable to jump to the specified field."
 
 
 // About Dialog
@@ -162,6 +164,13 @@
 #define JUMP_FIELD_GO_BTN           L"&Jump"
 #define JUMP_FIELD_CLOSE_BTN        L"&Cancel"
 
+
+// Data Extraction Dialog
+#define DATA_EXTRACT_MOVE_DOWN      L"Move down the selected Item"
+#define DATA_EXTRACT_MOVE_UP        L"Move up the selected Item"
+#define DATA_EXTRACT_DELETE_ITEM    L"Delete this Item"
+
+
 // Info Button Links
 #define VIZPANEL_INFO_README        L"https://github.com/shriprem/FWDataViz/blob/master/README.md"
 #define FWVIZ_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md"
@@ -172,3 +181,4 @@
 #define FILE_APPEND_INFO_README     L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md"
 #define THEME_EXTRACT_INFO_README   L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md"
 #define THEME_APPEND_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md"
+#define DATA_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md"
