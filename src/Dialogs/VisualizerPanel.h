@@ -25,6 +25,16 @@ using std::vector;
 
 class VisualizerPanel : public DockingDlgInterface {
 public :
+   struct RecordInfo {
+      wstring label;
+      string marker;
+      regex regExpr;
+      wstring theme;
+      vector<int> fieldStarts;
+      vector<int> fieldWidths;
+      vector<wstring> fieldLabels;
+   };
+
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
 
    void initPanel();
@@ -63,16 +73,6 @@ protected :
 
    // Regex data
    wstring fwVizRegexed{};
-
-   struct RecordInfo {
-      wstring label;
-      string marker;
-      regex regExpr;
-      wstring theme;
-      vector<int> fieldStarts;
-      vector<int> fieldWidths;
-      vector<wstring> fieldLabels;
-   };
 
    vector<RecordInfo> recInfoList;
 

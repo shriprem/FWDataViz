@@ -49,7 +49,7 @@ INT_PTR CALLBACK JumpToField::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
 
             case IDC_JUMP_FIELD_LIST:
                switch HIWORD(wParam) {
-                  case LBN_SELCHANGE:
+                  case CBN_SELCHANGE:
                      break;
                   }
                break;

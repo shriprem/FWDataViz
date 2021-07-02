@@ -14,7 +14,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          switch LOWORD(wParam) {
             case IDC_VIZPANEL_FILETYPE_SELECT:
                switch HIWORD(wParam) {
-                  case LBN_SELCHANGE:
+                  case CBN_SELCHANGE:
                      visualizeFile(L"", FALSE);
                      break;
                }
@@ -34,7 +34,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_VIZPANEL_THEME_SELECT:
                switch HIWORD(wParam) {
-                  case LBN_SELCHANGE:
+                  case CBN_SELCHANGE:
                      visualizeTheme();
                      break;
                }
@@ -884,7 +884,7 @@ void VisualizerPanel::showExtractDialog() {
    if (!getDocFileType(hScintilla, fileType)) return;
 
    _dataExtractDlg.doDialog((HINSTANCE)_gModule);
-   _dataExtractDlg.initDialog(fileType);
+   _dataExtractDlg.initDialog(fileType, recInfoList);
 }
 
 bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {

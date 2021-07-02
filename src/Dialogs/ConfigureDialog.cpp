@@ -239,7 +239,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                  case LBN_SELCHANGE:
+                  case CBN_SELCHANGE:
                      if (!loadingEdits) {
                         cleanFileVals = FALSE;
                         enableFileSelection();
@@ -284,7 +284,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_REC_THEME_LIST:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                  case LBN_SELCHANGE:
+                  case CBN_SELCHANGE:
                      if (!loadingEdits) {
                         cleanRecVals = FALSE;
                         enableRecSelection();
