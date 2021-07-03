@@ -183,6 +183,7 @@
 #define DATA_EXTRACT_TEMPLATE_SAVE  L"&Save Template"
 #define DATA_EXTRACT_TEMPLATE_NEW   L"&New"
 #define DATA_EXTRACT_TEMPLATE_DEL   L"&Delete"
+#define DATA_EXTRACT_CHANGED_DOC    L"The currently active document is of a different File Type.\r\n\r\nUnable to proceed with data extraction."
 
 
 // Info Button Links

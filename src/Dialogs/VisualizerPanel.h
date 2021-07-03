@@ -44,6 +44,7 @@ public :
    void showCaretFramedState(bool framed);
 
    void loadListFileTypes();
+   bool getDocFileType(HWND hScintilla, wstring& fileType);
    void loadListThemes();
    void onBufferActivate();
    void renderCurrentPage();
@@ -78,7 +79,6 @@ protected :
 
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
-   bool getDocFileType(HWND hScintilla, wstring& fileType);
    bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
    bool detectFileType(HWND hScintilla, wstring& fileType);
    bool getDocTheme(HWND hScintilla, wstring& theme);

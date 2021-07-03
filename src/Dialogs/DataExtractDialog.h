@@ -4,7 +4,7 @@
 #include "VisualizerPanel.h"
 #include <ShlObj_core.h>
 
-#define DISPLAY_COUNT 10
+#define LINE_ITEM_COUNT 10
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -24,25 +24,30 @@ protected:
 
    HWND hIndicator;
 
-   struct LineItem {
+   struct LineItemInfo {
       wstring prefix;
       int recType;
       int fieldType;
       wstring suffix;
    };
 
-   vector <LineItem> lineItemList;
-   vector <LineItem> scanItemList;
+   vector <LineItemInfo> validLineItems;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
    void localize();
-   void initDisplayFields();
-   void setLineItemFields(int line);
+   void initLineItems();
+   void initLineItemFieldList(int line);
+   void moveIndicators(int line, bool focusPrefix);
    void resetDropDown(HWND hList);
+
    void addLineItem(int line);
    void delLineItem(int line);
    void clearLineItem(int line);
    void copyLineItem(int fromLine, int toLine);
+   bool getLineItem(int line, LineItemInfo& lineItem);
+   void setLineItem(int line, LineItemInfo& lineItem);
    void swapLineItems(int lineFrom, int lineTo);
-   void moveIndicators(int line, bool focusPrefix);
+
+   int gatherValidLineItems();
+   void extractData();
 };

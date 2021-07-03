@@ -10,7 +10,7 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
 
    hIndicator = GetDlgItem(_hSelf, IDC_DAT_EXT_CURRENT_LINE);
 
-   for (int i{}; i < DISPLAY_COUNT; i++) {
+   for (int i{}; i < LINE_ITEM_COUNT; i++) {
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
 
@@ -41,7 +41,7 @@ void DataExtractDialog::initDialog(const wstring fileType, const vector<RecordIn
    initDocFileType = fileType;
    pRecInfoList = &recInfoList;
 
-   initDisplayFields();
+   initLineItems();
    moveIndicators(0, TRUE);
 }
 
@@ -61,7 +61,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
             case IDC_DAT_EXT_ITEM_RECORD_10:
                switch HIWORD(wParam) {
                   case CBN_SELCHANGE:
-                     setLineItemFields(LOWORD(wParam) - IDC_DAT_EXT_ITEM_RECORD_01);
+                     initLineItemFieldList(LOWORD(wParam) - IDC_DAT_EXT_ITEM_RECORD_01);
                      break;
 
                   case CBN_SETFOCUS:
@@ -148,7 +148,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                break;
 
             case IDC_DAT_EXT_DOWN_BUTTON:
-               if (currentLine < DISPLAY_COUNT - 1)
+               if (currentLine < LINE_ITEM_COUNT - 1)
                   swapLineItems(currentLine, currentLine + 1);
                break;
 
@@ -159,6 +159,10 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
 
             case IDC_DAT_EXT_INFO_BUTTON:
                ShellExecute(NULL, L"open", DATA_EXTRACT_INFO_README, NULL, NULL, SW_SHOW);
+               break;
+
+            case IDC_DAT_EXT_EXTRACT_BTN:
+               extractData();
                break;
 
             case IDCANCEL:
@@ -198,10 +202,10 @@ void DataExtractDialog::localize() {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_DEL_BTN, DATA_EXTRACT_TEMPLATE_DEL);
 }
 
-void DataExtractDialog::initDisplayFields() {
+void DataExtractDialog::initLineItems() {
    const vector<RecordInfo> recInfoList{ *pRecInfoList };
 
-   for (int i{}; i < DISPLAY_COUNT; i++) {
+   for (int i{}; i < LINE_ITEM_COUNT; i++) {
       SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, L"");
       SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i, L"");
       resetDropDown(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + i));
@@ -215,7 +219,7 @@ void DataExtractDialog::initDisplayFields() {
    }
 }
 
-void DataExtractDialog::setLineItemFields(int line) {
+void DataExtractDialog::initLineItemFieldList(int line) {
    HWND hFTList = GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line);
    resetDropDown(hFTList);
 
@@ -231,6 +235,24 @@ void DataExtractDialog::setLineItemFields(int line) {
    }
 }
 
+void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
+   currentLine = line;
+
+   RECT rectLine;
+   GetWindowRect(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + line), &rectLine);
+
+   POINT newPos{ rectLine.right + 2, rectLine.top + 2 };
+   ScreenToClient(_hSelf, &newPos);
+
+   SetWindowPos(hIndicator, HWND_TOP, newPos.x, newPos.y, NULL, NULL, SWP_NOSIZE | SWP_NOOWNERZORDER);
+
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_DOWN_BUTTON), line < LINE_ITEM_COUNT - 1);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_UP_BUTTON), line > 0);
+
+   if (focusPrefix)
+      SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line));
+}
+
 void DataExtractDialog::resetDropDown(HWND hList) {
    SendMessage(hList, CB_RESETCONTENT, NULL, NULL);
    SendMessage(hList, CB_ADDSTRING, NULL, (LPARAM)L"-");
@@ -238,7 +260,7 @@ void DataExtractDialog::resetDropDown(HWND hList) {
 }
 
 void DataExtractDialog::addLineItem(int line) {
-   for (int i{ DISPLAY_COUNT }; i > line; i--) {
+   for (int i{ LINE_ITEM_COUNT }; i > line; i--) {
       copyLineItem(i - 1, i);
    }
    clearLineItem(line);
@@ -247,10 +269,10 @@ void DataExtractDialog::addLineItem(int line) {
 }
 
 void DataExtractDialog::delLineItem(int line) {
-   for (int i{ line }; i < DISPLAY_COUNT; i++) {
+   for (int i{ line }; i < LINE_ITEM_COUNT; i++) {
       copyLineItem(i + 1, i);
    }
-   clearLineItem(DISPLAY_COUNT);
+   clearLineItem(LINE_ITEM_COUNT);
 
    moveIndicators(line, TRUE);
 }
@@ -274,50 +296,72 @@ void DataExtractDialog::copyLineItem(int fromLine, int toLine) {
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + toLine, CB_SETCURSEL,
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + fromLine, CB_GETCURSEL, NULL, NULL), NULL);
 
-   setLineItemFields(toLine);
+   initLineItemFieldList(toLine);
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + toLine, CB_SETCURSEL,
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + fromLine, CB_GETCURSEL, NULL, NULL), NULL);
 }
 
-void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
+bool DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
    wchar_t prefix[MAX_PATH + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + lineFrom, prefix, MAX_PATH);
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, prefix, MAX_PATH);
+   lineItem.prefix = wstring{ prefix };
 
    wchar_t suffix[MAX_PATH + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + lineFrom, suffix, MAX_PATH);
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, suffix, MAX_PATH);
+   lineItem.suffix = wstring{ suffix };
 
-   int recIndex = static_cast<int>(
-      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + lineFrom, CB_GETCURSEL, NULL, NULL));
+   lineItem.recType = static_cast<int>(
+      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_GETCURSEL, NULL, NULL));
 
-   int fieldIndex = static_cast<int>(
-      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + lineFrom, CB_GETCURSEL, NULL, NULL));
+   lineItem.fieldType = static_cast<int>(
+      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line, CB_GETCURSEL, NULL, NULL));
 
-   copyLineItem(lineTo, lineFrom);
+   return lineItem.fieldType > 0;
+}
 
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + lineTo, prefix);
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + lineTo, suffix);
-   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + lineTo, CB_SETCURSEL, recIndex, NULL);
-   setLineItemFields(lineTo);
-   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + lineTo, CB_SETCURSEL, fieldIndex, NULL);
+void DataExtractDialog::setLineItem(int line, LineItemInfo& lineItem) {
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, lineItem.prefix.c_str());
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, lineItem.suffix.c_str());
+   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_SETCURSEL, lineItem.recType, NULL);
+   initLineItemFieldList(line);
+   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line, CB_SETCURSEL, lineItem.fieldType, NULL);
+}
 
+void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
+   LineItemInfo toItem;
+
+   getLineItem(lineTo, toItem);
+   copyLineItem(lineFrom, lineTo);
+   setLineItem(lineFrom, toItem);
    moveIndicators(lineTo, TRUE);
 }
 
-void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
-   currentLine = line;
+int DataExtractDialog::gatherValidLineItems() {
+   LineItemInfo lineInfo;
 
-   RECT rectLine;
-   GetWindowRect(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + line), &rectLine);
+   validLineItems.clear();
 
-   POINT newPos{ rectLine.right + 2, rectLine.top + 2 };
-   ScreenToClient(_hSelf, &newPos);
+   for (int i{}; i < LINE_ITEM_COUNT; i++) {
+      if (getLineItem(i, lineInfo))
+         validLineItems.emplace_back(lineInfo);
+   }
 
-   SetWindowPos(hIndicator, HWND_TOP, newPos.x, newPos.y, NULL, NULL, SWP_NOSIZE | SWP_NOOWNERZORDER);
+   return static_cast<int>(validLineItems.size());
+}
 
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_DOWN_BUTTON), line < DISPLAY_COUNT - 1);
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_UP_BUTTON), line > 0);
+void DataExtractDialog::extractData() {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
 
-   if (focusPrefix)
-      SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line));
+   wstring currFileType{};
+   if (!_vizPanel.getDocFileType(hScintilla, currFileType) || (initDocFileType != currFileType)) {
+      MessageBox(_hSelf, DATA_EXTRACT_CHANGED_DOC, DATA_EXTRACT_DIALOG_TITLE, MB_OK | MB_ICONSTOP);
+      return;
+   }
+
+   size_t lineCount;
+   lineCount = static_cast<size_t>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
+
+   MessageBox(_hSelf, to_wstring(lineCount).c_str(), to_wstring(gatherValidLineItems()).c_str(), NULL);
 }
 
