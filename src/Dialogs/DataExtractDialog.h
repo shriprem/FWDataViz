@@ -18,10 +18,10 @@ public:
    void initDialog(const wstring fileType, const vector<RecordInfo>& recInfoList);
 
 protected:
+   int currentLine{};
    wstring initDocFileType{};
    const vector<RecordInfo>* pRecInfoList;
 
-   HBRUSH hbr;
    HWND hIndicator;
 
    struct LineItem {
@@ -43,7 +43,6 @@ protected:
    void delLineItem(int line);
    void clearLineItem(int line);
    void copyLineItem(int fromLine, int toLine);
-   void moveIndicators(int line);
-   INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
-
+   void swapLineItems(int lineFrom, int lineTo);
+   void moveIndicators(int line, bool focusPrefix);
 };

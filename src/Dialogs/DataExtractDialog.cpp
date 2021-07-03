@@ -42,8 +42,7 @@ void DataExtractDialog::initDialog(const wstring fileType, const vector<RecordIn
    pRecInfoList = &recInfoList;
 
    initDisplayFields();
-   SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01));
-   moveIndicators(0);
+   moveIndicators(0, TRUE);
 }
 
 INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -66,7 +65,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                      break;
 
                   case CBN_SETFOCUS:
-                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_RECORD_01);
+                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_RECORD_01, FALSE);
                      break;
                   }
                   break;
@@ -83,7 +82,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
             case IDC_DAT_EXT_ITEM_FIELD_10:
                switch HIWORD(wParam) {
                   case CBN_SETFOCUS:
-                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_FIELD_01);
+                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_FIELD_01, FALSE);
                      break;
                   }
                   break;
@@ -100,7 +99,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
             case IDC_DAT_EXT_ITEM_PREFIX_10:
                switch HIWORD(wParam) {
                   case EN_SETFOCUS:
-                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_PREFIX_01);
+                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_PREFIX_01, FALSE);
                      break;
                   }
                   break;
@@ -117,7 +116,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
             case IDC_DAT_EXT_ITEM_SUFFIX_10:
                switch HIWORD(wParam) {
                   case EN_SETFOCUS:
-                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_SUFFIX_01);
+                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_SUFFIX_01, FALSE);
                      break;
                   }
                   break;
@@ -148,6 +147,16 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                delLineItem(LOWORD(wParam) - IDC_DAT_EXT_ITEM_DEL_BTN_01);
                break;
 
+            case IDC_DAT_EXT_DOWN_BUTTON:
+               if (currentLine < DISPLAY_COUNT - 1)
+                  swapLineItems(currentLine, currentLine + 1);
+               break;
+
+            case IDC_DAT_EXT_UP_BUTTON:
+               if (currentLine > 0)
+                  swapLineItems(currentLine, currentLine - 1);
+               break;
+
             case IDC_DAT_EXT_INFO_BUTTON:
                ShellExecute(NULL, L"open", DATA_EXTRACT_INFO_README, NULL, NULL, SW_SHOW);
                break;
@@ -160,7 +169,14 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
          break;
 
       case WM_CTLCOLORSTATIC:
-         return colorStaticControl(wParam, lParam);
+         switch (GetDlgCtrlID((HWND)lParam)) {
+            case IDC_DAT_EXT_CURRENT_LINE:
+               SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
+               return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
+
+            default:
+               return NULL;
+         }
       }
 
    return FALSE;
@@ -221,6 +237,24 @@ void DataExtractDialog::resetDropDown(HWND hList) {
    SendMessage(hList, CB_SETCURSEL, (WPARAM)0, NULL);
 }
 
+void DataExtractDialog::addLineItem(int line) {
+   for (int i{ DISPLAY_COUNT }; i > line; i--) {
+      copyLineItem(i - 1, i);
+   }
+   clearLineItem(line);
+
+   moveIndicators(line, TRUE);
+}
+
+void DataExtractDialog::delLineItem(int line) {
+   for (int i{ line }; i < DISPLAY_COUNT; i++) {
+      copyLineItem(i + 1, i);
+   }
+   clearLineItem(DISPLAY_COUNT);
+
+   moveIndicators(line, TRUE);
+}
+
 void DataExtractDialog::clearLineItem(int line) {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, L"");
    SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, L"");
@@ -244,53 +278,46 @@ void DataExtractDialog::copyLineItem(int fromLine, int toLine) {
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + toLine, CB_SETCURSEL,
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + fromLine, CB_GETCURSEL, NULL, NULL), NULL);
 }
-void DataExtractDialog::addLineItem(int line) {
-   for (int i{ DISPLAY_COUNT }; i > line; i--) {
-      copyLineItem(i - 1, i);
-   }
-   clearLineItem(line);
 
-   SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line));
-   moveIndicators(line);
+void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
+   wchar_t prefix[MAX_PATH + 1];
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + lineFrom, prefix, MAX_PATH);
+
+   wchar_t suffix[MAX_PATH + 1];
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + lineFrom, suffix, MAX_PATH);
+
+   int recIndex = static_cast<int>(
+      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + lineFrom, CB_GETCURSEL, NULL, NULL));
+
+   int fieldIndex = static_cast<int>(
+      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + lineFrom, CB_GETCURSEL, NULL, NULL));
+
+   copyLineItem(lineTo, lineFrom);
+
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + lineTo, prefix);
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + lineTo, suffix);
+   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + lineTo, CB_SETCURSEL, recIndex, NULL);
+   setLineItemFields(lineTo);
+   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + lineTo, CB_SETCURSEL, fieldIndex, NULL);
+
+   moveIndicators(lineTo, TRUE);
 }
 
-void DataExtractDialog::delLineItem(int line) {
-   for (int i{ line }; i < DISPLAY_COUNT; i++) {
-      copyLineItem(i + 1, i);
-   }
-   clearLineItem(DISPLAY_COUNT);
+void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
+   currentLine = line;
 
-   SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line));
-   moveIndicators(line);
-}
-
-void DataExtractDialog::moveIndicators(int line) {
    RECT rectLine;
    GetWindowRect(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + line), &rectLine);
 
-   POINT newPos{ rectLine.right + 3, rectLine.top + 2 };
+   POINT newPos{ rectLine.right + 2, rectLine.top + 2 };
    ScreenToClient(_hSelf, &newPos);
 
    SetWindowPos(hIndicator, HWND_TOP, newPos.x, newPos.y, NULL, NULL, SWP_NOSIZE | SWP_NOOWNERZORDER);
 
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_DOWN_BUTTON), line < DISPLAY_COUNT - 1);
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_UP_BUTTON), line > 0);
+
+   if (focusPrefix)
+      SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line));
 }
 
-INT_PTR DataExtractDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
-   HDC hdc = (HDC)wParam;
-   DWORD ctrlID = GetDlgCtrlID((HWND)lParam);
-
-   if (hbr != NULL) DeleteObject(hbr);
-
-   switch (ctrlID) {
-      case IDC_DAT_EXT_CURRENT_LINE:
-         SetBkColor(hdc, Utils::intToRGB(0x00FFFF));
-         SetTextColor(hdc, Utils::intToRGB(0x0000FF));
-         hbr = CreateSolidBrush(Utils::intToRGB(0x00FFFF));
-         return (INT_PTR)hbr;
-
-      default:
-         return NULL;
-   }
-}
