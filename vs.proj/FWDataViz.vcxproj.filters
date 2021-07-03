@@ -195,7 +195,10 @@
     <Image Include="..\src\Resources\framed_dark.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
-    <Image Include="..\src\Resources\cross_circle.bmp">
+    <Image Include="..\src\Resources\minus.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\plus.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
   </ItemGroup>

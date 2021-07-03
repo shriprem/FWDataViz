@@ -76,7 +76,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\src\Resources\color_config.bmp" />
-    <Image Include="..\src\Resources\cross_circle.bmp" />
     <Image Include="..\src\Resources\down.bmp" />
     <Image Include="..\src\Resources\fields.bmp" />
     <Image Include="..\src\Resources\fields_dark.ico" />
@@ -86,6 +85,8 @@
     <Image Include="..\src\Resources\framed.ico" />
     <Image Include="..\src\Resources\framed_dark.ico" />
     <Image Include="..\src\Resources\information.bmp" />
+    <Image Include="..\src\Resources\minus.bmp" />
+    <Image Include="..\src\Resources\plus.bmp" />
     <Image Include="..\src\Resources\up.bmp" />
     <Image Include="..\src\Resources\fields.ico" />
   </ItemGroup>
