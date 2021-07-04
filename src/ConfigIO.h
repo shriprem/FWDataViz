@@ -43,24 +43,25 @@ public:
 
    void flushConfigFile();
    void openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName = L"");
-   void saveConfigFile(const wstring &fileData, bool bViz, wstring fileName = L"");
+   void saveConfigFile(const wstring& fileData, bool bViz, wstring fileName = L"");
 
-   int Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim=L",");
-   int Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim=L",");
+   int Tokenize(const wstring& text, vector<wstring>& results, LPCWSTR delim = L",");
+   int Tokenize(const wstring& text, vector<int>& results, LPCWSTR delim = L",");
 
    int StringtoInt(const wstring& str, int base=10);
    LPCWSTR ToUpper(LPWSTR str);
-   wstring NarrowToWide(const string &str);
-   string WideToNarrow(const wstring &wStr);
+   wstring NarrowToWide(const string& str);
+   string WideToNarrow(const wstring& wStr);
+   void ActivateNewLineTabs(string& str);
 
    vector<wstring> getAvailableThemesList();
    wstring getStyleValue(const wstring& theme, const wstring& styleName, wstring fileName = L"");
    void getFullStyle(const wstring& theme, const wstring& styleName, StyleInfo& style, wstring fileName = L"");
 
    void backupConfigFile(bool bViz);
-   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring &backupConfigFile);
+   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile);
    void viewBackupFolder();
-   int getBackupTempFileName(wstring &tempFileName);
+   int getBackupTempFileName(wstring& tempFileName);
 
    bool getAutoDetectFileType();
    void setAutoDetectFileType(bool detect);

@@ -62,7 +62,7 @@ void commandMenuCleanUp();
 bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk=NULL, bool checkOnInit=false);
 
 HWND getCurrentScintilla();
-bool getDirectScintillaFunc(PSCIFUNC_T &fn, void* &ptr);
+bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr);
 LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam);
 
 // Plugin Command Functions

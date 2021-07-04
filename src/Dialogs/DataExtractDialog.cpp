@@ -148,13 +148,13 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                break;
 
             case IDC_DAT_EXT_DOWN_BUTTON:
-               if (currentLine < LINE_ITEM_COUNT - 1)
-                  swapLineItems(currentLine, currentLine + 1);
+               if (currentLineItem < LINE_ITEM_COUNT - 1)
+                  swapLineItems(currentLineItem, currentLineItem + 1);
                break;
 
             case IDC_DAT_EXT_UP_BUTTON:
-               if (currentLine > 0)
-                  swapLineItems(currentLine, currentLine - 1);
+               if (currentLineItem > 0)
+                  swapLineItems(currentLineItem, currentLineItem - 1);
                break;
 
             case IDC_DAT_EXT_INFO_BUTTON:
@@ -236,7 +236,7 @@ void DataExtractDialog::initLineItemFieldList(int line) {
 }
 
 void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
-   currentLine = line;
+   currentLineItem = line;
 
    RECT rectLine;
    GetWindowRect(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + line), &rectLine);
@@ -285,13 +285,13 @@ void DataExtractDialog::clearLineItem(int line) {
 }
 
 void DataExtractDialog::copyLineItem(int fromLine, int toLine) {
-   wchar_t prefix[MAX_PATH + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + fromLine, prefix, MAX_PATH);
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + toLine, prefix);
+   char prefix[MAX_PATH + 1];
+   GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + fromLine, prefix, MAX_PATH);
+   SetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + toLine, prefix);
 
-   wchar_t suffix[MAX_PATH + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + fromLine, suffix, MAX_PATH);
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + toLine, suffix);
+   char suffix[MAX_PATH + 1];
+   GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + fromLine, suffix, MAX_PATH);
+   SetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + toLine, suffix);
 
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + toLine, CB_SETCURSEL,
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + fromLine, CB_GETCURSEL, NULL, NULL), NULL);
@@ -302,13 +302,13 @@ void DataExtractDialog::copyLineItem(int fromLine, int toLine) {
 }
 
 bool DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
-   wchar_t prefix[MAX_PATH + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, prefix, MAX_PATH);
-   lineItem.prefix = wstring{ prefix };
+   char prefix[MAX_PATH + 1];
+   GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, prefix, MAX_PATH);
+   lineItem.prefix = string{ prefix };
 
-   wchar_t suffix[MAX_PATH + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, suffix, MAX_PATH);
-   lineItem.suffix = wstring{ suffix };
+   char suffix[MAX_PATH + 1];
+   GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, suffix, MAX_PATH);
+   lineItem.suffix = string{ suffix };
 
    lineItem.recType = static_cast<int>(
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_GETCURSEL, NULL, NULL));
@@ -320,8 +320,8 @@ bool DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
 }
 
 void DataExtractDialog::setLineItem(int line, LineItemInfo& lineItem) {
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, lineItem.prefix.c_str());
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, lineItem.suffix.c_str());
+   SetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, lineItem.prefix.c_str());
+   SetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, lineItem.suffix.c_str());
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_SETCURSEL, lineItem.recType, NULL);
    initLineItemFieldList(line);
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line, CB_SETCURSEL, lineItem.fieldType, NULL);
@@ -336,32 +336,129 @@ void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
    moveIndicators(lineTo, TRUE);
 }
 
-int DataExtractDialog::gatherValidLineItems() {
+size_t DataExtractDialog::getReconciledLineItems(bool activateNLT) {
    LineItemInfo lineInfo;
 
    validLineItems.clear();
 
    for (int i{}; i < LINE_ITEM_COUNT; i++) {
-      if (getLineItem(i, lineInfo))
+      if (getLineItem(i, lineInfo)) {
+         // Decrement both recType & fieldType by one to account for the first "-" item in their dropdowns
+         lineInfo.recType--;
+         lineInfo.fieldType--;
+
+         if (activateNLT) {
+            _configIO.ActivateNewLineTabs(lineInfo.prefix);
+            _configIO.ActivateNewLineTabs(lineInfo.suffix);
+         }
+
          validLineItems.emplace_back(lineInfo);
+      }
    }
 
-   return static_cast<int>(validLineItems.size());
+   return validLineItems.size();
 }
 
 void DataExtractDialog::extractData() {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return;
+   const vector<RecordInfo> recInfoList{ *pRecInfoList };
+   PSCIFUNC_T sciFunc;
+   void* sciPtr;
 
-   wstring currFileType{};
-   if (!_vizPanel.getDocFileType(hScintilla, currFileType) || (initDocFileType != currFileType)) {
+   if (getReconciledLineItems(TRUE) < 1) return;
+   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
+
+   wstring fileType{};
+   if (!_vizPanel.getDocFileType(sciFunc, sciPtr, fileType) || (initDocFileType != fileType)) {
       MessageBox(_hSelf, DATA_EXTRACT_CHANGED_DOC, DATA_EXTRACT_DIALOG_TITLE, MB_OK | MB_ICONSTOP);
       return;
    }
 
-   size_t lineCount;
-   lineCount = static_cast<size_t>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
+   const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
+   if (lineCount < 1) return;
 
-   MessageBox(_hSelf, to_wstring(lineCount).c_str(), to_wstring(gatherValidLineItems()).c_str(), NULL);
+   const size_t regexedCount{ recInfoList.size() };
+
+   char lineTextCStr[FW_LINE_MAX_LENGTH]{};
+   string extract{}, recStartText{}, eolMarker;
+
+   char fieldText[FW_LINE_MAX_LENGTH]{};
+   Sci_TextRange sciTR{};
+   sciTR.lpstrText = fieldText;
+
+   size_t eolMarkerLen, eolMarkerPos, recStartLine{}, currentPos, startPos, endPos, recStartPos{};
+   bool newRec{ TRUE };
+   bool recMatch{};
+
+   eolMarker = _configIO.getConfigStringA(fileType, L"RecordTerminator");
+   eolMarkerLen = eolMarker.length();
+
+   const size_t endLine{ lineCount };
+   for (size_t currentLine{}; currentLine < endLine; currentLine++) {
+      if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
+         continue;
+      }
+
+      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
+      startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
+      endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
+      string_view lineText{ lineTextCStr, endPos - startPos };
+
+      if (newRec) {
+         recStartLine = currentLine;
+         recStartPos = startPos;
+         recStartText = lineText;
+      }
+
+      if (newRec && lineText.length() == 0) {
+         continue;
+      }
+
+      if (eolMarkerLen == 0) {
+         newRec = TRUE;
+         eolMarkerPos = endPos;
+      }
+      else if (lineText.length() > eolMarkerLen &&
+         (lineText.substr(lineText.length() - eolMarkerLen) == eolMarker)) {
+         newRec = TRUE;
+         eolMarkerPos = endPos - eolMarkerLen;
+      }
+      else if (currentLine < endLine) {
+         newRec = FALSE;
+         continue;
+      }
+      else {
+         eolMarkerPos = endPos;
+      }
+
+      currentPos = recStartPos;
+
+      size_t regexIndex{};
+
+      while (regexIndex < regexedCount) {
+         if (regex_match(recStartText, recInfoList[regexIndex].regExpr)) break;
+         regexIndex++;
+      }
+
+      if (regexIndex >= regexedCount) continue;
+
+      recMatch = FALSE;
+
+      for (size_t j{}; j < validLineItems.size(); j++) {
+         LineItemInfo& LI = validLineItems[j];
+         if (regexIndex != LI.recType) continue;
+
+         sciTR.chrg.cpMin = static_cast<long>(recStartPos + recInfoList[LI.recType].fieldStarts[LI.fieldType]);
+         sciTR.chrg.cpMax = sciTR.chrg.cpMin + static_cast<long>(recInfoList[LI.recType].fieldWidths[LI.fieldType]);
+         sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
+
+         extract += validLineItems[j].prefix + fieldText + validLineItems[j].suffix;
+         recMatch = TRUE;
+      }
+
+      if (recMatch) extract += "\n";
+   }
+
+   nppMessage(NPPM_MENUCOMMAND, NULL, IDM_FILE_NEW);
+   sciFunc(sciPtr, SCI_SETTEXT, NULL, (LPARAM)extract.c_str());
 }
 

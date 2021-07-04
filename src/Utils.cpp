@@ -160,13 +160,13 @@ wstring Utils::getVersionInfo(LPCWSTR key) {
 
       if (GetFileVersionInfo(sModuleFilePath, verHandle, verSize, verData)) {
 
-         VerQueryValue(verData, L"\\VarFileInfo\\Translation", (VOID FAR * FAR*)& lpTranslate, & querySize);
+         VerQueryValue(verData, L"\\VarFileInfo\\Translation", (VOID FAR* FAR*)& lpTranslate, &querySize);
 
          wchar_t qVal[100]{};
          swprintf(qVal, 100, L"\\StringFileInfo\\%04X%04X\\%s",
             lpTranslate[0].wLanguage, lpTranslate[0].wCodePage, key);
 
-         if (VerQueryValue(verData, wstring(qVal).c_str(), (VOID FAR * FAR*) & lpBuffer, &querySize)) {
+         if (VerQueryValue(verData, wstring(qVal).c_str(), (VOID FAR* FAR*)& lpBuffer, &querySize)) {
             if (querySize) {
                sVersionInfo = wstring((LPCTSTR)lpBuffer);
             }
@@ -188,7 +188,7 @@ void Utils::loadBitmap(HWND hDlg, int controlID, int resource) {
    DeleteObject(hBitmap);
 }
 
-void Utils::setFont(HWND hDlg, int controlID, wstring &name, int height, int weight, bool italic, bool underline) {
+void Utils::setFont(HWND hDlg, int controlID, wstring& name, int height, int weight, bool italic, bool underline) {
    HWND hwndCtrl = GetDlgItem(hDlg, controlID);
    LOGFONT lf{ 0 };
 

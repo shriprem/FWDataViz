@@ -496,8 +496,8 @@ int VisualizerPanel::loadLexer() {
    recInfoList.resize(recTypeCount);
 
    for (int i{}; i < recTypeCount; i++) {
-      wstring &recType = recTypes[i];
-      RecordInfo &RT = recInfoList[i];
+      wstring& recType = recTypes[i];
+      RecordInfo& RT = recInfoList[i];
 
       RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), recType);
       RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L".");
@@ -531,8 +531,8 @@ int VisualizerPanel::loadLexer() {
 
    for (int i{}; i < recTypeCount; i++) {
       wstring dbgMessage;
-      wstring &recType = recTypes[i];
-      RecordInfo &RT = recInfoList[i];
+      wstring& recType = recTypes[i];
+      RecordInfo& RT = recInfoList[i];
 
       dbgMessage = recType + L"\nRec_Label = " + RT.label +
          L"\nRec_Marker = " + _configIO.NarrowToWide(RT.marker) +
@@ -642,11 +642,9 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          colorOffset += 5;
       }
 
-      if (regexIndex >= regexedCount) {
-         continue;
-      }
+      if (regexIndex >= regexedCount) continue;
 
-      const vector<int> recFieldWidths{ recInfoList[regexIndex].fieldWidths };
+      const vector<int>& recFieldWidths{ recInfoList[regexIndex].fieldWidths };
       const size_t fieldCount{ recFieldWidths.size() };
 
       wstring recTheme{ recInfoList[regexIndex].theme };

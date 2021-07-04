@@ -18,17 +18,17 @@ public:
    void initDialog(const wstring fileType, const vector<RecordInfo>& recInfoList);
 
 protected:
-   int currentLine{};
+   int currentLineItem{};
    wstring initDocFileType{};
    const vector<RecordInfo>* pRecInfoList;
 
    HWND hIndicator;
 
    struct LineItemInfo {
-      wstring prefix;
-      int recType;
-      int fieldType;
-      wstring suffix;
+      string prefix;
+      size_t recType;
+      size_t fieldType;
+      string suffix;
    };
 
    vector <LineItemInfo> validLineItems;
@@ -48,6 +48,6 @@ protected:
    void setLineItem(int line, LineItemInfo& lineItem);
    void swapLineItems(int lineFrom, int lineTo);
 
-   int gatherValidLineItems();
+   size_t getReconciledLineItems(bool activateNLT);
    void extractData();
 };

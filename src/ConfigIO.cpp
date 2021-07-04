@@ -160,7 +160,7 @@ void ConfigIO::openConfigFile(LPWSTR configData, const size_t readLength, wstrin
    fs.close();
 }
 
-void ConfigIO::saveConfigFile(const wstring &fileData, bool bViz, wstring fileName) {
+void ConfigIO::saveConfigFile(const wstring& fileData, bool bViz, wstring fileName) {
    if (fileName.length() < 1)
       fileName = CONFIG_FILE_PATHS[bViz ? CONFIG_VIZ : CONFIG_THEMES];
 
@@ -185,7 +185,7 @@ void ConfigIO::saveConfigFile(const wstring &fileData, bool bViz, wstring fileNa
    flushConfigFile();
 }
 
-int ConfigIO::Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR delim) {
+int ConfigIO::Tokenize(const wstring& text, vector<wstring>& results, LPCWSTR delim) {
    std::size_t nStart{}, nEnd;
 
    results.clear();
@@ -204,7 +204,7 @@ int ConfigIO::Tokenize(const wstring &text, vector<wstring> &results, LPCWSTR de
    return static_cast<int>(results.size());
 }
 
-int ConfigIO::Tokenize(const wstring &text, vector<int> &results, LPCWSTR delim) {
+int ConfigIO::Tokenize(const wstring& text, vector<int>& results, LPCWSTR delim) {
    vector<wstring> interims;
 
    results.clear();
@@ -229,12 +229,17 @@ LPCWSTR ConfigIO::ToUpper(LPWSTR str) {
    return std::use_facet<std::ctype<wchar_t>>(std::locale()).toupper(str, str + wcslen(str));
 }
 
-wstring ConfigIO::NarrowToWide(const string &str) {
+wstring ConfigIO::NarrowToWide(const string& str) {
    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(str);
 }
 
-string ConfigIO::WideToNarrow(const wstring &wStr) {
+string ConfigIO::WideToNarrow(const wstring& wStr) {
    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
+}
+
+void ConfigIO::ActivateNewLineTabs(string& str) {
+   str = std::regex_replace(str, std::regex("\\\\n"), "\n");
+   str = std::regex_replace(str, std::regex("\\\\t"), "\t");
 }
 
 vector<wstring> ConfigIO::getAvailableThemesList() {
@@ -307,7 +312,7 @@ void ConfigIO::backupConfigFile(bool bViz) {
       MoveFile(srcFile.c_str(), backupFilePath);
 }
 
-BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring &backupConfigFile) {
+BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile) {
    OPENFILENAME ofn;
 
    TCHAR filePath[MAX_PATH]{};
@@ -349,7 +354,7 @@ void ConfigIO::viewBackupFolder() {
    ShellExecute(NULL, L"open", pluginConfigBackupDir, NULL, NULL, SW_SHOWNORMAL);
 }
 
-int ConfigIO::getBackupTempFileName(wstring &tempFileName) {
+int ConfigIO::getBackupTempFileName(wstring& tempFileName) {
    TCHAR tmpFilePath[MAX_PATH];
 
    if (GetTempFileName(pluginConfigBackupDir, L"FWViz_", 0, tmpFilePath) == 0) {

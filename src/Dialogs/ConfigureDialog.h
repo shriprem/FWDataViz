@@ -68,12 +68,12 @@ protected:
    string getOnlyStartsWith(string txt);
 
    int getCurrentFileTypeIndex();
-   bool getCurrentFileTypeInfo(FileType* &fileInfo);
+   bool getCurrentFileTypeInfo(FileType*& fileInfo);
    FileType getNewFileType();
    void getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig);
 
    int getCurrentRecIndex();
-   bool getCurrentRecInfo(RecordType* &recInfo);
+   bool getCurrentRecInfo(RecordType*& recInfo);
    RecordType getNewRec();
 
    void fillFileTypes();
