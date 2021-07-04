@@ -23,7 +23,7 @@
 The _Framed Current Line_ feature preserves the color highlights of data fields on the caret line, while still indicating its current line status. This feature is functional even when the fixed-width data visualization is not active.
 
 #### Fixed-Width Data Visualizer Panel:
-![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
+![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/DataExtractFeature/images/plugin_panel.png)
 
 * Click on the _View Sample Files_ icon: ![View Sample Files](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_samples.bmp), and choose from the menu options to view the various <a href="#sample-data-files">sample files</a>.
 

@@ -8,10 +8,11 @@ The data extraction feature can be especially useful with mixed-record fixed-wid
 
 ### Sample Extraction Input
 ![Sample_Data_Extract_Dialog](https://raw.githubusercontent.com/shriprem/FWDataViz/DataExtractFeature/images/data_extract_dialog.png)
+
 In the pictured sample:
 * The `\n` in the _Prefix_ of the first line is providing a blank line spacing between DRN-Invoice groups in the output (see below).
 * Line Items 3, 5 & 6 were ignored during Data Extraction processing since the _Record Type_ and _Field_ edits were blanks.
-* The `\t` in the _Suffix_ for the _Invoice Number_ line item could also have been, alternatively, specified at the start of the _Prefix_ for the _Job Number_ line item, with no difference in the output data.
+* The `\t` in the _Suffix_ for the _Invoice Number_ line item could also have been, alternatively, specified at the start of the _Prefix_ for the _Job Number_ line item, with no difference in the resultant output data.
 
 ### Corresponding Output
 ![Sample_Data_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/DataExtractFeature/images/data_extract_output.png)
