@@ -1,7 +1,7 @@
 @ECHO OFF
 
 SET BIN_DIR=bin64
-SET NOTEPAD_DIR=E:\Portable\Notepad++ - x64
+SET NOTEPAD_DIR=E:\Portable\Notepad++
 
 COPY license.txt %BIN_DIR%
 COPY %BIN_DIR%\FWDataViz.dll "%NOTEPAD_DIR%\plugins\FWDataViz\"

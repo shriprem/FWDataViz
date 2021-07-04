@@ -30,6 +30,8 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_DAT_EXT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_DAT_EXT_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
+   //Utils::setFontItalic(_hSelf, IDC_DAT_EXT_NEW_LINE_TAB_TIP);
+
    if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
@@ -192,6 +194,7 @@ void DataExtractDialog::localize() {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_RECORD_LABEL, DATA_EXTRACT_RECORD_LABEL);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_FIELD_LABEL, DATA_EXTRACT_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_SUFFIX_LABEL, DATA_EXTRACT_SUFFIX_LABEL);
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_NEW_LINE_TAB_TIP, DATA_EXTRACT_NEW_LINE_TAB);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_EXTRACT_BTN, DATA_EXTRACT_EXTRACT_BTN);
    SetDlgItemText(_hSelf, IDCLOSE, DATA_EXTRACT_CLOSE_BTN);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_GROUP, DATA_EXTRACT_TEMPLATE_GROUP);
@@ -238,10 +241,10 @@ void DataExtractDialog::initLineItemFieldList(int line) {
 void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
    currentLineItem = line;
 
-   RECT rectLine;
-   GetWindowRect(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + line), &rectLine);
+   RECT rc;
+   GetWindowRect(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + line), &rc);
 
-   POINT newPos{ rectLine.right + 2, rectLine.top + 2 };
+   POINT newPos{ rc.right + 2, rc.top + 2 };
    ScreenToClient(_hSelf, &newPos);
 
    SetWindowPos(hIndicator, HWND_TOP, newPos.x, newPos.y, NULL, NULL, SWP_NOSIZE | SWP_NOOWNERZORDER);

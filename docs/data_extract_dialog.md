@@ -6,4 +6,8 @@ The field data can be optionally prefixed and suffixed by text labels, separator
 
 The data extraction feature can be especially useful with mixed-record fixed-width data files wherein column mode selection of field data is not possible.
 
+#### Sample Extraction Input
 ![FileType_Extract](https://raw.githubusercontent.com/shriprem/FWDataViz/DataExtractFeature/images/data_extract_dialog.png)
+
+#### Corresponding Output
+![FileType_Extract](https://raw.githubusercontent.com/shriprem/FWDataViz/DataExtractFeature/images/data_extract_output.png)
