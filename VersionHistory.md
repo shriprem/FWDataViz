@@ -1,5 +1,9 @@
 ## Version History
 
+### Version 1.4.0.0
+#### Enhancements:
+1. [Data Extraction](https://github.com/shriprem/FWDataViz/blob/DataExtractFeature/docs/data_extract_dialog.md) feature to extract a handful data fields into an easily readable, quick report.
+
 ### Version 1.0.3.1
 #### Enhancements:
 1. Light & Dark mode Fluent UI toolbar icons added for the plugin.
