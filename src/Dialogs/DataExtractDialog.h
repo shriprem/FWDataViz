@@ -20,7 +20,7 @@ public:
 
 protected:
    int currentLineItem{};
-   wstring initDocFileType{}, extractsConfigFile{};
+   wstring initFileType{}, initFileTypeLabel{}, extractsConfigFile{};
    const vector<RecordInfo>* pRecInfoList;
 
    HWND hIndicator;

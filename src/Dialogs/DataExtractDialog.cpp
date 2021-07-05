@@ -31,7 +31,7 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_DAT_EXT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_DAT_EXT_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   if (_gLanguage != LANG_ENGLISH + 1) localize();
+   if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
@@ -39,8 +39,10 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
 }
 
 void DataExtractDialog::initDialog(const wstring fileType, const vector<RecordInfo>& recInfoList) {
-   initDocFileType = fileType;
+   initFileType = fileType;
    pRecInfoList = &recInfoList;
+
+   initFileTypeLabel = _configIO.getConfigString(initFileType, L"FileLabel");
    extractsConfigFile = _configIO.getExtractTemplatesFile();
 
    initLineItems();
@@ -402,7 +404,7 @@ void DataExtractDialog::extractData() {
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    wstring fileType{};
-   if (!_vizPanel.getDocFileType(sciFunc, sciPtr, fileType) || (initDocFileType != fileType)) {
+   if (!_vizPanel.getDocFileType(sciFunc, sciPtr, fileType) || (initFileType != fileType)) {
       MessageBox(_hSelf, DATA_EXTRACT_CHANGED_DOC, DATA_EXTRACT_DIALOG_TITLE, MB_OK | MB_ICONSTOP);
       return;
    }
@@ -512,9 +514,9 @@ void DataExtractDialog::loadTemplate() {
 }
 
 void DataExtractDialog::enableSaveTemplate() {
-   wchar_t name[MAX_TEMPLATE_NAME + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, name, MAX_TEMPLATE_NAME);
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), wstring(name).length() > 2);
+   wchar_t tName[MAX_TEMPLATE_NAME + 1];
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, tName, MAX_TEMPLATE_NAME);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), wstring(tName).length() > 2);
 }
 
 void DataExtractDialog::enableDeleteTemplate() {
@@ -523,7 +525,37 @@ void DataExtractDialog::enableDeleteTemplate() {
 }
 
 void DataExtractDialog::saveTemplate() {
-   MessageBox(_hSelf, extractsConfigFile.c_str(), L"Saving Template", 0);
+   getReconciledLineItems(FALSE);
+
+   wchar_t tName[MAX_TEMPLATE_NAME + 1];
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, tName, MAX_TEMPLATE_NAME);
+   wstring templateName{ tName };
+   if (templateName.length() < 3) return;
+
+   // First, delete any existing section with the same name
+   _configIO.deleteSection(templateName, extractsConfigFile);
+   _configIO.setConfigString(templateName, L"FileType", initFileType, extractsConfigFile);
+   _configIO.setConfigString(templateName, L"FileLabel", initFileTypeLabel, extractsConfigFile);
+   _configIO.setConfigString(templateName, L"LineItemCount", to_wstring(validLineItems.size()), extractsConfigFile);
+
+   for (size_t i{}; i < validLineItems.size(); i++) {
+      LineItemInfo& LI = validLineItems[i];
+
+      wchar_t tNum[4];
+      swprintf(tNum, 4, L"%02d_", static_cast<int>(i));
+      wstring numSuffix{ tNum };
+
+      _configIO.setConfigStringA(templateName,
+         (numSuffix + L"Prefix").c_str(), LI.prefix.c_str(), extractsConfigFile);
+      _configIO.setConfigStringA(templateName,
+         (numSuffix + L"Record").c_str(), to_string(LI.recType).c_str(), extractsConfigFile);
+      _configIO.setConfigStringA(templateName,
+         (numSuffix + L"Field").c_str(), to_string(LI.fieldType).c_str(), extractsConfigFile);
+      _configIO.setConfigStringA(templateName,
+         (numSuffix + L"Suffix").c_str(), LI.suffix.c_str(), extractsConfigFile);
+   }
+
+   MessageBox(_hSelf, DATA_EXTRACT_SAVED_TEMPLATE, DATA_EXTRACT_DIALOG_TITLE, MB_OK);
 }
 
 void DataExtractDialog::newTemplate() {

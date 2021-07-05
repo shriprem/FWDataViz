@@ -15,7 +15,7 @@ public:
    void setFileTypeData(const wstring& ftConfig);
 
 protected:
-   wstring initDocFileType{};
+   wstring initFileType{};
    int initRecordRegIndex;
    HWND hFieldList;
 

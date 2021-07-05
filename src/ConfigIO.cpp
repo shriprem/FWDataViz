@@ -136,6 +136,18 @@ void ConfigIO::setConfigString(const wstring& sectionName, const wstring& keyNam
    WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), keyValue.c_str(), fileName.c_str());
 }
 
+void ConfigIO::deleteKey(const wstring& sectionName, const wstring& keyName, wstring fileName) {
+   if (fileName.length() < 1) fileName = currentConfigFile;
+
+   WritePrivateProfileString(sectionName.c_str(), keyName.c_str(), NULL, fileName.c_str());
+}
+
+void ConfigIO::deleteSection(const wstring& sectionName, wstring fileName) {
+   if (fileName.length() < 1) fileName = currentConfigFile;
+
+   WritePrivateProfileString(sectionName.c_str(), NULL, NULL, fileName.c_str());
+}
+
 void ConfigIO::flushConfigFile() {
    WritePrivateProfileString(NULL, NULL, NULL, NULL);
 }

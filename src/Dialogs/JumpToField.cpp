@@ -17,7 +17,7 @@ void JumpToField::doDialog(HINSTANCE hInst) {
 
 void JumpToField::initDialog(const wstring fileType, int recordIndex,
    int fieldIndex, const vector<wstring>& fieldLabels) {
-   initDocFileType = fileType;
+   initFileType = fileType;
    initRecordRegIndex = recordIndex;
 
    hFieldList = GetDlgItem(_hSelf, IDC_JUMP_FIELD_LIST);
@@ -74,7 +74,7 @@ void JumpToField::localize() {
 void JumpToField::onJumpBtnClick() {
    display(FALSE);
 
-   _vizPanel.jumpToField(initDocFileType, initRecordRegIndex,
+   _vizPanel.jumpToField(initFileType, initRecordRegIndex,
       static_cast<int>(SendMessage(hFieldList, CB_GETCURSEL, NULL, NULL)));
 }
 

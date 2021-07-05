@@ -42,7 +42,10 @@ public:
    void setConfigString(const wstring& sectionName, const wstring& keyName,
       const wstring& keyValue, wstring fileName = L"");
 
+   void deleteKey(const wstring& sectionName, const wstring& keyName, wstring fileName = L"");
+   void deleteSection(const wstring& sectionName, wstring fileName = L"");
    void flushConfigFile();
+
    void openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName = L"");
    void saveConfigFile(const wstring& fileData, bool bViz, wstring fileName = L"");
 
