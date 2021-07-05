@@ -31,7 +31,7 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_DAT_EXT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_DAT_EXT_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if (_gLanguage != LANG_ENGLISH + 1) localize();
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
@@ -228,6 +228,7 @@ void DataExtractDialog::localize() {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_EXTRACT_BTN, DATA_EXTRACT_EXTRACT_BTN);
    SetDlgItemText(_hSelf, IDCLOSE, DATA_EXTRACT_CLOSE_BTN);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_GROUP, DATA_EXTRACT_TEMPLATE_GROUP);
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_FILE_TYPE_LABEL, DATA_EXTRACT_TEMPLATE_FTYPE);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST_LABEL, DATA_EXTRACT_TEMPLATE_LOAD);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME_LABEL, DATA_EXTRACT_TEMPLATE_NAME);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN, DATA_EXTRACT_TEMPLATE_SAVE);
