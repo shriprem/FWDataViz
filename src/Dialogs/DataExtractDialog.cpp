@@ -9,6 +9,7 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    }
 
    hIndicator = GetDlgItem(_hSelf, IDC_DAT_EXT_CURRENT_LINE);
+   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, EM_LIMITTEXT, (WPARAM)MAX_TEMPLATE_NAME, NULL);
 
    for (int i{}; i < LINE_ITEM_COUNT; i++) {
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
@@ -30,8 +31,6 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_DAT_EXT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_DAT_EXT_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   //Utils::setFontItalic(_hSelf, IDC_DAT_EXT_NEW_LINE_TAB_TIP);
-
    if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
@@ -42,8 +41,10 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
 void DataExtractDialog::initDialog(const wstring fileType, const vector<RecordInfo>& recInfoList) {
    initDocFileType = fileType;
    pRecInfoList = &recInfoList;
+   extractsConfigFile = _configIO.getExtractTemplatesFile();
 
    initLineItems();
+   loadTemplatesList();
    moveIndicators(0, TRUE);
 }
 
@@ -171,6 +172,35 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
             case IDCLOSE:
                display(FALSE);
                return TRUE;
+
+            case IDC_DAT_EXT_TEMPLATE_LIST:
+               switch HIWORD(wParam) {
+                  case CBN_SELCHANGE:
+                     loadTemplate();
+                     break;
+                  }
+               break;
+
+            case IDC_DAT_EXT_TEMPLATE_NAME:
+               switch HIWORD(wParam) {
+                  case EN_CHANGE:
+                     enableSaveTemplate();
+                     break;
+                  }
+               break;
+
+            case IDC_DAT_EXT_TEMPLATE_SAVE_BTN:
+               saveTemplate();
+               break;
+
+            case IDC_DAT_EXT_TEMPLATE_NEW_BTN:
+               newTemplate();
+               break;
+
+            case IDC_DAT_EXT_TEMPLATE_DEL_BTN:
+               deleteTemplate();
+               break;
+
          }
          break;
 
@@ -463,5 +493,47 @@ void DataExtractDialog::extractData() {
 
    nppMessage(NPPM_MENUCOMMAND, NULL, IDM_FILE_NEW);
    sciFunc(sciPtr, SCI_SETTEXT, NULL, (LPARAM)extract.c_str());
+}
+
+int DataExtractDialog::loadTemplatesList(){
+   const vector<RecordInfo> recInfoList{ *pRecInfoList };
+
+   HWND hTemplatesList = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST);
+   resetDropDown(hTemplatesList);
+   for (size_t j{}; j < recInfoList.size(); j++) {
+      SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)recInfoList[j].label.c_str());
+   }
+   return 0;
+}
+
+void DataExtractDialog::loadTemplate() {
+   enableDeleteTemplate();
+}
+
+void DataExtractDialog::enableSaveTemplate() {
+   wchar_t name[MAX_TEMPLATE_NAME + 1];
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, name, MAX_TEMPLATE_NAME);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), wstring(name).length() > 2);
+}
+
+void DataExtractDialog::enableDeleteTemplate() {
+   int selected = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST, CB_GETCURSEL, NULL, NULL));
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_DEL_BTN), selected > 0);
+}
+
+void DataExtractDialog::saveTemplate() {
+   MessageBox(_hSelf, extractsConfigFile.c_str(), L"Saving Template", 0);
+}
+
+void DataExtractDialog::newTemplate() {
+   MessageBox(_hSelf, L"New Template", L"", 0);
+}
+
+void DataExtractDialog::deleteTemplate() {
+   if (MessageBox(_hSelf, DATA_EXTRACT_DELETE_PROMPT, DATA_EXTRACT_DIALOG_TITLE,
+      MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+      return;
+
+   MessageBox(_hSelf, L"Deleting Template", L"", 0);
 }
 

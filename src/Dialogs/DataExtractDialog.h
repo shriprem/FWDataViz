@@ -5,6 +5,7 @@
 #include <ShlObj_core.h>
 
 #define LINE_ITEM_COUNT 10
+#define MAX_TEMPLATE_NAME 50
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -19,7 +20,7 @@ public:
 
 protected:
    int currentLineItem{};
-   wstring initDocFileType{};
+   wstring initDocFileType{}, extractsConfigFile{};
    const vector<RecordInfo>* pRecInfoList;
 
    HWND hIndicator;
@@ -50,4 +51,12 @@ protected:
 
    size_t getReconciledLineItems(bool activateNLT);
    void extractData();
+
+   int loadTemplatesList();
+   void loadTemplate();
+   void enableSaveTemplate();
+   void enableDeleteTemplate();
+   void saveTemplate();
+   void newTemplate();
+   void deleteTemplate();
 };

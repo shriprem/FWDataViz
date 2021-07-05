@@ -77,6 +77,10 @@ void ConfigIO::resetCurrentConfigFile() {
    currentConfigFile = CONFIG_FILE_PATHS[CONFIG_VIZ];
 }
 
+wstring ConfigIO::getExtractTemplatesFile() {
+   return CONFIG_FILE_PATHS[CONFIG_EXTRACTS];
+}
+
 string ConfigIO::getConfigStringA(const wstring& sectionName, const wstring& keyName,
    const wstring& defaultValue, wstring fileName) {
    return WideToNarrow(getConfigString(sectionName, keyName, defaultValue, fileName));

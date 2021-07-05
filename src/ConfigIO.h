@@ -27,6 +27,7 @@ public:
 
    int setCurrentConfigFile(const wstring& docFileType);
    void resetCurrentConfigFile();
+   wstring getExtractTemplatesFile();
 
    string getConfigStringA(const wstring& sectionName, const wstring& keyName,
       const wstring& defaultValue = L"", wstring fileName = L"");
@@ -37,9 +38,9 @@ public:
    int getConfigSectionList(wstring& sections, wstring fileName);
 
    void setConfigStringA(const wstring& sectionName, const wstring& keyName,
-      const string& keyValue, wstring fileName=L"");
+      const string& keyValue, wstring fileName = L"");
    void setConfigString(const wstring& sectionName, const wstring& keyName,
-      const wstring& keyValue, wstring fileName=L"");
+      const wstring& keyValue, wstring fileName = L"");
 
    void flushConfigFile();
    void openConfigFile(LPWSTR configData, const size_t readLength, wstring fileName = L"");
@@ -78,10 +79,11 @@ protected:
       CONFIG_VIZ,
       CONFIG_THEMES,
       CONFIG_PREFS,
+      CONFIG_EXTRACTS,
       CONFIG_FILE_COUNT
    };
 
-   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.dat", L"Preferences.ini" };
+   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.dat", L"Preferences.ini", L"Extracts.ini"};
    wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT]{};
    wstring currentConfigFile{};
 };
