@@ -23,16 +23,14 @@ protected:
    wstring initFileType{}, initFileTypeLabel{}, extractsConfigFile{};
    const vector<RecordInfo>* pRecInfoList;
 
-   HWND hIndicator;
+   HWND hIndicator, hTemplatesList;
 
    struct LineItemInfo {
       string prefix;
-      size_t recType;
-      size_t fieldType;
+      int recType;
+      int fieldType;
       string suffix;
    };
-
-   vector <LineItemInfo> validLineItems;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
    void localize();
@@ -49,11 +47,13 @@ protected:
    void setLineItem(int line, LineItemInfo& lineItem);
    void swapLineItems(int lineFrom, int lineTo);
 
-   size_t getReconciledLineItems(bool activateNLT);
+   size_t getValidLineItems(vector<LineItemInfo>& validLIs, bool validFieldType, bool activateNLT);
    void extractData();
 
    int loadTemplatesList();
    void loadTemplate();
+   wstring getSelectedTemplate(bool& other);
+   wstring getTemplateName();
    void enableSaveTemplate();
    void enableDeleteTemplate();
    void saveTemplate();

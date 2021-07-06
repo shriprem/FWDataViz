@@ -9,6 +9,8 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    }
 
    hIndicator = GetDlgItem(_hSelf, IDC_DAT_EXT_CURRENT_LINE);
+   hTemplatesList = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST);
+
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, EM_LIMITTEXT, (WPARAM)MAX_TEMPLATE_NAME, NULL);
 
    for (int i{}; i < LINE_ITEM_COUNT; i++) {
@@ -27,6 +29,8 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
 
    Utils::loadBitmap(_hSelf, IDC_DAT_EXT_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
    Utils::addTooltip(_hSelf, IDC_DAT_EXT_UP_BUTTON, NULL, DATA_EXTRACT_MOVE_UP, FALSE);
+
+   CheckDlgButton(_hSelf, IDC_DAT_EXT_TEMPLATE_CURR_ONLY, BST_CHECKED);
 
    Utils::loadBitmap(_hSelf, IDC_DAT_EXT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_DAT_EXT_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
@@ -175,6 +179,10 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                display(FALSE);
                return TRUE;
 
+            case IDC_DAT_EXT_TEMPLATE_CURR_ONLY:
+               loadTemplatesList();
+               break;
+
             case IDC_DAT_EXT_TEMPLATE_LIST:
                switch HIWORD(wParam) {
                   case CBN_SELCHANGE:
@@ -230,7 +238,7 @@ void DataExtractDialog::localize() {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_EXTRACT_BTN, DATA_EXTRACT_EXTRACT_BTN);
    SetDlgItemText(_hSelf, IDCLOSE, DATA_EXTRACT_CLOSE_BTN);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_GROUP, DATA_EXTRACT_TEMPLATE_GROUP);
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_FILE_TYPE_LABEL, DATA_EXTRACT_TEMPLATE_FTYPE);
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_CURR_ONLY, DATA_EXTRACT_TEMPLATE_CURR);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST_LABEL, DATA_EXTRACT_TEMPLATE_LOAD);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME_LABEL, DATA_EXTRACT_TEMPLATE_NAME);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN, DATA_EXTRACT_TEMPLATE_SAVE);
@@ -242,16 +250,15 @@ void DataExtractDialog::initLineItems() {
    const vector<RecordInfo> recInfoList{ *pRecInfoList };
 
    for (int i{}; i < LINE_ITEM_COUNT; i++) {
-      SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, L"");
-      SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i, L"");
-      resetDropDown(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + i));
-
-      // Record Type Dropdown list
+      // Load Record Type Dropdown lists
       HWND hRecList = GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + i);
       resetDropDown(hRecList);
+
       for (size_t j{}; j < recInfoList.size(); j++) {
          SendMessage(hRecList, CB_ADDSTRING, NULL, (LPARAM)recInfoList[j].label.c_str());
       }
+
+      clearLineItem(i);
    }
 }
 
@@ -352,7 +359,7 @@ bool DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
    lineItem.fieldType = static_cast<int>(
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line, CB_GETCURSEL, NULL, NULL));
 
-   return lineItem.fieldType > 0;
+   return lineItem.prefix.length() + lineItem.suffix.length() + lineItem.recType + lineItem.fieldType > 0;
 }
 
 void DataExtractDialog::setLineItem(int line, LineItemInfo& lineItem) {
@@ -372,35 +379,38 @@ void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
    moveIndicators(lineTo, TRUE);
 }
 
-size_t DataExtractDialog::getReconciledLineItems(bool activateNLT) {
+size_t DataExtractDialog::getValidLineItems(vector<LineItemInfo>& validLIs, bool validFieldType, bool activateNLT) {
    LineItemInfo lineInfo;
 
-   validLineItems.clear();
+   validLIs.clear();
 
    for (int i{}; i < LINE_ITEM_COUNT; i++) {
-      if (getLineItem(i, lineInfo)) {
-         // Decrement both recType & fieldType by one to account for the first "-" item in their dropdowns
-         lineInfo.recType--;
-         lineInfo.fieldType--;
+      if (!getLineItem(i, lineInfo)) continue;
+      if (validFieldType && lineInfo.fieldType == 0) continue;
 
-         if (activateNLT) {
-            _configIO.ActivateNewLineTabs(lineInfo.prefix);
-            _configIO.ActivateNewLineTabs(lineInfo.suffix);
-         }
+      // Decrement both recType & fieldType by one to account for the first "-" item in their dropdowns
+      lineInfo.recType--;
+      lineInfo.fieldType--;
 
-         validLineItems.emplace_back(lineInfo);
+      if (activateNLT) {
+         _configIO.ActivateNewLineTabs(lineInfo.prefix);
+         _configIO.ActivateNewLineTabs(lineInfo.suffix);
       }
+
+      validLIs.emplace_back(lineInfo);
    }
 
-   return validLineItems.size();
+   return validLIs.size();
 }
 
 void DataExtractDialog::extractData() {
    const vector<RecordInfo> recInfoList{ *pRecInfoList };
+   vector<LineItemInfo> validLIs{};
+
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
-   if (getReconciledLineItems(TRUE) < 1) return;
+   if (getValidLineItems(validLIs, TRUE, TRUE) < 1) return;
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    wstring fileType{};
@@ -479,15 +489,15 @@ void DataExtractDialog::extractData() {
 
       recMatch = FALSE;
 
-      for (size_t j{}; j < validLineItems.size(); j++) {
-         LineItemInfo& LI = validLineItems[j];
-         if (regexIndex != LI.recType) continue;
+      for (size_t j{}; j < validLIs.size(); j++) {
+         LineItemInfo& LI = validLIs[j];
+         if (static_cast<int>(regexIndex) != LI.recType) continue;
 
          sciTR.chrg.cpMin = static_cast<long>(recStartPos + recInfoList[LI.recType].fieldStarts[LI.fieldType]);
-         sciTR.chrg.cpMax = sciTR.chrg.cpMin + static_cast<long>(recInfoList[LI.recType].fieldWidths[LI.fieldType]);
+         sciTR.chrg.cpMax = sciTR.chrg.cpMin + recInfoList[LI.recType].fieldWidths[LI.fieldType];
          sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
 
-         extract += validLineItems[j].prefix + fieldText + validLineItems[j].suffix;
+         extract += validLIs[j].prefix + fieldText + validLIs[j].suffix;
          recMatch = TRUE;
       }
 
@@ -499,47 +509,128 @@ void DataExtractDialog::extractData() {
 }
 
 int DataExtractDialog::loadTemplatesList(){
-   const vector<RecordInfo> recInfoList{ *pRecInfoList };
-
-   HWND hTemplatesList = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST);
    resetDropDown(hTemplatesList);
-   for (size_t j{}; j < recInfoList.size(); j++) {
-      SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)recInfoList[j].label.c_str());
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, L"");
+
+   int sectionCount{};
+   wstring sections{};
+   vector<wstring> sectionList{};
+
+   bool currentOnly{ IsDlgButtonChecked(_hSelf, IDC_DAT_EXT_TEMPLATE_CURR_ONLY) == BST_CHECKED };
+
+   sectionCount = _configIO.getConfigSectionList(sections, extractsConfigFile);
+   sectionCount = _configIO.Tokenize(sections, sectionList);
+
+   for (int i{}; i < sectionCount; i++) {
+      wstring templateName{};
+      bool currentTemplate{};
+
+      currentTemplate = (initFileType ==
+         _configIO.getConfigString(sectionList[i], L"FileType", L"", extractsConfigFile));
+
+      templateName = currentOnly ?
+         (currentTemplate ? sectionList[i] : L"") :
+         (wstring{ currentTemplate ? L"" : DATA_EXTRACT_TEMPLATE_OTHER } + sectionList[i]);
+
+      if (templateName.length() > 0)
+         SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)templateName.c_str());
    }
-   return 0;
+   return sectionCount;
 }
 
 void DataExtractDialog::loadTemplate() {
+   bool otherFlag{};
+   wstring templateName{ getSelectedTemplate(otherFlag) };
+   bool validTemplate{ templateName.length() > 0 };
+
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, templateName.c_str());
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), validTemplate);
    enableDeleteTemplate();
+
+   for (int i{}; i < LINE_ITEM_COUNT; i++) {
+      clearLineItem(i);
+   }
+
+   if (!validTemplate) return;
+
+   const vector<RecordInfo> recInfoList{ *pRecInfoList };
+   int liCount{ _configIO.getConfigInt(templateName, L"LineItemCount", 0, extractsConfigFile) };
+   int loadCount{ liCount < LINE_ITEM_COUNT ? liCount: LINE_ITEM_COUNT };
+
+   for (int i{}; i < loadCount; i++) {
+      LineItemInfo LI{};
+
+      wchar_t tNum[4];
+      swprintf(tNum, 4, L"%02d_", static_cast<int>(i));
+      wstring numSuffix{ tNum };
+
+      LI.prefix = _configIO.getConfigStringA(templateName, (numSuffix + L"Prefix").c_str(), L"", extractsConfigFile);
+      LI.suffix = _configIO.getConfigStringA(templateName, (numSuffix + L"Suffix").c_str(), L"", extractsConfigFile);
+
+      LI.recType = _configIO.getConfigInt(templateName, (numSuffix + L"Record").c_str(), 0, extractsConfigFile);
+      if (LI.recType > static_cast<int>(recInfoList.size())) LI.recType = -1;
+
+      if (LI.recType >= 0) {
+         LI.fieldType = _configIO.getConfigInt(templateName, (numSuffix + L"Field").c_str(), 0, extractsConfigFile);
+         if (LI.fieldType > static_cast<int>(recInfoList[LI.recType].fieldLabels.size())) LI.fieldType = -1;
+      }
+
+      LI.recType++;
+      LI.fieldType++;
+      setLineItem(i, LI);
+   }
+}
+
+wstring DataExtractDialog::getSelectedTemplate(bool& otherFlag) {
+   bool validTemplate{ SendMessage(hTemplatesList, CB_GETCURSEL, NULL, NULL) > 0 };
+   wstring templateName{};
+
+   if (validTemplate) {
+      wchar_t tName[MAX_TEMPLATE_NAME + 1];
+      GetWindowText(hTemplatesList, tName, MAX_TEMPLATE_NAME);
+
+      templateName = wstring{ tName };
+
+      size_t otherLen = wstring{ DATA_EXTRACT_TEMPLATE_OTHER }.length();
+      otherFlag = (templateName.substr(0, otherLen) == DATA_EXTRACT_TEMPLATE_OTHER);
+
+      if (otherFlag)
+         templateName = templateName.substr(otherLen);
+   }
+
+   return templateName;
+}
+
+wstring DataExtractDialog::getTemplateName() {
+   wchar_t tName[MAX_TEMPLATE_NAME + 1];
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, tName, MAX_TEMPLATE_NAME);
+   return wstring{ tName };
 }
 
 void DataExtractDialog::enableSaveTemplate() {
-   wchar_t tName[MAX_TEMPLATE_NAME + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, tName, MAX_TEMPLATE_NAME);
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), wstring(tName).length() > 2);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), getTemplateName().length() > 2);
 }
 
 void DataExtractDialog::enableDeleteTemplate() {
-   int selected = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST, CB_GETCURSEL, NULL, NULL));
+   int selected = static_cast<int>(SendMessage(hTemplatesList, CB_GETCURSEL, NULL, NULL));
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_DEL_BTN), selected > 0);
 }
 
 void DataExtractDialog::saveTemplate() {
-   getReconciledLineItems(FALSE);
+   vector<LineItemInfo> validLIs{};
+   getValidLineItems(validLIs, FALSE, FALSE);
 
-   wchar_t tName[MAX_TEMPLATE_NAME + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, tName, MAX_TEMPLATE_NAME);
-   wstring templateName{ tName };
+   wstring templateName{ getTemplateName() };
    if (templateName.length() < 3) return;
 
    // First, delete any existing section with the same name
    _configIO.deleteSection(templateName, extractsConfigFile);
    _configIO.setConfigString(templateName, L"FileType", initFileType, extractsConfigFile);
    _configIO.setConfigString(templateName, L"FileLabel", initFileTypeLabel, extractsConfigFile);
-   _configIO.setConfigString(templateName, L"LineItemCount", to_wstring(validLineItems.size()), extractsConfigFile);
+   _configIO.setConfigString(templateName, L"LineItemCount", to_wstring(validLIs.size()), extractsConfigFile);
 
-   for (size_t i{}; i < validLineItems.size(); i++) {
-      LineItemInfo& LI = validLineItems[i];
+   for (size_t i{}; i < validLIs.size(); i++) {
+      LineItemInfo& LI = validLIs[i];
 
       wchar_t tNum[4];
       swprintf(tNum, 4, L"%02d_", static_cast<int>(i));
@@ -559,7 +650,8 @@ void DataExtractDialog::saveTemplate() {
 }
 
 void DataExtractDialog::newTemplate() {
-   MessageBox(_hSelf, L"New Template", L"", 0);
+   SendMessage(hTemplatesList, CB_SETCURSEL, (WPARAM)0, NULL);
+   loadTemplate();
 }
 
 void DataExtractDialog::deleteTemplate() {
@@ -567,6 +659,11 @@ void DataExtractDialog::deleteTemplate() {
       MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
       return;
 
-   MessageBox(_hSelf, L"Deleting Template", L"", 0);
+   _configIO.deleteSection(getTemplateName(), extractsConfigFile);
+
+   SendMessage(hTemplatesList, CB_DELETESTRING,
+      (WPARAM)SendMessage(hTemplatesList, CB_GETCURSEL, (WPARAM)0, NULL), NULL);
+
+   newTemplate();
 }
 
