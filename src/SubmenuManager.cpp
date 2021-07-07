@@ -65,7 +65,7 @@ void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
    nppMessage(NPPM_DOOPEN, NULL, (LPARAM)sampleFile);
    ShowVisualizerPanel(TRUE);
 
-   _vizPanel.visualizeFile(gSampleFiles[cmdID].file_type, TRUE);
+   _vizPanel.visualizeFile(gSampleFiles[cmdID].file_type, FALSE, FALSE, TRUE);
 }
 
 void SubmenuManager::initSamplesPopup(HMENU hPopup) {

@@ -94,7 +94,7 @@ HWND getCurrentScintilla() {
    return (HWND)(which ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
 }
 
-bool getDirectScintillaFunc(PSCIFUNC_T &fn, void* &ptr) {
+bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return FALSE;
 
@@ -122,7 +122,7 @@ void ShowVisualizerPanel(bool show) {
          data.dlgID = MI_FWVIZ_PANEL;
          data.pszName = MENU_PANEL_NAME;
 
-         nppMessage(NPPM_DMMREGASDCKDLG, 0, (LPARAM)& data);
+         nppMessage(NPPM_DMMREGASDCKDLG, 0, (LPARAM)&data);
 
          _vizPanel.initPanel();
       }

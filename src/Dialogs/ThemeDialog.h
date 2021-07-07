@@ -59,12 +59,12 @@ protected:
    void showEximDialog(bool bExtract);
 
    int getCurrentThemeIndex();
-   bool getCurrentThemeInfo(ThemeType* &fileInfo);
+   bool getCurrentThemeInfo(ThemeType*& fileInfo);
    ThemeType getNewTheme();
    void getThemeConfig(size_t idxTh, bool cr_lf, wstring& themeLabel, wstring& ttConfig);
 
    int getCurrentStyleIndex();
-   bool getCurrentStyleInfo(StyleInfo* &styleInfo);
+   bool getCurrentStyleInfo(StyleInfo*& styleInfo);
    StyleInfo getNewStyle();
 
    void fillThemes();

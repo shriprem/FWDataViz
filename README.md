@@ -5,6 +5,7 @@
 * Visualizes fields within fixed-width data files with distinct colors and font styles.
 * <a href="#fixed-width-data-visualizer-panel">Displays record, field and byte information at cursor position.</a>
 * <a href="#jump-to-field-popup">Feature to jump to a specific field of the current record.</a>
+* [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) feature to extract a handful data fields into an easily readable, quick report.
 * [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) to define and customize file, record and field types.
 * [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md) to define and customize themes and colors for data visualization.
 * Easily share customized [File Type Metadata](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md) and [Visualizer Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md) definitions.

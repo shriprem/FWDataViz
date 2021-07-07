@@ -355,7 +355,7 @@ int ThemeDialog::loadConfigInfo() {
    vThemeTypes.resize(themesCount);
 
    for (int i{}; i < themesCount; i++) {
-      wstring &themeType = themesList[i];
+      wstring& themeType = themesList[i];
       loadThemeInfo(i, themeType, themeFile);
    }
 
@@ -417,7 +417,7 @@ int ThemeDialog::getCurrentStyleIndex() {
    return idxStyle;
 }
 
-bool ThemeDialog::getCurrentThemeInfo(ThemeType* &themeInfo) {
+bool ThemeDialog::getCurrentThemeInfo(ThemeType*& themeInfo) {
    int idxTT{ getCurrentThemeIndex() };
    if (idxTT == LB_ERR) return FALSE;
 
@@ -542,7 +542,7 @@ int ThemeDialog::moveThemeType(move_dir dir) {
    }
 
    ThemeType currType = vThemeTypes[idxTheme];
-   ThemeType &adjType = vThemeTypes[idxTheme + dir];
+   ThemeType& adjType = vThemeTypes[idxTheme + dir];
 
    vThemeTypes[idxTheme] = adjType;
    vThemeTypes[idxTheme + dir] = currType;
@@ -903,7 +903,7 @@ void ThemeDialog::styleEditNew(bool clone) {
    if (clone && idxST == LB_ERR) return;
 
    StyleInfo newStyle{ getNewStyle() };
-   vector<StyleInfo> &styles = vThemeTypes[idxFT].vStyleInfo;
+   vector<StyleInfo>& styles = vThemeTypes[idxFT].vStyleInfo;
    int newIdx{ static_cast<int>(styles.size()) };
 
    if (newIdx >= STYLE_ITEM_LIMIT) {
@@ -941,7 +941,7 @@ int ThemeDialog::styleEditDelete() {
    int idxRec{ getCurrentStyleIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
-   vector<StyleInfo> &records = vThemeTypes[idxFT].vStyleInfo;
+   vector<StyleInfo>& records = vThemeTypes[idxFT].vStyleInfo;
    records.erase(records.begin() + idxRec);
 
    int lastRec = static_cast<int>(records.size()) - 1;
@@ -963,7 +963,7 @@ void ThemeDialog::themeEditAccept() {
    int idxFT{ getCurrentThemeIndex() };
    if (idxFT == LB_ERR) return;
 
-   ThemeType &fileInfo = vThemeTypes[idxFT];
+   ThemeType& fileInfo = vThemeTypes[idxFT];
 
    wchar_t fileVal[MAX_PATH + 1];
 

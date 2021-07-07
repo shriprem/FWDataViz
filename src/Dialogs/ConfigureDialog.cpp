@@ -239,7 +239,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                  case LBN_SELCHANGE:
+                  case CBN_SELCHANGE:
                      if (!loadingEdits) {
                         cleanFileVals = FALSE;
                         enableFileSelection();
@@ -284,7 +284,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_REC_THEME_LIST:
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                  case LBN_SELCHANGE:
+                  case CBN_SELCHANGE:
                      if (!loadingEdits) {
                         cleanRecVals = FALSE;
                         enableRecSelection();
@@ -532,7 +532,7 @@ int ConfigureDialog::loadConfigInfo() {
    vFileTypes.resize(fileTypeCount);
 
    for (int i{}; i < fileTypeCount; i++) {
-      wstring &fileType = fileTypeList[i];
+      wstring& fileType = fileTypeList[i];
       loadFileTypeInfo(i, fileType, configFile);
    }
 
@@ -626,7 +626,7 @@ int ConfigureDialog::getCurrentRecIndex() {
    return idxRec;
 }
 
-bool ConfigureDialog::getCurrentFileTypeInfo(FileType* &fileInfo) {
+bool ConfigureDialog::getCurrentFileTypeInfo(FileType*& fileInfo) {
    int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return FALSE;
 
@@ -793,7 +793,7 @@ int ConfigureDialog::moveFileType(move_dir dir) {
    }
 
    FileType currType = vFileTypes[idxFT];
-   FileType &adjType = vFileTypes[idxFT + dir];
+   FileType& adjType = vFileTypes[idxFT + dir];
 
    vFileTypes[idxFT] = adjType;
    vFileTypes[idxFT + dir] = currType;
@@ -818,7 +818,7 @@ void ConfigureDialog::fillRecTypes() {
       fileInfo = &newFile;
    }
 
-   vector <RecordType> &recInfoList = fileInfo->vRecTypes;
+   vector <RecordType>& recInfoList = fileInfo->vRecTypes;
 
    // Fill Rec Types Listbox
    SendMessage(hRecsLB, LB_RESETCONTENT, NULL, NULL);
@@ -1060,7 +1060,7 @@ void ConfigureDialog::recEditAccept() {
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return;
 
-   RecordType &recInfo = vFileTypes[idxFT].vRecTypes[idxRec];
+   RecordType& recInfo = vFileTypes[idxFT].vRecTypes[idxRec];
 
    wchar_t recDesc[MAX_PATH + 1];
 
@@ -1093,7 +1093,7 @@ void ConfigureDialog::recEditNew(bool clone) {
    int idxRT{ getCurrentRecIndex() };
    if (clone && idxRT == LB_ERR) return;
 
-   vector<RecordType> &records = vFileTypes[idxFT].vRecTypes;
+   vector<RecordType>& records = vFileTypes[idxFT].vRecTypes;
 
    if (static_cast<int>(records.size()) >= REC_TYPE_LIMIT) {
       TCHAR buf[100];
@@ -1131,7 +1131,7 @@ int ConfigureDialog::recEditDelete() {
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
-   vector<RecordType> &records = vFileTypes[idxFT].vRecTypes;
+   vector<RecordType>& records = vFileTypes[idxFT].vRecTypes;
    records.erase(records.begin() + idxRec);
 
    int lastRec = static_cast<int>(records.size()) - 1;
@@ -1153,7 +1153,7 @@ void ConfigureDialog::fileEditAccept() {
    int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return;
 
-   FileType &fileInfo = vFileTypes[idxFT];
+   FileType& fileInfo = vFileTypes[idxFT];
 
    wchar_t fileVal[MAX_PATH + 1];
 

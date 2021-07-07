@@ -37,6 +37,9 @@
     <ClCompile Include="..\src\Dialogs\JumpToField.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Dialogs\DataExtractDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -114,6 +117,9 @@
     <ClInclude Include="..\src\Dialogs\JumpToField.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Dialogs\DataExtractDialog.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc">
@@ -188,6 +194,12 @@
     </Image>
     <Image Include="..\src\Resources\framed_dark.ico">
       <Filter>Resources\Icons</Filter>
+    </Image>
+    <Image Include="..\src\Resources\minus.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\plus.bmp">
+      <Filter>Resources\Bitmaps</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

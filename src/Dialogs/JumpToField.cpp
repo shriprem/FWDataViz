@@ -15,8 +15,10 @@ void JumpToField::doDialog(HINSTANCE hInst) {
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
-void JumpToField::initDialog(int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels) {
-   caretRecordRegIndex = recordIndex;
+void JumpToField::initDialog(const wstring fileType, int recordIndex,
+   int fieldIndex, const vector<wstring>& fieldLabels) {
+   initFileType = fileType;
+   initRecordRegIndex = recordIndex;
 
    hFieldList = GetDlgItem(_hSelf, IDC_JUMP_FIELD_LIST);
 
@@ -47,7 +49,7 @@ INT_PTR CALLBACK JumpToField::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
 
             case IDC_JUMP_FIELD_LIST:
                switch HIWORD(wParam) {
-                  case LBN_SELCHANGE:
+                  case CBN_SELCHANGE:
                      break;
                   }
                break;
@@ -72,7 +74,7 @@ void JumpToField::localize() {
 void JumpToField::onJumpBtnClick() {
    display(FALSE);
 
-   _vizPanel.jumpToField(caretRecordRegIndex,
+   _vizPanel.jumpToField(initFileType, initRecordRegIndex,
       static_cast<int>(SendMessage(hFieldList, CB_GETCURSEL, NULL, NULL)));
 }
 

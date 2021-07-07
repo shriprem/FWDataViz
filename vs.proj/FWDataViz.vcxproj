@@ -30,6 +30,7 @@
     <ClInclude Include="..\src\ConfigIO.h" />
     <ClInclude Include="..\src\Dialogs\AboutDialog.h" />
     <ClInclude Include="..\src\Dialogs\ConfigureDialog.h" />
+    <ClInclude Include="..\src\Dialogs\DataExtractDialog.h" />
     <ClInclude Include="..\src\Dialogs\EximFileTypeDialog.h" />
     <ClInclude Include="..\src\Dialogs\JumpToField.h" />
     <ClInclude Include="..\src\Dialogs\ThemeDialog.h" />
@@ -57,6 +58,7 @@
     <ClCompile Include="..\src\ConfigIO.cpp" />
     <ClCompile Include="..\src\Dialogs\AboutDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\ConfigureDialog.cpp" />
+    <ClCompile Include="..\src\Dialogs\DataExtractDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\EximFileTypeDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\JumpToField.cpp" />
     <ClCompile Include="..\src\Dialogs\ThemeDialog.cpp" />
@@ -83,6 +85,8 @@
     <Image Include="..\src\Resources\framed.ico" />
     <Image Include="..\src\Resources\framed_dark.ico" />
     <Image Include="..\src\Resources\information.bmp" />
+    <Image Include="..\src\Resources\minus.bmp" />
+    <Image Include="..\src\Resources\plus.bmp" />
     <Image Include="..\src\Resources\up.bmp" />
     <Image Include="..\src\Resources\fields.ico" />
   </ItemGroup>

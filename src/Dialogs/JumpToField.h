@@ -11,11 +11,12 @@ class JumpToField : public StaticDialog {
 public:
    JumpToField() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
-   void initDialog(int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels);
+   void initDialog(const wstring fileType, int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels);
    void setFileTypeData(const wstring& ftConfig);
 
 protected:
-   int caretRecordRegIndex;
+   wstring initFileType{};
+   int initRecordRegIndex;
    HWND hFieldList;
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);

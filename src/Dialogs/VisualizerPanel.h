@@ -25,6 +25,16 @@ using std::vector;
 
 class VisualizerPanel : public DockingDlgInterface {
 public :
+   struct RecordInfo {
+      wstring label;
+      string marker;
+      regex regExpr;
+      wstring theme;
+      vector<int> fieldStarts;
+      vector<int> fieldWidths;
+      vector<wstring> fieldLabels;
+   };
+
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
 
    void initPanel();
@@ -34,11 +44,13 @@ public :
    void showCaretFramedState(bool framed);
 
    void loadListFileTypes();
+   bool getDocFileType(HWND hScintilla, wstring& fileType);
+   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
    void loadListThemes();
    void onBufferActivate();
    void renderCurrentPage();
-   void visualizeFile(wstring fileType, bool syncFileTypesList);
-   void jumpToField(const int recordIndex, const int fieldIdx);
+   void visualizeFile(wstring fileType, bool ab_cachedFT, bool autoFT, bool syncFT);
+   void jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx);
 
 protected :
    HWND hFTList, hThemesLB, hFieldInfo;
@@ -64,28 +76,16 @@ protected :
    // Regex data
    wstring fwVizRegexed{};
 
-   struct RecordInfo {
-      wstring label;
-      string marker;
-      regex regExpr;
-      wstring theme;
-      vector<int> fieldStarts;
-      vector<int> fieldWidths;
-      vector<wstring> fieldLabels;
-   };
-
    vector<RecordInfo> recInfoList;
 
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
-   bool getDocFileType(HWND hScintilla, wstring& fileType);
-   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
    bool detectFileType(HWND hScintilla, wstring& fileType);
    bool getDocTheme(HWND hScintilla, wstring& theme);
    bool getDocTheme(PSCIFUNC_T sci_func, void* sci_ptr, wstring& theme);
    void setDocFileType(HWND hScintilla, wstring fileType);
    void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
-   void setAutoDetectFileType();
+   void setADFTCheckbox();
 
    void enableThemeList(bool enable);
    void syncListFileTypes();
@@ -104,6 +104,7 @@ protected :
    void clearCaretFieldInfo();
    void resizeCaretFieldInfo(int width);
    void showJumpDialog();
+   void showExtractDialog();
    void showWordwrapInfo(bool show);
    void popupSamplesMenu();
 };
