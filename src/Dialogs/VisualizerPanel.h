@@ -49,7 +49,7 @@ public :
    void loadListThemes();
    void onBufferActivate();
    void renderCurrentPage();
-   void visualizeFile(wstring fileType, bool syncFileTypesList);
+   void visualizeFile(wstring fileType, bool ab_cachedFT, bool autoFT, bool syncFT);
    void jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx);
 
 protected :
@@ -85,7 +85,7 @@ protected :
    bool getDocTheme(PSCIFUNC_T sci_func, void* sci_ptr, wstring& theme);
    void setDocFileType(HWND hScintilla, wstring fileType);
    void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
-   void setAutoDetectFileType();
+   void setADFTCheckbox();
 
    void enableThemeList(bool enable);
    void syncListFileTypes();

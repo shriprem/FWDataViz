@@ -52,7 +52,7 @@ protected:
 
    int loadTemplatesList();
    void loadTemplate();
-   wstring getSelectedTemplate(bool& other);
+   wstring getSelectedTemplate();
    wstring getTemplateName();
    void enableSaveTemplate();
    void enableDeleteTemplate();

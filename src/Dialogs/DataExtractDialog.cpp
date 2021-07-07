@@ -181,6 +181,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
 
             case IDC_DAT_EXT_TEMPLATE_CURR_ONLY:
                loadTemplatesList();
+               loadTemplate();
                break;
 
             case IDC_DAT_EXT_TEMPLATE_LIST:
@@ -539,8 +540,7 @@ int DataExtractDialog::loadTemplatesList(){
 }
 
 void DataExtractDialog::loadTemplate() {
-   bool otherFlag{};
-   wstring templateName{ getSelectedTemplate(otherFlag) };
+   wstring templateName{ getSelectedTemplate() };
    bool validTemplate{ templateName.length() > 0 };
 
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, templateName.c_str());
@@ -581,7 +581,7 @@ void DataExtractDialog::loadTemplate() {
    }
 }
 
-wstring DataExtractDialog::getSelectedTemplate(bool& otherFlag) {
+wstring DataExtractDialog::getSelectedTemplate() {
    bool validTemplate{ SendMessage(hTemplatesList, CB_GETCURSEL, NULL, NULL) > 0 };
    wstring templateName{};
 
@@ -592,9 +592,8 @@ wstring DataExtractDialog::getSelectedTemplate(bool& otherFlag) {
       templateName = wstring{ tName };
 
       size_t otherLen = wstring{ DATA_EXTRACT_TEMPLATE_OTHER }.length();
-      otherFlag = (templateName.substr(0, otherLen) == DATA_EXTRACT_TEMPLATE_OTHER);
 
-      if (otherFlag)
+      if (templateName.substr(0, otherLen) == DATA_EXTRACT_TEMPLATE_OTHER)
          templateName = templateName.substr(otherLen);
    }
 

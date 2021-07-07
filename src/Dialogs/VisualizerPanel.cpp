@@ -15,7 +15,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_VIZPANEL_FILETYPE_SELECT:
                switch HIWORD(wParam) {
                   case CBN_SELCHANGE:
-                     visualizeFile(L"", FALSE);
+                     visualizeFile(L"", FALSE, FALSE, FALSE);
                      break;
                }
                break;
@@ -55,7 +55,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_AUTO_DETECT_FT:
-               setAutoDetectFileType();
+               setADFTCheckbox();
                break;
 
             case IDC_VIZPANEL_CARET_FRAMED:
@@ -86,6 +86,8 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
       case WM_SHOWWINDOW:
          Utils::checkMenuItem(MI_FWVIZ_PANEL, wParam);
+         showCaretFramedState(_configIO.getCaretFramed());
+         visualizeFile(L"", TRUE, TRUE, TRUE);
          break;
 
       case WM_SIZE:
@@ -145,11 +147,10 @@ void VisualizerPanel::display(bool toShow) {
    hFieldInfo = GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO);
 
    if (toShow) {
-      syncListFileTypes();
-      syncListThemes();
       CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT,
          _configIO.getAutoDetectFileType() ? BST_CHECKED : BST_UNCHECKED);
       showCaretFramedState(_configIO.getCaretFramed());
+      visualizeFile(L"", TRUE, TRUE, TRUE);
       SetFocus(hFTList);
    }
 }
@@ -243,15 +244,25 @@ void VisualizerPanel::enableThemeList(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
 }
 
-void VisualizerPanel::visualizeFile(wstring fileType, bool syncFileTypesList) {
+void VisualizerPanel::visualizeFile(wstring fileType, bool ab_cachedFT, bool autoFT, bool syncFT) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   if (fileType.length() < 1) {
-      wchar_t fDesc[MAX_PATH]{};
+   if (ab_cachedFT) {
+      getDocFileType(hScintilla, fileType);
+      _configIO.setCurrentConfigFile(fileType);
+   }
 
-      SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
-      fileType = mapFileDescToType[fDesc];
+   if (fileType.length() < 1) {
+      if (autoFT) {
+         if (_configIO.getAutoDetectFileType())
+            detectFileType(hScintilla, fileType);
+      }
+      else {
+         wchar_t fDesc[MAX_PATH]{};
+         SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
+         fileType = mapFileDescToType[fDesc];
+      }
    }
 
    if (fileType.length() < 2) {
@@ -261,7 +272,7 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool syncFileTypesList) {
 
    clearVisualize(FALSE);
    setDocFileType(hScintilla, fileType);
-   if (syncFileTypesList) syncListFileTypes();
+   if (syncFT) syncListFileTypes();
 
    setDocTheme(hScintilla, fileType, L"");
    syncListThemes();
@@ -990,23 +1001,15 @@ void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring the
       (LPARAM)_configIO.WideToNarrow(theme).c_str());
 }
 
-void VisualizerPanel::setAutoDetectFileType() {
+void VisualizerPanel::setADFTCheckbox() {
    bool checked{ IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED };
 
    _configIO.setAutoDetectFileType(checked);
-   if (checked) {
-      syncListFileTypes();
-      visualizeFile(L"", FALSE);
-   }
+   if (checked) visualizeFile(L"", FALSE, TRUE, TRUE);
 }
 
 void VisualizerPanel::onBufferActivate() {
-   if (isVisible()) {
-      syncListFileTypes();
-      syncListThemes();
-      loadUsedThemes();
-      applyStyles();
-   }
+   if (isVisible()) visualizeFile(L"", TRUE, TRUE, TRUE);
 }
 
 void VisualizerPanel::setFocusOnEditor() {
