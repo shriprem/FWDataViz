@@ -7,7 +7,7 @@ The field data can be optionally prefixed and suffixed by text labels, separator
 The data extraction feature can be especially useful with mixed-record fixed-width data files wherein column mode selection of field data is not easily possible.
 
 ### Sample Extraction Input
-![Sample_Data_Extract_Dialog](https://raw.githubusercontent.com/shriprem/FWDataViz/DataExtractFeature/images/data_extract_dialog.png)
+![Sample_Data_Extract_Dialog](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/data_extract_dialog.png)
 
 In the pictured sample:
 * The `\n` in the _Prefix_ of the first line is providing a blank line spacing between DRN-Invoice groups in the output (see below).
@@ -20,4 +20,4 @@ In the pictured sample:
 * In Line Item 4, the Work Date field was specified in a template from a slightly different FileType. The position for the _Work date_ field from that other FileType was beyond the defined set of fields for the _Treasury IPAC File_ format. So the _Field_ edit for that line item did not load from the template.
 
 ### Corresponding Output
-![Sample_Data_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/DataExtractFeature/images/data_extract_output.png)
+![Sample_Data_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/data_extract_output.png)

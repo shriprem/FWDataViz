@@ -5,7 +5,7 @@
 * Visualizes fields within fixed-width data files with distinct colors and font styles.
 * <a href="#fixed-width-data-visualizer-panel">Displays record, field and byte information at cursor position.</a>
 * <a href="#jump-to-field-popup">Feature to jump to a specific field of the current record.</a>
-* [Data Extraction](https://github.com/shriprem/FWDataViz/blob/DataExtractFeature/docs/data_extract_dialog.md) feature to extract a handful data fields into an easily readable, quick report.
+* [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) feature to extract a handful data fields into an easily readable, quick report.
 * [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) to define and customize file, record and field types.
 * [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md) to define and customize themes and colors for data visualization.
 * Easily share customized [File Type Metadata](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md) and [Visualizer Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md) definitions.
@@ -23,7 +23,7 @@
 The _Framed Current Line_ feature preserves the color highlights of data fields on the caret line, while still indicating its current line status. This feature is functional even when the fixed-width data visualization is not active.
 
 #### Fixed-Width Data Visualizer Panel:
-![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/DataExtractFeature/images/plugin_panel.png)
+![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
 
 * Click on the _View Sample Files_ icon: ![View Sample Files](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_samples.bmp), and choose from the menu options to view the various <a href="#sample-data-files">sample files</a>.
 
