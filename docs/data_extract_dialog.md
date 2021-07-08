@@ -25,7 +25,7 @@ The _Data Extraction_ dialog is launched by clicking the _Data Extraction_ butto
 #### Reusable Templates
 You can save the specified line items as templates for future reuse. Each template is associated with its document _File Type_.
 ##### Saving
-* Templates will be saved into a common `Extractions.ini` configuration file in the `...\Notepad++\plugins\Config\FWDataViz` folder.
+* Templates will be saved into a common `Extractions.ini` configuration file in the `<NPP_Plugins_folder>/FWDataViz` folder.
 * Templates need to have unique names -- even for templates across different _File Types_. Reusing a name while saving a template will overwrite the previously exisiting template with the same name, reassociating the template with its current document _File Type_.
 * When templates are saved, any totally blank line items in between are skipped. Only the non-blank line items wherein at least one of its _Prefix Text_, _Record Type_, _Field_ and _Suffix Text_ boxes have some specified value are saved into a template.
 ##### Loading
@@ -46,6 +46,6 @@ You can save the specified line items as templates for future reuse. Each templa
 
 
 ### Sample Data Extraction Output
-_[This output data was derived by running the template pictured above on the _Treasury IPAC_ sample file that is packaged with this plugin.]_
+_[This output data was derived by running the template pictured above on the_ Treasury IPAC File (View Sample Files » Sample Multiple-Record-Type Files » Treasury IPAC File) _that is packaged with this plugin.]_
 
 ![Sample_Data_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/data_extract_output.png)
