@@ -3,7 +3,7 @@
 ###### _These keyboard shortcuts are only functional when the keyboard cursor is within any of the Prefix Text or Suffix Text boxes in the Data Extraction dialog_.
 
 | Function Description | Keyboard Shortcut |
-|---|---|---|
+|---|---|
 | **Cursor Navigation** |
 | Move cursor within the same column of boxes to the line item _above_ | Up Arrow |
 | Move cursor within the same column of boxes to the line item _below_ | Down Arrow |
