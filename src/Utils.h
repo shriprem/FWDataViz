@@ -10,6 +10,7 @@ namespace Utils {
    void checkMenuItem(int menuIndex, bool check);
    void showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text);
    bool checkBaseOS(winVer os);
+   bool checkKeyHeldDown(int vKey);
    bool getClipboardText(HWND hwnd, wstring& clipText);
    wstring getVersionInfo(LPCWSTR key);
    void loadBitmap(HWND hDlg, int controlID, int resource);

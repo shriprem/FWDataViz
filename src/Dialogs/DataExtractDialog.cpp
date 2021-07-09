@@ -1,6 +1,20 @@
 #include "DataExtractDialog.h"
 
 extern VisualizerPanel _vizPanel;
+extern DataExtractDialog _dataExtractDlg;
+
+LRESULT CALLBACK procKeyNavigation(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
+   switch (messageId) {
+      case WM_KEYDOWN:
+         if (_dataExtractDlg.processKey(hwnd, wParam)) return FALSE;
+
+      case WM_SYSKEYDOWN:
+         if (_dataExtractDlg.processSysKey(hwnd, wParam)) return FALSE;
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}
+
 
 void DataExtractDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
@@ -13,7 +27,7 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
 
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, EM_LIMITTEXT, (WPARAM)MAX_TEMPLATE_NAME, NULL);
 
-   for (int i{}; i < LINE_ITEM_COUNT; i++) {
+   for (int i{}; i < LINES_PER_PAGE; i++) {
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
 
@@ -157,7 +171,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                break;
 
             case IDC_DAT_EXT_DOWN_BUTTON:
-               if (currentLineItem < LINE_ITEM_COUNT - 1)
+               if (currentLineItem < LINES_PER_PAGE - 1)
                   swapLineItems(currentLineItem, currentLineItem + 1);
                break;
 
@@ -215,6 +229,16 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
          }
          break;
 
+      case WM_NOTIFY:
+         switch (((LPNMHDR)lParam)->code) {
+         case NM_CLICK:
+         case NM_RETURN:
+            ShellExecute(NULL, L"open", DATA_EXTRACT_KEYNAV_README, NULL, NULL, SW_SHOW);
+            display(FALSE);
+            return TRUE;
+         }
+         break;
+
       case WM_CTLCOLORSTATIC:
          switch (GetDlgCtrlID((HWND)lParam)) {
             case IDC_DAT_EXT_CURRENT_LINE:
@@ -235,6 +259,7 @@ void DataExtractDialog::localize() {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_RECORD_LABEL, DATA_EXTRACT_RECORD_LABEL);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_FIELD_LABEL, DATA_EXTRACT_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_SUFFIX_LABEL, DATA_EXTRACT_SUFFIX_LABEL);
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP, DATA_EXTRACT_KEYBOARD_TIP);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_NEW_LINE_TAB_TIP, DATA_EXTRACT_NEW_LINE_TAB);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_EXTRACT_BTN, DATA_EXTRACT_EXTRACT_BTN);
    SetDlgItemText(_hSelf, IDCLOSE, DATA_EXTRACT_CLOSE_BTN);
@@ -250,7 +275,7 @@ void DataExtractDialog::localize() {
 void DataExtractDialog::initLineItems() {
    const vector<RecordInfo> recInfoList{ *pRecInfoList };
 
-   for (int i{}; i < LINE_ITEM_COUNT; i++) {
+   for (int i{}; i < LINES_PER_PAGE; i++) {
       // Load Record Type Dropdown lists
       HWND hRecList = GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + i);
       resetDropDown(hRecList);
@@ -260,6 +285,9 @@ void DataExtractDialog::initLineItems() {
       }
 
       clearLineItem(i);
+
+      SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i), procKeyNavigation, NULL, NULL);
+      SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i), procKeyNavigation, NULL, NULL);
    }
 }
 
@@ -290,7 +318,7 @@ void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
 
    SetWindowPos(hIndicator, HWND_TOP, newPos.x, newPos.y, NULL, NULL, SWP_NOSIZE | SWP_NOOWNERZORDER);
 
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_DOWN_BUTTON), line < LINE_ITEM_COUNT - 1);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_DOWN_BUTTON), line < LINES_PER_PAGE - 1);
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_UP_BUTTON), line > 0);
 
    if (focusPrefix)
@@ -304,7 +332,7 @@ void DataExtractDialog::resetDropDown(HWND hList) {
 }
 
 void DataExtractDialog::addLineItem(int line) {
-   for (int i{ LINE_ITEM_COUNT }; i > line; i--) {
+   for (int i{ LINES_PER_PAGE }; i > line; i--) {
       copyLineItem(i - 1, i);
    }
    clearLineItem(line);
@@ -313,10 +341,10 @@ void DataExtractDialog::addLineItem(int line) {
 }
 
 void DataExtractDialog::delLineItem(int line) {
-   for (int i{ line }; i < LINE_ITEM_COUNT; i++) {
+   for (int i{ line }; i < LINES_PER_PAGE; i++) {
       copyLineItem(i + 1, i);
    }
-   clearLineItem(LINE_ITEM_COUNT);
+   clearLineItem(LINES_PER_PAGE);
 
    moveIndicators(line, TRUE);
 }
@@ -385,7 +413,7 @@ size_t DataExtractDialog::getValidLineItems(vector<LineItemInfo>& validLIs, bool
 
    validLIs.clear();
 
-   for (int i{}; i < LINE_ITEM_COUNT; i++) {
+   for (int i{}; i < LINES_PER_PAGE; i++) {
       if (!getLineItem(i, lineInfo)) continue;
       if (validFieldType && lineInfo.fieldType == 0) continue;
 
@@ -547,7 +575,7 @@ void DataExtractDialog::loadTemplate() {
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), validTemplate);
    enableDeleteTemplate();
 
-   for (int i{}; i < LINE_ITEM_COUNT; i++) {
+   for (int i{}; i < LINES_PER_PAGE; i++) {
       clearLineItem(i);
    }
 
@@ -555,7 +583,7 @@ void DataExtractDialog::loadTemplate() {
 
    const vector<RecordInfo> recInfoList{ *pRecInfoList };
    int liCount{ _configIO.getConfigInt(templateName, L"LineItemCount", 0, extractsConfigFile) };
-   int loadCount{ liCount < LINE_ITEM_COUNT ? liCount: LINE_ITEM_COUNT };
+   int loadCount{ liCount < LINES_PER_PAGE ? liCount: LINES_PER_PAGE };
 
    for (int i{}; i < loadCount; i++) {
       LineItemInfo LI{};
@@ -664,5 +692,103 @@ void DataExtractDialog::deleteTemplate() {
       (WPARAM)SendMessage(hTemplatesList, CB_GETCURSEL, (WPARAM)0, NULL), NULL);
 
    newTemplate();
+}
+
+bool DataExtractDialog::processKey(HWND hCtrl, WPARAM wParam) {
+   int ctrlID{ GetDlgCtrlID(hCtrl) };
+
+   switch (wParam) {
+      case VK_DOWN:
+         if ((ctrlID != IDC_DAT_EXT_ITEM_PREFIX_01 + LINES_PER_PAGE - 1) &&
+            (ctrlID != IDC_DAT_EXT_ITEM_SUFFIX_01 + LINES_PER_PAGE - 1)) {
+            if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+               swapLineItems(currentLineItem, currentLineItem + 1);
+               return TRUE;
+            }
+            else {
+               SetFocus(GetDlgItem(_hSelf, ctrlID + 1));
+               return TRUE;
+            }
+         }
+         break;
+
+      case VK_UP:
+         if ((ctrlID != IDC_DAT_EXT_ITEM_PREFIX_01) &&
+            (ctrlID != IDC_DAT_EXT_ITEM_SUFFIX_01)) {
+            if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+               swapLineItems(currentLineItem, currentLineItem - 1);
+               return TRUE;
+            }
+            else {
+               SetFocus(GetDlgItem(_hSelf, ctrlID - 1));
+               return TRUE;
+            }
+         }
+         break;
+
+      case VK_HOME:
+         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+            SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01));
+            return TRUE;
+         }
+         break;
+
+      case VK_END:
+         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+            SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + LINES_PER_PAGE - 1));
+            return TRUE;
+         }
+         break;
+
+      case VK_PRIOR:
+         SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem));
+         return TRUE;
+         break;
+
+      case VK_NEXT:
+         SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem + LINES_PER_PAGE - 1));
+         return TRUE;
+         break;
+
+      case VK_ADD:
+      case VK_OEM_PLUS:
+      case VK_INSERT:
+         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+            addLineItem(currentLineItem);
+            return TRUE;
+         }
+         break;
+
+      case VK_SUBTRACT:
+      case VK_OEM_MINUS:
+      case VK_DELETE:
+         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+            delLineItem(currentLineItem);
+            return TRUE;
+         }
+         break;
+   }
+
+   return FALSE;
+}
+
+bool DataExtractDialog::processSysKey(HWND , WPARAM wParam) {
+   switch (wParam) {
+      case VK_HOME:
+         if (Utils::checkKeyHeldDown(VK_MENU)) {
+            SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + currentLineItem));
+            return TRUE;
+         }
+         break;
+
+      case VK_END:
+         if (Utils::checkKeyHeldDown(VK_MENU)) {
+            SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + currentLineItem));
+            return TRUE;
+         }
+         break;
+   }
+
+   return FALSE;
 }
 

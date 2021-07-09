@@ -4,7 +4,7 @@
 #include "VisualizerPanel.h"
 #include <ShlObj_core.h>
 
-#define LINE_ITEM_COUNT 10
+#define LINES_PER_PAGE 10
 #define MAX_TEMPLATE_NAME 50
 
 extern NppData nppData;
@@ -17,6 +17,8 @@ public:
    DataExtractDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
    void initDialog(const wstring fileType, const vector<RecordInfo>& recInfoList);
+   bool processKey(HWND hCtrl, WPARAM wParam);
+   bool processSysKey(HWND hCtrl, WPARAM wParam);
 
 protected:
    int currentLineItem{};
@@ -59,4 +61,5 @@ protected:
    void saveTemplate();
    void newTemplate();
    void deleteTemplate();
+
 };

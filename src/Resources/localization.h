@@ -186,6 +186,7 @@
 #define DATA_EXTRACT_TEMPLATE_NEW   L"&New"
 #define DATA_EXTRACT_TEMPLATE_DEL   L"&Delete"
 #define DATA_EXTRACT_NEW_LINE_TAB   L"Tip¹:\nIn Prefix and Suffix Text boxes,\nuse \\n for New Lines and \\t for TABs."
+#define DATA_EXTRACT_KEYBOARD_TIP   L"Easy Keyboard Shortcuts"
 #define DATA_EXTRACT_DELETE_PROMPT  L"Delete Template?"
 #define DATA_EXTRACT_SAVED_TEMPLATE L"Saved Template"
 #define DATA_EXTRACT_CHANGED_DOC    L"The currently active document is of a different File Type.\r\n\r\nUnable to proceed with data extraction."
@@ -202,3 +203,4 @@
 #define THEME_EXTRACT_INFO_README   L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md"
 #define THEME_APPEND_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md"
 #define DATA_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md"
+#define DATA_EXTRACT_KEYNAV_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md"

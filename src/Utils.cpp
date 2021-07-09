@@ -114,6 +114,10 @@ bool Utils::checkBaseOS(winVer os) {
    return (nppMessage(NPPM_GETWINDOWSVERSION, NULL, NULL) >= os);
 }
 
+bool Utils::checkKeyHeldDown(int vKey) {
+   return (GetKeyState(vKey) & 0x8000) > 0;
+}
+
 bool Utils::getClipboardText(HWND hwnd, wstring& clipText) {
    bool bRet{ FALSE };
 

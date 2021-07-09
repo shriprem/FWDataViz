@@ -49,3 +49,5 @@ You can save the specified line items as templates for future reuse. Each templa
 _[This output data was derived by running the template pictured above on the_ Treasury IPAC File (View Sample Files » Sample Multiple-Record-Type Files » Treasury IPAC File) _that is packaged with this plugin.]_
 
 ![Sample_Data_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/data_extract_output.png)
+
+See also: [Data Extract Dialog - Keyboard Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md)
