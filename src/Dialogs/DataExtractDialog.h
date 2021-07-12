@@ -2,9 +2,9 @@
 
 #include "../NPP/StaticDialog.h"
 #include "VisualizerPanel.h"
-#include <ShlObj_core.h>
 
 #define LINES_PER_PAGE 10
+#define LINES_BUFFER_LIMIT 30
 #define MAX_TEMPLATE_NAME 50
 
 extern NppData nppData;
@@ -33,6 +33,7 @@ protected:
       int fieldType;
       string suffix;
    };
+   vector<LineItemInfo> LIBuffer{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
    void localize();

@@ -21,6 +21,7 @@ The _Data Extraction_ dialog is launched by clicking the _Data Extraction_ butto
    * `\t` can also be used at the start of a Prefix on the first field of a record type to achieve indentation for a hierarchical listing in the output data, as seen in the sample below.
 * Use the `+` and `-` buttons to insert or delete line items. Beware that using the `+` button to insert a line item will effectively delete the 10th line item.
 * Use the up and down buttons at the bottom of the line items group box to reorder the line items.
+* Instead of clicking these buttons, you can also use [keyboard shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md) for easy navigation and manipulation of line items.
 
 #### Reusable Templates
 You can save the specified line items as templates for future reuse. Each template is associated with its document _File Type_.

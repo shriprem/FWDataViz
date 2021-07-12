@@ -28,21 +28,36 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, EM_LIMITTEXT, (WPARAM)MAX_TEMPLATE_NAME, NULL);
 
    for (int i{}; i < LINES_PER_PAGE; i++) {
+      SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i), procKeyNavigation, NULL, NULL);
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+
+      SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i), procKeyNavigation, NULL, NULL);
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
 
-      Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, IDB_VIZ_PLUS_BITMAP);
+      Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, IDB_DAT_EXT_PLUS_BITMAP);
       Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, NULL, DATA_EXTRACT_ADD_LINE_ITEM, FALSE);
 
-      Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + i, IDB_VIZ_MINUS_BITMAP);
+      Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + i, IDB_DAT_EXT_MINUS_BITMAP);
       Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + i, NULL, DATA_EXTRACT_DEL_LINE_ITEM, FALSE);
    }
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_DOWN_BUTTON, NULL, DATA_EXTRACT_MOVE_DOWN, FALSE);
+   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_PREV_BUTTON, IDB_DAT_EXT_PAGE_PREV_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_DAT_EXT_PAGE_PREV_BUTTON, NULL, DATA_EXTRACT_PAGE_PREV, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_UP_BUTTON, NULL, DATA_EXTRACT_MOVE_UP, FALSE);
+   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_NEXT_BUTTON, IDB_DAT_EXT_PAGE_NEXT_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_DAT_EXT_PAGE_NEXT_BUTTON, NULL, DATA_EXTRACT_PAGE_NEXT, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_ADD_BUTTON, IDB_DAT_EXT_PAGE_ADD_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_DAT_EXT_PAGE_ADD_BUTTON, NULL, DATA_EXTRACT_PAGE_ADD, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_DEL_BUTTON, IDB_DAT_EXT_PAGE_DEL_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_DAT_EXT_PAGE_DEL_BUTTON, NULL, DATA_EXTRACT_PAGE_DEL, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON, NULL, DATA_EXTRACT_MOVE_DOWN, FALSE);
+
+   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
+   Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON, NULL, DATA_EXTRACT_MOVE_UP, FALSE);
 
    CheckDlgButton(_hSelf, IDC_DAT_EXT_TEMPLATE_CURR_ONLY, BST_CHECKED);
 
@@ -170,12 +185,12 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                delLineItem(LOWORD(wParam) - IDC_DAT_EXT_ITEM_DEL_BTN_01);
                break;
 
-            case IDC_DAT_EXT_DOWN_BUTTON:
+            case IDC_DAT_EXT_ITEM_DOWN_BUTTON:
                if (currentLineItem < LINES_PER_PAGE - 1)
                   swapLineItems(currentLineItem, currentLineItem + 1);
                break;
 
-            case IDC_DAT_EXT_UP_BUTTON:
+            case IDC_DAT_EXT_ITEM_UP_BUTTON:
                if (currentLineItem > 0)
                   swapLineItems(currentLineItem, currentLineItem - 1);
                break;
@@ -285,9 +300,6 @@ void DataExtractDialog::initLineItems() {
       }
 
       clearLineItem(i);
-
-      SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i), procKeyNavigation, NULL, NULL);
-      SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i), procKeyNavigation, NULL, NULL);
    }
 }
 
@@ -318,8 +330,8 @@ void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
 
    SetWindowPos(hIndicator, HWND_TOP, newPos.x, newPos.y, NULL, NULL, SWP_NOSIZE | SWP_NOOWNERZORDER);
 
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_DOWN_BUTTON), line < LINES_PER_PAGE - 1);
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_UP_BUTTON), line > 0);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON), line < LINES_PER_PAGE - 1);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON), line > 0);
 
    if (focusPrefix)
       SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line));
