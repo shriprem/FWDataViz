@@ -192,7 +192,8 @@
 #define DATA_EXTRACT_NEW_LINE_TAB   L"Tip¹:\nIn Prefix and Suffix Text boxes,\nuse \\n for New Lines and \\t for TABs."
 #define DATA_EXTRACT_KEYBOARD_TIP   L"Easy Keyboard Shortcuts"
 #define DATA_EXTRACT_DELETE_PROMPT  L"Delete Template?"
-#define DATA_EXTRACT_SAVED_TEMPLATE L"Saved Template"
+#define DATA_EXTRACT_INVTEMPL_TITLE L"Invalid Template Name!"
+#define DATA_EXTRACT_INVTEMPL_MSG   L"\"[\" and \"]\" are disallowed in Template Name."
 #define DATA_EXTRACT_CHANGED_DOC    L"The currently active document is of a different File Type.\r\n\r\nUnable to proceed with data extraction."
 
 

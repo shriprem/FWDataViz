@@ -16,6 +16,32 @@ LRESULT CALLBACK procKeyNavigation(HWND hwnd, UINT messageId, WPARAM wParam, LPA
 }
 
 
+LRESULT CALLBACK procTemplateName(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
+   switch (messageId) {
+      case WM_CHAR:
+         if (wParam == '[' || wParam == ']') {
+            Utils::showEditBalloonTip(hwnd, DATA_EXTRACT_INVTEMPL_TITLE, DATA_EXTRACT_INVTEMPL_MSG);
+            return FALSE;
+         }
+         break;
+
+      case WM_PASTE:
+      {
+         wstring clipText;
+
+         Utils::getClipboardText(GetParent(hwnd), clipText);
+
+         if (!regex_match(clipText, std::wregex(L"[|]"))) {
+            Utils::showEditBalloonTip(hwnd, DATA_EXTRACT_INVTEMPL_TITLE, DATA_EXTRACT_INVTEMPL_MSG);
+            return FALSE;
+         }
+         break;
+      }
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}
+
 void DataExtractDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
@@ -24,8 +50,10 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
 
    hIndicator = GetDlgItem(_hSelf, IDC_DAT_EXT_CURRENT_LINE);
    hTemplatesList = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST);
+   hTemplateName = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME);
 
-   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, EM_LIMITTEXT, (WPARAM)MAX_TEMPLATE_NAME, NULL);
+   SendMessage(hTemplateName, EM_LIMITTEXT, (WPARAM)MAX_TEMPLATE_NAME, NULL);
+   SetWindowSubclass(hTemplateName, procTemplateName, NULL, NULL);
 
    for (int i{}; i < LINES_PER_PAGE; i++) {
       SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i), procKeyNavigation, NULL, NULL);
@@ -357,10 +385,18 @@ void DataExtractDialog::resetDropDown(HWND hList) {
    SendMessage(hList, CB_SETCURSEL, (WPARAM)0, NULL);
 }
 
+bool DataExtractDialog::isBlankLineItem(const LineItemInfo& lineItem) {
+   return (lineItem.prefix.length() + lineItem.suffix.length() + lineItem.recType + lineItem.fieldType == 0);
+}
+
 void DataExtractDialog::addLineItem(int line) {
    int idx{ (currentPage * 10) + line };
 
    readPage();
+
+   if (isBlankLineItem(liBuffer.back()))
+      liBuffer.erase(liBuffer.end() - 1);
+
    liBuffer.insert(liBuffer.begin() + idx, LineItemInfo{});
    if (liBuffer.size() > MAX_BUFFER_LINES)
       liBuffer.resize(MAX_BUFFER_LINES);
@@ -374,7 +410,6 @@ void DataExtractDialog::delLineItem(int line) {
 
    readPage();
    liBuffer.erase(liBuffer.begin() + idx);
-   liBuffer.push_back(LineItemInfo{});
 
    loadPage(currentPage);
    moveIndicators(line, TRUE);
@@ -487,7 +522,7 @@ size_t DataExtractDialog::getValidLineItems(vector<LineItemInfo>& validLIs, bool
    for (size_t i{}; i < liBuffer.size(); i++) {
       LineItemInfo lineInfo{ liBuffer[i] };
 
-      if (lineInfo.prefix.length() + lineInfo.suffix.length() + lineInfo.recType + lineInfo.fieldType == 0) continue;
+      if (isBlankLineItem(lineInfo)) continue;
       if (validFieldType && lineInfo.fieldType == 0) continue;
 
       // Decrement both recType & fieldType by one to account for the first "-" item in their dropdowns
@@ -610,9 +645,9 @@ void DataExtractDialog::extractData() {
    sciFunc(sciPtr, SCI_SETTEXT, NULL, (LPARAM)extract.c_str());
 }
 
-int DataExtractDialog::loadTemplatesList(){
+int DataExtractDialog::loadTemplatesList() {
    resetDropDown(hTemplatesList);
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, L"");
+   SetWindowText(hTemplateName, L"");
 
    int sectionCount{};
    wstring sections{};
@@ -648,7 +683,7 @@ void DataExtractDialog::loadTemplate() {
       return;
    }
 
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, templateName.c_str());
+   SetWindowText(hTemplateName, templateName.c_str());
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), TRUE);
    enableDeleteTemplate();
 
@@ -711,7 +746,7 @@ wstring DataExtractDialog::getSelectedTemplate() {
 
 wstring DataExtractDialog::getTemplateName() {
    wchar_t tName[MAX_TEMPLATE_NAME + 1];
-   GetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, tName, MAX_TEMPLATE_NAME);
+   GetWindowText(hTemplateName, tName, MAX_TEMPLATE_NAME);
    return wstring{ tName };
 }
 
@@ -754,7 +789,12 @@ void DataExtractDialog::saveTemplate() {
          (numSuffix + L"Suffix").c_str(), LI.suffix.c_str(), extractsConfigFile);
    }
 
-   MessageBox(_hSelf, DATA_EXTRACT_SAVED_TEMPLATE, DATA_EXTRACT_DIALOG_TITLE, MB_OK);
+   if (SendMessage(hTemplatesList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)templateName.c_str()) == CB_ERR) {
+      LRESULT idx{ SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)templateName.c_str()) };
+      SendMessage(hTemplatesList, CB_SETCURSEL, (WPARAM)idx, NULL);
+   }
+
+   loadTemplate();
 }
 
 void DataExtractDialog::newTemplate() {
@@ -763,7 +803,7 @@ void DataExtractDialog::newTemplate() {
    loadPage(0);
 
    SendMessage(hTemplatesList, CB_SETCURSEL, (WPARAM)0, NULL);
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, L"");
+   SetWindowText(hTemplateName, L"");
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), FALSE);
    enableDeleteTemplate();
 }

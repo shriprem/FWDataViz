@@ -26,7 +26,7 @@ protected:
    wstring initFileType{}, initFileTypeLabel{}, extractsConfigFile{};
    const vector<RecordInfo>* pRecInfoList;
 
-   HWND hIndicator, hTemplatesList;
+   HWND hIndicator, hTemplatesList, hTemplateName;
 
    struct LineItemInfo {
       string prefix;
@@ -43,6 +43,7 @@ protected:
    void moveIndicators(int line, bool focusPrefix);
    void resetDropDown(HWND hList);
 
+   bool isBlankLineItem(const LineItemInfo& lineItem);
    void addLineItem(int line);
    void delLineItem(int line);
    void clearLineItem(int line);
