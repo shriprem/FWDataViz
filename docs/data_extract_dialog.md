@@ -8,25 +8,38 @@ The field data can be optionally prefixed and suffixed by text labels, separator
 
 The _Data Extraction_ dialog is launched by clicking the _Data Extraction_ button that appears on the _FWDataViz_ panel when the currently open document has been visualized with a specific _File Type_ by the plugin.
 
+###### Caveats
+ * The data extraction performance is inversely proportional to the size of the fixed-width data file.
+ * The data extraction performance is also inversely proportional to the number of [_line items_](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md#line-items). Although the Data Extraction dialog will allow up to 30 line items, try limiting between 5 and 10 line items.
+
 ### Data Extraction dialog
 ![Data_Extraction_Dialog](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/data_extract_dialog.png)
 
 #### Line Items
-* The Data Extraction dialog currently allows 10 _Line Items_. In each line item, you can specify a _Prefix Text_, a _Record Type_, a _Field_, and a _Suffix Text_.
+* The Data Extraction dialog will allow up to 30 _Line Items_, _i.e.,_ 10 line items per [page](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md#line-item-pages) across 3 pages. In each line item, you can specify a _Prefix Text_, a _Record Type_, a _Field_, and a _Suffix Text_.
 * Only line items with a specified _Record Type_ and _Field_ are used for data extraction. _Prefix Text_ and _Suffix Text_ are optional.
 * The _Record Type_ is a dropdown list derived from the list of record types of the current document _File Type_.
 * The _Field_ is a dropdown list derived from the list of field types of the specified _Record Type_.
 * In _Prefix_ and _Suffix Text_ boxes, use `\n` for new lines and `\t` for TABs.
    * `\n` can be used to achieve a blank line separation between records or, preferably, a group of records.
    * `\t` can also be used at the start of a Prefix on the first field of a record type to achieve indentation for a hierarchical listing in the output data, as seen in the sample below.
-* Use the `+` and `-` buttons to insert or delete line items. Beware that using the `+` button to insert a line item will effectively delete the 10th line item.
+* Use the `+` button to insert a blank line item. The current line item and all others below it will shift down by a line. This action may also result in the addition of a new page if the last line item on the current page is not blank; but it will also effectively delete the 30th line item _i.e.,_ the last line item on the last allowed page.
+* Use the `-` button to delete the current line item. All line items below the current line item will shift up by one line. This action may also result in the deletion of a following page.
 * Use the up and down buttons at the bottom of the line items group box to reorder the line items.
+* Use [keyboard shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md) for easier navigation and manipulation of line items.
+
+#### Line Item Pages
+* The current page number can be inferred from the sequence numbers preceding each line item.
+* The _Add Page_ button is disabled on the 3rd page _i.e.,_ the last allowed page.
+* The _Delete Page_ button is disabled on the 1st page.
+* Use [keyboard shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md) for easier navigation and manipulation of pages.
 
 #### Reusable Templates
 You can save the specified line items as templates for future reuse. Each template is associated with its document _File Type_.
 ##### Saving
 * Templates will be saved into a common `Extractions.ini` configuration file in the `<NPP_Plugins_folder>/FWDataViz` folder.
 * Templates need to have unique names -- even for templates across different _File Types_. Reusing a name while saving a template will overwrite the previously exisiting template with the same name, reassociating the template with its current document _File Type_.
+* "[" and "]" characters are disallowed for template names.
 * When templates are saved, any totally blank line items in between are skipped. Only the non-blank line items wherein at least one of its _Prefix Text_, _Record Type_, _Field_ and _Suffix Text_ boxes have some specified value are saved into a template.
 ##### Loading
 * The _Load Template_ dropdown will by default list only the templates previously saved with the matching current document _File Type_.

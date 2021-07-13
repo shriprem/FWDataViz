@@ -159,22 +159,26 @@
 #define FT_EXIM_CLOSE_BTN           L"&Close"
 
 // Jump Field Dialog
-#define JUMP_FIELD_DIALOG_TITLE     L"Extract File Type Data"
+#define JUMP_FIELD_DIALOG_TITLE     L"Jump to Field"
 #define JUMP_FIELD_SELECT_LABEL     L"&Select Field:"
 #define JUMP_FIELD_GO_BTN           L"&Jump"
 #define JUMP_FIELD_CLOSE_BTN        L"&Cancel"
 
 
 // Data Extraction Dialog
-#define DATA_EXTRACT_DIALOG_TITLE   L"Data Extraction"
+#define DATA_EXTRACT_DIALOG_TITLE   L"Fixed-Width Data Extraction"
 #define DATA_EXTRACT_PREFIX_LABEL   L"Prefix Text¹"
 #define DATA_EXTRACT_RECORD_LABEL   L"Record Type"
 #define DATA_EXTRACT_FIELD_LABEL    L"Field"
 #define DATA_EXTRACT_SUFFIX_LABEL   L"Suffix Text¹"
-#define DATA_EXTRACT_ADD_LINE_ITEM  L"Insert Line Item"
-#define DATA_EXTRACT_DEL_LINE_ITEM  L"Delete Line Item"
-#define DATA_EXTRACT_MOVE_DOWN      L"Move down the selected Line Item"
-#define DATA_EXTRACT_MOVE_UP        L"Move up the selected Line Item"
+#define DATA_EXTRACT_ADD_LINE_ITEM  L"Insert Line Item\t[CTRL+Insert]"
+#define DATA_EXTRACT_DEL_LINE_ITEM  L"Delete Line Item\t[CTRL+Delete]"
+#define DATA_EXTRACT_PAGE_PREV      L"Previous Page\t[CTRL+Page Up]"
+#define DATA_EXTRACT_PAGE_NEXT      L"Next Page\t[CTRL+Page Down]"
+#define DATA_EXTRACT_PAGE_ADD       L"Add Page\t[CTRL+SHIFT+Insert]"
+#define DATA_EXTRACT_PAGE_DEL       L"Delete Page\t[CTRL+SHIFT+Delete]"
+#define DATA_EXTRACT_MOVE_DOWN      L"Move down the selected Line Item\t[CTRL+Down Arrow]"
+#define DATA_EXTRACT_MOVE_UP        L"Move up the selected Line Item\t[CTRL+Up Arrow]"
 #define DATA_EXTRACT_EXTRACT_BTN    L"E&xtract Data"
 #define DATA_EXTRACT_CLOSE_BTN      L"&Close"
 #define DATA_EXTRACT_TEMPLATE_GROUP L"Reusable Templates"
@@ -188,7 +192,8 @@
 #define DATA_EXTRACT_NEW_LINE_TAB   L"Tip¹:\nIn Prefix and Suffix Text boxes,\nuse \\n for New Lines and \\t for TABs."
 #define DATA_EXTRACT_KEYBOARD_TIP   L"Easy Keyboard Shortcuts"
 #define DATA_EXTRACT_DELETE_PROMPT  L"Delete Template?"
-#define DATA_EXTRACT_SAVED_TEMPLATE L"Saved Template"
+#define DATA_EXTRACT_INVTEMPL_TITLE L"Invalid Template Name!"
+#define DATA_EXTRACT_INVTEMPL_MSG   L"\"[\" and \"]\" are disallowed in Template Name."
 #define DATA_EXTRACT_CHANGED_DOC    L"The currently active document is of a different File Type.\r\n\r\nUnable to proceed with data extraction."
 
 

@@ -86,6 +86,10 @@
     <Image Include="..\src\Resources\framed_dark.ico" />
     <Image Include="..\src\Resources\information.bmp" />
     <Image Include="..\src\Resources\minus.bmp" />
+    <Image Include="..\src\Resources\page_add.bmp" />
+    <Image Include="..\src\Resources\page_del.bmp" />
+    <Image Include="..\src\Resources\page_next.bmp" />
+    <Image Include="..\src\Resources\page_prev.bmp" />
     <Image Include="..\src\Resources\plus.bmp" />
     <Image Include="..\src\Resources\up.bmp" />
     <Image Include="..\src\Resources\fields.ico" />

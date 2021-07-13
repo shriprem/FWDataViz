@@ -201,6 +201,18 @@
     <Image Include="..\src\Resources\plus.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
+    <Image Include="..\src\Resources\page_add.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\page_del.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\page_next.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\page_prev.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly">
