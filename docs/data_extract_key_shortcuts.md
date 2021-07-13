@@ -18,6 +18,11 @@
 | Swap the current line item with the one _below_ | CTRL+Down Arrow |
 | Insert a blank line item and shift the current and following line items down by one line | CTRL+Insert or CTRL+PLUS |
 | Delete the current line item and shift the following line items up by one line | CTRL+Delete or CTRL+MINUS |
+| **Page Navigation &amp; Management** |
+| Navigate to previous page | CTRL+PAGE UP |
+| Navigate to next page | CTRL+PAGE DOWN |
+| Add a new page | CTRL+SHIFT+Insert or CTRL+SHIFT+PLUS |
+| Delete current page | CTRL+SHIFT+Delete or CTRL+SHIFT+MINUS |
 
 
 See also: [Data Extraction dialog](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md)
