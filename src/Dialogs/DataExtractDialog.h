@@ -3,9 +3,10 @@
 #include "../NPP/StaticDialog.h"
 #include "VisualizerPanel.h"
 
-#define LINES_PER_PAGE 10
-#define LINES_BUFFER_LIMIT 30
-#define MAX_TEMPLATE_NAME 50
+constexpr int LINES_PER_PAGE{ 10 };
+constexpr int MAX_PAGES{ 3 };
+constexpr int MAX_BUFFER_LINES{ LINES_PER_PAGE * MAX_PAGES };
+constexpr int MAX_TEMPLATE_NAME{ 50 };
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -21,7 +22,7 @@ public:
    bool processSysKey(HWND hCtrl, WPARAM wParam);
 
 protected:
-   int currentLineItem{};
+   int currentLineItem{}, currentPage{};
    wstring initFileType{}, initFileTypeLabel{}, extractsConfigFile{};
    const vector<RecordInfo>* pRecInfoList;
 
@@ -33,11 +34,11 @@ protected:
       int fieldType;
       string suffix;
    };
-   vector<LineItemInfo> LIBuffer{};
+   vector<LineItemInfo> liBuffer{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
    void localize();
-   void initLineItems();
+   void initRecTypeLists();
    void initLineItemFieldList(int line);
    void moveIndicators(int line, bool focusPrefix);
    void resetDropDown(HWND hList);
@@ -45,10 +46,10 @@ protected:
    void addLineItem(int line);
    void delLineItem(int line);
    void clearLineItem(int line);
-   void copyLineItem(int fromLine, int toLine);
-   bool getLineItem(int line, LineItemInfo& lineItem);
+   void getLineItem(int line, LineItemInfo& lineItem);
    void setLineItem(int line, LineItemInfo& lineItem);
    void swapLineItems(int lineFrom, int lineTo);
+   void gotoLine(int ctrlID, int lineTo);
 
    size_t getValidLineItems(vector<LineItemInfo>& validLIs, bool validFieldType, bool activateNLT);
    void extractData();
@@ -63,4 +64,12 @@ protected:
    void newTemplate();
    void deleteTemplate();
 
+   int getPageCount(int items = 0);
+   void loadPage(int pageNum);
+   void readPage();
+   void previousPage();
+   void nextPage();
+   void addPage();
+   void deletePage();
+   void enablePageButtons();
 };

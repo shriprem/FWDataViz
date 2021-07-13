@@ -159,14 +159,14 @@
 #define FT_EXIM_CLOSE_BTN           L"&Close"
 
 // Jump Field Dialog
-#define JUMP_FIELD_DIALOG_TITLE     L"Extract File Type Data"
+#define JUMP_FIELD_DIALOG_TITLE     L"Jump to Field"
 #define JUMP_FIELD_SELECT_LABEL     L"&Select Field:"
 #define JUMP_FIELD_GO_BTN           L"&Jump"
 #define JUMP_FIELD_CLOSE_BTN        L"&Cancel"
 
 
 // Data Extraction Dialog
-#define DATA_EXTRACT_DIALOG_TITLE   L"Data Extraction"
+#define DATA_EXTRACT_DIALOG_TITLE   L"Fixed-Width Data Extraction"
 #define DATA_EXTRACT_PREFIX_LABEL   L"Prefix Text¹"
 #define DATA_EXTRACT_RECORD_LABEL   L"Record Type"
 #define DATA_EXTRACT_FIELD_LABEL    L"Field"

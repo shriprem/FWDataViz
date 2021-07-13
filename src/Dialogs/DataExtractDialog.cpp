@@ -78,8 +78,9 @@ void DataExtractDialog::initDialog(const wstring fileType, const vector<RecordIn
    initFileTypeLabel = _configIO.getConfigString(initFileType, L"FileLabel");
    extractsConfigFile = _configIO.getExtractTemplatesFile();
 
-   initLineItems();
+   initRecTypeLists();
    loadTemplatesList();
+   newTemplate();
    moveIndicators(0, TRUE);
 }
 
@@ -185,14 +186,28 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                delLineItem(LOWORD(wParam) - IDC_DAT_EXT_ITEM_DEL_BTN_01);
                break;
 
+            case IDC_DAT_EXT_PAGE_PREV_BUTTON:
+               previousPage();
+               break;
+
+            case IDC_DAT_EXT_PAGE_NEXT_BUTTON:
+               nextPage();
+               break;
+
+            case IDC_DAT_EXT_PAGE_ADD_BUTTON:
+               addPage();
+               break;
+
+            case IDC_DAT_EXT_PAGE_DEL_BUTTON:
+               deletePage();
+               break;
+
             case IDC_DAT_EXT_ITEM_DOWN_BUTTON:
-               if (currentLineItem < LINES_PER_PAGE - 1)
-                  swapLineItems(currentLineItem, currentLineItem + 1);
+               swapLineItems(currentLineItem, currentLineItem + 1);
                break;
 
             case IDC_DAT_EXT_ITEM_UP_BUTTON:
-               if (currentLineItem > 0)
-                  swapLineItems(currentLineItem, currentLineItem - 1);
+               swapLineItems(currentLineItem, currentLineItem - 1);
                break;
 
             case IDC_DAT_EXT_INFO_BUTTON:
@@ -210,7 +225,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
 
             case IDC_DAT_EXT_TEMPLATE_CURR_ONLY:
                loadTemplatesList();
-               loadTemplate();
+               newTemplate();
                break;
 
             case IDC_DAT_EXT_TEMPLATE_LIST:
@@ -287,7 +302,7 @@ void DataExtractDialog::localize() {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_DEL_BTN, DATA_EXTRACT_TEMPLATE_DEL);
 }
 
-void DataExtractDialog::initLineItems() {
+void DataExtractDialog::initRecTypeLists() {
    const vector<RecordInfo> recInfoList{ *pRecInfoList };
 
    for (int i{}; i < LINES_PER_PAGE; i++) {
@@ -298,8 +313,6 @@ void DataExtractDialog::initLineItems() {
       for (size_t j{}; j < recInfoList.size(); j++) {
          SendMessage(hRecList, CB_ADDSTRING, NULL, (LPARAM)recInfoList[j].label.c_str());
       }
-
-      clearLineItem(i);
    }
 }
 
@@ -330,8 +343,9 @@ void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
 
    SetWindowPos(hIndicator, HWND_TOP, newPos.x, newPos.y, NULL, NULL, SWP_NOSIZE | SWP_NOOWNERZORDER);
 
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON), line < LINES_PER_PAGE - 1);
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON), line > 0);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON),
+      line < LINES_PER_PAGE - 1 || currentPage < getPageCount() - 1);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON), line > 0 || currentPage > 0);
 
    if (focusPrefix)
       SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line));
@@ -344,20 +358,25 @@ void DataExtractDialog::resetDropDown(HWND hList) {
 }
 
 void DataExtractDialog::addLineItem(int line) {
-   for (int i{ LINES_PER_PAGE }; i > line; i--) {
-      copyLineItem(i - 1, i);
-   }
-   clearLineItem(line);
+   int idx{ (currentPage * 10) + line };
 
+   readPage();
+   liBuffer.insert(liBuffer.begin() + idx, LineItemInfo{});
+   if (liBuffer.size() > MAX_BUFFER_LINES)
+      liBuffer.resize(MAX_BUFFER_LINES);
+
+   loadPage(currentPage);
    moveIndicators(line, TRUE);
 }
 
 void DataExtractDialog::delLineItem(int line) {
-   for (int i{ line }; i < LINES_PER_PAGE; i++) {
-      copyLineItem(i + 1, i);
-   }
-   clearLineItem(LINES_PER_PAGE);
+   int idx{ (currentPage * 10) + line };
 
+   readPage();
+   liBuffer.erase(liBuffer.begin() + idx);
+   liBuffer.push_back(LineItemInfo{});
+
+   loadPage(currentPage);
    moveIndicators(line, TRUE);
 }
 
@@ -368,24 +387,7 @@ void DataExtractDialog::clearLineItem(int line) {
    resetDropDown(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line));
 }
 
-void DataExtractDialog::copyLineItem(int fromLine, int toLine) {
-   char prefix[MAX_PATH + 1];
-   GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + fromLine, prefix, MAX_PATH);
-   SetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + toLine, prefix);
-
-   char suffix[MAX_PATH + 1];
-   GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + fromLine, suffix, MAX_PATH);
-   SetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + toLine, suffix);
-
-   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + toLine, CB_SETCURSEL,
-      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + fromLine, CB_GETCURSEL, NULL, NULL), NULL);
-
-   initLineItemFieldList(toLine);
-   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + toLine, CB_SETCURSEL,
-      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + fromLine, CB_GETCURSEL, NULL, NULL), NULL);
-}
-
-bool DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
+void DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
    char prefix[MAX_PATH + 1];
    GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, prefix, MAX_PATH);
    lineItem.prefix = string{ prefix };
@@ -399,8 +401,6 @@ bool DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
 
    lineItem.fieldType = static_cast<int>(
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line, CB_GETCURSEL, NULL, NULL));
-
-   return lineItem.prefix.length() + lineItem.suffix.length() + lineItem.recType + lineItem.fieldType > 0;
 }
 
 void DataExtractDialog::setLineItem(int line, LineItemInfo& lineItem) {
@@ -412,21 +412,82 @@ void DataExtractDialog::setLineItem(int line, LineItemInfo& lineItem) {
 }
 
 void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
-   LineItemInfo toItem;
+   int idxFrom{ (currentPage * 10) + lineFrom };
+   int idxTo{ (currentPage * 10) + lineTo };
+   int page{ currentPage };
+   int line{ lineTo };
 
-   getLineItem(lineTo, toItem);
-   copyLineItem(lineFrom, lineTo);
-   setLineItem(lineFrom, toItem);
-   moveIndicators(lineTo, TRUE);
+   int ctrlID{ GetDlgCtrlID(GetFocus()) };
+   int ctrlTop{ (ctrlID - currentLineItem == IDC_DAT_EXT_ITEM_SUFFIX_01) ?
+      IDC_DAT_EXT_ITEM_SUFFIX_01 : IDC_DAT_EXT_ITEM_PREFIX_01 };
+
+   if (idxTo < 0 || idxTo >= liBuffer.size()) return;
+
+   readPage();
+
+   if (lineTo >= 0 && lineTo < LINES_PER_PAGE) {
+      getLineItem(lineFrom, liBuffer[idxTo]);
+      getLineItem(lineTo, liBuffer[idxFrom]);
+   }
+   else {
+      LineItemInfo &liFrom{ liBuffer[idxFrom] };
+      LineItemInfo liTo{ liBuffer[idxTo] };
+
+      getLineItem(lineFrom, liBuffer[idxTo]);
+
+      liFrom.prefix = liTo.prefix;
+      liFrom.recType = liTo.recType;
+      liFrom.fieldType = liTo.fieldType;
+      liFrom.suffix = liTo.suffix;
+
+      if (lineTo < 0) {
+         line = LINES_PER_PAGE - 1;
+         page--;
+      }
+      else if (lineTo >= LINES_PER_PAGE) {
+         line = 0;
+         page++;
+      }
+   }
+
+   loadPage(page);
+   SetFocus(GetDlgItem(_hSelf, ctrlTop + line));
+}
+
+void DataExtractDialog::gotoLine(int ctrlID, int lineTo) {
+   int idxTo{ (currentPage * 10) + lineTo };
+   int page{ currentPage };
+   int line{ lineTo };
+   int ctrlTop{ ctrlID - currentLineItem };
+
+   if (idxTo < 0 || idxTo >= liBuffer.size()) return;
+
+   if (lineTo < 0 || lineTo >= LINES_PER_PAGE) {
+      readPage();
+
+      if (lineTo < 0) {
+         line = LINES_PER_PAGE - 1;
+         page--;
+      }
+      else if (lineTo >= LINES_PER_PAGE) {
+         line = 0;
+         page++;
+      }
+
+      loadPage(page);
+   }
+
+   SetFocus(GetDlgItem(_hSelf, ctrlTop + line));
 }
 
 size_t DataExtractDialog::getValidLineItems(vector<LineItemInfo>& validLIs, bool validFieldType, bool activateNLT) {
-   LineItemInfo lineInfo;
-
+   readPage();
    validLIs.clear();
 
-   for (int i{}; i < LINES_PER_PAGE; i++) {
-      if (!getLineItem(i, lineInfo)) continue;
+   for (size_t i{}; i < liBuffer.size(); i++) {
+      LineItemInfo lineInfo{ liBuffer[i] };
+
+      if (lineInfo.prefix.length() + lineInfo.suffix.length() + lineInfo.recType + lineInfo.fieldType == 0) continue;
       if (validFieldType && lineInfo.fieldType == 0) continue;
 
       // Decrement both recType & fieldType by one to account for the first "-" item in their dropdowns
@@ -581,27 +642,34 @@ int DataExtractDialog::loadTemplatesList(){
 
 void DataExtractDialog::loadTemplate() {
    wstring templateName{ getSelectedTemplate() };
-   bool validTemplate{ templateName.length() > 0 };
 
-   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, templateName.c_str());
-   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), validTemplate);
-   enableDeleteTemplate();
-
-   for (int i{}; i < LINES_PER_PAGE; i++) {
-      clearLineItem(i);
+   if (templateName.length() <= 1) {
+      newTemplate();
+      return;
    }
 
-   if (!validTemplate) return;
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, templateName.c_str());
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), TRUE);
+   enableDeleteTemplate();
+
+   int liCount{ _configIO.getConfigInt(templateName, L"LineItemCount", 0, extractsConfigFile) };
+   if (liCount < 1) {
+      newTemplate();
+      return;
+   }
+
+   int loadCount{ liCount <= MAX_BUFFER_LINES ? liCount : MAX_BUFFER_LINES };
+
+   liBuffer.clear();
+   liBuffer.resize(static_cast<size_t>(getPageCount(loadCount)) * 10);
 
    const vector<RecordInfo> recInfoList{ *pRecInfoList };
-   int liCount{ _configIO.getConfigInt(templateName, L"LineItemCount", 0, extractsConfigFile) };
-   int loadCount{ liCount < LINES_PER_PAGE ? liCount: LINES_PER_PAGE };
 
    for (int i{}; i < loadCount; i++) {
-      LineItemInfo LI{};
+      LineItemInfo& LI{ liBuffer[i] };
 
       wchar_t tNum[4];
-      swprintf(tNum, 4, L"%02d_", static_cast<int>(i));
+      swprintf(tNum, 4, L"%02d_", i);
       wstring numSuffix{ tNum };
 
       LI.prefix = _configIO.getConfigStringA(templateName, (numSuffix + L"Prefix").c_str(), L"", extractsConfigFile);
@@ -617,8 +685,9 @@ void DataExtractDialog::loadTemplate() {
 
       LI.recType++;
       LI.fieldType++;
-      setLineItem(i, LI);
    }
+
+   loadPage(0);
 }
 
 wstring DataExtractDialog::getSelectedTemplate() {
@@ -689,8 +758,14 @@ void DataExtractDialog::saveTemplate() {
 }
 
 void DataExtractDialog::newTemplate() {
+   liBuffer.clear();
+   liBuffer.resize(LINES_PER_PAGE);
+   loadPage(0);
+
    SendMessage(hTemplatesList, CB_SETCURSEL, (WPARAM)0, NULL);
-   loadTemplate();
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME, L"");
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), FALSE);
+   enableDeleteTemplate();
 }
 
 void DataExtractDialog::deleteTemplate() {
@@ -706,35 +781,107 @@ void DataExtractDialog::deleteTemplate() {
    newTemplate();
 }
 
+int DataExtractDialog::getPageCount(int items) {
+   if (items == 0)
+      items = static_cast<int>(liBuffer.size());
+
+   return ((items - 1) / 10) + 1;
+}
+
+void DataExtractDialog::loadPage(int pageNum) {
+   size_t seq{ static_cast<size_t>(pageNum * LINES_PER_PAGE) };
+
+   if (liBuffer.size() <= seq) return;
+
+   if (liBuffer.size() < (seq + LINES_PER_PAGE))
+      liBuffer.resize(seq + LINES_PER_PAGE);
+
+   currentPage = pageNum;
+   enablePageButtons();
+
+   for (int i{}; i < LINES_PER_PAGE; i++) {
+      setLineItem(i, liBuffer[seq]);
+      SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SEQ_01 + i, to_wstring(++seq).c_str());
+   }
+
+   moveIndicators(0, TRUE);
+}
+
+void DataExtractDialog::readPage() {
+   size_t seq{ static_cast<size_t>(currentPage * LINES_PER_PAGE) };
+
+   if (liBuffer.size() < (seq + LINES_PER_PAGE))
+      liBuffer.resize(seq + LINES_PER_PAGE);
+
+   for (int i{}; i < LINES_PER_PAGE; i++) {
+      getLineItem(i, liBuffer[seq + i]);
+   }
+}
+
+void DataExtractDialog::previousPage() {
+   if (currentPage > 0)
+      readPage();
+      loadPage(currentPage - 1);
+}
+
+void DataExtractDialog::nextPage() {
+   if (currentPage < getPageCount() - 1) {
+      readPage();
+      loadPage(currentPage + 1);
+   }
+}
+
+void DataExtractDialog::addPage() {
+   const int pageCount{ getPageCount() };
+
+   if (pageCount < MAX_PAGES) {
+      readPage();
+      liBuffer.resize(liBuffer.size() + LINES_PER_PAGE);
+      loadPage(pageCount);
+   }
+}
+
+void DataExtractDialog::deletePage() {
+   if (currentPage > 0) {
+      int start{ currentPage * 10 };
+      liBuffer.erase(liBuffer.begin() + start, liBuffer.begin() + start + LINES_PER_PAGE);
+      loadPage(currentPage - 1);
+   }
+}
+
+void DataExtractDialog::enablePageButtons() {
+   const int pageCount{ getPageCount() };
+
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_10), pageCount < MAX_PAGES);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_PAGE_PREV_BUTTON), currentPage > 0);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_PAGE_NEXT_BUTTON), currentPage < pageCount - 1);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_PAGE_ADD_BUTTON), pageCount < MAX_PAGES);
+   EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_PAGE_DEL_BUTTON), currentPage > 0);
+}
+
 bool DataExtractDialog::processKey(HWND hCtrl, WPARAM wParam) {
    int ctrlID{ GetDlgCtrlID(hCtrl) };
 
    switch (wParam) {
       case VK_DOWN:
-         if ((ctrlID != IDC_DAT_EXT_ITEM_PREFIX_01 + LINES_PER_PAGE - 1) &&
-            (ctrlID != IDC_DAT_EXT_ITEM_SUFFIX_01 + LINES_PER_PAGE - 1)) {
-            if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-               swapLineItems(currentLineItem, currentLineItem + 1);
-               return TRUE;
-            }
-            else {
-               SetFocus(GetDlgItem(_hSelf, ctrlID + 1));
-               return TRUE;
-            }
+         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+            swapLineItems(currentLineItem, currentLineItem + 1);
+            return TRUE;
+         }
+         else {
+            gotoLine(ctrlID, currentLineItem + 1);
+            return TRUE;
          }
          break;
 
       case VK_UP:
-         if ((ctrlID != IDC_DAT_EXT_ITEM_PREFIX_01) &&
-            (ctrlID != IDC_DAT_EXT_ITEM_SUFFIX_01)) {
-            if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-               swapLineItems(currentLineItem, currentLineItem - 1);
-               return TRUE;
-            }
-            else {
-               SetFocus(GetDlgItem(_hSelf, ctrlID - 1));
-               return TRUE;
-            }
+         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+            swapLineItems(currentLineItem, currentLineItem - 1);
+            return TRUE;
+         }
+         else {
+            gotoLine(ctrlID, currentLineItem - 1);
+            return TRUE;
          }
          break;
 
@@ -750,22 +897,37 @@ bool DataExtractDialog::processKey(HWND hCtrl, WPARAM wParam) {
             SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + LINES_PER_PAGE - 1));
             return TRUE;
          }
+         return TRUE;
          break;
 
       case VK_PRIOR:
-         SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem));
+         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+            previousPage();
+         }
+         else {
+            SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem));
+         }
          return TRUE;
          break;
 
       case VK_NEXT:
-         SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem + LINES_PER_PAGE - 1));
+         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+            nextPage();
+         }
+         else {
+            SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem + LINES_PER_PAGE - 1));
+         }
          return TRUE;
          break;
 
       case VK_ADD:
       case VK_OEM_PLUS:
       case VK_INSERT:
-         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         if (Utils::checkKeyHeldDown(VK_CONTROL) && Utils::checkKeyHeldDown(VK_SHIFT)) {
+            addPage();
+            return TRUE;
+         }
+         else if (Utils::checkKeyHeldDown(VK_CONTROL)) {
             addLineItem(currentLineItem);
             return TRUE;
          }
@@ -774,7 +936,11 @@ bool DataExtractDialog::processKey(HWND hCtrl, WPARAM wParam) {
       case VK_SUBTRACT:
       case VK_OEM_MINUS:
       case VK_DELETE:
-         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         if (Utils::checkKeyHeldDown(VK_CONTROL) && Utils::checkKeyHeldDown(VK_SHIFT)) {
+            deletePage();
+            return TRUE;
+         }
+         else if (Utils::checkKeyHeldDown(VK_CONTROL)) {
             delLineItem(currentLineItem);
             return TRUE;
          }
