@@ -421,7 +421,7 @@ void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
    int ctrlTop{ (ctrlID - currentLineItem == IDC_DAT_EXT_ITEM_SUFFIX_01) ?
       IDC_DAT_EXT_ITEM_SUFFIX_01 : IDC_DAT_EXT_ITEM_PREFIX_01 };
 
-   if (idxTo < 0 || idxTo >= liBuffer.size()) return;
+   if (idxTo < 0 || idxTo >= static_cast<int>(liBuffer.size())) return;
 
    readPage();
 
@@ -460,7 +460,7 @@ void DataExtractDialog::gotoLine(int ctrlID, int lineTo) {
    int line{ lineTo };
    int ctrlTop{ ctrlID - currentLineItem };
 
-   if (idxTo < 0 || idxTo >= liBuffer.size()) return;
+   if (idxTo < 0 || idxTo >= static_cast<int>(liBuffer.size())) return;
 
    if (lineTo < 0 || lineTo >= LINES_PER_PAGE) {
       readPage();
