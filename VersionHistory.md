@@ -1,5 +1,9 @@
 # Version History
 
+### Version 1.4.2.0
+#### Enhancements:
+1. Page mode added to [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) dialog. The dialog now supports up to 30 line items, 10 line items per page across 3 pages.
+---
 ### Version 1.4.0.1
 #### Enhancements:
 1. [Easy Keyboard Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md) in the Data Extraction dialog.
