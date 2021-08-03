@@ -333,7 +333,6 @@ void VisualizerPanel::clearVisualize(bool sync) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   SendMessage(hScintilla, SCI_STYLECLEARALL, NULL, NULL);
    SendMessage(hScintilla, SCI_STARTSTYLING, 0, NULL);
    SendMessage(hScintilla, SCI_SETSTYLING,
       SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
