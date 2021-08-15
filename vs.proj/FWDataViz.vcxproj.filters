@@ -40,6 +40,9 @@
     <ClCompile Include="..\src\Dialogs\DataExtractDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NPP\NppDarkMode.cpp">
+      <Filter>_NPP Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -119,6 +122,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Dialogs\DataExtractDialog.h">
       <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\NppDarkMode.h">
+      <Filter>_NPP Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

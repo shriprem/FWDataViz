@@ -81,6 +81,21 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
                break;
          }
          break;
+
+      case WM_INITDIALOG:
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         break;
+
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORSTATIC:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case NPPM_INTERNAL_REFRESHDARKMODE:
+         NppDarkMode::autoThemeChildControls(_hSelf);
+         return TRUE;
    }
 
    return FALSE;

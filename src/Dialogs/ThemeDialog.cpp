@@ -273,6 +273,10 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          break;
 
       case WM_CTLCOLORSTATIC:
+         if (NppDarkMode::isEnabled()) {
+            NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+
          if (styleDefColor) {
             INT_PTR ptr = colorStaticControl(wParam, lParam);
             if (ptr == NULL)
@@ -280,6 +284,20 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
             return ptr;
          }
          break;
+
+      case WM_INITDIALOG:
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         break;
+
+      case WM_CTLCOLORDLG:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case NPPM_INTERNAL_REFRESHDARKMODE:
+         NppDarkMode::autoThemeChildControls(_hSelf);
+         return TRUE;
    }
 
    return FALSE;

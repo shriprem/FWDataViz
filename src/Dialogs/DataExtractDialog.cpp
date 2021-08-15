@@ -298,6 +298,10 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
          break;
 
       case WM_CTLCOLORSTATIC:
+         if (NppDarkMode::isEnabled()) {
+            NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+
          switch (GetDlgCtrlID((HWND)lParam)) {
             case IDC_DAT_EXT_CURRENT_LINE:
                SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
@@ -306,6 +310,20 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
             default:
                return NULL;
          }
+
+      case WM_INITDIALOG:
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         break;
+
+      case WM_CTLCOLORDLG:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case NPPM_INTERNAL_REFRESHDARKMODE:
+         NppDarkMode::autoThemeChildControls(_hSelf);
+         return TRUE;
       }
 
    return FALSE;

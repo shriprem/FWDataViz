@@ -35,6 +35,10 @@ void AboutDialog::localize() {
 
 INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
+      case WM_INITDIALOG:
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         break;
+
       case WM_COMMAND:
          switch LOWORD(wParam) {
             case IDCANCEL:
@@ -53,6 +57,17 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                return TRUE;
          }
          break;
+
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORSTATIC:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case NPPM_INTERNAL_REFRESHDARKMODE:
+         NppDarkMode::autoThemeChildControls(_hSelf);
+         return TRUE;
    }
 
    return FALSE;
