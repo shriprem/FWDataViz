@@ -443,7 +443,9 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case WM_INITDIALOG:
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         if (NppDarkMode::isEnabled()) {
+            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         }
          break;
 
       case WM_CTLCOLORDLG:

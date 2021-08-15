@@ -305,9 +305,10 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
             item.state = LIS_DEFAULTCOLORS;
             item.stateMask = LIS_DEFAULTCOLORS;
             SendMessage(GetDlgItem(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP), LM_SETITEM, 0, (LPARAM)&item);
+
+            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
          }
 
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
          break;
 
       case WM_CTLCOLORSTATIC:
@@ -320,6 +321,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
                }
                else {
                   SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
+                  SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
                   return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
                }
                break;

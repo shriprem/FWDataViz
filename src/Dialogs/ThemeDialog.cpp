@@ -288,7 +288,9 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          break;
 
       case WM_INITDIALOG:
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         if (NppDarkMode::isEnabled()) {
+            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         }
          break;
 
       case WM_CTLCOLORDLG:

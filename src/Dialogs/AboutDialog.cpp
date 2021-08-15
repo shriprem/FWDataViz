@@ -43,9 +43,10 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
             item.state = LIS_DEFAULTCOLORS;
             item.stateMask = LIS_DEFAULTCOLORS;
             SendMessage(GetDlgItem(_hSelf, IDC_ABOUT_PROD_URL), LM_SETITEM, 0, (LPARAM)&item);
+
+            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
          }
 
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
          break;
 
       case WM_COMMAND:

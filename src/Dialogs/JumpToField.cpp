@@ -61,7 +61,9 @@ INT_PTR CALLBACK JumpToField::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
          break;
 
       case WM_INITDIALOG:
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         if (NppDarkMode::isEnabled()) {
+            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         }
          break;
 
       case WM_CTLCOLORDLG:
