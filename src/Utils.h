@@ -21,4 +21,7 @@ namespace Utils {
    bool setFontItalic(HWND hDlg, int controlID);
    bool setFontUnderline(HWND hDlg, int controlID);
    COLORREF intToRGB(int color);
+   COLORREF nppBackgroundRGB();
+   int scaleDPIX(int x);
+   int scaleDPIY(int y);
 }

@@ -315,9 +315,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
          switch (GetDlgCtrlID((HWND)lParam)) {
             case IDC_DAT_EXT_CURRENT_LINE:
                if (NppDarkMode::isEnabled()) {
-                  SetTextColor((HDC)wParam, NppDarkMode::getLinkTextColor());
-                  SetBkColor((HDC)wParam, NppDarkMode::getBackgroundColor());
-                  return (INT_PTR)NppDarkMode::getBackgroundBrush();
+                  return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
                }
                else {
                   SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
@@ -328,9 +326,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
 
             case IDC_DAT_EXT_NEW_KEYBOARD_TIP:
                if (NppDarkMode::isEnabled()) {
-                  SetTextColor((HDC)wParam, NppDarkMode::getLinkTextColor());
-                  SetBkColor((HDC)wParam, NppDarkMode::getBackgroundColor());
-                  return (INT_PTR)NppDarkMode::getBackgroundBrush();
+                  return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
                }
                break;
 

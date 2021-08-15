@@ -230,3 +230,25 @@ bool Utils::setFontUnderline(HWND hDlg, int controlID) {
 COLORREF Utils::intToRGB(int color) {
     return RGB(GetRValue(color), GetGValue(color), GetBValue(color));
 }
+
+COLORREF Utils::nppBackgroundRGB() {
+   return intToRGB(static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL)));
+}
+
+int Utils::scaleDPIX(int x) {
+   HDC hdc = GetDC(NULL);
+   if (!hdc) return 0;
+
+   int scaleX{ MulDiv(x, GetDeviceCaps(hdc, LOGPIXELSX), 96) };
+   ReleaseDC(NULL, hdc);
+   return scaleX;
+}
+
+int Utils::scaleDPIY(int y) {
+   HDC hdc = GetDC(NULL);
+   if (!hdc) return 0;
+
+   int scaleY{ MulDiv(y, GetDeviceCaps(hdc, LOGPIXELSY), 96) };
+   ReleaseDC(NULL, hdc);
+   return scaleY;
+}

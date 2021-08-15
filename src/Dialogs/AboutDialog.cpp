@@ -77,9 +77,7 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
       case WM_CTLCOLORSTATIC:
          if (GetDlgCtrlID((HWND)lParam) == IDC_ABOUT_PROD_URL) {
             if (NppDarkMode::isEnabled()) {
-               SetTextColor((HDC)wParam, NppDarkMode::getLinkTextColor());
-               SetBkColor((HDC)wParam, NppDarkMode::getBackgroundColor());
-               return (INT_PTR)NppDarkMode::getBackgroundBrush();
+               return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
             }
          }
 

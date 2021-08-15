@@ -16,6 +16,8 @@
 
 
 #include "NppDarkMode.h"
+#include "DarkMode.h"
+#include "../Utils.h"
 
 #include <Uxtheme.h>
 #include <Vssym32.h>
@@ -347,12 +349,12 @@ namespace NppDarkMode
 
    bool isExperimentalActive()
    {
-      return TRUE; //?? g_darkModeEnabled;
+      return g_darkModeEnabled;
    }
 
    bool isExperimentalSupported()
    {
-      return TRUE; //?? g_darkModeSupported;
+      return g_darkModeSupported;
    }
 
    COLORREF invertLightness(COLORREF c)
@@ -384,8 +386,8 @@ namespace NppDarkMode
    }
 
    TreeViewStyle treeViewStyle = TreeViewStyle::classic;
-   //??
-   COLORREF treeViewBg; // = NppParameters::getInstance().getCurrentDefaultBgColor();
+
+   COLORREF treeViewBg = Utils::nppBackgroundRGB();
    double lighnessTreeView = 50.0;
 
    // adapted from https://stackoverflow.com/a/56678483
@@ -511,7 +513,7 @@ namespace NppDarkMode
 
    // handle events
 
-   void handleSettingChange(HWND hwnd, LPARAM /*lParam*/)
+   void handleSettingChange(HWND hwnd, LPARAM lParam)
    {
       UNREFERENCED_PARAMETER(hwnd);
 
@@ -519,43 +521,43 @@ namespace NppDarkMode
       {
          return;
       }
-      //??
-      //if (IsColorSchemeChangeMessage(lParam))
-      //{
-         //g_darkModeEnabled = ShouldAppsUseDarkMode() && !IsHighContrast();
-      //}
+
+      if (IsColorSchemeChangeMessage(lParam))
+      {
+         g_darkModeEnabled = ShouldAppsUseDarkMode() && !IsHighContrast();
+      }
    }
 
    // from DarkMode.h
 
    void initExperimentalDarkMode()
    {
-      //??::InitDarkMode();
+      ::InitDarkMode();
    }
 
-   void setDarkMode(bool /*useDark*/, bool /*fixDarkScrollbar*/)
+   void setDarkMode(bool useDark, bool fixDarkScrollbar)
    {
-      //??::SetDarkMode(useDark, fixDarkScrollbar);
+      ::SetDarkMode(useDark, fixDarkScrollbar);
    }
 
-   void allowDarkModeForApp(bool /*allow*/)
+   void allowDarkModeForApp(bool allow)
    {
-      //??::AllowDarkModeForApp(allow);
+      ::AllowDarkModeForApp(allow);
    }
 
-   bool allowDarkModeForWindow(HWND /*hWnd*/, bool /*allow*/)
+   bool allowDarkModeForWindow(HWND hWnd, bool allow)
    {
-      return TRUE; //?? ::AllowDarkModeForWindow(hWnd, allow);
+      return ::AllowDarkModeForWindow(hWnd, allow);
    }
 
-   void setTitleBarThemeColor(HWND /*hWnd*/)
+   void setTitleBarThemeColor(HWND hWnd)
    {
-      //??::RefreshTitleBarThemeColor(hWnd);
+      ::RefreshTitleBarThemeColor(hWnd);
    }
 
-   void enableDarkScrollBarForWindowAndChildren(HWND /*hwnd*/)
+   void enableDarkScrollBarForWindowAndChildren(HWND hwnd)
    {
-      //??::EnableDarkScrollBarForWindowAndChildren(hwnd);
+      ::EnableDarkScrollBarForWindowAndChildren(hwnd);
    }
 
    struct ButtonData
@@ -1010,6 +1012,138 @@ namespace NppDarkMode
 
    constexpr UINT_PTR g_tabSubclassID = 42;
 
+   LRESULT CALLBACK TabSubclass(
+      HWND hWnd,
+      UINT uMsg,
+      WPARAM wParam,
+      LPARAM lParam,
+      UINT_PTR uIdSubclass,
+      DWORD_PTR dwRefData
+   )
+   {
+      UNREFERENCED_PARAMETER(uIdSubclass);
+      UNREFERENCED_PARAMETER(dwRefData);
+
+      switch (uMsg)
+      {
+      case WM_PAINT:
+      {
+         if (!NppDarkMode::isEnabled())
+         {
+            break;
+         }
+
+         LONG_PTR dwStyle = GetWindowLongPtr(hWnd, GWL_STYLE);
+         if ((dwStyle & TCS_BOTTOM) || (dwStyle & TCS_BUTTONS) || (dwStyle & TCS_VERTICAL))
+         {
+            break;
+         }
+
+         PAINTSTRUCT ps;
+         HDC hdc = ::BeginPaint(hWnd, &ps);
+         ::FillRect(hdc, &ps.rcPaint, NppDarkMode::getDarkerBackgroundBrush());
+
+         auto holdPen = static_cast<HPEN>(::SelectObject(hdc, NppDarkMode::getEdgePen()));
+
+         HRGN holdClip = CreateRectRgn(0, 0, 0, 0);
+         if (1 != GetClipRgn(hdc, holdClip))
+         {
+            DeleteObject(holdClip);
+            holdClip = nullptr;
+         }
+
+         HFONT hFont = reinterpret_cast<HFONT>(SendMessage(hWnd, WM_GETFONT, 0, 0));
+         auto hOldFont = SelectObject(hdc, hFont);
+
+         POINT ptCursor = { 0 };
+         ::GetCursorPos(&ptCursor);
+         ScreenToClient(hWnd, &ptCursor);
+
+         int nTabs = TabCtrl_GetItemCount(hWnd);
+
+         int nSelTab = TabCtrl_GetCurSel(hWnd);
+         for (int i = 0; i < nTabs; ++i)
+         {
+            RECT rcItem = { 0 };
+            TabCtrl_GetItemRect(hWnd, i, &rcItem);
+
+            RECT rcIntersect = { 0 };
+            if (IntersectRect(&rcIntersect, &ps.rcPaint, &rcItem))
+            {
+               bool bHot = PtInRect(&rcItem, ptCursor);
+
+               POINT edges[] = {
+                  {rcItem.right - 1, rcItem.top},
+                  {rcItem.right - 1, rcItem.bottom}
+               };
+               Polyline(hdc, edges, _countof(edges));
+               rcItem.right -= 1;
+
+               HRGN hClip = CreateRectRgnIndirect(&rcItem);
+
+               SelectClipRgn(hdc, hClip);
+
+               SetTextColor(hdc, (bHot || (i == nSelTab)) ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
+
+               // for consistency getBackgroundBrush()
+               // would be better, than getSofterBackgroundBrush(),
+               // however default getBackgroundBrush() has same color
+               // as getDarkerBackgroundBrush()
+               ::FillRect(hdc, &rcItem, (i == nSelTab) ? NppDarkMode::getDarkerBackgroundBrush() : NppDarkMode::getSofterBackgroundBrush());
+
+               SetBkMode(hdc, TRANSPARENT);
+
+               TCHAR label[MAX_PATH];
+               TCITEM tci = { 0 };
+               tci.mask = TCIF_TEXT;
+               tci.pszText = label;
+               tci.cchTextMax = MAX_PATH - 1;
+
+               ::SendMessage(hWnd, TCM_GETITEM, i, reinterpret_cast<LPARAM>(&tci));
+
+               RECT rcText = rcItem;
+               rcText.left += Utils::scaleDPIX(6);
+               rcText.right -= Utils::scaleDPIX(3);
+
+               if (i == nSelTab)
+               {
+                  rcText.bottom -= Utils::scaleDPIY(4);
+               }
+
+               DrawText(hdc, label, -1, &rcText, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+
+               DeleteObject(hClip);
+
+               SelectClipRgn(hdc, holdClip);
+            }
+         }
+
+         SelectObject(hdc, hOldFont);
+
+         SelectClipRgn(hdc, holdClip);
+         if (holdClip)
+         {
+            DeleteObject(holdClip);
+            holdClip = nullptr;
+         }
+
+         SelectObject(hdc, holdPen);
+
+         EndPaint(hWnd, &ps);
+         return 0;
+      }
+      case WM_NCDESTROY:
+         RemoveWindowSubclass(hWnd, TabSubclass, g_tabSubclassID);
+         break;
+      }
+      return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+   }
+
+   void subclassTabControl(HWND hwnd)
+   {
+      SetWindowSubclass(hwnd, TabSubclass, g_tabSubclassID, 0);
+   }
+
    constexpr UINT_PTR g_comboBoxSubclassID = 42;
 
    LRESULT CALLBACK ComboBoxSubclass(
@@ -1045,11 +1179,7 @@ namespace NppDarkMode
 
             auto holdBrush = ::SelectObject(hdc, NppDarkMode::getDarkerBackgroundBrush());
 
-            RECT arrowRc = {
-            rc.right - 17, //?? NppParameters::getInstance()._dpiManager.scaleX(17),
-            rc.top + 1,
-            rc.right - 1, rc.bottom - 1
-            };
+            RECT arrowRc = {rc.right - Utils::scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
 
             // CBS_DROPDOWN text is handled by parent by WM_CTLCOLOREDIT
             auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
@@ -1089,7 +1219,7 @@ namespace NppDarkMode
             ::SetTextColor(hdc, !isHot ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
             ::SetBkColor(hdc, !isHot ? NppDarkMode::getHotBackgroundColor() : NppDarkMode::getBackgroundColor());
             ::ExtTextOut(hdc,
-               arrowRc.left + (arrowRc.right - arrowRc.left) / 2 - 4, //?? NppParameters::getInstance()._dpiManager.scaleX(4),
+               arrowRc.left + (arrowRc.right - arrowRc.left) / 2 - Utils::scaleDPIX(4),
                arrowRc.top + 3,
                ETO_OPAQUE | ETO_CLIPPED,
                &arrowRc, L"˅",
@@ -1336,7 +1466,7 @@ namespace NppDarkMode
 
    void calculateTreeViewStyle()
    {
-      COLORREF bgColor = 0; //?? NppParameters::getInstance().getCurrentDefaultBgColor();
+      COLORREF bgColor = Utils::nppBackgroundRGB();
 
       if (treeViewBg != bgColor || lighnessTreeView == 50.0)
       {
@@ -1453,5 +1583,12 @@ namespace NppDarkMode
       ::SetTextColor(hdc, NppDarkMode::getTextColor());
       ::SetBkColor(hdc, NppDarkMode::getErrorBackgroundColor());
       return reinterpret_cast<LRESULT>(NppDarkMode::getErrorBackgroundBrush());
+   }
+
+   LRESULT onCtlColorSysLink(HDC hdc)
+   {
+      ::SetTextColor(hdc, NppDarkMode::getLinkTextColor());
+      ::SetBkColor(hdc, NppDarkMode::getBackgroundColor());
+      return reinterpret_cast<LRESULT>(NppDarkMode::getBackgroundBrush());
    }
 }
