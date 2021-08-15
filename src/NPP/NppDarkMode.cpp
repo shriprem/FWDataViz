@@ -1046,7 +1046,8 @@ namespace NppDarkMode
             auto holdBrush = ::SelectObject(hdc, NppDarkMode::getDarkerBackgroundBrush());
 
             RECT arrowRc = {
-            rc.right - 0, //?? NppParameters::getInstance()._dpiManager.scaleX(17), rc.top + 1,
+            rc.right - 17, //?? NppParameters::getInstance()._dpiManager.scaleX(17),
+            rc.top + 1,
             rc.right - 1, rc.bottom - 1
             };
 
@@ -1059,13 +1060,13 @@ namespace NppDarkMode
                bkRc.top += 1;
                bkRc.right = arrowRc.left - 1;
                bkRc.bottom -= 1;
-               ::FillRect(hdc, &bkRc, NppDarkMode::getBackgroundBrush()); // erase background on item change
+               ::FillRect(hdc, &bkRc, NppDarkMode::getSofterBackgroundBrush()); // erase background on item change
 
                auto index = static_cast<int>(::SendMessage(hWnd, CB_GETCURSEL, 0, 0));
                if (index != CB_ERR)
                {
                   ::SetTextColor(hdc, NppDarkMode::getTextColor());
-                  ::SetBkColor(hdc, NppDarkMode::getBackgroundColor());
+                  ::SetBkColor(hdc, NppDarkMode::getSofterBackgroundColor());
                   auto bufferLen = static_cast<size_t>(::SendMessage(hWnd, CB_GETLBTEXTLEN, index, 0));
                   TCHAR* buffer = new TCHAR[(bufferLen + 1)];
                   ::SendMessage(hWnd, CB_GETLBTEXT, index, reinterpret_cast<LPARAM>(buffer));
@@ -1085,10 +1086,10 @@ namespace NppDarkMode
 
             bool isHot = PtInRect(&rc, ptCursor);
 
-            ::SetTextColor(hdc, isHot ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
-            ::SetBkColor(hdc, isHot ? NppDarkMode::getHotBackgroundColor() : NppDarkMode::getBackgroundColor());
+            ::SetTextColor(hdc, !isHot ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
+            ::SetBkColor(hdc, !isHot ? NppDarkMode::getHotBackgroundColor() : NppDarkMode::getBackgroundColor());
             ::ExtTextOut(hdc,
-               arrowRc.left + (arrowRc.right - arrowRc.left) / 2 - 0, //?? NppParameters::getInstance()._dpiManager.scaleX(4),
+               arrowRc.left + (arrowRc.right - arrowRc.left) / 2 - 4, //?? NppParameters::getInstance()._dpiManager.scaleX(4),
                arrowRc.top + 3,
                ETO_OPAQUE | ETO_CLIPPED,
                &arrowRc, L"˅",
@@ -1118,9 +1119,9 @@ namespace NppDarkMode
       return DefSubclassProc(hWnd, uMsg, wParam, lParam);
    }
 
-   void subclassComboBoxControl(HWND /*hwnd*/)
+   void subclassComboBoxControl(HWND hwnd)
    {
-      //?? SetWindowSubclass(hwnd, ComboBoxSubclass, g_comboBoxSubclassID, 0);
+      SetWindowSubclass(hwnd, ComboBoxSubclass, g_comboBoxSubclassID, 0);
    }
 
    void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass, bool theme)
