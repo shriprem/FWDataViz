@@ -99,9 +99,27 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case WM_CTLCOLORDLG:
+      case WM_CTLCOLORLISTBOX:
       case WM_CTLCOLORSTATIC:
          if (NppDarkMode::isEnabled()) {
             return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_ERASEBKGND:
+      {
+         if (NppDarkMode::isEnabled()) {
+            RECT rc = { 0 };
+            getClientRect(rc);
+            ::FillRect(reinterpret_cast<HDC>(wParam), &rc, NppDarkMode::getDarkerBackgroundBrush());
+            return TRUE;
+         }
+         break;
+      }
+
+      case WM_PRINTCLIENT:
+         if (NppDarkMode::isEnabled()) {
+            return TRUE;
          }
          break;
 

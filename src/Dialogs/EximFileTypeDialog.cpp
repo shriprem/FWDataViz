@@ -87,9 +87,22 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
          break;
 
       case WM_CTLCOLORDLG:
+      case WM_CTLCOLORLISTBOX:
       case WM_CTLCOLORSTATIC:
          if (NppDarkMode::isEnabled()) {
             return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_CTLCOLOREDIT:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_PRINTCLIENT:
+         if (NppDarkMode::isEnabled()) {
+            return TRUE;
          }
          break;
 

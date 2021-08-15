@@ -153,29 +153,29 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    SetWindowSubclass(hADFTRegex[2], procANSIEditControl, NULL, NULL);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
+   hToolTips[0] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_UP, FALSE);
+   hToolTips[1] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_UP, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   HWND hTipADFT = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON,
+   hToolTips[2] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON,
       FWVIZ_DEF_ADFT_HINT_TITLE, FWVIZ_DEF_ADFT_HINT_TEXT, TRUE);
-   SendMessage(hTipADFT, TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
+   SendMessage(hToolTips[2], TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
+   hToolTips[3] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
+   hToolTips[4] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN, IDB_VIZ_INFO_BITMAP);
-   HWND hTipRTTheme = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN,
+   hToolTips[5] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN,
       FWVIZ_DEF_RECTHEME_HINT_HDR, FWVIZ_DEF_RECTHEME_HINT_TXT, TRUE);
-   SendMessage(hTipRTTheme, TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
+   SendMessage(hToolTips[5], TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+   hToolTips[6] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
@@ -447,13 +447,32 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case WM_CTLCOLORDLG:
+      case WM_CTLCOLORLISTBOX:
       case WM_CTLCOLORSTATIC:
          if (NppDarkMode::isEnabled()) {
             return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
          }
          break;
 
+      case WM_CTLCOLOREDIT:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_PRINTCLIENT:
+         if (NppDarkMode::isEnabled()) {
+            return TRUE;
+         }
+         break;
+
       case NPPM_INTERNAL_REFRESHDARKMODE:
+         for (size_t i{}; i < 7; i++) {
+            NppDarkMode::setDarkTooltips(hToolTips[i], NppDarkMode::ToolTipsType::tooltip);
+         }
+
+         NppDarkMode::setDarkScrollBar(hFieldLabels);
+         NppDarkMode::setDarkScrollBar(hFieldWidths);
          NppDarkMode::autoThemeChildControls(_hSelf);
          return TRUE;
    }

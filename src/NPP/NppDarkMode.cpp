@@ -1118,9 +1118,9 @@ namespace NppDarkMode
       return DefSubclassProc(hWnd, uMsg, wParam, lParam);
    }
 
-   void subclassComboBoxControl(HWND hwnd)
+   void subclassComboBoxControl(HWND /*hwnd*/)
    {
-      SetWindowSubclass(hwnd, ComboBoxSubclass, g_comboBoxSubclassID, 0);
+      //?? SetWindowSubclass(hwnd, ComboBoxSubclass, g_comboBoxSubclassID, 0);
    }
 
    void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass, bool theme)
