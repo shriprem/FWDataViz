@@ -35,7 +35,6 @@
     <ClInclude Include="..\src\Dialogs\JumpToField.h" />
     <ClInclude Include="..\src\Dialogs\ThemeDialog.h" />
     <ClInclude Include="..\src\Dialogs\VisualizerPanel.h" />
-    <ClInclude Include="..\src\NPP\Common.h" />
     <ClInclude Include="..\src\NPP\DarkMode.h" />
     <ClInclude Include="..\src\NPP\Docking.h" />
     <ClInclude Include="..\src\NPP\DockingDlgInterface.h" />
@@ -46,7 +45,6 @@
     <ClInclude Include="..\src\NPP\NppDarkMode.h" />
     <ClInclude Include="..\src\NPP\NppParameters.h" />
     <ClInclude Include="..\src\NPP\PluginInterface.h" />
-    <ClInclude Include="..\src\NPP\SciLexer.h" />
     <ClInclude Include="..\src\NPP\Scintilla.h" />
     <ClInclude Include="..\src\NPP\Sci_Position.h" />
     <ClInclude Include="..\src\NPP\StaticDialog.h" />

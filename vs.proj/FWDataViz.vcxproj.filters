@@ -102,9 +102,6 @@
     <ClInclude Include="..\src\NPP\Sci_Position.h">
       <Filter>_NPP Framework</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\NPP\SciLexer.h">
-      <Filter>_NPP Framework</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Dialogs\ConfigureDialog.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
@@ -116,9 +113,6 @@
     </ClInclude>
     <ClInclude Include="..\src\Resources\SamplesMenuDefs.h">
       <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\NPP\Common.h">
-      <Filter>_NPP Framework</Filter>
     </ClInclude>
     <ClInclude Include="..\src\SubmenuManager.h">
       <Filter>Base</Filter>
