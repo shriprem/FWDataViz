@@ -5,12 +5,14 @@
 1. Darkmode enabled for the plugin panel and dialog boxes.
 2. Toolbar icons in filled and unfilled modes.
 
-#### `NOTE` 
+#### `NOTE`
 Notepad++ user configuration settings are saved into the config.xml file by Notepad++ only during the application closing event. The FWDataViz plugin is only able to read these settings changes in the config.xml file during the next launch of Notepad++.
 
 So, when Darkmode and toolbar icon settings are changed, Notepad++ will need to be restarted for the plugin to reflect these settings changes.
 
-See: [Dark mode Plugin UI](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
+See: [Sample Dark mode Plugin UI screenshots](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
+
+---
 
 ### Version 1.4.2.0
 #### Enhancements:
@@ -19,11 +21,15 @@ See: [Dark mode Plugin UI](https://github.com/shriprem/FWDataViz/blob/master/doc
 ### Version 1.4.0.1
 #### Enhancements:
 1. [Easy Keyboard Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md) in the Data Extraction dialog.
+
 ---
+
 ### Version 1.4.0.0
 #### Enhancements:
 1. [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) feature to extract a handful data fields into an easily readable, quick report.
+
 ---
+
 ### Version 1.0.3.1
 #### Enhancements:
 1. Light & Dark mode Fluent UI toolbar icons added for the plugin.
@@ -37,16 +43,19 @@ The Notepad++ 8.0 has introduced the Fluent UI icons in Small/Large, Light/Dark 
 Due to the current NPP API limitation, this minor release for FWDataViz is only able to add Fluent UI icons for the Small/Large, Light/Dark Fluent UI modes but not the Filled/Unfilled Fluent UI modes. So the toolbar icons for this plugin will not change when switching between unfilled and filled Fluent UI selections in Notepad++ Preferences dialog.
 
 ---
+
 ### Version 1.0.3.0
 #### Enhancements:
 1. [Record Type Themes](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md)
 
 ---
+
 ### Version 1.0.2.0
 #### Enhancements:
 1. [Automatic Detection of File Types](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md)
 
 ---
+
 ### Version 1.0.1.0
 #### Enhancements:
 1. *Cursor Position Data* display will shrink or grow to the dock panel width.
