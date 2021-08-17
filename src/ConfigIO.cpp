@@ -83,7 +83,7 @@ wstring ConfigIO::getExtractTemplatesFile() {
 
 string ConfigIO::getConfigStringA(const wstring& sectionName, const wstring& keyName,
    const wstring& defaultValue, wstring fileName) {
-   return WideToNarrow(getConfigString(sectionName, keyName, defaultValue, fileName));
+   return Utils::WideToNarrow(getConfigString(sectionName, keyName, defaultValue, fileName));
 }
 
 wstring ConfigIO::getConfigString(const wstring& sectionName, const wstring& keyName,
@@ -101,7 +101,7 @@ wstring ConfigIO::getConfigString(const wstring& sectionName, const wstring& key
 
 int ConfigIO::getConfigInt(const wstring& sectionName, const wstring& keyName,
    const int& defaultValue, wstring fileName) {
-   return StringtoInt(getConfigString(sectionName, keyName, to_wstring(defaultValue), fileName));
+   return Utils::StringtoInt(getConfigString(sectionName, keyName, to_wstring(defaultValue), fileName));
 }
 
 int ConfigIO::getConfigSectionList(wstring& sections, wstring fileName) {
@@ -126,7 +126,7 @@ int ConfigIO::getConfigSectionList(wstring& sections, wstring fileName) {
 
 void ConfigIO::setConfigStringA(const wstring& sectionName, const wstring& keyName,
    const string& keyValue, wstring fileName) {
-   setConfigString(sectionName, keyName, NarrowToWide(keyValue), fileName);
+   setConfigString(sectionName, keyName, Utils::NarrowToWide(keyValue), fileName);
 }
 
 void ConfigIO::setConfigString(const wstring& sectionName, const wstring& keyName,
@@ -229,28 +229,9 @@ int ConfigIO::Tokenize(const wstring& text, vector<int>& results, LPCWSTR delim)
    Tokenize(text, interims, delim);
 
    for (wstring istr : interims)
-      results.emplace_back(StringtoInt(istr));
+      results.emplace_back(Utils::StringtoInt(istr));
 
    return static_cast<int>(results.size());
-}
-
-int ConfigIO::StringtoInt(const wstring& str, int base) {
-   if (str.length() < 1)
-      return 0;
-   else
-      return stoi(str, nullptr, base);
-}
-
-LPCWSTR ConfigIO::ToUpper(LPWSTR str) {
-   return std::use_facet<std::ctype<wchar_t>>(std::locale()).toupper(str, str + wcslen(str));
-}
-
-wstring ConfigIO::NarrowToWide(const string& str) {
-   return std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(str);
-}
-
-string ConfigIO::WideToNarrow(const wstring& wStr) {
-   return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
 }
 
 void ConfigIO::ActivateNewLineTabs(string& str) {
@@ -286,10 +267,10 @@ void ConfigIO::getFullStyle(const wstring& theme, const wstring& styleName, Styl
       return;
    }
 
-   style.backColor = StringtoInt(val.substr(0, 6), 16);
-   style.foreColor = StringtoInt(val.substr(7, 6), 16);
-   style.bold = StringtoInt(val.substr(14, 1));
-   style.italics = StringtoInt(val.substr(15, 1));
+   style.backColor = Utils::StringtoInt(val.substr(0, 6), 16);
+   style.foreColor = Utils::StringtoInt(val.substr(7, 6), 16);
+   style.bold = Utils::StringtoInt(val.substr(14, 1));
+   style.italics = Utils::StringtoInt(val.substr(15, 1));
 }
 
 void ConfigIO::backupConfigFile(bool bViz) {
@@ -320,7 +301,7 @@ void ConfigIO::backupConfigFile(bool bViz) {
    timeInfo = localtime(&rawTime);
    strftime(backupFile, 50, backupTemplate.c_str(), timeInfo);
 
-   PathCombine(backupFilePath, pluginConfigBackupDir, NarrowToWide(backupFile).c_str());
+   PathCombine(backupFilePath, pluginConfigBackupDir, Utils::NarrowToWide(backupFile).c_str());
 
    if (srcFile == defaultConfigFile)
       CopyFile(srcFile.c_str(), backupFilePath, FALSE);
@@ -349,9 +330,8 @@ BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, boo
    if (backupFolder)
       ofn.lpstrInitialDir = pluginConfigBackupDir;
    else {
-      TCHAR desktopPath[MAX_PATH];
-      SHGetSpecialFolderPath(NULL, desktopPath, CSIDL_DESKTOP, FALSE);
-      ofn.lpstrInitialDir = desktopPath;
+      wstring desktopPath = Utils::getKnownFolderPath(FOLDERID_Desktop);
+      ofn.lpstrInitialDir = desktopPath.c_str();
    }
 
    if (bViz)

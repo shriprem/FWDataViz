@@ -46,6 +46,12 @@
     <ClCompile Include="..\src\NPP\DarkMode.cpp">
       <Filter>_NPP Framework</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NPP\tinyxml2.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NPP\NppParameters.cpp">
+      <Filter>_NPP Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -133,6 +139,12 @@
       <Filter>_NPP Framework</Filter>
     </ClInclude>
     <ClInclude Include="..\src\NPP\IatHook.h">
+      <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\tinyxml2.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\NppParameters.h">
       <Filter>_NPP Framework</Filter>
     </ClInclude>
   </ItemGroup>

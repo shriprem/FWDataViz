@@ -16,6 +16,7 @@
 
 
 #include "NppDarkMode.h"
+#include "NppParameters.h"
 #include "DarkMode.h"
 #include "../Utils.h"
 
@@ -26,9 +27,6 @@
 #include <cassert>
 
 #pragma comment(lib, "uxtheme.lib")
-
-#define NOTEPADPLUS_USER_INTERNAL      (WM_USER + 0000)
-#define NPPM_INTERNAL_REFRESHDARKMODE  (NOTEPADPLUS_USER_INTERNAL + 59)
 
 namespace NppDarkMode
 {
@@ -284,13 +282,16 @@ namespace NppDarkMode
 
    Options configuredOptions()
    {
-      //?? NppGUI nppGui = NppParameters::getInstance().getNppGUI();
-      Options opt;
-      //opt.enable = nppGui._darkmode._isEnabled;
-      //opt.enableMenubar = opt.enable;
+      NppParameters nppParams = NppParameters::getInstance();
+      nppParams.init();
+      DarkModeConf dmConf = nppParams.getDarkModeConf();
 
-      //g_colorToneChoice = nppGui._darkmode._colorTone;
-      //tCustom.change(nppGui._darkmode._customColors);
+      Options opt;
+      opt.enable = dmConf._isEnabled;
+      opt.enableMenubar = opt.enable;
+
+      g_colorToneChoice = dmConf._colorTone;
+      tCustom.change(dmConf._customColors);
 
       return opt;
    }
@@ -303,43 +304,9 @@ namespace NppDarkMode
       setDarkMode(_options.enable, true);
    }
 
-   // attempts to apply new options from NppParameters, sends NPPM_INTERNAL_REFRESHDARKMODE to hwnd's top level parent
-   void refreshDarkMode(HWND hwnd, bool forceRefresh)
-   {
-      bool supportedChanged = false;
-
-      auto config = configuredOptions();
-
-      if (_options.enable != config.enable)
-      {
-         supportedChanged = true;
-         _options.enable = config.enable;
-         setDarkMode(_options.enable, _options.enable);
-      }
-
-      if (_options.enableMenubar != config.enableMenubar)
-      {
-         supportedChanged = true;
-         _options.enableMenubar = config.enableMenubar;
-      }
-
-      // other options not supported to change at runtime currently
-
-      if (!supportedChanged && !forceRefresh)
-      {
-         // nothing to refresh, changes were not supported.
-         return;
-      }
-
-      HWND hwndRoot = GetAncestor(hwnd, GA_ROOTOWNER);
-
-      // wParam == true, will reset style and toolbar icon
-      ::SendMessage(hwndRoot, NPPM_INTERNAL_REFRESHDARKMODE, static_cast<WPARAM>(!forceRefresh), 0);
-   }
-
    bool isEnabled()
    {
-      return TRUE; //?? _options.enable;
+      return _options.enable;
    }
 
    bool isDarkMenuEnabled()
@@ -387,7 +354,7 @@ namespace NppDarkMode
 
    TreeViewStyle treeViewStyle = TreeViewStyle::classic;
 
-   COLORREF treeViewBg = Utils::nppBackgroundRGB();
+   COLORREF treeViewBg = NppParameters::nppBackgroundRGB();
    double lighnessTreeView = 50.0;
 
    // adapted from https://stackoverflow.com/a/56678483
@@ -1466,7 +1433,7 @@ namespace NppDarkMode
 
    void calculateTreeViewStyle()
    {
-      COLORREF bgColor = Utils::nppBackgroundRGB();
+      COLORREF bgColor = NppParameters::nppBackgroundRGB();
 
       if (treeViewBg != bgColor || lighnessTreeView == 50.0)
       {

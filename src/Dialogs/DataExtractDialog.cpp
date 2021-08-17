@@ -355,10 +355,6 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
             return TRUE;
          }
          break;
-
-      case NPPM_INTERNAL_REFRESHDARKMODE:
-         NppDarkMode::autoThemeChildControls(_hSelf);
-         return TRUE;
       }
 
    return FALSE;

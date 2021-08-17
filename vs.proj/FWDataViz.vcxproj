@@ -44,11 +44,13 @@
     <ClInclude Include="..\src\NPP\menuCmdID.h" />
     <ClInclude Include="..\src\NPP\Notepad_plus_msgs.h" />
     <ClInclude Include="..\src\NPP\NppDarkMode.h" />
+    <ClInclude Include="..\src\NPP\NppParameters.h" />
     <ClInclude Include="..\src\NPP\PluginInterface.h" />
     <ClInclude Include="..\src\NPP\SciLexer.h" />
     <ClInclude Include="..\src\NPP\Scintilla.h" />
     <ClInclude Include="..\src\NPP\Sci_Position.h" />
     <ClInclude Include="..\src\NPP\StaticDialog.h" />
+    <ClInclude Include="..\src\NPP\tinyxml2.h" />
     <ClInclude Include="..\src\NPP\Window.h" />
     <ClInclude Include="..\src\PluginDefinition.h" />
     <ClInclude Include="..\src\Resources\localization.h" />
@@ -68,7 +70,9 @@
     <ClCompile Include="..\src\Dialogs\VisualizerPanel.cpp" />
     <ClCompile Include="..\src\NPP\DarkMode.cpp" />
     <ClCompile Include="..\src\NPP\NppDarkMode.cpp" />
+    <ClCompile Include="..\src\NPP\NppParameters.cpp" />
     <ClCompile Include="..\src\NPP\StaticDialog.cpp" />
+    <ClCompile Include="..\src\NPP\tinyxml2.cpp" />
     <ClCompile Include="..\src\SubmenuManager.cpp" />
     <ClCompile Include="..\src\Utils.cpp" />
     <ClCompile Include="..\src\VisualizerMain.cpp" />

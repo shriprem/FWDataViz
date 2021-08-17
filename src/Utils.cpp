@@ -50,6 +50,65 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style) {
 
 // ***************** PUBLIC *****************
 
+int Utils::StringtoInt(const wstring& str, int base) {
+   if (str.length() < 1)
+      return 0;
+   else
+      return stoi(str, nullptr, base);
+}
+
+LPCWSTR Utils::ToUpper(LPWSTR str) {
+   return std::use_facet<std::ctype<wchar_t>>(std::locale()).toupper(str, str + wcslen(str));
+}
+
+wstring Utils::NarrowToWide(const string& str) {
+   return std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(str);
+}
+
+string Utils::WideToNarrow(const wstring& wStr) {
+   return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
+}
+
+COLORREF Utils::intToRGB(int color) {
+   return RGB(GetRValue(color), GetGValue(color), GetBValue(color));
+}
+
+int Utils::scaleDPIX(int x) {
+   HDC hdc = GetDC(NULL);
+   if (!hdc) return 0;
+
+   int scaleX{ MulDiv(x, GetDeviceCaps(hdc, LOGPIXELSX), 96) };
+   ReleaseDC(NULL, hdc);
+   return scaleX;
+}
+
+int Utils::scaleDPIY(int y) {
+   HDC hdc = GetDC(NULL);
+   if (!hdc) return 0;
+
+   int scaleY{ MulDiv(y, GetDeviceCaps(hdc, LOGPIXELSY), 96) };
+   ReleaseDC(NULL, hdc);
+   return scaleY;
+}
+
+wstring Utils::getSpecialFolder(int folderID) {
+   TCHAR sFolderPath[MAX_PATH]{};
+   const HRESULT ret = SHGetFolderPath(NULL, folderID, NULL, SHGFP_TYPE_CURRENT, sFolderPath);
+
+   return ((ret == S_OK) ? wstring{ sFolderPath } : NULL);
+}
+
+wstring Utils::getKnownFolderPath(REFKNOWNFOLDERID folderID) {
+   PWSTR path;
+
+   const HRESULT ret = SHGetKnownFolderPath(folderID, KF_FLAG_DEFAULT, NULL, &path);
+   if (ret != S_OK) return L"";
+
+   wstring sFolderPath{ path };
+   CoTaskMemFree(path);
+   return sFolderPath;
+}
+
 HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, BOOL bBalloon) {
    if (!controlID || !hDlg || !pMessage)
       return FALSE;
@@ -225,30 +284,4 @@ bool Utils::setFontItalic(HWND hDlg, int controlID) {
 
 bool Utils::setFontUnderline(HWND hDlg, int controlID) {
    return changeFontStyle(hDlg, controlID, FS_UNDERLINE);
-}
-
-COLORREF Utils::intToRGB(int color) {
-    return RGB(GetRValue(color), GetGValue(color), GetBValue(color));
-}
-
-COLORREF Utils::nppBackgroundRGB() {
-   return intToRGB(static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL)));
-}
-
-int Utils::scaleDPIX(int x) {
-   HDC hdc = GetDC(NULL);
-   if (!hdc) return 0;
-
-   int scaleX{ MulDiv(x, GetDeviceCaps(hdc, LOGPIXELSX), 96) };
-   ReleaseDC(NULL, hdc);
-   return scaleX;
-}
-
-int Utils::scaleDPIY(int y) {
-   HDC hdc = GetDC(NULL);
-   if (!hdc) return 0;
-
-   int scaleY{ MulDiv(y, GetDeviceCaps(hdc, LOGPIXELSY), 96) };
-   ReleaseDC(NULL, hdc);
-   return scaleY;
 }

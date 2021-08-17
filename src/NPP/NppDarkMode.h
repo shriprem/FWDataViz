@@ -69,6 +69,13 @@ namespace NppDarkMode
       customizedTone = 32
    };
 
+   struct DarkModeConf final
+   {
+      bool _isEnabled = false;
+      ColorTone _colorTone = blackTone;
+      Colors _customColors;
+   };
+
    enum class TreeViewStyle
    {
       classic = 0,
@@ -77,8 +84,6 @@ namespace NppDarkMode
    };
 
    void initDarkMode();          // pulls options from NppParameters
-   void refreshDarkMode(HWND hwnd, bool forceRefresh = false); // attempts to apply new options from NppParameters, sends NPPM_INTERNAL_REFRESHDARKMODE to hwnd's top level parent
-
    bool isEnabled();
    bool isDarkMenuEnabled();
    bool isExperimentalSupported();
@@ -130,8 +135,8 @@ namespace NppDarkMode
 
    // processes messages related to UAH / custom menubar drawing.
    // return true if handled, false to continue with normal processing in your wndproc
-   bool runUAHWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT* lr);
-   void drawUAHMenuNCBottomLine(HWND hWnd);
+   //?? bool runUAHWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT* lr);
+   //?? void drawUAHMenuNCBottomLine(HWND hWnd);
 
    // from DarkMode.h
    void initExperimentalDarkMode();

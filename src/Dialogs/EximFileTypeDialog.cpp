@@ -107,10 +107,6 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
             return TRUE;
          }
          break;
-
-      case NPPM_INTERNAL_REFRESHDARKMODE:
-         NppDarkMode::autoThemeChildControls(_hSelf);
-         return TRUE;
    }
 
    return FALSE;

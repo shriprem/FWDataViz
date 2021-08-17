@@ -311,10 +311,6 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
             return TRUE;
          }
          break;
-
-      case NPPM_INTERNAL_REFRESHDARKMODE:
-         NppDarkMode::autoThemeChildControls(_hSelf);
-         return TRUE;
    }
 
    return FALSE;
@@ -406,7 +402,7 @@ int ThemeDialog::loadThemeInfo(int vIndex, const wstring& themeType, const wstri
    wchar_t buf[10];
    int styleCount;
 
-   styleCount = _configIO.StringtoInt(_configIO.getStyleValue(themeType, L"Count", sThemeFile));
+   styleCount = Utils::StringtoInt(_configIO.getStyleValue(themeType, L"Count", sThemeFile));
 
    TT.vStyleInfo.clear();
    TT.vStyleInfo.resize(styleCount);
@@ -710,7 +706,7 @@ int ThemeDialog::getStyleDefColor(bool back) {
 
    GetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf, 7);
 
-   return _configIO.StringtoInt(buf, 16);
+   return Utils::StringtoInt(buf, 16);
 }
 
 void ThemeDialog::setStyleDefColor(bool setEdit, int color, bool back) {

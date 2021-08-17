@@ -468,15 +468,15 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
          }
          break;
 
-      case NPPM_INTERNAL_REFRESHDARKMODE:
-         for (size_t i{}; i < 7; i++) {
-            NppDarkMode::setDarkTooltips(hToolTips[i], NppDarkMode::ToolTipsType::tooltip);
-         }
+      //case NPPM_INTERNAL_REFRESHDARKMODE:
+      //   for (size_t i{}; i < 7; i++) {
+      //      NppDarkMode::setDarkTooltips(hToolTips[i], NppDarkMode::ToolTipsType::tooltip);
+      //   }
 
-         NppDarkMode::setDarkScrollBar(hFieldLabels);
-         NppDarkMode::setDarkScrollBar(hFieldWidths);
-         NppDarkMode::autoThemeChildControls(_hSelf);
-         return TRUE;
+      //   NppDarkMode::setDarkScrollBar(hFieldLabels);
+      //   NppDarkMode::setDarkScrollBar(hFieldWidths);
+      //   NppDarkMode::autoThemeChildControls(_hSelf);
+      //   return TRUE;
    }
 
    return FALSE;
@@ -689,7 +689,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
 
    rawCode = regex_replace(FT.label, wregex(L"( |,|=|\\[|\\])"), L"_").substr(0, 50);
    swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxFT + 1), rawCode.c_str());
-   _configIO.ToUpper(fileTypeCode);
+   Utils::ToUpper(fileTypeCode);
 
    // ADFT Info
    for (int i{}; i < ADFT_MAX; i++) {
@@ -700,7 +700,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
 
       adft +=
          L"ADFT_Line_" + wstring{ idx } + L"=" + lineNum + new_line +
-         L"ADFT_Regex_" + wstring{ idx } + L"=" + _configIO.NarrowToWide(FT.regExprs[i]) + new_line;
+         L"ADFT_Regex_" + wstring{ idx } + L"=" + Utils::NarrowToWide(FT.regExprs[i]) + new_line;
    }
 
    // Rec Info
@@ -715,7 +715,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
 
       rtConfig +=
          recTypePrefix + L"_Label=" + RT.label + new_line +
-         recTypePrefix + L"_Marker=" + _configIO.NarrowToWide(RT.marker) + new_line +
+         recTypePrefix + L"_Marker=" + Utils::NarrowToWide(RT.marker) + new_line +
          recTypePrefix + L"_FieldLabels=" + RT.fieldLabels + new_line +
          recTypePrefix + L"_FieldWidths=" + RT.fieldWidths + new_line;
 
@@ -728,7 +728,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
    ftConfig = L"[" + ftCode + L"]" + new_line +
       L"FileLabel=" + FT.label + new_line +
       L"FileTheme=" + FT.theme + new_line +
-      L"RecordTerminator=" + _configIO.NarrowToWide(FT.eol) + new_line +
+      L"RecordTerminator=" + Utils::NarrowToWide(FT.eol) + new_line +
       adft + recTypes + new_line + rtConfig;
 }
 
@@ -1210,7 +1210,7 @@ void ConfigureDialog::fileEditAccept() {
 
    for (int i{}; i < ADFT_MAX; i++) {
       GetWindowText(hADFTLine[i], lineNum, MAX_PATH);
-      fileInfo.lineNums[i] = _configIO.StringtoInt(lineNum);
+      fileInfo.lineNums[i] = Utils::StringtoInt(lineNum);
 
       GetWindowTextA(hADFTRegex[i], regExpr, MAX_PATH);
       fileInfo.regExprs[i] = regExpr;

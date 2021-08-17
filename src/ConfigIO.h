@@ -1,7 +1,6 @@
 #pragma once
 
-#include "PluginDefinition.h"
-#include <codecvt>
+#include "Utils.h"
 #include <locale>
 #include <commdlg.h>
 #include <fstream>
@@ -52,10 +51,6 @@ public:
    int Tokenize(const wstring& text, vector<wstring>& results, LPCWSTR delim = L",");
    int Tokenize(const wstring& text, vector<int>& results, LPCWSTR delim = L",");
 
-   int StringtoInt(const wstring& str, int base=10);
-   LPCWSTR ToUpper(LPWSTR str);
-   wstring NarrowToWide(const string& str);
-   string WideToNarrow(const wstring& wStr);
    void ActivateNewLineTabs(string& str);
 
    vector<wstring> getAvailableThemesList();

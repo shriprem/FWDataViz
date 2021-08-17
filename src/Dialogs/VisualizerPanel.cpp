@@ -115,8 +115,9 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case NPPM_INTERNAL_REFRESHDARKMODE:
-         NppDarkMode::autoThemeChildControls(_hSelf);
-         return TRUE;
+         //MessageBox(_hSelf, VIZ_PANEL_DARKMODE_CHANGED, MENU_PANEL_NAME, MB_YESNO);
+         //NppDarkMode::autoThemeChildControls(_hSelf);
+         break;
 
       default :
          return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
@@ -380,7 +381,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    int styleCount{};
    wchar_t bufKey[8];
 
-   styleCount = _configIO.StringtoInt(_configIO.getStyleValue(theme, L"Count"));
+   styleCount = Utils::StringtoInt(_configIO.getStyleValue(theme, L"Count"));
 
    // Do not load more than FW_STYLE_CACHE_ITEMS_LIMIT styles (including EOL style)
    styleCount = (loadedStyleCount + styleCount >= FW_STYLE_CACHE_ITEMS_LIMIT) ?
@@ -923,7 +924,7 @@ bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
    char fType[MAX_PATH]{};
 
    SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
-   fileType = _configIO.NarrowToWide(fType);
+   fileType = Utils::NarrowToWide(fType);
 
    return (fileType.length() > 0);
 }
@@ -932,7 +933,7 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& 
    char fType[MAX_PATH]{};
 
    sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
-   fileType = _configIO.NarrowToWide(fType);
+   fileType = Utils::NarrowToWide(fType);
 
    return (fileType.length() > 0);
 }
@@ -960,7 +961,7 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
          if (strLine.length() < 1 || strRegex.length() < 1) continue;
 
          int lineCount = static_cast<int>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
-         int line = _configIO.StringtoInt(strLine);
+         int line = Utils::StringtoInt(strLine);
 
          line += (line < 0) ? lineCount : -1;
          if (line < 0 || line >= lineCount) continue;
@@ -996,7 +997,7 @@ bool VisualizerPanel::getDocTheme(HWND hScintilla, wstring& theme) {
    char fTheme[MAX_PATH]{};
 
    SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)fTheme);
-   theme = _configIO.NarrowToWide(fTheme);
+   theme = Utils::NarrowToWide(fTheme);
 
    return (theme.length() > 0);
 }
@@ -1005,7 +1006,7 @@ bool VisualizerPanel::getDocTheme(PSCIFUNC_T sciFunc, void* sciPtr, wstring& the
    char fTheme[MAX_PATH]{};
 
    sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)fTheme);
-   theme = _configIO.NarrowToWide(fTheme);
+   theme = Utils::NarrowToWide(fTheme);
 
    return (theme.length() > 0);
 }
@@ -1013,7 +1014,7 @@ bool VisualizerPanel::getDocTheme(PSCIFUNC_T sciFunc, void* sciPtr, wstring& the
 void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
    enableThemeList(fileType.length() > 0);
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
-      (LPARAM)_configIO.WideToNarrow(fileType).c_str());
+      (LPARAM)Utils::WideToNarrow(fileType).c_str());
 }
 
 void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring theme) {
@@ -1021,7 +1022,7 @@ void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring the
       theme = _configIO.getConfigString(fileType, L"FileTheme");
 
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_THEME,
-      (LPARAM)_configIO.WideToNarrow(theme).c_str());
+      (LPARAM)Utils::WideToNarrow(theme).c_str());
 }
 
 void VisualizerPanel::setADFTCheckbox() {

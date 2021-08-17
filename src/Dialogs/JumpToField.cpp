@@ -79,10 +79,6 @@ INT_PTR CALLBACK JumpToField::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
             return TRUE;
          }
          break;
-
-      case NPPM_INTERNAL_REFRESHDARKMODE:
-         NppDarkMode::autoThemeChildControls(_hSelf);
-         return TRUE;
    }
 
    return FALSE;

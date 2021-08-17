@@ -21,6 +21,7 @@
 #include "Dialogs/ConfigureDialog.h"
 #include "Dialogs/ThemeDialog.h"
 #include "Dialogs/AboutDialog.h"
+#include "NPP/NppDarkMode.h"
 
 #ifdef UNICODE
    #define generic_itoa _itow
@@ -115,6 +116,7 @@ void ShowVisualizerPanel(bool show) {
       tTbData data {};
 
       if (!_vizPanel.isCreated()) {
+         NppDarkMode::initDarkMode();
          _vizPanel.create(&data);
 
          data.uMask = DWS_DF_CONT_RIGHT;
