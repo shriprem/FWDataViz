@@ -21,7 +21,6 @@
 #include "Dialogs/ConfigureDialog.h"
 #include "Dialogs/ThemeDialog.h"
 #include "Dialogs/AboutDialog.h"
-#include "NPP/NppDarkMode.h"
 
 #ifdef UNICODE
    #define generic_itoa _itow
@@ -104,8 +103,7 @@ bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr) {
    return TRUE;
 }
 
-LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam)
-{
+LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
    return SendMessage(nppData._nppHandle, messageID, wparam, lparam);
 }
 
@@ -116,7 +114,6 @@ void ShowVisualizerPanel(bool show) {
       tTbData data {};
 
       if (!_vizPanel.isCreated()) {
-         NppDarkMode::initDarkMode();
          _vizPanel.create(&data);
 
          data.uMask = DWS_DF_CONT_RIGHT;

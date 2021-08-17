@@ -278,13 +278,16 @@ namespace NppDarkMode
       }
    }
 
-   static Options _options;         // actual runtime options
+   static Options _options;
+   static toolBarStatusType _tbType;
 
    Options configuredOptions()
    {
       NppParameters nppParams = NppParameters::getInstance();
       nppParams.init();
+
       DarkModeConf dmConf = nppParams.getDarkModeConf();
+      _tbType = nppParams.gettoolBarStatusType();
 
       Options opt;
       opt.enable = dmConf._isEnabled;
@@ -471,6 +474,11 @@ namespace NppDarkMode
    Colors getDarkModeDefaultColors()
    {
       return darkColors;
+   }
+
+   bool isToolBarFilled()
+   {
+      return _tbType == TB_SMALL2 || _tbType == TB_LARGE2;
    }
 
    void changeCustomTheme(const Colors& colors)

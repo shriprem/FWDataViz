@@ -69,6 +69,14 @@ namespace NppDarkMode
       customizedTone = 32
    };
 
+   enum toolBarStatusType {
+      TB_SMALL,
+      TB_LARGE,
+      TB_SMALL2,
+      TB_LARGE2,
+      TB_STANDARD
+   };
+
    struct DarkModeConf final
    {
       bool _isEnabled = false;
@@ -128,6 +136,7 @@ namespace NppDarkMode
    void setEdgeColor(COLORREF c);
 
    Colors getDarkModeDefaultColors();
+   bool isToolBarFilled();
    void changeCustomTheme(const Colors& colors);
 
    // handle events

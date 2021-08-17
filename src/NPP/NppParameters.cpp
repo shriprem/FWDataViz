@@ -14,6 +14,10 @@ DarkModeConf NppParameters::getDarkModeConf() {
    return _darkmode;
 }
 
+toolBarStatusType NppParameters::gettoolBarStatusType() {
+   return _tbType;
+}
+
 COLORREF NppParameters::nppBackgroundRGB() {
    return Utils::intToRGB(static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL)));
 }
@@ -60,18 +64,18 @@ bool NppParameters::loadConfigSettings() {
 
    while (guiConfig != nullptr) {
       if (guiConfig->Attribute("name", "ToolBar")) {
-         string tbType{ guiConfig->GetText() };
+         string sTBType{ guiConfig->GetText() };
 
-         if (tbType == "small")
-            _toolBarStatus = TB_SMALL;
-         else if (tbType == "large")
-            _toolBarStatus = TB_LARGE;
-         else if (tbType == "small2")
-            _toolBarStatus = TB_SMALL;
-         else if (tbType == "large2")
-            _toolBarStatus = TB_LARGE;
+         if (sTBType == "small")
+            _tbType = NppDarkMode::TB_SMALL;
+         else if (sTBType == "large")
+            _tbType = NppDarkMode::TB_LARGE;
+         else if (sTBType == "small2")
+            _tbType = NppDarkMode::TB_SMALL2;
+         else if (sTBType == "large2")
+            _tbType = NppDarkMode::TB_LARGE2;
          else
-            _toolBarStatus = TB_STANDARD;
+            _tbType = NppDarkMode::TB_STANDARD;
       }
 
       if (guiConfig->Attribute("name", "DarkMode")) {
