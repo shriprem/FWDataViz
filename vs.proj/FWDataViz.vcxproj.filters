@@ -40,6 +40,18 @@
     <ClCompile Include="..\src\Dialogs\DataExtractDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NPP\NppDarkMode.cpp">
+      <Filter>_NPP Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NPP\DarkMode.cpp">
+      <Filter>_NPP Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NPP\NppParameters.cpp">
+      <Filter>_NPP Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NPP\tinyxml2.cpp">
+      <Filter>_NPP Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -90,9 +102,6 @@
     <ClInclude Include="..\src\NPP\Sci_Position.h">
       <Filter>_NPP Framework</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\NPP\SciLexer.h">
-      <Filter>_NPP Framework</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Dialogs\ConfigureDialog.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
@@ -105,9 +114,6 @@
     <ClInclude Include="..\src\Resources\SamplesMenuDefs.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\NPP\Common.h">
-      <Filter>_NPP Framework</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\SubmenuManager.h">
       <Filter>Base</Filter>
     </ClInclude>
@@ -119,6 +125,21 @@
     </ClInclude>
     <ClInclude Include="..\src\Dialogs\DataExtractDialog.h">
       <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\NppDarkMode.h">
+      <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\DarkMode.h">
+      <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\IatHook.h">
+      <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\NppParameters.h">
+      <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\tinyxml2.h">
+      <Filter>_NPP Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -358,17 +358,17 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include <windows.h>\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\0"
 END
@@ -460,11 +460,19 @@ IDB_DAT_EXT_PAGE_NEXT_BITMAP BITMAP                  "page_next.bmp"
 // remains consistent on all systems.
 IDI_VIZ_TOOL_BTN_FLUENT_FIELDS ICON                    "fields.ico"
 
+IDI_VIZ_TOOL_BTN_FLUENTF_FIELDS ICON                    "fields_filled.ico"
+
 IDI_VIZ_TOOL_BTN_DARK_FIELDS ICON                    "fields_dark.ico"
+
+IDI_VIZ_TOOL_BTN_DARKF_FIELDS ICON                    "fields_filled_dark.ico"
 
 IDI_VIZ_TOOL_BTN_FLUENT_FRAMED ICON                    "framed.ico"
 
+IDI_VIZ_TOOL_BTN_FLUENTF_FRAMED ICON                    "framed_filled.ico"
+
 IDI_VIZ_TOOL_BTN_DARK_FRAMED ICON                    "framed_dark.ico"
+
+IDI_VIZ_TOOL_BTN_DARKF_FRAMED ICON                    "framed_filled_dark.ico"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

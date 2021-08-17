@@ -297,15 +297,64 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
          }
          break;
 
+      case WM_INITDIALOG:
+         if (NppDarkMode::isEnabled()) {
+            LITEM item = { 0 };
+            item.iLink = 0;
+            item.mask = LIF_ITEMINDEX | LIF_STATE;
+            item.state = LIS_DEFAULTCOLORS;
+            item.stateMask = LIS_DEFAULTCOLORS;
+            SendMessage(GetDlgItem(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP), LM_SETITEM, 0, (LPARAM)&item);
+
+            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         }
+
+         break;
+
       case WM_CTLCOLORSTATIC:
          switch (GetDlgCtrlID((HWND)lParam)) {
             case IDC_DAT_EXT_CURRENT_LINE:
-               SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
-               return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
+               if (NppDarkMode::isEnabled()) {
+                  return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+               }
+               else {
+                  SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
+                  SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
+                  return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
+               }
+               break;
+
+            case IDC_DAT_EXT_NEW_KEYBOARD_TIP:
+               if (NppDarkMode::isEnabled()) {
+                  return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+               }
+               break;
 
             default:
-               return NULL;
+               if (NppDarkMode::isEnabled()) {
+                  return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+               }
          }
+         break;
+
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORLISTBOX:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_CTLCOLOREDIT:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_PRINTCLIENT:
+         if (NppDarkMode::isEnabled()) {
+            return TRUE;
+         }
+         break;
       }
 
    return FALSE;
@@ -366,7 +415,7 @@ void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
    RECT rc;
    GetWindowRect(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + line), &rc);
 
-   POINT newPos{ rc.right + 2, rc.top + 2 };
+   POINT newPos{ rc.right + 1, rc.top + 2 };
    ScreenToClient(_hSelf, &newPos);
 
    SetWindowPos(hIndicator, HWND_TOP, newPos.x, newPos.y, NULL, NULL, SWP_NOSIZE | SWP_NOOWNERZORDER);

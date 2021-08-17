@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #pragma once
 #include "Notepad_plus_msgs.h"
+#include "NppDarkMode.h"
 #include "Window.h"
 
 typedef HRESULT (WINAPI * ETDTProc) (HWND, DWORD);

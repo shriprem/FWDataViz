@@ -103,8 +103,7 @@ bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr) {
    return TRUE;
 }
 
-LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam)
-{
+LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
    return SendMessage(nppData._nppHandle, messageID, wparam, lparam);
 }
 

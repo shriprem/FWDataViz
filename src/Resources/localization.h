@@ -30,6 +30,7 @@
 #define VIZ_PANEL_JUMP_FIELD_TITLE  L"Jump to Field"
 #define VIZ_PANEL_JUMP_CHANGED_DOC  L"The currently active document is of a different File Type.\r\n\r\nUnable to jump to the specified field."
 #define VIZ_PANEL_JUMP_CHANGED_REC  L"Caret has moved to a different Record Type.\r\n\r\nUnable to jump to the specified field."
+#define VIZ_PANEL_DARKMODE_CHANGED  L"Please restart Notepad++ to refresh the FWDataViz plugin panel and dialogs with the changed Darkmode settings."
 
 
 // About Dialog

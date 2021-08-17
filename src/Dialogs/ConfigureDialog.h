@@ -56,6 +56,7 @@ protected:
    wstring configFile{ L"" };
    vector<FileType> vFileTypes;
    bool loadingEdits, cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
+   HWND hToolTips[7];
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
@@ -103,5 +104,4 @@ protected:
 
    int editLabelsCaret{}, editWidthsCaret{};
 };
-
 

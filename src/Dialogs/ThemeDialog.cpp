@@ -275,9 +275,40 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
       case WM_CTLCOLORSTATIC:
          if (styleDefColor) {
             INT_PTR ptr = colorStaticControl(wParam, lParam);
-            if (ptr == NULL)
-               ptr = colorPreviewSwatch(wParam, lParam);
-            return ptr;
+            if (ptr != NULL) return ptr;
+
+            ptr = colorPreviewSwatch(wParam, lParam);
+            if (ptr != NULL) return ptr;
+         }
+
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+
+         break;
+
+      case WM_INITDIALOG:
+         if (NppDarkMode::isEnabled()) {
+            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         }
+         break;
+
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORLISTBOX:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_CTLCOLOREDIT:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_PRINTCLIENT:
+         if (NppDarkMode::isEnabled()) {
+            return TRUE;
          }
          break;
    }
@@ -371,7 +402,7 @@ int ThemeDialog::loadThemeInfo(int vIndex, const wstring& themeType, const wstri
    wchar_t buf[10];
    int styleCount;
 
-   styleCount = _configIO.StringtoInt(_configIO.getStyleValue(themeType, L"Count", sThemeFile));
+   styleCount = Utils::StringtoInt(_configIO.getStyleValue(themeType, L"Count", sThemeFile));
 
    TT.vStyleInfo.clear();
    TT.vStyleInfo.resize(styleCount);
@@ -675,7 +706,7 @@ int ThemeDialog::getStyleDefColor(bool back) {
 
    GetDlgItemText(_hSelf, back ? IDC_THEME_STYLE_DEF_BACK_EDIT : IDC_THEME_STYLE_DEF_FORE_EDIT, buf, 7);
 
-   return _configIO.StringtoInt(buf, 16);
+   return Utils::StringtoInt(buf, 16);
 }
 
 void ThemeDialog::setStyleDefColor(bool setEdit, int color, bool back) {

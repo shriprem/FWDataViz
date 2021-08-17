@@ -1,10 +1,23 @@
 #pragma once
 
 #include "PluginDefinition.h"
+#include <codecvt>
+#include <ShlObj_core.h>
 
 #define PREFS_TIP_MAX_WIDTH         400
 
 namespace Utils {
+   int StringtoInt(const wstring& str, int base = 10);
+   LPCWSTR ToUpper(LPWSTR str);
+   wstring NarrowToWide(const string& str);
+   string WideToNarrow(const wstring& wStr);
+
+   COLORREF intToRGB(int color);
+   int scaleDPIX(int x);
+   int scaleDPIY(int y);
+   wstring getSpecialFolder(int folderID);
+   wstring getKnownFolderPath(REFKNOWNFOLDERID folderID);
+
    HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, BOOL bBalloon = TRUE);
    void addToolbarIcon(int menuIndex, int std, int fluent, int dark);
    void checkMenuItem(int menuIndex, bool check);
@@ -20,5 +33,4 @@ namespace Utils {
    bool setFontBold(HWND hDlg, int controlID);
    bool setFontItalic(HWND hDlg, int controlID);
    bool setFontUnderline(HWND hDlg, int controlID);
-   COLORREF intToRGB(int color);
 }
