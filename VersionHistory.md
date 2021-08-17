@@ -1,5 +1,17 @@
 # Version History
 
+### Version 2.0.0.0
+#### Enhancements:
+1. Darkmode enabled for the plugin panel and dialog boxes.
+2. Toolbar icons in filled and unfilled modes.
+
+#### `NOTE` 
+Notepad++ user configuration settings are saved into the config.xml file by Notepad++ only during the application closing event. The FWDataViz plugin is only able to read these settings changes in the config.xml file during the next launch of Notepad++.
+
+So, when Darkmode and toolbar icon settings are changed, Notepad++ will need to be restarted for the plugin to reflect these settings changes.
+
+See: [Dark mode Plugin UI](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
+
 ### Version 1.4.2.0
 #### Enhancements:
 1. Page mode added to [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) dialog. The dialog now supports up to 30 line items, 10 line items per page across 3 pages.
