@@ -1,5 +1,7 @@
 #include "NppParameters.h"
 
+#pragma comment(lib, "comctl32.lib")
+
 void NppParameters::init() {
    TCHAR sPath[MAX_PATH]{};
    nppMessage(NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)sPath);

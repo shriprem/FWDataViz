@@ -1,4 +1,4 @@
-## Sample Dark mode Plugin UI screenshots
+## Sample screenshots of the plugin UI in dark mode
 
 ### Plugin Panel in Dark mode (_in Olive tone_)
 ![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel_dm.png)

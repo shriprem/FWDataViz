@@ -1,6 +1,8 @@
 #include "ConfigureDialog.h"
 #include "EximFileTypeDialog.h"
 
+#pragma comment(lib, "comctl32.lib")
+
 extern HINSTANCE _gModule;
 extern ConfigureDialog _configDlg;
 EximFileTypeDialog _eximDlg;
@@ -467,16 +469,6 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             return TRUE;
          }
          break;
-
-      //case NPPM_INTERNAL_REFRESHDARKMODE:
-      //   for (size_t i{}; i < 7; i++) {
-      //      NppDarkMode::setDarkTooltips(hToolTips[i], NppDarkMode::ToolTipsType::tooltip);
-      //   }
-
-      //   NppDarkMode::setDarkScrollBar(hFieldLabels);
-      //   NppDarkMode::setDarkScrollBar(hFieldWidths);
-      //   NppDarkMode::autoThemeChildControls(_hSelf);
-      //   return TRUE;
    }
 
    return FALSE;

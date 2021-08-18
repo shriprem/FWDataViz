@@ -13,7 +13,7 @@
    * <a href="#homogenous-record-type-fixed-width-data-files">Homogenous record-type data</a>
    * <a href="#mixed-record-type-fixed-width-data-files">Mixed record-types data</a>
    * <a href="#multi-line-record-type-fixed-width-data-files">Multiple-line-spanning record-types data</a>
-* Now featuring [Dark mode Plugin User Interface](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
+* [Dark mode rendering of the plugin UI.](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
 
 ## User Interface
 

@@ -10,7 +10,7 @@ Notepad++ user configuration settings are saved into the config.xml file by Note
 
 So, when Darkmode and toolbar icon settings are changed, Notepad++ will need to be restarted for the plugin to reflect these settings changes.
 
-See: [Sample Dark mode Plugin UI screenshots](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
+See: [Sample screenshots of the plugin UI in dark mode](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
 
 ---
 

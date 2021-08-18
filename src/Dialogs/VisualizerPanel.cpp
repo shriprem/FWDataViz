@@ -114,11 +114,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          }
          break;
 
-      case NPPM_INTERNAL_REFRESHDARKMODE:
-         //MessageBox(_hSelf, VIZ_PANEL_DARKMODE_CHANGED, MENU_PANEL_NAME, MB_YESNO);
-         //NppDarkMode::autoThemeChildControls(_hSelf);
-         break;
-
       default :
          return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
    }
