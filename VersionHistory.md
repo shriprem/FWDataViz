@@ -2,7 +2,7 @@
 
 ### Version 2.0.0.0
 #### Enhancements:
-1. Darkmode enabled for the plugin panel and dialog boxes.
+1. Darkmode rendering enabled for the plugin panel and dialog boxes.
 2. Toolbar icons in filled and unfilled modes.
 
 #### `NOTE`
