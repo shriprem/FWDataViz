@@ -753,13 +753,14 @@ void VisualizerPanel::renderCurrentPage() {
 
    showWordwrapInfo(SendMessage(hScintilla, SCI_GETWRAPMODE, NULL, NULL) != SC_WRAP_NONE);
 
-   size_t startLine, lineCount, linesOnScreen, endLine;
+   size_t lineCount, linesOnScreen, firstVisible, startLine, endLine;
 
-   startLine = static_cast<size_t>(SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL));
    lineCount = static_cast<size_t>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
    linesOnScreen = static_cast<size_t>(SendMessage(hScintilla, SCI_LINESONSCREEN, NULL, NULL));
-
-   endLine = (lineCount < startLine + linesOnScreen) ? lineCount : (startLine + linesOnScreen);
+   firstVisible = static_cast<size_t>(SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL));
+   startLine = static_cast<size_t>(SendMessage(hScintilla, SCI_DOCLINEFROMVISIBLE, firstVisible, NULL));
+   endLine = static_cast<size_t>(SendMessage(hScintilla, SCI_DOCLINEFROMVISIBLE, firstVisible + linesOnScreen, NULL));
+   if (endLine + 1 < lineCount) endLine++;
 
    applyLexer(startLine, endLine);
    displayCaretFieldInfo(startLine, endLine);
