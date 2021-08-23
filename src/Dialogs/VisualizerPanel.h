@@ -106,6 +106,5 @@ protected :
    void resizeCaretFieldInfo(int width);
    void showJumpDialog();
    void showExtractDialog();
-   void showWordwrapInfo(bool show);
    void popupSamplesMenu();
 };

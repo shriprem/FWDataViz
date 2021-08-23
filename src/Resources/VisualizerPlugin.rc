@@ -1,5 +1,5 @@
 /*
- Copyright 2020 Shridhar Kumar <shriprem@gmail.com>
+ Copyright 2021 Shridhar Kumar <shriprem@gmail.com>
 
  Notepad++ Visualizer plugin is free software: you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published by
@@ -17,8 +17,8 @@
 
 #include <windows.h>
 
-#define VERSION_VALUE "2.0.0.0\0"
-#define VERSION_DIGITALVALUE 2, 0, 0, 0
+#define VERSION_VALUE "2.1.0.0\0"
+#define VERSION_DIGITALVALUE 2, 1, 0, 0
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION VERSION_DIGITALVALUE

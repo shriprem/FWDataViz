@@ -21,8 +21,6 @@
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
 #define VIZ_PANEL_JUMP_FIELD_BTN    L"&Jump to Field"
 #define VIZ_PANEL_EXTRACT_DATA_BTN  L"&Data Extraction"
-#define VIZ_PANEL_WORDWRAP_INFO     L"Visualizer is impaired when wordwrap is enabled."
-#define VIZ_PANEL_WORDWRAP_BUTTON   L"Turnoff Wordwrap"
 #define VIZ_PANEL_INFO_TIP          L"View Readme Online"
 #define VIZ_PANEL_FILE_SAMPLES_TIP  L"View Sample Files"
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open File Type Metadata Editor"

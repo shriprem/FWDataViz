@@ -69,11 +69,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_VIZPANEL_EXTRACT_DATA_BTN:
                showExtractDialog();
                break;
-
-            case IDC_VIZPANEL_WORDWRAP_BUTTON:
-               nppMessage(NPPM_MENUCOMMAND, 0, IDM_VIEW_WRAP);
-               setFocusOnEditor();
-               break;
          }
 
       break;
@@ -155,8 +150,6 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN, VIZ_PANEL_EXTRACT_DATA_BTN);
-   SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO, VIZ_PANEL_WORDWRAP_INFO);
-   SetDlgItemText(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON, VIZ_PANEL_WORDWRAP_BUTTON);
 }
 
 void VisualizerPanel::display(bool toShow) {
@@ -744,14 +737,11 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 void VisualizerPanel::renderCurrentPage() {
    if (loadLexer() < 1) {
       clearCaretFieldInfo();
-      showWordwrapInfo(FALSE);
       return;
    }
 
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
-
-   showWordwrapInfo(SendMessage(hScintilla, SCI_GETWRAPMODE, NULL, NULL) != SC_WRAP_NONE);
 
    size_t lineCount, linesOnScreen, firstVisible, startLine, endLine;
 
@@ -1042,11 +1032,6 @@ void VisualizerPanel::setFocusOnEditor() {
 void VisualizerPanel::clearLexer() {
    recInfoList.clear();
    fwVizRegexed = L"";
-}
-
-void VisualizerPanel::showWordwrapInfo(bool show) {
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_WORDWRAP_INFO), show ? SW_SHOW : SW_HIDE);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_WORDWRAP_BUTTON), show ? SW_SHOW : SW_HIDE);
 }
 
 void VisualizerPanel::popupSamplesMenu() {
