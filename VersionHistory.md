@@ -1,5 +1,13 @@
 # Version History
 
+### Version 2.1.0.0
+1. **Enhancement:** FWDataViz is now able to visualize even when wordwrap is enabled for a document. Hence the "Turnoff Wordwrap" button on the panel became redundant, and so has been removed.
+2. **Fixed:** FWDataviz was not visualizing all lines in view when block(s) of lines were folded or hidden (the latter, via NPP menu: *View » Hide Lines*). See: [issue #25](https://github.com/shriprem/FWDataViz/issues/25).
+
+**Release:** [Wordwrap, Fold Lines & Hide Lines Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.1.0.0)
+
+---
+
 ### Version 2.0.0.0
 #### Enhancements:
 1. Darkmode rendering enabled for the plugin panel and dialog boxes.
@@ -11,6 +19,8 @@ Notepad++ user configuration settings are saved into the config.xml file by Note
 So, when Darkmode and toolbar icon settings are changed, Notepad++ will need to be restarted for the plugin to reflect these settings changes.
 
 See: [Sample screenshots of the plugin UI in dark mode](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
+
+**Release:** [Dark mode Plugin UI Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.0.0.0)
 
 ---
 
