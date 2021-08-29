@@ -607,6 +607,10 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    caretRecordStartPos = 0;
    caretRecordEndPos = 0;
 
+#if FW_DEBUG_LEXER_COUNT
+   ++lexCount;
+#endif
+
    for (auto currentLine{ startLine }; currentLine < endLine; currentLine++) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
          continue;
@@ -856,6 +860,10 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    UCHAR atChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretColumnPos, 0));
    swprintf(ansiInfo, 200, L"0x%X [%u]", atChar, atChar);
    fieldInfoText += L"\r\n    ANSI Byte: " + wstring(ansiInfo);
+
+#if FW_DEBUG_LEXER_COUNT
+   fieldInfoText = L"Lex Count: " + to_wstring(lexCount) + L"\r\n" + fieldInfoText;
+#endif
 
    SetWindowText(hFieldInfo, fieldInfoText.c_str());
 

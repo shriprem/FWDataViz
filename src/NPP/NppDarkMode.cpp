@@ -1197,7 +1197,7 @@ namespace NppDarkMode
                arrowRc.left + (arrowRc.right - arrowRc.left) / 2 - Utils::scaleDPIX(4),
                arrowRc.top + 3,
                ETO_OPAQUE | ETO_CLIPPED,
-               &arrowRc, L"˅",
+               &arrowRc, L"▿", // Choose from: [V v ˅ ▼ ▾ ▽ ▿]
                1,
                nullptr);
             ::SetBkColor(hdc, NppDarkMode::getBackgroundColor());

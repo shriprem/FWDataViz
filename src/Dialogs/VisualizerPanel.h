@@ -11,6 +11,7 @@
 #define FW_DEBUG_SET_STYLES FALSE
 #define FW_DEBUG_LOAD_REGEX FALSE
 #define FW_DEBUG_APPLY_LEXER FALSE
+#define FW_DEBUG_LEXER_COUNT FALSE
 
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
@@ -52,6 +53,10 @@ public :
    void renderCurrentPage();
    void visualizeFile(wstring fileType, bool ab_cachedFT, bool autoFT, bool syncFT);
    void jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx);
+
+#if FW_DEBUG_LEXER_COUNT
+   int lexCount{};
+#endif
 
 protected :
    HWND hFTList, hThemesLB, hFieldInfo;
