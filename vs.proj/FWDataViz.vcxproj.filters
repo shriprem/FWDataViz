@@ -245,7 +245,7 @@
     <None Include="..\src\Resources\Default Ini Files\default_Visualizer.ini">
       <Filter>Resources\Default Config Files</Filter>
     </None>
-    <None Include="..\src\Resources\Default Ini Files\default_Themes.dat">
+    <None Include="..\src\Resources\Default Ini Files\default_Themes.ini">
       <Filter>Resources\Default Config Files</Filter>
     </None>
   </ItemGroup>

@@ -1,5 +1,16 @@
 # Version History
 
+### Version 2.1.1.0
+1. **Change:** Themes configuration file extension has been changed from *.dat* to *.ini*. During the initial load, the plugin will rename *Themes.dat* file to *Themes.ini*, if and only if the latter is not already existing in the plugin config folder. See the feature request [issue](https://github.com/shriprem/FWDataViz/issues/27).
+
+2. **Change:** In Darkmode, the dropdown arrow for comboboxes has been changed from [U+02C5 (MODIFIER LETTER DOWN ARROWHEAD)](https://www.fileformat.info/info/unicode/char/02C5/index.htm) to [U+25BF (WHITE DOWN-POINTING SMALL TRIANGLE)](https://www.fileformat.info/info/unicode/char/25bf/index.htm).
+
+3. **Fixed:** In some instances, the File Open dialog was not launching at the FWDataViz Config Backup folder when either the _Load Backup Configuration_ (in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md)) or the _Load Backup Themes File_ (in the [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md)) buttons were clicked.
+
+**Release:** [2.1.1.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.1.1.0)
+
+---
+
 ### Version 2.1.0.0
 1. **Enhancement:** FWDataViz is now able to visualize even when wordwrap is enabled for a document. Hence the "Turnoff Wordwrap" button on the panel became redundant, and so has been removed.
 2. **Fixed:** FWDataviz was not visualizing all lines in view when block(s) of lines were folded or hidden (the latter, via NPP menu: *View » Hide Lines*). See: [issue #25](https://github.com/shriprem/FWDataViz/issues/25).

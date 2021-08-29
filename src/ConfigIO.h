@@ -81,7 +81,7 @@ protected:
       CONFIG_FILE_COUNT
    };
 
-   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.dat", L"Preferences.ini", L"Extracts.ini"};
+   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.ini", L"Preferences.ini", L"Extracts.ini"};
    wstring CONFIG_FILE_PATHS[CONFIG_FILE_COUNT]{};
    wstring currentConfigFile{};
 };

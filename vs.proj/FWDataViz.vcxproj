@@ -103,7 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\Resources\Default Ini Files\default_Preferences.ini" />
-    <None Include="..\src\Resources\Default Ini Files\default_Themes.dat" />
+    <None Include="..\src\Resources\Default Ini Files\default_Themes.ini" />
     <None Include="..\src\Resources\Default Ini Files\default_Visualizer.ini" />
     <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly" />
   </ItemGroup>

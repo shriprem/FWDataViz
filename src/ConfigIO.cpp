@@ -8,31 +8,37 @@ void ConfigIO::init() {
 
    nppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
 
-   // if no existing config path, create it
-   if (!PathFileExists(pluginConfigDir)) {
-      CreateDirectory(pluginConfigDir, NULL);
-   }
+   // If no existing config path, create it
+   if (!PathFileExists(pluginConfigDir)) CreateDirectory(pluginConfigDir, NULL);
 
-   // if no existing config folder for this plugin, create it
+   // If no existing config folder for this plugin, create it
    PathAppend(pluginConfigDir, PLUGIN_FOLDER_NAME);
+   if (!PathFileExists(pluginConfigDir)) CreateDirectory(pluginConfigDir, NULL);
 
-   if (!PathFileExists(pluginConfigDir)) {
-      CreateDirectory(pluginConfigDir, NULL);
-   }
+   // If no existing config backup folder for this plugin, create it
+   PathCombine(pluginConfigBackupDir, pluginConfigDir, L"Backup\\");
+   if (!PathFileExists(pluginConfigBackupDir)) CreateDirectory(pluginConfigBackupDir, NULL);
 
-   // if no existing config backup folder for this plugin, create it
-   PathCombine(pluginConfigBackupDir, pluginConfigDir, L"Backup");
-
-   if (!PathFileExists(pluginConfigBackupDir)) {
-      CreateDirectory(pluginConfigBackupDir, NULL);
-   }
-
-   // if config files are missing, copy them from the plugins folder
+   // Reconcile config files
    const wstring sDefaultPrefix{ L"default_" };
 
    TCHAR sDefaultsFile[MAX_PATH];
    TCHAR sConfigFile[MAX_PATH];
+   TCHAR sThemeDatFile[MAX_PATH];
 
+   // Rename any existing Themes.dat file to Themes.ini or delete it
+   PathCombine(sThemeDatFile, pluginConfigDir, L"Themes.dat");
+   PathCombine(sConfigFile, pluginConfigDir, L"Themes.ini");
+   if (PathFileExists(sThemeDatFile))
+      PathFileExists(sConfigFile) ? DeleteFile(sThemeDatFile) : MoveFile(sThemeDatFile, sConfigFile);
+
+   // Rename any existing default_Themes.dat file to default_Themes.ini or delete it
+   PathCombine(sThemeDatFile, sPluginDirectory, (sDefaultPrefix + L"Themes.dat").c_str());
+   PathCombine(sDefaultsFile, sPluginDirectory, (sDefaultPrefix + L"Themes.ini").c_str());
+   if (PathFileExists(sThemeDatFile))
+      PathFileExists(sDefaultsFile) ? DeleteFile(sThemeDatFile) : MoveFile(sThemeDatFile, sDefaultsFile);
+
+   // If config files are missing, copy them from the plugins folder
    for (int i{}; i < CONFIG_FILE_COUNT; i++) {
       PathCombine(sConfigFile, pluginConfigDir, CONFIG_FILES[i].c_str());
       CONFIG_FILE_PATHS[i] = wstring{ sConfigFile };
@@ -290,7 +296,7 @@ void ConfigIO::backupConfigFile(bool bViz) {
       }
    }
    else {
-      backupTemplate = "Themes_%Y%m%d_%H%M%S.dat";
+      backupTemplate = "Themes_%Y%m%d_%H%M%S.ini";
       srcFile = CONFIG_FILE_PATHS[CONFIG_THEMES];
    }
 
@@ -337,7 +343,7 @@ BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, boo
    if (bViz)
       ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.ini\0";
    else
-      ofn.lpstrFilter = L"All\0*.*\0DAT Files\0*.dat\0";
+      ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.ini\0DAT Files\0*.dat\0";
 
    BOOL bOK = bOpen ? GetOpenFileName(&ofn) : GetSaveFileName(&ofn);
 
