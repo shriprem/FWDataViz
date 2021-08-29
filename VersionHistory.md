@@ -7,6 +7,8 @@
 
 3. **Fixed:** In some instances, the File Open dialog was not launching at the FWDataViz Config Backup folder when either the _Load Backup Configuration_ (in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md)) or the _Load Backup Themes File_ (in the [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md)) buttons were clicked.
 
+4. **Optimized:** All three ICD-10 Sample Files were edited to retain only the first and last 10,000 lines (for a total 20,000 lines) from their original versions. This will yield around 30% reduction in this plugin's binary packages.
+
 **Release:** [2.1.1.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.1.1.0)
 
 ---
