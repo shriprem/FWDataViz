@@ -29,14 +29,8 @@ void ConfigIO::init() {
    // Rename any existing Themes.dat file to Themes.ini or delete it
    PathCombine(sThemeDatFile, pluginConfigDir, L"Themes.dat");
    PathCombine(sConfigFile, pluginConfigDir, L"Themes.ini");
-   if (PathFileExists(sThemeDatFile))
-      PathFileExists(sConfigFile) ? DeleteFile(sThemeDatFile) : MoveFile(sThemeDatFile, sConfigFile);
-
-   // Rename any existing default_Themes.dat file to default_Themes.ini or delete it
-   PathCombine(sThemeDatFile, sPluginDirectory, (sDefaultPrefix + L"Themes.dat").c_str());
-   PathCombine(sDefaultsFile, sPluginDirectory, (sDefaultPrefix + L"Themes.ini").c_str());
-   if (PathFileExists(sThemeDatFile))
-      PathFileExists(sDefaultsFile) ? DeleteFile(sThemeDatFile) : MoveFile(sThemeDatFile, sDefaultsFile);
+   if (PathFileExists(sThemeDatFile) && !PathFileExists(sConfigFile))
+      MoveFile(sThemeDatFile, sConfigFile);
 
    // If config files are missing, copy them from the plugins folder
    for (int i{}; i < CONFIG_FILE_COUNT; i++) {
