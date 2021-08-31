@@ -1,9 +1,9 @@
 # Version History
 
-### Version 2.1.1.0
+### Version 2.1.1.1
 1. **Fixed:** If the ADFT option had been enabled, the plugin was clearing out the NPP's lexing (color scheme) of standard file types (such as .xml, .cpp, .js, etc.). The workaround was to close the FWDataViz panel, and restart NPP. Not anymore with this release.
 
-2. **Minor Change:** After the File Types or Themes Configuration were edited and saved, a backup file was created using the [MoveFile](https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefile) Windows API  to *move* the *Visualizer.ini* or *Themes.ini* into the *Backup* folder, and the changes were saved to a new file to replace the original config file. With this release, the backup is created instead by using the [CopyFile](https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfile) Windows API. This will allow the usage of hardlinks, if needed for some users, to these config files.
+2. **Minor Change:** After the File Types or Themes Configuration were edited and saved, a backup file was created using the [MoveFile](https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefile) Windows API  to move the *Visualizer.ini* or *Themes.ini* into the *Backup* folder, and the changes were saved to a new file to replace the original config file. With this release, the backup is created instead by using the [CopyFile](https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfile) Windows API. This will allow the usage of hardlinks, if needed for some users, to these config files.
 
 **Release:** [2.1.1.1 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.1.1.1)
 
