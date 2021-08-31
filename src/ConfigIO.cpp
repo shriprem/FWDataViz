@@ -26,7 +26,7 @@ void ConfigIO::init() {
    TCHAR sConfigFile[MAX_PATH];
    TCHAR sThemeDatFile[MAX_PATH];
 
-   // Rename any existing Themes.dat file to Themes.ini or delete it
+   // Rename any existing Themes.dat file to Themes.ini
    PathCombine(sThemeDatFile, pluginConfigDir, L"Themes.dat");
    PathCombine(sConfigFile, pluginConfigDir, L"Themes.ini");
    if (PathFileExists(sThemeDatFile) && !PathFileExists(sConfigFile))
@@ -306,7 +306,7 @@ void ConfigIO::backupConfigFile(bool bViz) {
    if (srcFile == defaultConfigFile)
       CopyFile(srcFile.c_str(), backupFilePath, FALSE);
    else
-      MoveFile(srcFile.c_str(), backupFilePath);
+      CopyFile(srcFile.c_str(), backupFilePath, FALSE);
 }
 
 BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile) {

@@ -279,7 +279,8 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool ab_cachedFT, bool aut
    }
 
    if (fileType.length() < 2) {
-      clearVisualize();
+      syncListFileTypes();
+      syncListThemes();
       return;
    }
 
