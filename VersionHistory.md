@@ -3,6 +3,8 @@
 ### Version 2.1.2.1
 1. **Enhancement:** Cursor will be briefly set to block mode to highlight its position in text when using [Jump to Field](https://github.com/shriprem/FWDataViz#jump-to-field-popup).
 
+2. **Fixed:** The Cursor Position Data was refreshing only when the page was scrolled. This regression got introduced in version 2.1.0.0.
+
 **Release:** [2.1.2.1 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.1.2.1)
 
 ---
