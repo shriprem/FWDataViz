@@ -1,6 +1,6 @@
 # FWDataViz
 #### Fixed Width Data Visualizer plugin for Notepad++
-[Current Version: 2.1.1.1](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
+[Current Version: 2.1.2.1](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
 ![FWDataViz](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_weather_stations.png)
 
 * Visualizes fields within fixed-width data files with distinct colors and font styles.

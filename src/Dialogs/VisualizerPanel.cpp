@@ -324,6 +324,11 @@ void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex,
    SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
    SendMessage(hScintilla, SCI_GOTOPOS, gotoPos, 0);
 
+   // Flash caret
+   HANDLE hThread = CreateThread(NULL, 0, threadPositionHighlighter, 0, 0, NULL);
+   if (hThread > 0)
+      CloseHandle(hThread);
+
    setFocusOnEditor();
 }
 
@@ -1064,4 +1069,31 @@ void VisualizerPanel::popupSamplesMenu() {
       RemoveMenu(hPopupMenu, 0, MF_BYPOSITION);
    }
    DestroyMenu(hPopupMenu);
+}
+
+DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return FALSE;
+
+   // Look for Idem Potency Hold
+   if (idemPotentKey)
+      //  Idem Potency check failed. Another thread is processing this same function. Return immediately.
+      return FALSE;
+   else
+      // OK to continue. Set Idem Potency Hold
+      idemPotentKey = TRUE;
+
+   // Modify caret style briefly to highlight the new position
+   int currCaret = static_cast<int>(SendMessage(hScintilla, SCI_GETCARETSTYLE, 0, 0));
+   SendMessage(hScintilla, SCI_SETCARETSTYLE, CARETSTYLE_BLOCK, 0);
+   Sleep(_configIO.getCaretFlashSeconds() * 1000);
+   SendMessage(hScintilla, SCI_SETCARETSTYLE, currCaret, 0);
+
+   int pos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, 0, 0));
+   SendMessage(hScintilla, SCI_BRACEHIGHLIGHT, pos, -1);
+
+   // Clear Idem Potency Hold
+   idemPotentKey = FALSE;
+
+   return TRUE;
 }

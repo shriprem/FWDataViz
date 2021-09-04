@@ -68,6 +68,9 @@ public:
    bool getCaretFramed();
    void setCaretFramed(bool framed);
 
+   int getCaretFlashSeconds();
+   void setCaretFlashSeconds(int seconds);
+
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
    TCHAR pluginConfigBackupDir[MAX_PATH];

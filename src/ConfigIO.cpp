@@ -377,3 +377,11 @@ bool ConfigIO::getCaretFramed() {
 void ConfigIO::setCaretFramed(bool framed) {
    setConfigString(L"Preferences", L"FramedCaret", framed ? L"Y" : L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
+
+int ConfigIO::getCaretFlashSeconds() {
+   return getConfigInt(L"Preferences", L"CaretFlashSeconds", 5, CONFIG_FILE_PATHS[CONFIG_PREFS]);
+}
+
+void ConfigIO::setCaretFlashSeconds(int seconds) {
+   setConfigString(L"Preferences", L"CaretFlashSeconds", to_wstring(seconds), CONFIG_FILE_PATHS[CONFIG_PREFS]);
+}

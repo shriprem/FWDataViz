@@ -162,6 +162,8 @@
 #define JUMP_FIELD_SELECT_LABEL     L"&Select Field:"
 #define JUMP_FIELD_GO_BTN           L"&Jump"
 #define JUMP_FIELD_CLOSE_BTN        L"&Cancel"
+#define JUMP_LABEL_CARET_FLASH      L"Cursor Flash duration (in seconds)"
+#define JUMP_TIP_CARET_FLASH        L"When the cursor is set at its default width of '1', it can be hard to spot the cursor at its new position. To aid quick spotting, the cursor is briefly set to block mode at the destination position.\r\n\r\nSpecify the number of seconds to have the cursor flashing in block mode at the destination position."
 
 
 // Data Extraction Dialog

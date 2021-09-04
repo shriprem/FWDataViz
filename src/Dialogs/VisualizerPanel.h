@@ -19,6 +19,8 @@
 constexpr int FW_STYLE_CACHE_START_INDEX{ STYLE_LASTPREDEFINED + 1 };
 constexpr int FW_STYLE_CACHE_ITEMS_LIMIT{ 200 };
 
+static bool idemPotentKey{ FALSE };
+
 extern NppData nppData;
 extern ConfigIO _configIO;
 
@@ -112,4 +114,6 @@ protected :
    void showJumpDialog();
    void showExtractDialog();
    void popupSamplesMenu();
+
+   static DWORD WINAPI threadPositionHighlighter(void*);
 };

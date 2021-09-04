@@ -1,5 +1,12 @@
 # Version History
 
+### Version 2.1.2.1
+1. **Enhancement:** Cursor will be briefly set to block mode to highlight its position in text when using [Jump to Field](https://github.com/shriprem/FWDataViz#jump-to-field-popup).
+
+**Release:** [2.1.2.1 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.1.2.1)
+
+---
+
 ### Version 2.1.1.1
 1. **Fixed:** If the ADFT option had been enabled, the plugin was clearing out the NPP's lexing (color scheme) of standard file types (such as .xml, .cpp, .js, etc.). The workaround was to close the FWDataViz panel, and restart NPP. Not anymore with this release.
 
