@@ -316,10 +316,15 @@ void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex,
 
    RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
 
-   int gotoPos{ caretRecordStartPos };
+   int gotoPos{};
 
-   if (fieldIdx < static_cast<int>(FLD.fieldStarts.size()))
-      gotoPos += FLD.fieldStarts[fieldIdx];
+   if (fieldIdx < static_cast<int>(FLD.fieldStarts.size())) {
+      if (_configIO.getConfigString(fileType, L"ByteColumns", L"Y") == L"Y")
+         gotoPos = caretRecordStartPos + FLD.fieldStarts[fieldIdx];
+      else
+         gotoPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
+            (WPARAM)caretRecordStartPos, (LPARAM)FLD.fieldStarts[fieldIdx]));
+   }
 
    SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
    SendMessage(hScintilla, SCI_GOTOPOS, gotoPos, 0);
@@ -604,8 +609,11 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    const size_t regexedCount{ recInfoList.size() };
    bool newRec{ TRUE };
 
-   eolMarker =  _configIO.getConfigStringA(fileType, L"RecordTerminator");
+   eolMarker = _configIO.getConfigStringA(fileType, L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
+
+   bool byteCols{ _configIO.getConfigString(fileType, L"ByteColumns", L"Y") == L"Y" };
+
    caretLine = sciFunc(sciPtr, SCI_LINEFROMPOSITION,
       sciFunc(sciPtr, SCI_GETCURRENTPOS, NULL, NULL), NULL);
 
@@ -717,29 +725,59 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       MessageBox(_hSelf, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
 #endif
 
-      for (size_t i{}; i < fieldCount; i++) {
-         sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-         unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
-         currentPos += recFieldWidths[i];
+      if (byteCols) {
+         for (size_t i{}; i < fieldCount; i++) {
+            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+            unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
+            currentPos += recFieldWidths[i];
 
-         if (recFieldWidths[i] < unstyledLen) {
-            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
-               styleRangeStart + ((i + colorOffset) % styleCount));
+            if (recFieldWidths[i] < unstyledLen) {
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
+                  styleRangeStart + ((i + colorOffset) % styleCount));
+            }
+            else {
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)unstyledLen,
+                  styleRangeStart + ((i + colorOffset) % styleCount));
+               unstyledLen = 0;
+
+               sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, styleRangeStart - 1);
+               break;
+            }
          }
-         else {
-            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)unstyledLen,
-               styleRangeStart + ((i + colorOffset) % styleCount));
-            unstyledLen = 0;
 
-            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
-            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, styleRangeStart - 1);
-            break;
+         if (fieldCount > 0 && unstyledLen > 0) {
+            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), styleRangeStart - 1);
          }
       }
+      else {
+         size_t nextPos{};
+         for (size_t i{}; i < fieldCount; i++) {
+            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+            nextPos = static_cast<int>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
+               (WPARAM)currentPos, (LPARAM)recFieldWidths[i]));
 
-      if (fieldCount > 0 && unstyledLen > 0) {
-         sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-         sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), styleRangeStart - 1);
+            if (nextPos > 0 && nextPos <= eolMarkerPos) {
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(nextPos - currentPos),
+                  styleRangeStart + ((i + colorOffset) % styleCount));
+            }
+            else {
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(eolMarkerPos - currentPos),
+                  styleRangeStart + ((i + colorOffset) % styleCount));
+
+               sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, styleRangeStart - 1);
+               break;
+            }
+
+            currentPos = nextPos;
+         }
+
+         if (fieldCount > 0 && currentPos > 0 && eolMarkerPos > currentPos) {
+            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), styleRangeStart - 1);
+         }
       }
    }
 }
@@ -795,12 +833,12 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    if (!getDocFileType(hScintilla, fileType)) return;
 
    wstring fieldInfoText{};
-   int caretColumnPos;
+   int caretPos;
    size_t caretLine;
 
    caretFieldIndex = -1;
-   caretColumnPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
-   caretLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION, caretColumnPos, NULL);
+   caretPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
+   caretLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION, caretPos, NULL);
 
    if (caretLine < startLine || caretLine > endLine) {
       clearCaretFieldInfo();
@@ -816,17 +854,25 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          fieldInfoText = L"<Unknown Record Type>";
       }
    }
-   else if (caretColumnPos == caretRecordEndPos) {
+   else if (caretPos == caretRecordEndPos) {
       fieldInfoText = L"<Record End>";
    }
-   else if (caretColumnPos >= caretEolMarkerPos) {
+   else if (caretPos >= caretEolMarkerPos) {
       fieldInfoText = L"<Record Terminator>";
    }
    else {
       RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
-      int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 };
+      int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 }, recLength;
 
-      caretColumn = caretColumnPos - caretRecordStartPos;
+      if (_configIO.getConfigString(fileType, L"ByteColumns", L"Y") == L"Y") {
+         caretColumn = caretPos - caretRecordStartPos;
+         recLength = caretEolMarkerPos - caretRecordStartPos;
+      }
+      else {
+         caretColumn = static_cast<int>(SendMessage(hScintilla, SCI_GETCOLUMN, caretPos, NULL));
+         recLength = static_cast<int>(SendMessage(hScintilla, SCI_GETCOLUMN, caretEolMarkerPos, NULL));
+      }
+
       fieldInfoText = L"  Record Type: " + FLD.label;
       fieldCount = static_cast<int>(FLD.fieldStarts.size());
       fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
@@ -839,8 +885,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       }
 
       fieldInfoText += L"\r\nRecord Length: " +
-         to_wstring(caretEolMarkerPos - caretRecordStartPos) + L"/" + to_wstring(cumulativeWidth) +
-         L" [Current/Defined]";
+         to_wstring(recLength) + L"/" + to_wstring(cumulativeWidth) + L" [Current/Defined]";
 
       if (matchedField < 0) {
          fieldInfoText += L"\r\n    Overflow!";
@@ -863,7 +908,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    }
 
    wchar_t ansiInfo[200];
-   UCHAR atChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretColumnPos, 0));
+   UCHAR atChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretPos, 0));
    swprintf(ansiInfo, 200, L"0x%X [%u]", atChar, atChar);
    fieldInfoText += L"\r\n    ANSI Byte: " + wstring(ansiInfo);
 
