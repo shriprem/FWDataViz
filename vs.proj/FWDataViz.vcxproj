@@ -116,7 +116,8 @@
     <Text Include="..\src\Resources\Sample Data Files\icd10cm_codes_2021.txt" />
     <Text Include="..\src\Resources\Sample Data Files\icd10cm_order_2021.txt" />
     <Text Include="..\src\Resources\Sample Data Files\icd10pcs_codes_2021.txt" />
-    <Text Include="..\src\Resources\Sample Data Files\IPAC_082020.txt" />
+    <Text Include="..\src\Resources\Sample Data Files\IPAC_ANSI.txt" />
+    <Text Include="..\src\Resources\Sample Data Files\IPAC_Unicode.txt" />
     <Text Include="..\src\Resources\Sample Data Files\MultiGSN.txt" />
     <Text Include="..\src\Resources\Sample Data Files\MultiLineGSN.txt" />
   </ItemGroup>

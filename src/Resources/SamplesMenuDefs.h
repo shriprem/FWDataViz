@@ -51,8 +51,14 @@ const SampleFileInfo gSampleFiles[] =
    },
    {
       MULTI_REC,
-      L"[Dummy Data] Treasury IPAC File",
-      L"IPAC_082020.txt",
+      L"[Dummy Data] Treasury IPAC (ANSI) File",
+      L"IPAC_ANSI.txt",
+      L"FT010_TREASURY_IPAC_FILE"
+   },
+   {
+      MULTI_REC,
+      L"[Dummy Data] Treasury IPAC (Unicode) File",
+      L"IPAC_Unicode.txt",
       L"FT010_TREASURY_IPAC_FILE"
    },
    {

@@ -274,13 +274,16 @@
     <Text Include="..\src\Resources\Sample Data Files\icd10pcs_codes_2021.txt">
       <Filter>Resources\Sample Data Files</Filter>
     </Text>
-    <Text Include="..\src\Resources\Sample Data Files\IPAC_082020.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
     <Text Include="..\src\Resources\Sample Data Files\MultiGSN.txt">
       <Filter>Resources\Sample Data Files</Filter>
     </Text>
     <Text Include="..\src\Resources\Sample Data Files\MultiLineGSN.txt">
+      <Filter>Resources\Sample Data Files</Filter>
+    </Text>
+    <Text Include="..\src\Resources\Sample Data Files\IPAC_ANSI.txt">
+      <Filter>Resources\Sample Data Files</Filter>
+    </Text>
+    <Text Include="..\src\Resources\Sample Data Files\IPAC_Unicode.txt">
       <Filter>Resources\Sample Data Files</Filter>
     </Text>
   </ItemGroup>
