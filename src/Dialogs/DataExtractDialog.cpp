@@ -678,24 +678,31 @@ void DataExtractDialog::extractData() {
       recMatch = FALSE;
 
       for (size_t j{}; j < validLIs.size(); j++) {
-         LineItemInfo& LI = validLIs[j];
+         const LineItemInfo& LI = validLIs[j];
+         const RecordInfo* pRI = &recInfoList[LI.recType];
          if (static_cast<int>(regexIndex) != LI.recType) continue;
 
          if (byteCols) {
-            sciTR.chrg.cpMin = static_cast<long>(recStartPos + recInfoList[LI.recType].fieldStarts[LI.fieldType]);
-            sciTR.chrg.cpMax = sciTR.chrg.cpMin + recInfoList[LI.recType].fieldWidths[LI.fieldType];
+            sciTR.chrg.cpMin = static_cast<long>(recStartPos + pRI->fieldStarts[LI.fieldType]);
+            sciTR.chrg.cpMax = sciTR.chrg.cpMin + pRI->fieldWidths[LI.fieldType];
          }
          else {
             sciTR.chrg.cpMin = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
-               (WPARAM)recStartPos, (LPARAM)recInfoList[LI.recType].fieldStarts[LI.fieldType]));
+               (WPARAM)recStartPos, (LPARAM)pRI->fieldStarts[LI.fieldType]));
             sciTR.chrg.cpMax = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
-               (WPARAM)sciTR.chrg.cpMin, (LPARAM)recInfoList[LI.recType].fieldWidths[LI.fieldType]));
+               (WPARAM)sciTR.chrg.cpMin, (LPARAM)pRI->fieldWidths[LI.fieldType]));
          }
 
-         sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
+         if (sciTR.chrg.cpMax > static_cast<long>(eolMarkerPos) || sciTR.chrg.cpMax == 0)
+            sciTR.chrg.cpMax = static_cast<long>(eolMarkerPos);
 
-         extract += validLIs[j].prefix + fieldText + validLIs[j].suffix;
-         recMatch = TRUE;
+         if (sciTR.chrg.cpMin < static_cast<long>(eolMarkerPos) &&
+            (recStartPos + pRI->fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
+            sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
+
+            extract += validLIs[j].prefix + fieldText + validLIs[j].suffix;
+            recMatch = TRUE;
+         }
       }
 
       if (recMatch) extract += "\n";

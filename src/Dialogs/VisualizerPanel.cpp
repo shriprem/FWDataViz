@@ -326,6 +326,9 @@ void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex,
             (WPARAM)caretRecordStartPos, (LPARAM)FLD.fieldStarts[fieldIdx]));
    }
 
+   if (gotoPos > caretEolMarkerPos || gotoPos == 0)
+      gotoPos = caretEolMarkerPos;
+
    SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
    SendMessage(hScintilla, SCI_GOTOPOS, gotoPos, 0);
 
