@@ -838,6 +838,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    wstring fieldInfoText{};
    int caretPos;
    size_t caretLine;
+   bool byteCols{ _configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y" };
 
    caretFieldIndex = -1;
    caretPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
@@ -867,7 +868,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
       int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 }, recLength;
 
-      if (_configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y") {
+      if (byteCols) {
          caretColumn = caretPos - caretRecordStartPos;
          recLength = caretEolMarkerPos - caretRecordStartPos;
       }
@@ -910,10 +911,48 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       }
    }
 
-   wchar_t ansiInfo[200];
-   UCHAR atChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretPos, 0));
-   swprintf(ansiInfo, 200, L"0x%X [%u]", atChar, atChar);
-   fieldInfoText += L"\r\n    ANSI Byte: " + wstring(ansiInfo);
+   wchar_t byteInfo[200];
+   UCHAR startChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretPos, 0));
+
+   if (byteCols || !(startChar & 0x80)) {
+      swprintf(byteInfo, 200, L"0x%X [%u]", startChar, startChar);
+      fieldInfoText += L"\r\n    ANSI Byte: " + wstring(byteInfo);
+   }
+   else {
+      swprintf(byteInfo, 200, L"%X", startChar);
+      fieldInfoText += L"\r\n  UTF-8 Bytes: " + wstring(byteInfo);
+
+      int unicodeHead{ 0 }, unicodeTail{ 0 };
+      UCHAR nextChar{};
+
+      nextChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretPos + 1, 0));
+      swprintf(byteInfo, 200, L" %X", nextChar);
+      fieldInfoText += wstring(byteInfo);
+
+      unicodeHead = (startChar & 31) << 6;
+      unicodeTail = (nextChar & 63);
+
+      if ((startChar & 0xE0) == 0xE0) {
+         nextChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretPos + 2, 0));
+         swprintf(byteInfo, 200, L" %X", nextChar);
+         fieldInfoText += wstring(byteInfo);
+
+         unicodeHead = (startChar & 15) << 12;
+         unicodeTail = (unicodeTail << 6) + (nextChar & 63);
+
+         if ((startChar & 0xF0) == 0xF0) {
+            nextChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretPos + 3, 0));
+            swprintf(byteInfo, 200, L" %X", nextChar);
+            fieldInfoText += wstring(byteInfo);
+
+            unicodeHead = (startChar & 7) << 18;
+            unicodeTail = (unicodeTail << 6) + (nextChar & 63);
+         }
+      }
+
+      swprintf(byteInfo, 200, L"   (U+%X)", (unicodeHead + unicodeTail));
+      fieldInfoText += wstring(byteInfo);
+   }
 
 #if FW_DEBUG_LEXER_COUNT
    fieldInfoText = L"Lex Count: " + to_wstring(lexCount) + L"\r\n" + fieldInfoText;
