@@ -624,6 +624,8 @@ void DataExtractDialog::extractData() {
    eolMarker = _configIO.getConfigStringA(fileType, L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
 
+   bool byteCols{ _configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y" };
+
    const size_t endLine{ lineCount };
    for (size_t currentLine{}; currentLine < endLine; currentLine++) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
@@ -676,15 +678,31 @@ void DataExtractDialog::extractData() {
       recMatch = FALSE;
 
       for (size_t j{}; j < validLIs.size(); j++) {
-         LineItemInfo& LI = validLIs[j];
+         const LineItemInfo& LI = validLIs[j];
+         const RecordInfo* pRI = &recInfoList[LI.recType];
          if (static_cast<int>(regexIndex) != LI.recType) continue;
 
-         sciTR.chrg.cpMin = static_cast<long>(recStartPos + recInfoList[LI.recType].fieldStarts[LI.fieldType]);
-         sciTR.chrg.cpMax = sciTR.chrg.cpMin + recInfoList[LI.recType].fieldWidths[LI.fieldType];
-         sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
+         if (byteCols) {
+            sciTR.chrg.cpMin = static_cast<long>(recStartPos + pRI->fieldStarts[LI.fieldType]);
+            sciTR.chrg.cpMax = sciTR.chrg.cpMin + pRI->fieldWidths[LI.fieldType];
+         }
+         else {
+            sciTR.chrg.cpMin = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
+               (WPARAM)recStartPos, (LPARAM)pRI->fieldStarts[LI.fieldType]));
+            sciTR.chrg.cpMax = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
+               (WPARAM)sciTR.chrg.cpMin, (LPARAM)pRI->fieldWidths[LI.fieldType]));
+         }
 
-         extract += validLIs[j].prefix + fieldText + validLIs[j].suffix;
-         recMatch = TRUE;
+         if (sciTR.chrg.cpMax > static_cast<long>(eolMarkerPos) || sciTR.chrg.cpMax == 0)
+            sciTR.chrg.cpMax = static_cast<long>(eolMarkerPos);
+
+         if (sciTR.chrg.cpMin < static_cast<long>(eolMarkerPos) &&
+            (recStartPos + pRI->fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
+            sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
+
+            extract += validLIs[j].prefix + fieldText + validLIs[j].suffix;
+            recMatch = TRUE;
+         }
       }
 
       if (recMatch) extract += "\n";

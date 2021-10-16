@@ -160,24 +160,29 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
    hToolTips[1] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   hToolTips[2] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON,
-      FWVIZ_DEF_ADFT_HINT_TITLE, FWVIZ_DEF_ADFT_HINT_TEXT, TRUE);
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_MCBS_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   hToolTips[2] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_MCBS_INFO_BUTTON,
+      FWVIZ_DEF_MCBS_HINT_TITLE, FWVIZ_DEF_MCBS_HINT_TEXT, TRUE);
    SendMessage(hToolTips[2], TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
 
+   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   hToolTips[3] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON,
+      FWVIZ_DEF_ADFT_HINT_TITLE, FWVIZ_DEF_ADFT_HINT_TEXT, TRUE);
+   SendMessage(hToolTips[3], TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
+
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   hToolTips[3] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
+   hToolTips[4] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   hToolTips[4] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
+   hToolTips[5] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN, IDB_VIZ_INFO_BITMAP);
-   hToolTips[5] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN,
+   hToolTips[6] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN,
       FWVIZ_DEF_RECTHEME_HINT_HDR, FWVIZ_DEF_RECTHEME_HINT_TXT, TRUE);
-   SendMessage(hToolTips[5], TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
+   SendMessage(hToolTips[6], TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   hToolTips[6] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+   hToolTips[7] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
@@ -218,8 +223,12 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                moveFileType(MOVE_UP);
                break;
 
+            case IDC_FWVIZ_DEF_MCBS_INFO_BUTTON:
+               ShellExecute(NULL, L"open", FWVIZ_DEF_MCBS_INFO_README, NULL, NULL, SW_SHOW);
+               break;
+
             case IDC_FWVIZ_DEF_ADFT_INFO_BUTTON:
-               ShellExecute(NULL, L"open", FWVIZ_ADFT_DEF_INFO_README, NULL, NULL, SW_SHOW);
+               ShellExecute(NULL, L"open", FWVIZ_DEF_ADFT_INFO_README, NULL, NULL, SW_SHOW);
                break;
 
             case IDC_FWVIZ_DEF_REC_THEME_INFOBTN:
@@ -232,6 +241,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_FWVIZ_DEF_FILE_DESC_EDIT:
             case IDC_FWVIZ_DEF_FILE_EOL_EDIT:
+            case IDC_FWVIZ_DEF_MCBS_CHECKBOX:
             case IDC_FWVIZ_DEF_FILE_THEME_LIST:
             case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01:
             case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_01:
@@ -240,6 +250,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_03:
             case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03:
                switch HIWORD(wParam) {
+                  case BN_CLICKED:
                   case EN_CHANGE:
                   case CBN_SELCHANGE:
                      if (!loadingEdits) {
@@ -478,6 +489,7 @@ void ConfigureDialog::localize() {
    SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_GROUP_BOX, FWVIZ_DEF_FILE_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_LABEL, FWVIZ_DEF_FILE_DESC_LABEL);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX, FWVIZ_DEF_MCBS_CHECKBOX);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_LABEL, FWVIZ_DEF_FILE_EOL_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_ADFT_GROUP_LABEL, FWVIZ_DEF_ADFT_GROUP_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_ADFT_LINE_LABEL, FWVIZ_DEF_ADFT_LINE_LABEL);
@@ -571,8 +583,9 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const
    FileType& FT = vFileTypes[vIndex];
 
    FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", sConfigFile);
-   FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", sConfigFile);
    FT.theme = _configIO.getConfigString(fileType, L"FileTheme", L"", sConfigFile);
+   FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", sConfigFile);
+   FT.multiByte = (_configIO.getConfigString(fileType, L"MultiByteChars", L"N", sConfigFile) == L"Y");
 
    // Load ADFT data
    for (int i{}; i < ADFT_MAX; i++) {
@@ -666,6 +679,7 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
    FileType newFile;
 
    newFile.theme = L"Spectrum";
+   newFile.multiByte = FALSE;
    newFile.vRecTypes = vector<RecordType>{ getNewRec() };
 
    return newFile;
@@ -721,6 +735,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
       L"FileLabel=" + FT.label + new_line +
       L"FileTheme=" + FT.theme + new_line +
       L"RecordTerminator=" + Utils::NarrowToWide(FT.eol) + new_line +
+      L"MultiByteChars=" + (FT.multiByte ? L"Y" : L"N") + new_line +
       adft + recTypes + new_line + rtConfig;
 }
 
@@ -757,6 +772,8 @@ void ConfigureDialog::onFileTypeSelect() {
    loadingEdits = TRUE;
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
    SetWindowTextA(hFileEOL, fileInfo->eol.c_str());
+
+   CheckDlgButton(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX, fileInfo->multiByte ? BST_CHECKED : BST_UNCHECKED);
 
    for (int i{}; i <ADFT_MAX; i++) {
       wstring lineNum{ (fileInfo->lineNums[i] == 0) ? L"" : to_wstring(fileInfo->lineNums[i]) };
@@ -1188,13 +1205,15 @@ void ConfigureDialog::fileEditAccept() {
    GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileVal, MAX_PATH);
    fileInfo.label = fileVal;
 
+   GetWindowText(hFileThemes, fileVal, MAX_PATH);
+   fileInfo.theme = fileVal;
+
    char eolVal[MAX_PATH + 1];
 
    GetWindowTextA(hFileEOL, eolVal, MAX_PATH);
    fileInfo.eol = eolVal;
 
-   GetWindowText(hFileThemes, fileVal, MAX_PATH);
-   fileInfo.theme = fileVal;
+   fileInfo.multiByte = (IsDlgButtonChecked(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX) == BST_CHECKED);
 
    // ADFT Info
    wchar_t lineNum[MAX_PATH + 1];
@@ -1277,8 +1296,9 @@ void ConfigureDialog::fileEditClone() {
    FileType NF{};
 
    NF.label = FT.label + L"_clone";
-   NF.eol = FT.eol;
    NF.theme = FT.theme;
+   NF.eol = FT.eol;
+   NF.multiByte = FT.multiByte;
 
    // ADFT Info
    for (int i{}; i < ADFT_MAX; i++) {
