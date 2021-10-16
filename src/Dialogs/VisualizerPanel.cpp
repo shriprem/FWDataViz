@@ -319,7 +319,7 @@ void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex,
    int gotoPos{};
 
    if (fieldIdx < static_cast<int>(FLD.fieldStarts.size())) {
-      if (_configIO.getConfigString(fileType, L"ByteColumns", L"Y") == L"Y")
+      if (_configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y")
          gotoPos = caretRecordStartPos + FLD.fieldStarts[fieldIdx];
       else
          gotoPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
@@ -615,7 +615,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    eolMarker = _configIO.getConfigStringA(fileType, L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
 
-   bool byteCols{ _configIO.getConfigString(fileType, L"ByteColumns", L"Y") == L"Y" };
+   bool byteCols{ _configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y" };
 
    caretLine = sciFunc(sciPtr, SCI_LINEFROMPOSITION,
       sciFunc(sciPtr, SCI_GETCURRENTPOS, NULL, NULL), NULL);
@@ -867,7 +867,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
       int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 }, recLength;
 
-      if (_configIO.getConfigString(fileType, L"ByteColumns", L"Y") == L"Y") {
+      if (_configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y") {
          caretColumn = caretPos - caretRecordStartPos;
          recLength = caretEolMarkerPos - caretRecordStartPos;
       }

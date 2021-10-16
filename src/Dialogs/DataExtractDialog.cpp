@@ -624,7 +624,7 @@ void DataExtractDialog::extractData() {
    eolMarker = _configIO.getConfigStringA(fileType, L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
 
-   bool byteCols{ _configIO.getConfigString(fileType, L"ByteColumns", L"Y") == L"Y" };
+   bool byteCols{ _configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y" };
 
    const size_t endLine{ lineCount };
    for (size_t currentLine{}; currentLine < endLine; currentLine++) {

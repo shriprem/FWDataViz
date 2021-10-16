@@ -46,8 +46,9 @@ protected:
 
    struct FileType {
       wstring label{};
-      string eol{};
       wstring theme{};
+      string eol{};
+      bool multiByte{};
       vector<RecordType> vRecTypes;
       int lineNums[ADFT_MAX]{};
       string regExprs[ADFT_MAX]{};
@@ -56,7 +57,7 @@ protected:
    wstring configFile{ L"" };
    vector<FileType> vFileTypes;
    bool loadingEdits, cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
-   HWND hToolTips[7];
+   HWND hToolTips[8];
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
