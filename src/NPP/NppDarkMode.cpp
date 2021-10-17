@@ -653,7 +653,7 @@ namespace NppDarkMode
       DWORD nButtonStyle = nStyle & 0xF;
 
       int iPartID = BP_CHECKBOX;
-      if (nButtonStyle == BS_CHECKBOX || nButtonStyle == BS_AUTOCHECKBOX)
+      if (nButtonStyle == BS_CHECKBOX || nButtonStyle == BS_AUTOCHECKBOX || nButtonStyle == BS_AUTO3STATE)
       {
          iPartID = BP_CHECKBOX;
       }
@@ -669,11 +669,12 @@ namespace NppDarkMode
       // states of BP_CHECKBOX and BP_RADIOBUTTON are the same
       int iStateID = RBS_UNCHECKEDNORMAL;
 
-      if (nStyle & WS_DISABLED)     iStateID = RBS_UNCHECKEDDISABLED;
-      else if (nState & BST_PUSHED) iStateID = RBS_UNCHECKEDPRESSED;
-      else if (nState & BST_HOT)    iStateID = RBS_UNCHECKEDHOT;
+      if (nStyle & WS_DISABLED)                 iStateID = RBS_UNCHECKEDDISABLED;
+      else if (nState & BST_PUSHED)             iStateID = RBS_UNCHECKEDPRESSED;
+      else if (nState & BST_HOT)                iStateID = RBS_UNCHECKEDHOT;
 
-      if (nState & BST_CHECKED)     iStateID += 4;
+      if (nState & BST_CHECKED)                 iStateID += 4;
+      else if (nState & BST_INDETERMINATE)      iStateID += 8;
 
       if (BufferedPaintRenderAnimation(hwnd, hdc))
       {
@@ -1309,6 +1310,7 @@ namespace NppDarkMode
             {
                case BS_CHECKBOX:
                case BS_AUTOCHECKBOX:
+               case BS_AUTO3STATE:
                case BS_RADIOBUTTON:
                case BS_AUTORADIOBUTTON:
                   if (p.subclass)

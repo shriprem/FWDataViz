@@ -585,7 +585,7 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const
    FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", sConfigFile);
    FT.theme = _configIO.getConfigString(fileType, L"FileTheme", L"", sConfigFile);
    FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", sConfigFile);
-   FT.multiByte = (_configIO.getConfigString(fileType, L"MultiByteChars", L"N", sConfigFile) == L"Y");
+   FT.multiByte = _configIO.getMultiByteLexing(fileType);
 
    // Load ADFT data
    for (int i{}; i < ADFT_MAX; i++) {

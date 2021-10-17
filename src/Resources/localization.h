@@ -17,6 +17,7 @@
 #define VIZ_PANEL_CLEAR_BUTTON      L"&Clear"
 #define VIZ_PANEL_CLOSE             L"C&lose"
 #define VIZ_PANEL_AUTO_DETECT_FT    L"Auto-detect File Type"
+#define VIZ_PANEL_MCBS_OVERRIDE     L"Multi-Byte Chars"
 #define VIZ_PANEL_CARET_FRAMED      L"Framed Current Line"
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
 #define VIZ_PANEL_JUMP_FIELD_BTN    L"&Jump to Field"

@@ -385,3 +385,27 @@ int ConfigIO::getCaretFlashSeconds() {
 void ConfigIO::setCaretFlashSeconds(int seconds) {
    setConfigString(L"Preferences", L"CaretFlashSeconds", to_wstring(seconds), CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
+
+bool ConfigIO::getShowMBCharsOnPanel() {
+   return getConfigString(L"Preferences", L"ShowMBCharsOnPanel", L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]) == L"Y";
+}
+
+wstring ConfigIO::getPanelMBCharState() {
+   return getConfigString(L"Preferences", L"PanelMBCharState", L"F", CONFIG_FILE_PATHS[CONFIG_PREFS]);
+}
+
+void ConfigIO::setPanelMBCharState(UINT state) {
+   setConfigString(L"Preferences", L"PanelMBCharState",
+      (state == BST_INDETERMINATE) ? L"FT" : ((state == BST_CHECKED) ? L"Y" : L"N"),
+      CONFIG_FILE_PATHS[CONFIG_PREFS]);
+}
+
+bool ConfigIO::getMultiByteLexing(wstring fileType) {
+   wstring state{ getConfigString(L"Preferences", L"PanelMBCharState", L"FT", CONFIG_FILE_PATHS[CONFIG_PREFS]) };
+
+   if (state == L"FT")
+      return (getConfigString(fileType, L"MultiByteChars", L"N") == L"Y");
+   else
+      return (state == L"Y");
+}
+

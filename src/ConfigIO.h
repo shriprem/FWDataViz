@@ -71,6 +71,11 @@ public:
    int getCaretFlashSeconds();
    void setCaretFlashSeconds(int seconds);
 
+   bool getShowMBCharsOnPanel();
+   wstring getPanelMBCharState();
+   void setPanelMBCharState(UINT state);
+   bool getMultiByteLexing(wstring fileType);
+
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
    TCHAR pluginConfigBackupDir[MAX_PATH];

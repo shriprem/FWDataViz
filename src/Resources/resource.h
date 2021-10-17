@@ -1282,6 +1282,7 @@
 #define chx6                            0x0415
 #define chx7                            0x0416
 #define chx8                            0x0417
+#define IDC_HOTKEY1                     1047
 #define chx9                            0x0418
 #define chx10                           0x0419
 #define chx11                           0x041a
@@ -1514,6 +1515,8 @@
 #define IDI_VIZ_TOOL_BTN_DARKF_FRAMED   9050
 #define IDC_VIZPANEL_AUTO_DETECT_FT     9051
 #define IDC_VIZPANEL_INFO_BUTTON        9052
+#define IDC_VIZPANEL_MCBS_OVERRIDE      9053
+#define IDC_VIZPANEL_MCBS_OVERRIDE_IND  9054
 #define IDD_FWVIZ_DEFINER_DIALOG        9100
 #define IDC_FWVIZ_DEF_FILE_GROUP_BOX    9101
 #define IDC_FWVIZ_DEF_FILE_LIST_BOX     9102
@@ -1916,7 +1919,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        128
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1047
+#define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

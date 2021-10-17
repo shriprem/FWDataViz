@@ -58,6 +58,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                setADFTCheckbox();
                break;
 
+            case IDC_VIZPANEL_MCBS_OVERRIDE:
+               setPanelMBCharState();
+               break;
+
             case IDC_VIZPANEL_CARET_FRAMED:
                ToggleCaretFramedState();
                break;
@@ -136,6 +140,8 @@ void VisualizerPanel::initPanel() {
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_THEME_CONFIG, IDB_VIZ_COLOR_CONFIG_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_THEME_CONFIG, NULL, VIZ_PANEL_THEME_CONFIG_TIP, FALSE);
 
+   Utils::setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
+
    if (_gLanguage != LANG_ENGLISH) localize();
 }
 
@@ -146,6 +152,7 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BTN, VIZ_PANEL_CLEAR_BUTTON);
    SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, VIZ_PANEL_AUTO_DETECT_FT);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, VIZ_PANEL_MCBS_OVERRIDE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
@@ -163,6 +170,17 @@ void VisualizerPanel::display(bool toShow) {
       CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT,
          _configIO.getAutoDetectFileType() ? BST_CHECKED : BST_UNCHECKED);
       showCaretFramedState(_configIO.getCaretFramed());
+
+      int showMCBS{ _configIO.getShowMBCharsOnPanel() ? SW_SHOW : SW_HIDE };
+      ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE), showMCBS);
+      ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND), showMCBS);
+
+      wstring mcbsState{ _configIO.getPanelMBCharState() };
+      if (mcbsState == L"FT")
+         CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, BST_INDETERMINATE);
+      else
+         CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, (mcbsState == L"Y") ? BST_CHECKED : BST_UNCHECKED);
+
       visualizeFile(L"", TRUE, TRUE, TRUE);
       SetFocus(hFTList);
    }
@@ -278,6 +296,9 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool ab_cachedFT, bool aut
       }
    }
 
+   if (IsWindowVisible(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND)))
+      setPanelMBCharIndicator(fileType);
+
    if (fileType.length() < 2) {
       syncListFileTypes();
       syncListThemes();
@@ -319,7 +340,7 @@ void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex,
    int gotoPos{};
 
    if (fieldIdx < static_cast<int>(FLD.fieldStarts.size())) {
-      if (_configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y")
+      if (!_configIO.getMultiByteLexing(fileType))
          gotoPos = caretRecordStartPos + FLD.fieldStarts[fieldIdx];
       else
          gotoPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
@@ -615,7 +636,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    eolMarker = _configIO.getConfigStringA(fileType, L"RecordTerminator");
    eolMarkerLen = eolMarker.length();
 
-   bool byteCols{ _configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y" };
+   bool byteCols{ !_configIO.getMultiByteLexing(fileType) };
 
    caretLine = sciFunc(sciPtr, SCI_LINEFROMPOSITION,
       sciFunc(sciPtr, SCI_GETCURRENTPOS, NULL, NULL), NULL);
@@ -838,7 +859,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    wstring fieldInfoText{};
    int caretPos;
    size_t caretLine;
-   bool byteCols{ _configIO.getConfigString(fileType, L"MultiByteChars", L"N") != L"Y" };
+   bool byteCols{ !_configIO.getMultiByteLexing(fileType) };
 
    caretFieldIndex = -1;
    caretPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
@@ -914,7 +935,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    wchar_t byteInfo[200];
    UCHAR startChar = static_cast<UCHAR>(SendMessage(hScintilla, SCI_GETCHARAT, caretPos, 0));
 
-   if (byteCols || !(startChar & 0x80)) {
+   if (!(startChar & 0x80)) {
       swprintf(byteInfo, 200, L"0x%X [%u]", startChar, startChar);
       fieldInfoText += L"\r\n    ANSI Byte: " + wstring(byteInfo);
    }
@@ -1117,6 +1138,27 @@ void VisualizerPanel::setADFTCheckbox() {
 
    _configIO.setAutoDetectFileType(checked);
    if (checked) visualizeFile(L"", FALSE, TRUE, TRUE);
+}
+
+void VisualizerPanel::setPanelMBCharState() {
+   _configIO.setPanelMBCharState(IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE));
+   visualizeFile(L"", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
+}
+
+void VisualizerPanel::setPanelMBCharIndicator(wstring fileType) {
+   wstring indicator{};
+   UINT state{ IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE) };
+
+   if (fileType.length() < 2 || state == BST_UNCHECKED)
+      indicator = L"";
+   else if (state == BST_CHECKED)
+      indicator = L"*";
+   else if (_configIO.getConfigString(fileType, L"MultiByteChars", L"N") == L"Y")
+      indicator = L"+";
+   else
+      indicator = L"-";
+
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, indicator.c_str());
 }
 
 void VisualizerPanel::onBufferActivate() {

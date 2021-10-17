@@ -94,6 +94,8 @@ protected :
    void setDocFileType(HWND hScintilla, wstring fileType);
    void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
    void setADFTCheckbox();
+   void setPanelMBCharState();
+   void setPanelMBCharIndicator(wstring fileType);
 
    void enableThemeList(bool enable);
    void syncListFileTypes();
