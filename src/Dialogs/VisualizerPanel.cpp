@@ -650,9 +650,8 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 #endif
 
    for (auto currentLine{ startLine }; currentLine < endLine; currentLine++) {
-      if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
+      if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH)
          continue;
-      }
 
       sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
@@ -665,9 +664,8 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          recStartText = lineText;
       }
 
-      if (newRec && lineText.length() == 0) {
+      if (newRec && lineText.length() == 0)
          continue;
-      }
 
       if (eolMarkerLen == 0) {
          newRec = TRUE;
@@ -860,6 +858,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    int caretPos;
    size_t caretLine;
    bool byteCols{ !_configIO.getMultiByteLexing(fileType) };
+   wstring newLine{ L"\r\n" };
 
    caretFieldIndex = -1;
    caretPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
@@ -873,17 +872,17 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    if (caretRecordRegIndex < 0) {
       if (SendMessage(hScintilla, SCI_POSITIONFROMLINE, caretLine, NULL) ==
          SendMessage(hScintilla, SCI_GETLINEENDPOSITION, caretLine, NULL)) {
-         fieldInfoText = L"<Blank Line>";
+         fieldInfoText = CUR_POS_DATA_BLANK_LINE;
       }
       else {
-         fieldInfoText = L"<Unknown Record Type>";
+         fieldInfoText = CUR_POS_DATA_UNKOWN_REC;
       }
    }
    else if (caretPos == caretRecordEndPos) {
-      fieldInfoText = L"<Record End>";
+      fieldInfoText = CUR_POS_DATA_REC_END;
    }
    else if (caretPos >= caretEolMarkerPos) {
-      fieldInfoText = L"<Record Terminator>";
+      fieldInfoText = CUR_POS_DATA_REC_TERM;
    }
    else {
       RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
@@ -898,7 +897,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          recLength = static_cast<int>(SendMessage(hScintilla, SCI_GETCOLUMN, caretEolMarkerPos, NULL));
       }
 
-      fieldInfoText = L"  Record Type: " + FLD.label;
+      fieldInfoText = CUR_POS_DATA_REC_TYPE + FLD.label;
       fieldCount = static_cast<int>(FLD.fieldStarts.size());
       fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
 
@@ -909,26 +908,24 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          }
       }
 
-      fieldInfoText += L"\r\nRecord Length: " +
-         to_wstring(recLength) + L"/" + to_wstring(cumulativeWidth) + L" [Current/Defined]";
+      fieldInfoText += newLine + CUR_POS_DATA_REC_LENGTH +
+         to_wstring(recLength) + L"/" + to_wstring(cumulativeWidth) + CUR_POS_DATA_CURR_DEFINED;
 
       if (matchedField < 0) {
-         fieldInfoText += L"\r\n    Overflow!";
+         fieldInfoText += newLine + CUR_POS_DATA_OVERFLOW;
       }
       else {
          caretFieldIndex = matchedField;
-         fieldInfoText += L"\r\n  Field Label: ";
+         fieldInfoText += newLine + CUR_POS_DATA_FIELD_LABEL;
 
-         if (fieldLabelCount == 0 || matchedField >= fieldLabelCount) {
-            fieldInfoText += L"Field #" + to_wstring(matchedField + 1);
-         }
-         else {
+         if (fieldLabelCount == 0 || matchedField >= fieldLabelCount)
+            fieldInfoText += CUR_POS_DATA_FIELD_NUM + to_wstring(matchedField + 1);
+         else
             fieldInfoText += FLD.fieldLabels[matchedField];
-         }
 
-         fieldInfoText += L"\r\n  Field Start: " + to_wstring(FLD.fieldStarts[matchedField] + 1);
-         fieldInfoText += L"\r\n  Field Width: " + to_wstring(FLD.fieldWidths[matchedField]);
-         fieldInfoText += L"\r\n Field Column: " + to_wstring(caretColumn - FLD.fieldStarts[matchedField] + 1);
+         fieldInfoText += newLine + CUR_POS_DATA_FIELD_START + to_wstring(FLD.fieldStarts[matchedField] + 1);
+         fieldInfoText += newLine + CUR_POS_DATA_FIELD_WIDTH + to_wstring(FLD.fieldWidths[matchedField]);
+         fieldInfoText += newLine + CUR_POS_DATA_FIELD_COL + to_wstring(caretColumn - FLD.fieldStarts[matchedField] + 1);
       }
    }
 
@@ -937,11 +934,11 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 
    if (!(startChar & 0x80)) {
       swprintf(byteInfo, 200, L"0x%X [%u]", startChar, startChar);
-      fieldInfoText += L"\r\n    ANSI Byte: " + wstring(byteInfo);
+      fieldInfoText += newLine + CUR_POS_DATA_ANSI_BYTE + wstring(byteInfo);
    }
    else {
       swprintf(byteInfo, 200, L"%X", startChar);
-      fieldInfoText += L"\r\n  UTF-8 Bytes: " + wstring(byteInfo);
+      fieldInfoText += newLine + CUR_POS_DATA_UTF8_BYTES + wstring(byteInfo);
 
       int unicodeHead{ 0 }, unicodeTail{ 0 };
       UCHAR nextChar{};
@@ -971,7 +968,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          }
       }
 
-      swprintf(byteInfo, 200, L"   (U+%X)", (unicodeHead + unicodeTail));
+      swprintf(byteInfo, 200, L"  (U+%X)", (unicodeHead + unicodeTail));
       fieldInfoText += wstring(byteInfo);
    }
 
@@ -1006,7 +1003,7 @@ void VisualizerPanel::showJumpDialog() {
 
    for (int i{}; i < fieldCount; i++) {
       if (fieldLabelCount == 0 || i >= fieldLabelCount) {
-         fieldLabels[i] = L"Field #" + to_wstring(i + 1);
+         fieldLabels[i] = CUR_POS_DATA_FIELD_NUM + to_wstring(i + 1);
       }
       else {
          fieldLabels[i] = FLD.fieldLabels[i];

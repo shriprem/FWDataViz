@@ -31,6 +31,22 @@
 #define VIZ_PANEL_JUMP_CHANGED_REC  L"Caret has moved to a different Record Type.\r\n\r\nUnable to jump to the specified field."
 #define VIZ_PANEL_DARKMODE_CHANGED  L"Please restart Notepad++ to refresh the FWDataViz plugin panel and dialogs with the changed Darkmode settings."
 
+#define CUR_POS_DATA_BLANK_LINE     L"<Blank Line>"
+#define CUR_POS_DATA_UNKOWN_REC     L"<Unknown Record Type>"
+#define CUR_POS_DATA_REC_END        L"<Record End>"
+#define CUR_POS_DATA_REC_TERM       L"<Record Terminator>"
+#define CUR_POS_DATA_REC_TYPE       L"  Record Type: "
+#define CUR_POS_DATA_REC_LENGTH     L"Record Length: "
+#define CUR_POS_DATA_CURR_DEFINED   L" [Current/Defined]"
+#define CUR_POS_DATA_OVERFLOW       L"    Overflow!"
+#define CUR_POS_DATA_FIELD_LABEL    L"  Field Label: "
+#define CUR_POS_DATA_FIELD_NUM      L"Field #"
+#define CUR_POS_DATA_FIELD_START    L"  Field Start: "
+#define CUR_POS_DATA_FIELD_WIDTH    L"  Field Width: "
+#define CUR_POS_DATA_FIELD_COL      L" Field Column: "
+#define CUR_POS_DATA_ANSI_BYTE      L"    ANSI Byte: "
+#define CUR_POS_DATA_UTF8_BYTES     L"  UTF-8 Bytes: "
+
 
 // About Dialog
 #define ABOUT_DIALOG_TITLE          L"About"
@@ -102,6 +118,7 @@
 #define FWVIZ_DEF_RECTHEME_HINT_HDR L"Record-type Theme"
 #define FWVIZ_DEF_RECTHEME_HINT_TXT L"Specify a different color theme than the file-type theme for select-few record types to make them distinctive.\r\n\r\nFor an example, see: 'Transaction Headers' inside the Samples » Treasury IPAC file.\r\n\r\nClick the (i) icon to view the online documentation."
 
+
 // Theme Dialog
 #define THEME_DIALOG_TITLE          L"Visualizer Theme Editor"
 #define THEME_DEF_GROUP_BOX         L"Themes"
@@ -149,6 +166,7 @@
 #define THEME_OPEN_BKUP_CONFIG_DLG  L"Open Backup Themes File"
 #define THEME_SAVE_BKUP_CONFIG_DLG  L"Save Backup Themes File"
 
+
 // Exim File Type Dialog
 #define FT_EXIM_EXTRACT_FT_TITLE    L"Extract File Type Metadata"
 #define FT_EXIM_APPEND_FT_TITLE     L"Append File Type Metadata"
@@ -160,6 +178,7 @@
 #define FT_EXIM_SAVE_FILE_BTN       L"&Save to a File"
 #define FT_EXIM_APPEND_BTN          L"&Append File Type"
 #define FT_EXIM_CLOSE_BTN           L"&Close"
+
 
 // Jump Field Dialog
 #define JUMP_FIELD_DIALOG_TITLE     L"Jump to Field"
