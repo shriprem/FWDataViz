@@ -15,8 +15,8 @@ It should be noted that the [Scintilla](https://www.scintilla.org/index.html) co
 Some users may see the need to quickly toggle between byte-based and character-based modes without having to configure the setting in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md). There is such an override option control for quickly toggling the multi-byte character mode on the plugin panel. But this control is hidden by default for a reason explained later [below](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md#three-state-multi-byte-chars-checkbox-control).
 
 #### Uncovering the hidden option
-To make the **Multi-Byte Chars** option visible on the plugin panel, manually edit the `PLUGINS_CONFIG_DIR/FWDataViz/Preferences.ini` file to add the following line under the `[Preferences]` section:
-```
+To make the **Multi-Byte Chars** option visible on the plugin panel, manually edit the `<NPP_PLUGINS_CONFIG_DIR>/FWDataViz/Preferences.ini` file to add the following line under the `[Preferences]` section:
+```ini
 ShowMBCharsOnPanel=Y
 ```
 
