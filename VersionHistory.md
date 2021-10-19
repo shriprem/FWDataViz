@@ -1,5 +1,26 @@
 # Version History
 
+### Version 2.2.0.0
+#### Enhancements
+1. Visualize files with [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md).
+
+2. Use character column counts for *Field Column* values in [Cursor Position Data](https://github.com/shriprem/FWDataViz/blob/master/README.md#fixed-width-data-visualizer-panel) while in [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) mode.
+
+3. Display UTF-8 Bytes and Unicode value  for multi-byte characters in [Cursor Position Data](https://github.com/shriprem/FWDataViz/blob/master/README.md#fixed-width-data-visualizer-panel) on the plugin panel (*regardless* of whether the multi-byte character mode is switched on or not).
+
+4. Use character column counts in [Jump To Field](https://github.com/shriprem/FWDataViz/blob/master/README.md#jump-to-field-popup) while in [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) mode.
+
+5. Use character column counts in [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) while in [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) mode.
+
+6. A [hidden option](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md#quick-override-from-panel) on the plugin panel to quickly override the File Type [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) mode.
+
+#### Fixed
+1. Record overshoots occurred with [Jump To Field](https://github.com/shriprem/FWDataViz/blob/master/README.md#jump-to-field-popup) and [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) when record terminated earlier than at their defined lengths.
+
+**Release:** [2.2.0.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.2.0.0)
+
+---
+
 ### Version 2.1.2.1
 1. **Enhancement:** Cursor will be briefly set to block mode to highlight its position in text when using [Jump to Field](https://github.com/shriprem/FWDataViz#jump-to-field-popup).
 
