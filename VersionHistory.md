@@ -15,7 +15,7 @@
 6. A [hidden option](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md#quick-override-from-panel) on the plugin panel to quickly override the File Type [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) mode.
 
 #### Fixed
-1. Record overshoots occurred with [Jump To Field](https://github.com/shriprem/FWDataViz/blob/master/README.md#jump-to-field-popup) and [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) when record terminated earlier than at their defined lengths.
+1. Record overshoots occurred with [Jump To Field](https://github.com/shriprem/FWDataViz/blob/master/README.md#jump-to-field-popup) and [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) when record terminated earlier than at their full defined lengths.
 
 **Release:** [2.2.0.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.2.0.0)
 

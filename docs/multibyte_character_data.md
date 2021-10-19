@@ -10,14 +10,15 @@ It should be noted that the [Scintilla](https://www.scintilla.org/index.html) co
 
 #### Quick Override from panel
 
-Some users may see the need to quickly toggle between byte-based and character-based modes without having to configure the setting in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md). There is such an override option control, for quickly toggling the multi-byte character mode on the plugin panel. But this control is hidden by default for a reason explained later below.
+![Multi-byte_Chars_Panel_Override](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multibyte_chars_panel_override.png)
+
+Some users may see the need to quickly toggle between byte-based and character-based modes without having to configure the setting in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md). There is such an override option control for quickly toggling the multi-byte character mode on the plugin panel. But this control is hidden by default for a reason explained later below.
 
 To make the **Multi-Byte Chars** option visible on the plugin panel, manually edit the `PLUGINS_CONFIG_DIR/FWDataViz/Preferences.ini` file to add the following line:
+
 ``
 ShowMBCharsOnPanel=Y
 ``
-
-![Multi-byte_Chars_Panel_Override](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multibyte_chars_panel_override.png)
 
 The *Multi-Byte Chars* checkbox on the plugin panel is a three-state control. Its operation may not be immediately intuitive to many users of this plugin. That is why it is hidden by default. Users willing to take the extra effort to uncover this option can be reasonably expected to have read this document.
 
@@ -26,10 +27,10 @@ The *Multi-Byte Chars* checkbox on the plugin panel is a three-state control. It
 
 * UNCHECKED (OVERRIDE): When unchecked, the multi-byte character mode for the plugin is disabled for all file types.
 
-* MIXED (PASSTHRU'): In the indeterminate state, the multi-byte character mode activation for the plugin will be based on the setting in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md).
+* MIXED (PASSTHRU'): In the indeterminate state, the multi-byte character mode activation for the plugin will be based on the setting for the document file type in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md).
 
 ##### Multi-byte Character Mode Active Indicator
-This is a single character that is selectively displayed to the left of the *Multi-Byte Chars* control.
+The indicator is a single character that is selectively displayed to the left of the *Multi-Byte Chars* control.
 
 | Indicator | Checkbox State(s) | Remarks |
 |---|---|---|

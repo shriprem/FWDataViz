@@ -63,4 +63,4 @@ _[This output data was derived by running the template pictured above on the_ Tr
 
 ![Sample_Data_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/data_extract_output.png)
 
-See also: [Data Extract Dialog - Keyboard Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md)
+See also: [Data Extract Dialog - Keyboard Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md) | [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md)
