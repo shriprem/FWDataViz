@@ -77,7 +77,7 @@ __Weather Stations List with location wiki and Daily Weather data__ _(A contrive
 ![Multi_Line](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_line_record_file.png)
 
 ## Installation
-1. Install Notepad++ version 7.9.3 or higher.
+1. Install Notepad++ version 8.0 or higher.
 2. Open Notepad++.
 3. In Notepad++, go to menu **Plugins** » **Plugins Admin...**.
 4. In the **Available** tab, check the box for **Fixed-width Data Visualizer**.
@@ -86,4 +86,5 @@ __Weather Stations List with location wiki and Daily Weather data__ _(A contrive
 ## Attributions
 * Most of the icons used in this plugin are the originals or derivatives of the [*Fugue Icons*](https://p.yusukekamiyamane.com) designed by **Yusuke Kamiyamane**.
 
+* All screen clippings in this repository were made using [FastStone Capture](https://www.faststone.org/FSCaptureDetail.htm). Small-size application with awesome features!
 * The core visualizer algorithm of this plugin was first [protyped](https://github.com/shriprem/FWDataViz/blob/master/docs/Visualizer_prototype.py) in Python using **David Brotherstone's** *Python Script* plugin for Notepad++.
