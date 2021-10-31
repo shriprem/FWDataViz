@@ -121,8 +121,8 @@ protected :
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();
    void resizeCaretFieldInfo(int width);
-   int getFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, int pullback);
-   void moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilight);
+   int getFieldEdges(const wstring fileType, const int fieldIdx, const int rightPullback, int& leftPos, int& rightPos);
+   void moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilite);
    void popupSamplesMenu();
 
    static DWORD WINAPI threadPositionHighlighter(void*);

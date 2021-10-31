@@ -72,6 +72,14 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                showJumpDialog();
                break;
 
+            case IDC_VIZPANEL_FIELD_LEFT_BUTTON:
+               fieldLeft();
+               break;
+
+            case IDC_VIZPANEL_FIELD_RIGHT_BUTTON:
+               fieldRight();
+               break;
+
             case IDC_VIZPANEL_FIELD_COPY_BUTTON:
                fieldCopy();
                break;
@@ -80,12 +88,18 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                fieldPaste();
                break;
 
-            case IDC_VIZPANEL_FIELD_LEFT_BUTTON:
-               fieldLeft();
+            case IDC_VIZPANEL_PASTE_LEFT_LABEL:
+            case IDC_VIZPANEL_PASTE_RPAD_LABEL:
+            case IDC_VIZPANEL_PASTE_RPAD_FIELD:
+               ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), SW_SHOW);
+               ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), SW_HIDE);
                break;
 
-            case IDC_VIZPANEL_FIELD_RIGHT_BUTTON:
-               fieldRight();
+            case IDC_VIZPANEL_PASTE_RIGHT_LABEL:
+            case IDC_VIZPANEL_PASTE_LPAD_LABEL:
+            case IDC_VIZPANEL_PASTE_LPAD_FIELD:
+               ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), SW_HIDE);
+               ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), SW_SHOW);
                break;
 
             case IDC_VIZPANEL_EXTRACT_DATA_BTN:
@@ -119,9 +133,29 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
       case WM_CTLCOLORDLG:
       case WM_CTLCOLORLISTBOX:
-      case WM_CTLCOLORSTATIC:
          if (NppDarkMode::isEnabled()) {
             return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      case WM_CTLCOLORSTATIC:
+         switch (GetDlgCtrlID((HWND)lParam)) {
+            case IDC_VIZPANEL_PASTE_RPAD_INDIC:
+            case IDC_VIZPANEL_PASTE_LPAD_INDIC:
+               if (NppDarkMode::isEnabled()) {
+                  return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+               }
+               else {
+                  SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
+                  SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
+                  return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
+               }
+               break;
+
+            default:
+               if (NppDarkMode::isEnabled()) {
+                  return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+               }
          }
          break;
 
@@ -161,6 +195,14 @@ void VisualizerPanel::initPanel() {
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON, NULL, VIZ_PANEL_FIELD_LEFT_TIP, FALSE);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON, NULL, VIZ_PANEL_FIELD_RIGHT_TIP, FALSE);
 
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LEFT_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FALSE);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RPAD_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FALSE);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FALSE);
+
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RIGHT_LABEL, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FALSE);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FALSE);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FALSE);
+
    Utils::setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
 
    if (_gLanguage != LANG_ENGLISH) localize();
@@ -180,6 +222,10 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN, VIZ_PANEL_EXTRACT_DATA_BTN);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON, VIZ_PANEL_FIELD_COPY_BTN);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON, VIZ_PANEL_FIELD_PASTE_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_PASTE_LEFT_LABEL, VIZ_PANEL_PASTE_LEFT_LABEL);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_PASTE_RIGHT_LABEL, VIZ_PANEL_PASTE_RIGHT_LABEL);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_PASTE_RPAD_LABEL, VIZ_PANEL_PASTE_RPAD_LABEL);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL, VIZ_PANEL_PASTE_LPAD_LABEL);
 }
 
 void VisualizerPanel::display(bool toShow) {
@@ -394,14 +440,8 @@ void VisualizerPanel::fieldCopy() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   int leftPos{ getFieldEdge(L"", caretFieldIndex, FALSE, 0)};
-   if (leftPos < 0) return;
-
-   int rightPos{ getFieldEdge(L"", caretFieldIndex, TRUE, 0)};
-   if (rightPos < 0) return;
-
-   if (rightPos > caretEolMarkerPos)
-      rightPos = caretEolMarkerPos;
+   int leftPos{}, rightPos{};
+   if (getFieldEdges(L"", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
 
    if (leftPos < rightPos)
       SendMessage(hScintilla, SCI_COPYRANGE, leftPos, rightPos);
@@ -409,7 +449,15 @@ void VisualizerPanel::fieldCopy() {
 
 void VisualizerPanel::fieldPaste() {
    if (caretFieldIndex < 0) return;
-   MessageBox(_hSelf, L"The Field Paste feature will be implemented shortly!", L"Field Paste", MB_OK);
+
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   int leftPos{}, rightPos{};
+   if (getFieldEdges(L"", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
+
+   if (leftPos < rightPos)
+      MessageBox(_hSelf, L"The Field Paste feature will be implemented shortly!", L"Field Paste", MB_OK);
 }
 
 void VisualizerPanel::fieldLeft() {
@@ -903,7 +951,8 @@ void VisualizerPanel::resizeCaretFieldInfo(int width) {
    MoveWindow(hFieldInfo, pt.x, pt.y, (width - pt.x - 3), (rcInfo.bottom - rcInfo.top), TRUE);
 }
 
-int VisualizerPanel::getFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, int pullback) {
+int VisualizerPanel::getFieldEdges(const wstring fileType, const int fieldIdx, const int rightPullback,
+   int& leftPos, int& rightPos) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
@@ -920,32 +969,41 @@ int VisualizerPanel::getFieldEdge(const wstring fileType, const int fieldIdx, bo
 
    if (fieldIdx >= static_cast<int>(FLD.fieldStarts.size())) return -1;
 
-   int offset{ FLD.fieldStarts[fieldIdx] };
-   offset += rightEdge ? (FLD.fieldWidths[fieldIdx] - pullback) : 0;
+   int leftOffset{ FLD.fieldStarts[fieldIdx] };
+   int rightOffset{ leftOffset + FLD.fieldWidths[fieldIdx] - rightPullback };
 
-   if (!_configIO.getMultiByteLexing(currFileType))
-      return caretRecordStartPos + offset;
-   else
-      return static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
-         (WPARAM)caretRecordStartPos, (LPARAM)offset));
+   if (!_configIO.getMultiByteLexing(currFileType)) {
+      leftPos = caretRecordStartPos + leftOffset;
+      rightPos = caretRecordStartPos + rightOffset;
+   }
+   else {
+      leftPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
+         (WPARAM)caretRecordStartPos, (LPARAM)leftOffset));
+      rightPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
+         (WPARAM)caretRecordStartPos, (LPARAM)rightOffset));
+   }
+
+   if (leftPos > caretEolMarkerPos)
+      leftPos = caretEolMarkerPos;
+
+   if (rightPos > caretEolMarkerPos)
+      rightPos = caretEolMarkerPos;
+
+   return 0;
 }
 
-void VisualizerPanel::moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilight) {
+void VisualizerPanel::moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilite) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   int gotoPos{ getFieldEdge(fileType, fieldIdx, rightEdge, 1) };
-
-   if (gotoPos < 0)
-      gotoPos = caretRecordStartPos;
-   else if (gotoPos > caretEolMarkerPos)
-      gotoPos = caretEolMarkerPos;
+   int leftPos{}, rightPos{};
+   if (getFieldEdges(fileType, fieldIdx, 1, leftPos, rightPos) < 0) return;
 
    SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
-   SendMessage(hScintilla, SCI_GOTOPOS, gotoPos, 0);
+   SendMessage(hScintilla, SCI_GOTOPOS, (rightEdge ? rightPos : leftPos), 0);
 
    // Flash caret
-   if (hilight) {
+   if (hilite) {
       HANDLE hThread = CreateThread(NULL, 0, threadPositionHighlighter, 0, 0, NULL);
       if (hThread > 0) CloseHandle(hThread);
    }
