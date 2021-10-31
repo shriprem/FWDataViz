@@ -44,11 +44,19 @@ const enum MenuIndex {
    MI_FWVIZ_PANEL,
    MI_CARET_FRAMED,
    MI_CONFIG_DIALOG,
+   MI_CONFIG_THEMES,
    MI_SEPARATOR_1,
+   MI_FIELD_JUMP,
+   MI_FIELD_COPY,
+   MI_FIELD_PASTE,
+   MI_FIELD_LEFT,
+   MI_FIELD_RIGHT,
+   MI_DATA_EXTRACTION,
+   MI_SEPARATOR_2,
    MI_DEMO_SINGLE_REC_FILES,
    MI_DEMO_MULTI_REC_FILES,
    MI_DEMO_MULTI_LINE_FILES,
-   MI_SEPARATOR_2,
+   MI_SEPARATOR_3,
    MI_ABOUT_DIALOG,
    MI_COUNT
 };
@@ -74,4 +82,12 @@ void DisplayCaretFrame();
 void ToggleCaretFramedState();
 void ShowConfigDialog();
 void ShowThemeDialog();
+
+void ShowJumpDialog();
+void FieldCopy();
+void FieldPaste();
+void FieldLeft();
+void FieldRight();
+void ShowDataExtractDialog();
+
 void ShowAboutDialog();

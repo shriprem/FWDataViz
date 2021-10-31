@@ -58,12 +58,20 @@ void commandMenuInit() {
 
    setCommand(MI_FWVIZ_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
    setCommand(MI_CARET_FRAMED, MENU_CARET_FRAMED, ToggleCaretFramedState, NULL, _configIO.getCaretFramed());
-   setCommand(MI_CONFIG_DIALOG, MENU_CONFIG, ShowConfigDialog);
+   setCommand(MI_CONFIG_DIALOG, MENU_CONFIG_FILE_TYPES, ShowConfigDialog);
+   setCommand(MI_CONFIG_THEMES, MENU_CONFIG_THEMES, ShowThemeDialog);
    setCommand(MI_SEPARATOR_1, L"-", NULL);
+   setCommand(MI_FIELD_JUMP, MENU_FIELD_JUMP, ShowJumpDialog);
+   setCommand(MI_FIELD_COPY, MENU_FIELD_COPY, FieldCopy);
+   setCommand(MI_FIELD_PASTE, MENU_FIELD_PASTE, FieldPaste);
+   setCommand(MI_FIELD_LEFT, MENU_FIELD_LEFT, FieldLeft);
+   setCommand(MI_FIELD_RIGHT, MENU_FIELD_RIGHT, FieldRight);
+   setCommand(MI_DATA_EXTRACTION, MENU_DATA_EXTRACTION, ShowDataExtractDialog);
+   setCommand(MI_SEPARATOR_2, L"-", NULL);
    setCommand(MI_DEMO_SINGLE_REC_FILES, MENU_DEMO_SINGLE_REC_FILES, NULL);
    setCommand(MI_DEMO_MULTI_REC_FILES, MENU_DEMO_MULTI_REC_FILES, NULL);
    setCommand(MI_DEMO_MULTI_LINE_FILES, MENU_DEMO_MULTI_LINE_FILES, NULL);
-   setCommand(MI_SEPARATOR_2, L"-", NULL);
+   setCommand(MI_SEPARATOR_3, L"-", NULL);
    setCommand(MI_ABOUT_DIALOG, MENU_ABOUT, ShowAboutDialog);
 }
 
@@ -161,6 +169,30 @@ void ShowConfigDialog() {
 
 void ShowThemeDialog() {
    _themeDlg.doDialog((HINSTANCE)_gModule);
+}
+
+void ShowJumpDialog() {
+   _vizPanel.showJumpDialog();
+}
+
+void FieldCopy() {
+   _vizPanel.fieldCopy();
+}
+
+void FieldPaste() {
+   _vizPanel.fieldPaste();
+}
+
+void FieldLeft() {
+   _vizPanel.fieldLeft();
+}
+
+void FieldRight() {
+   _vizPanel.fieldRight();
+}
+
+void ShowDataExtractDialog() {
+   _vizPanel.showExtractDialog();
 }
 
 void ShowAboutDialog() {

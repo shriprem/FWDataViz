@@ -54,7 +54,14 @@ public :
    void onBufferActivate();
    void renderCurrentPage();
    void visualizeFile(wstring fileType, bool ab_cachedFT, bool autoFT, bool syncFT);
+
+   void showJumpDialog();
    void jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx);
+   void fieldCopy();
+   void fieldPaste();
+   void fieldLeft();
+   void fieldRight();
+   void showExtractDialog();
 
 #if FW_DEBUG_LEXER_COUNT
    int lexCount{};
@@ -100,6 +107,7 @@ protected :
    void enableThemeList(bool enable);
    void syncListFileTypes();
    void syncListThemes();
+   void enableFieldControls(bool enable);
 
    void clearVisualize(bool sync=TRUE);
    int loadTheme(const wstring theme);
@@ -113,8 +121,8 @@ protected :
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();
    void resizeCaretFieldInfo(int width);
-   void showJumpDialog();
-   void showExtractDialog();
+   int getFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, int pullback);
+   void moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilight);
    void popupSamplesMenu();
 
    static DWORD WINAPI threadPositionHighlighter(void*);

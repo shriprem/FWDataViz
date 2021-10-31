@@ -17,8 +17,8 @@
 
 #include <windows.h>
 
-#define VERSION_VALUE "2.2.0.0\0"
-#define VERSION_DIGITALVALUE 2, 2, 0, 0
+#define VERSION_VALUE "2.3.0.0\0"
+#define VERSION_DIGITALVALUE 2, 3, 0, 0
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION VERSION_DIGITALVALUE
@@ -41,7 +41,7 @@ BEGIN
          VALUE "FileDescription",   "Fixed Width Data Visualizer plugin for Notepad++\0"
          VALUE "FileVersion", VERSION_VALUE
          VALUE "InternalName",   "FWDataViz.dll\0"
-         VALUE "LegalCopyright", "(c) 2021 by Shridhar Kumar\0"
+         VALUE "LegalCopyright", "(c) 2022 by Shridhar Kumar\0"
          VALUE "OriginalFilename",  "FWDataViz.dll\0"
          VALUE "ProductName", "Fixed Width Data Visualizer\0"
          VALUE "ProductVersion", VERSION_VALUE

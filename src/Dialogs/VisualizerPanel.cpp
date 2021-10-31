@@ -5,6 +5,8 @@
 
 extern HINSTANCE _gModule;
 extern SubmenuManager _submenu;
+extern FuncItem pluginMenuItems[MI_COUNT];
+
 JumpToField _jumpDlg;
 DataExtractDialog _dataExtractDlg;
 
@@ -68,6 +70,22 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_VIZPANEL_JUMP_FIELD_BTN:
                showJumpDialog();
+               break;
+
+            case IDC_VIZPANEL_FIELD_COPY_BUTTON:
+               fieldCopy();
+               break;
+
+            case IDC_VIZPANEL_FIELD_PASTE_BUTTON:
+               fieldPaste();
+               break;
+
+            case IDC_VIZPANEL_FIELD_LEFT_BUTTON:
+               fieldLeft();
+               break;
+
+            case IDC_VIZPANEL_FIELD_RIGHT_BUTTON:
+               fieldRight();
                break;
 
             case IDC_VIZPANEL_EXTRACT_DATA_BTN:
@@ -140,6 +158,9 @@ void VisualizerPanel::initPanel() {
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_THEME_CONFIG, IDB_VIZ_COLOR_CONFIG_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_THEME_CONFIG, NULL, VIZ_PANEL_THEME_CONFIG_TIP, FALSE);
 
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON, NULL, VIZ_PANEL_FIELD_LEFT_TIP, FALSE);
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON, NULL, VIZ_PANEL_FIELD_RIGHT_TIP, FALSE);
+
    Utils::setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
 
    if (_gLanguage != LANG_ENGLISH) localize();
@@ -157,6 +178,8 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN, VIZ_PANEL_EXTRACT_DATA_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON, VIZ_PANEL_FIELD_COPY_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON, VIZ_PANEL_FIELD_PASTE_BTN);
 }
 
 void VisualizerPanel::display(bool toShow) {
@@ -270,6 +293,33 @@ void VisualizerPanel::syncListThemes() {
       SendMessage(hThemesLB, CB_FINDSTRING, (WPARAM)-1, (LPARAM)theme.c_str()), NULL);
 }
 
+void VisualizerPanel::enableFieldControls(bool enable) {
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), enable);
+   EnableWindow(hFieldInfo, enable);
+
+   bool recEnabled{ enable && (caretRecordRegIndex >= 0) };
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN), recEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN), recEnabled);
+
+   bool fieldEnabled{ recEnabled && (caretFieldIndex >= 0) };
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON), fieldEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON), fieldEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON), fieldEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON), fieldEnabled);
+
+   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
+
+   UINT recMenu{ static_cast<UINT>(MF_BYCOMMAND | (recEnabled ? MF_ENABLED : MF_DISABLED)) };
+   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_JUMP]._cmdID, recMenu);
+   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_DATA_EXTRACTION]._cmdID, recMenu);
+
+   UINT fieldMenu{ static_cast<UINT>(MF_BYCOMMAND | (fieldEnabled ? MF_ENABLED : MF_DISABLED)) };
+   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_COPY]._cmdID, fieldMenu);
+   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_PASTE]._cmdID, fieldMenu);
+   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_LEFT]._cmdID, fieldMenu);
+   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_RIGHT]._cmdID, fieldMenu);
+}
+
 void VisualizerPanel::enableThemeList(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
@@ -335,30 +385,41 @@ void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex,
       return;
    }
 
-   RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
+   moveToFieldEdge(fileType, fieldIdx, FALSE, TRUE);
+}
 
-   int gotoPos{};
+void VisualizerPanel::fieldCopy() {
+   if (caretFieldIndex < 0) return;
 
-   if (fieldIdx < static_cast<int>(FLD.fieldStarts.size())) {
-      if (!_configIO.getMultiByteLexing(fileType))
-         gotoPos = caretRecordStartPos + FLD.fieldStarts[fieldIdx];
-      else
-         gotoPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
-            (WPARAM)caretRecordStartPos, (LPARAM)FLD.fieldStarts[fieldIdx]));
-   }
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
 
-   if (gotoPos > caretEolMarkerPos || gotoPos == 0)
-      gotoPos = caretEolMarkerPos;
+   int leftPos{ getFieldEdge(L"", caretFieldIndex, FALSE, 0)};
+   if (leftPos < 0) return;
 
-   SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
-   SendMessage(hScintilla, SCI_GOTOPOS, gotoPos, 0);
+   int rightPos{ getFieldEdge(L"", caretFieldIndex, TRUE, 0)};
+   if (rightPos < 0) return;
 
-   // Flash caret
-   HANDLE hThread = CreateThread(NULL, 0, threadPositionHighlighter, 0, 0, NULL);
-   if (hThread > 0)
-      CloseHandle(hThread);
+   if (rightPos > caretEolMarkerPos)
+      rightPos = caretEolMarkerPos;
 
-   setFocusOnEditor();
+   if (leftPos < rightPos)
+      SendMessage(hScintilla, SCI_COPYRANGE, leftPos, rightPos);
+}
+
+void VisualizerPanel::fieldPaste() {
+   if (caretFieldIndex < 0) return;
+   MessageBox(_hSelf, L"The Field Paste feature will be implemented shortly!", L"Field Paste", MB_OK);
+}
+
+void VisualizerPanel::fieldLeft() {
+   if (caretFieldIndex >= 0)
+      moveToFieldEdge(L"", caretFieldIndex, FALSE, FALSE);
+}
+
+void VisualizerPanel::fieldRight() {
+   if (caretFieldIndex >= 0)
+      moveToFieldEdge(L"", caretFieldIndex, TRUE, FALSE);
 }
 
 void VisualizerPanel::visualizeTheme() {
@@ -827,11 +888,7 @@ void VisualizerPanel::renderCurrentPage() {
 }
 
 void VisualizerPanel::clearCaretFieldInfo() {
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_HIDE);
-   ShowWindow(hFieldInfo, SW_HIDE);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN), SW_HIDE);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN), SW_HIDE);
-
+   enableFieldControls(FALSE);
    SetWindowText(hFieldInfo, L"");
 }
 
@@ -844,6 +901,56 @@ void VisualizerPanel::resizeCaretFieldInfo(int width) {
    ScreenToClient(_hSelf, &pt);
 
    MoveWindow(hFieldInfo, pt.x, pt.y, (width - pt.x - 3), (rcInfo.bottom - rcInfo.top), TRUE);
+}
+
+int VisualizerPanel::getFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, int pullback) {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return -1;
+
+   wstring currFileType{};
+
+   if (fileType == L"") {
+      if (!getDocFileType(hScintilla, currFileType)) return -1;
+   }
+   else {
+      currFileType = fileType;
+   }
+
+   RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
+
+   if (fieldIdx >= static_cast<int>(FLD.fieldStarts.size())) return -1;
+
+   int offset{ FLD.fieldStarts[fieldIdx] };
+   offset += rightEdge ? (FLD.fieldWidths[fieldIdx] - pullback) : 0;
+
+   if (!_configIO.getMultiByteLexing(currFileType))
+      return caretRecordStartPos + offset;
+   else
+      return static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
+         (WPARAM)caretRecordStartPos, (LPARAM)offset));
+}
+
+void VisualizerPanel::moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilight) {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   int gotoPos{ getFieldEdge(fileType, fieldIdx, rightEdge, 1) };
+
+   if (gotoPos < 0)
+      gotoPos = caretRecordStartPos;
+   else if (gotoPos > caretEolMarkerPos)
+      gotoPos = caretEolMarkerPos;
+
+   SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
+   SendMessage(hScintilla, SCI_GOTOPOS, gotoPos, 0);
+
+   // Flash caret
+   if (hilight) {
+      HANDLE hThread = CreateThread(NULL, 0, threadPositionHighlighter, 0, 0, NULL);
+      if (hThread > 0) CloseHandle(hThread);
+   }
+
+   setFocusOnEditor();
 }
 
 void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
@@ -977,13 +1084,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 #endif
 
    SetWindowText(hFieldInfo, fieldInfoText.c_str());
-
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), SW_SHOW);
-   ShowWindow(hFieldInfo, SW_SHOW);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN),
-      caretRecordRegIndex < 0 ? SW_HIDE : SW_SHOW);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN),
-      caretRecordRegIndex < 0 ? SW_HIDE : SW_SHOW);
+   enableFieldControls(TRUE);
 }
 
 void VisualizerPanel::showJumpDialog() {
