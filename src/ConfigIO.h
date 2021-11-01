@@ -11,6 +11,14 @@
 #include <unordered_map>
 #include <vector>
 
+#define PREF_ADFT             L"AutoDetectFileType"
+#define PREF_CARET_FRAMED     L"FramedCaret"
+#define PREF_CARET_FLASH      L"CaretFlashSeconds"
+#define PREF_MBCHARS_SHOW     L"ShowMBCharsOnPanel"
+#define PREF_MBCHARS_STATE    L"PanelMBCharState"
+#define PREF_PASTE_LPAD       L"PasteFieldLPAD"
+#define PREF_PASTE_RPAD       L"PasteFieldRPAD"
+
 struct StyleInfo {
    int backColor;
    int foreColor;
@@ -62,17 +70,15 @@ public:
    void viewBackupFolder();
    int getBackupTempFileName(wstring& tempFileName);
 
-   bool getAutoDetectFileType();
-   void setAutoDetectFileType(bool detect);
+   wstring getPreference(const wstring key, const wstring default = L"");
+   void setPreference(const wstring key, const wstring value);
 
-   bool getCaretFramed();
-   void setCaretFramed(bool framed);
+   bool getPreferenceBool(const wstring key, const bool default = TRUE);
+   void setPreferenceBool(const wstring key, const bool value);
 
-   int getCaretFlashSeconds();
-   void setCaretFlashSeconds(int seconds);
+   int getPreferenceInt(const wstring key, const int default = 0);
+   void setPreferenceInt(const wstring key, const int value);
 
-   bool getShowMBCharsOnPanel();
-   wstring getPanelMBCharState();
    void setPanelMBCharState(UINT state);
    bool getMultiByteLexing(wstring fileType);
 

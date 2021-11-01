@@ -47,10 +47,10 @@ const enum MenuIndex {
    MI_CONFIG_THEMES,
    MI_SEPARATOR_1,
    MI_FIELD_JUMP,
-   MI_FIELD_COPY,
-   MI_FIELD_PASTE,
    MI_FIELD_LEFT,
    MI_FIELD_RIGHT,
+   MI_FIELD_COPY,
+   MI_FIELD_PASTE,
    MI_DATA_EXTRACTION,
    MI_SEPARATOR_2,
    MI_DEMO_SINGLE_REC_FILES,
@@ -84,10 +84,10 @@ void ShowConfigDialog();
 void ShowThemeDialog();
 
 void ShowJumpDialog();
-void FieldCopy();
-void FieldPaste();
 void FieldLeft();
 void FieldRight();
+void FieldCopy();
+void FieldPaste();
 void ShowDataExtractDialog();
 
 void ShowAboutDialog();

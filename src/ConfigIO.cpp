@@ -362,36 +362,28 @@ int ConfigIO::getBackupTempFileName(wstring& tempFileName) {
    return 0;
 }
 
-bool ConfigIO::getAutoDetectFileType() {
-   return getConfigString(L"Preferences", L"AutoDetectFileType", L"Y", CONFIG_FILE_PATHS[CONFIG_PREFS]) == L"Y";
+wstring ConfigIO::getPreference(const wstring key, const wstring default) {
+   return getConfigString(L"Preferences", key, default, CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-void ConfigIO::setAutoDetectFileType(bool detect) {
-   setConfigString(L"Preferences", L"AutoDetectFileType", detect ? L"Y" : L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]);
+void ConfigIO::setPreference(const wstring key, const wstring value) {
+   setConfigString(L"Preferences", key, value, CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-bool ConfigIO::getCaretFramed() {
-   return getConfigString(L"Preferences", L"FramedCaret", L"Y", CONFIG_FILE_PATHS[CONFIG_PREFS]) == L"Y";
+bool ConfigIO::getPreferenceBool(const wstring key, const bool default) {
+   return getConfigString(L"Preferences", key, default ? L"Y" : L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]) == L"Y";
 }
 
-void ConfigIO::setCaretFramed(bool framed) {
-   setConfigString(L"Preferences", L"FramedCaret", framed ? L"Y" : L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]);
+void ConfigIO::setPreferenceBool(const wstring key, const bool value) {
+   setConfigString(L"Preferences", key, value ? L"Y" : L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-int ConfigIO::getCaretFlashSeconds() {
-   return getConfigInt(L"Preferences", L"CaretFlashSeconds", 5, CONFIG_FILE_PATHS[CONFIG_PREFS]);
+int ConfigIO::getPreferenceInt(const wstring key, const int default) {
+   return getConfigInt(L"Preferences", key, default, CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-void ConfigIO::setCaretFlashSeconds(int seconds) {
-   setConfigString(L"Preferences", L"CaretFlashSeconds", to_wstring(seconds), CONFIG_FILE_PATHS[CONFIG_PREFS]);
-}
-
-bool ConfigIO::getShowMBCharsOnPanel() {
-   return getConfigString(L"Preferences", L"ShowMBCharsOnPanel", L"N", CONFIG_FILE_PATHS[CONFIG_PREFS]) == L"Y";
-}
-
-wstring ConfigIO::getPanelMBCharState() {
-   return getConfigString(L"Preferences", L"PanelMBCharState", L"F", CONFIG_FILE_PATHS[CONFIG_PREFS]);
+void ConfigIO::setPreferenceInt(const wstring key, const int value) {
+   setConfigString(L"Preferences", key, to_wstring(value), CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
 void ConfigIO::setPanelMBCharState(UINT state) {

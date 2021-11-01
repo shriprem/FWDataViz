@@ -39,7 +39,7 @@ void JumpToField::initDialog(const wstring fileType, int recordIndex,
    if (fieldLabels.size() > 0)
       SendMessage(hFieldList, CB_SETCURSEL, fieldIndex < 0 ? 0 : fieldIndex, NULL);
 
-   int flashSecs{ _configIO.getCaretFlashSeconds() };
+   int flashSecs{ _configIO.getPreferenceInt(PREF_CARET_FLASH, 5) };
    SendMessage(hCaretFlash, TBM_SETPOS, TRUE, flashSecs);
    syncTbarToText(flashSecs);
 
@@ -109,7 +109,7 @@ void JumpToField::localize() {
 }
 
 void JumpToField::onJumpBtnClick() {
-   _configIO.setCaretFlashSeconds(getTbarPosition());
+   _configIO.setPreferenceInt(PREF_CARET_FLASH, getTbarPosition());
    display(FALSE);
 
    _vizPanel.jumpToField(initFileType, initRecordRegIndex,

@@ -57,10 +57,10 @@ public :
 
    void showJumpDialog();
    void jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx);
-   void fieldCopy();
-   void fieldPaste();
    void fieldLeft();
    void fieldRight();
+   void fieldCopy();
+   void fieldPaste();
    void showExtractDialog();
 
 #if FW_DEBUG_LEXER_COUNT
@@ -72,6 +72,7 @@ protected :
 
    // Field Info tracking
    int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos, caretFieldIndex;
+   bool leftAlign{};
 
    // File Type data
    std::unordered_map<wstring, wstring> mapFileDescToType;
@@ -123,6 +124,7 @@ protected :
    void resizeCaretFieldInfo(int width);
    int getFieldEdges(const wstring fileType, const int fieldIdx, const int rightPullback, int& leftPos, int& rightPos);
    void moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilite);
+   void setFieldAlign(bool left);
    void popupSamplesMenu();
 
    static DWORD WINAPI threadPositionHighlighter(void*);

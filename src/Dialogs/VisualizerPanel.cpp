@@ -90,17 +90,33 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_VIZPANEL_PASTE_LEFT_LABEL:
             case IDC_VIZPANEL_PASTE_RPAD_LABEL:
-            case IDC_VIZPANEL_PASTE_RPAD_FIELD:
-               ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), SW_SHOW);
-               ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), SW_HIDE);
+               setFieldAlign(TRUE);
                break;
 
             case IDC_VIZPANEL_PASTE_RIGHT_LABEL:
             case IDC_VIZPANEL_PASTE_LPAD_LABEL:
-            case IDC_VIZPANEL_PASTE_LPAD_FIELD:
-               ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), SW_HIDE);
-               ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), SW_SHOW);
+               setFieldAlign(FALSE);
                break;
+
+            case IDC_VIZPANEL_PASTE_RPAD_FIELD:
+            case IDC_VIZPANEL_PASTE_LPAD_FIELD:
+            {
+               int ctrlID{ LOWORD(wParam) };
+               bool leftEdge{ ctrlID == IDC_VIZPANEL_PASTE_RPAD_FIELD };
+
+               switch HIWORD(wParam) {
+                  case EN_CHANGE:
+                     TCHAR padChars[MAX_PATH];
+                     GetWindowText(GetDlgItem(_hSelf, ctrlID), padChars, MAX_PATH);
+                     _configIO.setPreference(leftEdge ? PREF_PASTE_RPAD : PREF_PASTE_LPAD, wstring(padChars));
+                     break;
+
+                  case EN_SETFOCUS:
+                     setFieldAlign(leftEdge);
+                     break;
+               }
+               break;
+            }
 
             case IDC_VIZPANEL_EXTRACT_DATA_BTN:
                showExtractDialog();
@@ -117,7 +133,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
       case WM_SHOWWINDOW:
          Utils::checkMenuItem(MI_FWVIZ_PANEL, wParam);
-         showCaretFramedState(_configIO.getCaretFramed());
+         showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
          visualizeFile(L"", TRUE, TRUE, TRUE);
          break;
 
@@ -176,6 +192,9 @@ void VisualizerPanel::initPanel() {
    bool recentOS = Utils::checkBaseOS(WV_VISTA);
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
    int fontHeight = recentOS ? 10 : 8;
+
+   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), _configIO.getPreference(PREF_PASTE_RPAD).c_str());
+   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), _configIO.getPreference(PREF_PASTE_LPAD).c_str());
 
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
@@ -237,18 +256,18 @@ void VisualizerPanel::display(bool toShow) {
 
    if (toShow) {
       CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT,
-         _configIO.getAutoDetectFileType() ? BST_CHECKED : BST_UNCHECKED);
-      showCaretFramedState(_configIO.getCaretFramed());
+         _configIO.getPreferenceBool(PREF_ADFT) ? BST_CHECKED : BST_UNCHECKED);
+      showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
 
-      int showMCBS{ _configIO.getShowMBCharsOnPanel() ? SW_SHOW : SW_HIDE };
+      int showMCBS{ _configIO.getPreferenceBool(PREF_MBCHARS_SHOW, FALSE) ? SW_SHOW : SW_HIDE };
       ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE), showMCBS);
       ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND), showMCBS);
 
-      wstring mcbsState{ _configIO.getPanelMBCharState() };
-      if (mcbsState == L"FT")
+      wstring mbcState{ _configIO.getPreference(PREF_MBCHARS_STATE, L"FT")};
+      if (mbcState == L"FT")
          CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, BST_INDETERMINATE);
       else
-         CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, (mcbsState == L"Y") ? BST_CHECKED : BST_UNCHECKED);
+         CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, (mbcState == L"Y") ? BST_CHECKED : BST_UNCHECKED);
 
       visualizeFile(L"", TRUE, TRUE, TRUE);
       SetFocus(hFTList);
@@ -306,7 +325,7 @@ void VisualizerPanel::syncListFileTypes() {
    getDocFileType(hScintilla, fileType);
    _configIO.setCurrentConfigFile(fileType);
 
-   if (fileType.length() < 1 && _configIO.getAutoDetectFileType())
+   if (fileType.length() < 1 && _configIO.getPreferenceBool(PREF_ADFT))
       detectFileType(hScintilla, fileType);
 
    loadListFileTypes();
@@ -340,7 +359,6 @@ void VisualizerPanel::syncListThemes() {
 }
 
 void VisualizerPanel::enableFieldControls(bool enable) {
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LABEL), enable);
    EnableWindow(hFieldInfo, enable);
 
    bool recEnabled{ enable && (caretRecordRegIndex >= 0) };
@@ -348,10 +366,15 @@ void VisualizerPanel::enableFieldControls(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN), recEnabled);
 
    bool fieldEnabled{ recEnabled && (caretFieldIndex >= 0) };
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON), fieldEnabled);
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON), fieldEnabled);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON), fieldEnabled);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON), fieldEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON), fieldEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON), fieldEnabled);
+
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), fieldEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), fieldEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), fieldEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), fieldEnabled);
 
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
 
@@ -382,7 +405,7 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool ab_cachedFT, bool aut
 
    if (fileType.length() < 1) {
       if (autoFT) {
-         if (_configIO.getAutoDetectFileType())
+         if (_configIO.getPreferenceBool(PREF_ADFT))
             detectFileType(hScintilla, fileType);
       }
       else {
@@ -434,6 +457,16 @@ void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex,
    moveToFieldEdge(fileType, fieldIdx, FALSE, TRUE);
 }
 
+void VisualizerPanel::fieldLeft() {
+   if (caretFieldIndex >= 0)
+      moveToFieldEdge(L"", caretFieldIndex, FALSE, FALSE);
+}
+
+void VisualizerPanel::fieldRight() {
+   if (caretFieldIndex >= 0)
+      moveToFieldEdge(L"", caretFieldIndex, TRUE, FALSE);
+}
+
 void VisualizerPanel::fieldCopy() {
    if (caretFieldIndex < 0) return;
 
@@ -458,16 +491,6 @@ void VisualizerPanel::fieldPaste() {
 
    if (leftPos < rightPos)
       MessageBox(_hSelf, L"The Field Paste feature will be implemented shortly!", L"Field Paste", MB_OK);
-}
-
-void VisualizerPanel::fieldLeft() {
-   if (caretFieldIndex >= 0)
-      moveToFieldEdge(L"", caretFieldIndex, FALSE, FALSE);
-}
-
-void VisualizerPanel::fieldRight() {
-   if (caretFieldIndex >= 0)
-      moveToFieldEdge(L"", caretFieldIndex, TRUE, FALSE);
 }
 
 void VisualizerPanel::visualizeTheme() {
@@ -944,7 +967,7 @@ void VisualizerPanel::resizeCaretFieldInfo(int width) {
    RECT rcInfo;
    GetWindowRect(hFieldInfo, &rcInfo);
 
-   // Get fieldInfo top-left coordinates relative to dock panel
+   // Get fieldInfo top-leftEdge coordinates relative to dock panel
    POINT pt{ rcInfo.left, rcInfo.top };
    ScreenToClient(_hSelf, &pt);
 
@@ -1009,6 +1032,12 @@ void VisualizerPanel::moveToFieldEdge(const wstring fileType, const int fieldIdx
    }
 
    setFocusOnEditor();
+}
+
+void VisualizerPanel::setFieldAlign(bool left) {
+   leftAlign = left;
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), leftAlign ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), leftAlign ? SW_HIDE : SW_SHOW);
 }
 
 void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
@@ -1088,9 +1117,13 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          else
             fieldInfoText += FLD.fieldLabels[matchedField];
 
-         fieldInfoText += newLine + CUR_POS_DATA_FIELD_START + to_wstring(FLD.fieldStarts[matchedField] + 1);
-         fieldInfoText += newLine + CUR_POS_DATA_FIELD_WIDTH + to_wstring(FLD.fieldWidths[matchedField]);
-         fieldInfoText += newLine + CUR_POS_DATA_FIELD_COL + to_wstring(caretColumn - FLD.fieldStarts[matchedField] + 1);
+         int fieldBegin{ FLD.fieldStarts[matchedField] };
+         int fieldLength{ FLD.fieldWidths[matchedField] };
+
+         fieldInfoText += newLine + CUR_POS_DATA_FIELD_START + to_wstring(fieldBegin + 1);
+         fieldInfoText += newLine + CUR_POS_DATA_FIELD_WIDTH + to_wstring(fieldLength);
+         fieldInfoText += newLine + CUR_POS_DATA_FIELD_COL + to_wstring(caretColumn - fieldBegin + 1);
+         setFieldAlign((caretColumn - fieldBegin) < (fieldBegin + fieldLength - caretColumn));
       }
    }
 
@@ -1292,7 +1325,7 @@ void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring the
 void VisualizerPanel::setADFTCheckbox() {
    bool checked{ IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED };
 
-   _configIO.setAutoDetectFileType(checked);
+   _configIO.setPreferenceBool(PREF_ADFT, checked);
    if (checked) visualizeFile(L"", FALSE, TRUE, TRUE);
 }
 
@@ -1371,7 +1404,7 @@ DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {
    // Modify caret style briefly to highlight the new position
    int currCaret = static_cast<int>(SendMessage(hScintilla, SCI_GETCARETSTYLE, 0, 0));
    SendMessage(hScintilla, SCI_SETCARETSTYLE, CARETSTYLE_BLOCK, 0);
-   Sleep(_configIO.getCaretFlashSeconds() * 1000);
+   Sleep(_configIO.getPreferenceInt(PREF_CARET_FLASH, 5) * 1000);
    SendMessage(hScintilla, SCI_SETCARETSTYLE, currCaret, 0);
 
    int pos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, 0, 0));
