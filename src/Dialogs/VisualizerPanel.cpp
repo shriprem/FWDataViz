@@ -193,6 +193,11 @@ void VisualizerPanel::initPanel() {
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
    int fontHeight = recentOS ? 10 : 8;
 
+   if (!_configIO.getPreferenceBool(PREF_UTF16_LE_BOM, FALSE)) {
+      SetWindowSubclass(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), procANSIEditControl, NULL, NULL);
+      SetWindowSubclass(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), procANSIEditControl, NULL, NULL);
+   }
+
    SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), _configIO.getPreference(PREF_PASTE_RPAD).c_str());
    SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), _configIO.getPreference(PREF_PASTE_LPAD).c_str());
 

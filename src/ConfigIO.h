@@ -18,6 +18,7 @@
 #define PREF_MBCHARS_STATE    L"PanelMBCharState"
 #define PREF_PASTE_LPAD       L"PasteFieldLPAD"
 #define PREF_PASTE_RPAD       L"PasteFieldRPAD"
+#define PREF_UTF16_LE_BOM     L"UTF16-LE-BOM-Enabled"
 
 struct StyleInfo {
    int backColor;
