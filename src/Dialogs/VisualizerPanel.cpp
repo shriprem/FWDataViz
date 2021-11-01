@@ -489,8 +489,37 @@ void VisualizerPanel::fieldPaste() {
    int leftPos{}, rightPos{};
    if (getFieldEdges(L"", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
 
-   if (leftPos < rightPos)
-      MessageBox(_hSelf, L"The Field Paste feature will be implemented shortly!", L"Field Paste", MB_OK);
+   int fieldCurrLen{ rightPos - leftPos };
+   if (fieldCurrLen < 1) return;
+
+   int fieldLength{ recInfoList[caretRecordRegIndex].fieldWidths[caretFieldIndex] };
+
+   wstring clipText;
+   Utils::getClipboardText(GetParent(_hSelf), clipText);
+
+   int clipLength{ static_cast<int>(clipText.length()) };
+   if (clipLength < 1) return;
+
+   if (clipLength > fieldLength) {
+      clipText = clipText.substr(leftAlign ? 0 : (clipLength - fieldLength), fieldLength);
+   }
+   else if (clipLength < fieldLength) {
+      int gapLength{ fieldLength - clipLength };
+
+      wstring padText{ _configIO.getPreference(leftAlign ? PREF_PASTE_RPAD : PREF_PASTE_LPAD) };
+      if (padText.length() < 1) padText = L" ";
+
+      wstring fillText{};
+      while (static_cast<int>(fillText.length()) < gapLength) {
+         fillText.append(padText);
+      }
+      fillText = fillText.substr(0, gapLength);
+
+      clipText = leftAlign ? (clipText + fillText) : (fillText + clipText);
+   }
+
+   SendMessage(hScintilla, SCI_DELETERANGE, leftPos, fieldCurrLen);
+   SendMessage(hScintilla, SCI_INSERTTEXT, leftPos, (LPARAM)(Utils::WideToNarrow(clipText).c_str()));
 }
 
 void VisualizerPanel::visualizeTheme() {
