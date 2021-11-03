@@ -539,7 +539,7 @@ int ConfigureDialog::loadConfigInfo() {
    wstring sFileTypes;
    int fileTypeCount;
 
-   sFileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile);
+   sFileTypes = _configIO.getConfigWideChar(L"Base", L"FileTypes", L"", configFile);
    fileTypeCount = _configIO.Tokenize(sFileTypes, fileTypeList);
 
    vFileTypes.clear();
@@ -556,8 +556,8 @@ int ConfigureDialog::loadConfigInfo() {
 int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
    FileType& FT = vFileTypes[vIndex];
 
-   FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", sConfigFile);
-   FT.theme = _configIO.getConfigString(fileType, L"FileTheme", L"", sConfigFile);
+   FT.label = _configIO.getConfigWideChar(fileType, L"FileLabel", L"", sConfigFile);
+   FT.theme = _configIO.getConfigWideChar(fileType, L"FileTheme", L"", sConfigFile);
    FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", sConfigFile);
    FT.multiByte = _configIO.getMultiByteLexing(fileType);
 
@@ -575,7 +575,7 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const
    wstring recTypes;
    int recTypeCount;
 
-   recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"", sConfigFile);
+   recTypes = _configIO.getConfigWideChar(fileType, L"RecordTypes", L"", sConfigFile);
    recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
 
    FT.vRecTypes.clear();
@@ -585,11 +585,11 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const
       wstring& recType = recTypesList[j];
       RecordType& RT = FT.vRecTypes[j];
 
-      RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), L"", sConfigFile);
+      RT.label = _configIO.getConfigWideChar(fileType, (recType + L"_Label"), L"", sConfigFile);
       RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L"", sConfigFile);
-      RT.theme = _configIO.getConfigString(fileType, (recType + L"_Theme"), L"", sConfigFile);
-      RT.fieldWidths = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"), L"", sConfigFile);
-      RT.fieldLabels = _configIO.getConfigString(fileType, (recType + L"_FieldLabels"), L"", sConfigFile);
+      RT.theme = _configIO.getConfigWideChar(fileType, (recType + L"_Theme"), L"", sConfigFile);
+      RT.fieldWidths = _configIO.getConfigWideChar(fileType, (recType + L"_FieldWidths"), L"", sConfigFile);
+      RT.fieldLabels = _configIO.getConfigWideChar(fileType, (recType + L"_FieldLabels"), L"", sConfigFile);
    }
 
    return recTypeCount;
@@ -1213,14 +1213,13 @@ void ConfigureDialog::fileEditAccept() {
 
 int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
    int sectionCount{}, validCount{};
-   wstring sections{}, sectionLabel{};
    vector<wstring> sectionList{};
+   wstring sectionLabel{};
 
-   sectionCount = _configIO.getConfigSectionList(sections, sConfigFile);
-   sectionCount = _configIO.Tokenize(sections, sectionList);
+   sectionCount = _configIO.getConfigAllSectionsList(sectionList, sConfigFile);
 
    for (int i{}; i < sectionCount; i++) {
-      sectionLabel = _configIO.getConfigString(sectionList[i], L"FileLabel", L"", sConfigFile);
+      sectionLabel = _configIO.getConfigWideChar(sectionList[i], L"FileLabel", L"", sConfigFile);
       if (sectionLabel.length() > 0) {
          if (!checkFTLimit(FALSE)) break;
 

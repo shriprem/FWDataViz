@@ -29,10 +29,10 @@ protected:
    HWND hIndicator, hTemplatesList, hTemplateName;
 
    struct LineItemInfo {
-      string prefix;
+      wstring prefix;
       int recType;
       int fieldType;
-      string suffix;
+      wstring suffix;
    };
    vector<LineItemInfo> liBuffer{};
 

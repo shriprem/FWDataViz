@@ -68,6 +68,11 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                ToggleCaretFramedState();
                break;
 
+            case IDC_VIZPANEL_FIELD_COPY_TRIM:
+               _configIO.setPreferenceBool(PREF_COPY_TRIM,
+                  IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM) == BST_CHECKED);
+               break;
+
             case IDC_VIZPANEL_JUMP_FIELD_BTN:
                showJumpDialog();
                break;
@@ -193,11 +198,6 @@ void VisualizerPanel::initPanel() {
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
    int fontHeight = recentOS ? 10 : 8;
 
-   if (!_configIO.getPreferenceBool(PREF_UTF16_LE_BOM, FALSE)) {
-      SetWindowSubclass(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), procANSIEditControl, NULL, NULL);
-      SetWindowSubclass(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), procANSIEditControl, NULL, NULL);
-   }
-
    SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), _configIO.getPreference(PREF_PASTE_RPAD).c_str());
    SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), _configIO.getPreference(PREF_PASTE_LPAD).c_str());
 
@@ -216,6 +216,7 @@ void VisualizerPanel::initPanel() {
    Utils::loadBitmap(_hSelf, IDC_VIZPANEL_THEME_CONFIG, IDB_VIZ_COLOR_CONFIG_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_THEME_CONFIG, NULL, VIZ_PANEL_THEME_CONFIG_TIP, FALSE);
 
+   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM, NULL, VIZ_PANEL_FIELD_TRIM_TIP, FALSE);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON, NULL, VIZ_PANEL_FIELD_LEFT_TIP, FALSE);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON, NULL, VIZ_PANEL_FIELD_RIGHT_TIP, FALSE);
 
@@ -241,6 +242,7 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, VIZ_PANEL_AUTO_DETECT_FT);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, VIZ_PANEL_MCBS_OVERRIDE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM, VIZ_PANEL_FIELD_COPY_TRIM);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN, VIZ_PANEL_EXTRACT_DATA_BTN);
@@ -268,11 +270,14 @@ void VisualizerPanel::display(bool toShow) {
       ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE), showMCBS);
       ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND), showMCBS);
 
-      wstring mbcState{ _configIO.getPreference(PREF_MBCHARS_STATE, L"FT")};
+      wstring mbcState{ _configIO.getPreference(PREF_MBCHARS_STATE, "FT")};
       if (mbcState == L"FT")
          CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, BST_INDETERMINATE);
       else
          CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, (mbcState == L"Y") ? BST_CHECKED : BST_UNCHECKED);
+
+      CheckDlgButton(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM,
+         _configIO.getPreferenceBool(PREF_COPY_TRIM) ? BST_CHECKED : BST_UNCHECKED);
 
       visualizeFile(L"", TRUE, TRUE, TRUE);
       SetFocus(hFTList);
@@ -291,7 +296,7 @@ void VisualizerPanel::loadListFileTypes() {
    vector<wstring> fileTypes;
    wstring fileTypeList;
 
-   fileTypeList = _configIO.getConfigString(L"Base", L"FileTypes");
+   fileTypeList = _configIO.getConfigWideChar(L"Base", L"FileTypes");
    _configIO.Tokenize(fileTypeList, fileTypes);
 
    mapFileDescToType.clear();
@@ -303,7 +308,7 @@ void VisualizerPanel::loadListFileTypes() {
    for (wstring fType : fileTypes) {
       wstring fileLabel;
 
-      fileLabel = _configIO.getConfigString(fType, L"FileLabel");
+      fileLabel = _configIO.getConfigWideChar(fType, L"FileLabel");
 
       mapFileDescToType[fileLabel] = fType;
       mapFileTypeToDesc[fType] = fileLabel;
@@ -481,8 +486,29 @@ void VisualizerPanel::fieldCopy() {
    int leftPos{}, rightPos{};
    if (getFieldEdges(L"", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
 
-   if (leftPos < rightPos)
-      SendMessage(hScintilla, SCI_COPYRANGE, leftPos, rightPos);
+   if (leftPos >= rightPos) return;
+
+   string padText{};
+   padText = Utils::WideToNarrow(_configIO.getPreference(leftAlign ? PREF_PASTE_RPAD : PREF_PASTE_LPAD));
+   if (padText.length() < 1) padText = " ";
+
+   if (_configIO.getPreferenceBool(PREF_COPY_TRIM) && padText.length() == 1) {
+      char padChar{ padText.at(0) };
+      //MessageBoxA(_hSelf, ("<<" + to_string(padChar) + ">>").c_str(), "", MB_OK);
+      //MessageBoxA(_hSelf, (to_string(leftPos) + ", " + to_string(rightPos)).c_str(), "", MB_OK);
+      while (leftPos < rightPos - 1) {
+         if (padChar != static_cast<char>(SendMessage(hScintilla, SCI_GETCHARAT, leftAlign ? (rightPos - 1) : leftPos, 0)))
+            break;
+
+         if (leftAlign)
+            rightPos--;
+         else
+            leftPos++;
+      }
+      //MessageBoxA(_hSelf, (to_string(leftPos) + ", " + to_string(rightPos)).c_str(), "", MB_OK);
+   }
+
+   SendMessage(hScintilla, SCI_COPYRANGE, leftPos, rightPos);
 }
 
 void VisualizerPanel::fieldPaste() {
@@ -626,12 +652,12 @@ int VisualizerPanel::loadUsedThemes() {
    wstring recTypes;
    int recTypeCount;
 
-   recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"");
+   recTypes = _configIO.getConfigWideChar(fileType, L"RecordTypes", L"");
    recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
 
    for (int i{}; i < recTypeCount; i++) {
       wstring recTheme{};
-      recTheme = _configIO.getConfigString(fileType, (recTypesList[i] + L"_Theme"), L"");
+      recTheme = _configIO.getConfigWideChar(fileType, (recTypesList[i] + L"_Theme"), L"");
 
       if ((recTheme != L"") && (recTheme != fileTheme))
          loadedStyleCount += loadTheme(recTheme);
@@ -714,7 +740,7 @@ int VisualizerPanel::loadLexer() {
       return static_cast<int>(recInfoList.size());
    }
 
-   recTypeList = _configIO.getConfigString(fileType, L"RecordTypes");
+   recTypeList = _configIO.getConfigWideChar(fileType, L"RecordTypes");
    recTypeCount = _configIO.Tokenize(recTypeList, recTypes);
 
    recInfoList.resize(recTypeCount);
@@ -723,15 +749,15 @@ int VisualizerPanel::loadLexer() {
       wstring& recType = recTypes[i];
       RecordInfo& RT = recInfoList[i];
 
-      RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), recType);
+      RT.label = _configIO.getConfigWideChar(fileType, (recType + L"_Label"), recType);
       RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L".");
       RT.regExpr = regex{ RT.marker + ".*" };
-      RT.theme = _configIO.getConfigString(fileType, (recType + L"_Theme"), L"");
+      RT.theme = _configIO.getConfigWideChar(fileType, (recType + L"_Theme"), L"");
 
       wstring fieldWidthList;
       int fieldCount;
 
-      fieldWidthList = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"));
+      fieldWidthList = _configIO.getConfigWideChar(fileType, (recType + L"_FieldWidths"));
       fieldCount = _configIO.Tokenize(fieldWidthList, RT.fieldWidths);
 
       RT.fieldStarts.clear();
@@ -744,7 +770,7 @@ int VisualizerPanel::loadLexer() {
 
       wstring fieldLabelList;
 
-      fieldLabelList = _configIO.getConfigString(fileType, (recType + L"_FieldLabels"));
+      fieldLabelList = _configIO.getConfigWideChar(fileType, (recType + L"_FieldLabels"));
       _configIO.Tokenize(fieldLabelList, RT.fieldLabels);
    }
 
@@ -1276,7 +1302,7 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
    vector<wstring> fileTypes;
    wstring fileTypeList;
 
-   fileTypeList = _configIO.getConfigString(L"Base", L"FileTypes");
+   fileTypeList = _configIO.getConfigWideChar(L"Base", L"FileTypes");
    _configIO.Tokenize(fileTypeList, fileTypes);
 
    for (wstring fType : fileTypes) {
@@ -1286,13 +1312,12 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
          wchar_t idx[5];
          swprintf(idx, 5, L"%02d", i + 1);
 
-         wstring strLine = _configIO.getConfigString(fType, L"ADFT_Line_" + wstring{ idx });
+         int line = _configIO.getConfigInt(fType, L"ADFT_Line_" + wstring{ idx });
          string strRegex = _configIO.getConfigStringA(fType, L"ADFT_Regex_" + wstring{ idx });
 
-         if (strLine.length() < 1 || strRegex.length() < 1) continue;
+         if (line == 0) continue;
 
          int lineCount = static_cast<int>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
-         int line = Utils::StringtoInt(strLine);
 
          line += (line < 0) ? lineCount : -1;
          if (line < 0 || line >= lineCount) continue;
@@ -1350,7 +1375,7 @@ void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
 
 void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring theme) {
    if (fileType.length() > 0)
-      theme = _configIO.getConfigString(fileType, L"FileTheme");
+      theme = _configIO.getConfigWideChar(fileType, L"FileTheme");
 
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_THEME,
       (LPARAM)Utils::WideToNarrow(theme).c_str());
@@ -1376,7 +1401,7 @@ void VisualizerPanel::setPanelMBCharIndicator(wstring fileType) {
       indicator = L"";
    else if (state == BST_CHECKED)
       indicator = L"*";
-   else if (_configIO.getConfigString(fileType, L"MultiByteChars", L"N") == L"Y")
+   else if (_configIO.getConfigWideChar(fileType, L"MultiByteChars", L"N") == L"Y")
       indicator = L"+";
    else
       indicator = L"-";

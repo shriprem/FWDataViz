@@ -135,10 +135,10 @@ void EximFileTypeDialog::loadExtractFile() {
    wstring sExtractFile{};
 
    if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, vizMode, sExtractFile)) {
-      TCHAR sExtractData[FW_LINE_MAX_LENGTH];
+      char sExtractData[FW_LINE_MAX_LENGTH];
 
       _configIO.openConfigFile(sExtractData, FW_LINE_MAX_LENGTH, sExtractFile);
-      SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData);
+      SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, Utils::MultiByteToWide(sExtractData).c_str());
    }
 }
 

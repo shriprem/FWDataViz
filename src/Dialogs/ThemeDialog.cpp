@@ -1012,14 +1012,12 @@ void ThemeDialog::themeEditAccept() {
 
 int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
    int sectionCount{}, validCount{};
-   wstring sections{};
    vector<wstring> sectionList{};
 
-   sectionCount = _configIO.getConfigSectionList(sections, sThemeFile);
-   sectionCount = _configIO.Tokenize(sections, sectionList);
+   sectionCount = _configIO.getConfigAllSectionsList(sectionList, sThemeFile);
 
    for (int i{}; i < sectionCount; i++) {
-      if (_configIO.getConfigString(sectionList[i], L"Count", L"", sThemeFile).length() > 0) {
+      if (_configIO.getConfigInt(sectionList[i], L"Count", 0, sThemeFile) > 0) {
          if (!checkThemeLimit(FALSE)) break;
 
          ThemeType newTheme{ getNewTheme() };
