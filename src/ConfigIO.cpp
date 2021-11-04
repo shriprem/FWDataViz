@@ -45,22 +45,22 @@ void ConfigIO::init() {
    }
 
    // initialize instance variables
-   resetCurrentConfigFile();
+   resetVizConfig();
    PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_VIZ]).c_str());
 }
 
-int ConfigIO::setCurrentConfigFile(const string& docFileType) {
+int ConfigIO::setVizConfig(const string& docFileType) {
    int sectionCount{};
    string sectionList{};
 
    if (docFileType.length() < 1) {
-      resetCurrentConfigFile();
+      resetVizConfig();
       return 0;
    }
 
    sectionCount = getConfigAllSections(sectionList, CONFIG_FILE_PATHS[CONFIG_VIZ]);
    if (sectionCount > 0 && sectionList.find(docFileType) != std::string::npos) {
-      resetCurrentConfigFile();
+      resetVizConfig();
       return 1;
    }
 
@@ -71,13 +71,19 @@ int ConfigIO::setCurrentConfigFile(const string& docFileType) {
       return 2;
    }
 
-   resetCurrentConfigFile();
+   resetVizConfig();
    return -1;
 }
 
-void ConfigIO::resetCurrentConfigFile() {
+void ConfigIO::resetVizConfig() {
    wCurrentConfigFile = WCONFIG_FILE_PATHS[CONFIG_VIZ];
    currentConfigFile = CONFIG_FILE_PATHS[CONFIG_VIZ];
+}
+
+wstring ConfigIO::getConfigFile(int cfType) {
+   if (cfType < 0 && cfType >= CONFIG_FILE_COUNT) return L"";
+
+   return WCONFIG_FILE_PATHS[cfType];
 }
 
 string ConfigIO::getConfigStringA(const string& section, const string& key, const string& default, string file) {
@@ -314,7 +320,7 @@ string ConfigIO::readConfigFile(wstring file) {
    return "";
 }
 
-bool ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile) {
+bool ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, wstring& backupConfigFile) {
    OPENFILENAME ofn;
 
    TCHAR filePath[MAX_PATH]{};
@@ -325,6 +331,7 @@ bool ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, boo
    ofn.lpstrFile = filePath;
    ofn.lpstrFile[0] = '\0';
    ofn.nMaxFile = sizeof(filePath);
+   ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.ini\0";
    ofn.lpstrDefExt = L"ini";
    ofn.nFilterIndex = 2;
    ofn.lpstrFileTitle = NULL;
@@ -339,10 +346,6 @@ bool ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, boo
       ofn.lpstrInitialDir = desktopPath.c_str();
    }
 
-   if (bViz)
-      ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.ini\0";
-   else
-      ofn.lpstrFilter = L"All\0*.*\0Ini Files\0*.ini\0DAT Files\0*.dat\0";
 
    BOOL bOK = bOpen ? GetOpenFileName(&ofn) : GetSaveFileName(&ofn);
 
@@ -351,14 +354,11 @@ bool ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, boo
    return bOK;
 }
 
-void ConfigIO::saveConfigFile(const wstring& fileData, bool bViz, wstring file) {
-   if (file.length() < 1)
-      file = WCONFIG_FILE_PATHS[bViz ? CONFIG_VIZ : CONFIG_THEMES];
-
+void ConfigIO::saveConfigFile(const wstring& fileData, wstring file) {
    using std::ios;
 
    if (std::ofstream fs{ file, ios::out | ios::binary | ios::trunc }) {
-      string mbFileData{ Utils::WideToMultiByte(fileData) };
+      string mbFileData{ Utils::WideToNarrow(fileData) };
       fs.write(mbFileData.data(), mbFileData.length());
    }
 
@@ -377,40 +377,24 @@ int ConfigIO::getBackupTempFileName(wstring& tempFileName) {
    return 0;
 }
 
-void ConfigIO::backupConfigFile(bool bViz) {
-   string backupTemplate{};
-   wstring srcFile{};
-   char backupFile[50];
+void ConfigIO::backupConfigFile(wstring file) {
+   using fsp = std::filesystem::path;
+
+   char backupFile[MAX_PATH];
    wchar_t backupFilePath[MAX_PATH];
 
-   if (bViz) {
-      if (wCurrentConfigFile == WCONFIG_FILE_PATHS[CONFIG_VIZ]) {
-         backupTemplate = "Visualizer_%Y%m%d_%H%M%S.ini";
-         srcFile = WCONFIG_FILE_PATHS[CONFIG_VIZ];
-      }
-      else {
-         backupTemplate = "default_Visualizer_%Y%m%d_%H%M%S.ini";
-         srcFile = defaultConfigFile;
-      }
-   }
-   else {
-      backupTemplate = "Themes_%Y%m%d_%H%M%S.ini";
-      srcFile = WCONFIG_FILE_PATHS[CONFIG_THEMES];
-   }
+   wstring backupTemplate{ wstring{ fsp(file).stem().c_str() }.substr(0, 30) };
+   backupTemplate +=  L"_%Y%m%d_%H%M%S" + wstring{fsp(file).extension().c_str()};
 
    time_t rawTime;
    struct tm* timeInfo;
 
    time(&rawTime);
    timeInfo = localtime(&rawTime);
-   strftime(backupFile, 50, backupTemplate.c_str(), timeInfo);
+   strftime(backupFile, MAX_PATH, Utils::WideToNarrow(backupTemplate).c_str(), timeInfo);
 
    PathCombine(backupFilePath, pluginConfigBackupDir, Utils::NarrowToWide(backupFile).c_str());
-
-   if (srcFile == defaultConfigFile)
-      CopyFile(srcFile.c_str(), backupFilePath, FALSE);
-   else
-      CopyFile(srcFile.c_str(), backupFilePath, FALSE);
+   CopyFile(file.c_str(), backupFilePath, FALSE);
 }
 
 void ConfigIO::viewBackupFolder() {
@@ -419,46 +403,58 @@ void ConfigIO::viewBackupFolder() {
 
 bool ConfigIO::checkConfigFilesforUCS16() {
    bool status{ true };
-   for (int i{}; i < CONFIG_FILE_COUNT; i++) {
 
-      if (isUCS16File(WCONFIG_FILE_PATHS[i])) {
-         convertUCS16FiletoUTF8(WCONFIG_FILE_PATHS[i]);
-         if (isUCS16File(WCONFIG_FILE_PATHS[i]))
-            status = false;
-      }
+   for (int i{}; i < CONFIG_FILE_COUNT; i++) {
+      if (!fixIfUTF16File(WCONFIG_FILE_PATHS[i]))
+         status = false;
    }
 
    return status;
 }
 
-bool ConfigIO::isUCS16File(wstring file) {
+bool ConfigIO::fixIfUTF16File(int cfType) {
+   if (cfType < 0 && cfType >= CONFIG_FILE_COUNT) return false;
+
+   return fixIfUTF16File(WCONFIG_FILE_PATHS[cfType]);
+}
+
+bool ConfigIO::fixIfUTF16File(wstring file) {
+   if (!hasBOM(file)) return true;
+
+   convertFromUTF16ToUTF8(file);
+
+   return hasBOM(file);
+}
+
+bool ConfigIO::hasBOM(wstring file) {
    using std::ios;
 
    if (std::wifstream fs{ file, ios::binary }) {
       unsigned short bom[2]{};
       bom[0] = fs.get();
       bom[1] = fs.get();
-      bool ucs16{ (bom[0] == 0xFF && bom[1] == 0xFE) };
-      return ucs16;
+
+      return (bom[0] == 0xFF && bom[1] == 0xFE) || (bom[0] == 0xFE && bom[1] == 0xFF);
    }
 
    return true;
 }
 
-void ConfigIO::convertUCS16FiletoUTF8(wstring file) {
+void ConfigIO::convertFromUTF16ToUTF8(wstring file) {
    using std::ios;
 
+   backupConfigFile(file);
+
    if (std::wifstream wifs{ file, ios::binary | ios::ate }) {
-      std::locale ucs16(std::locale(), new std::codecvt_utf16<wchar_t, 1114111UL, (std::codecvt_mode)5>);
-      wifs.imbue(ucs16);
+      wifs.imbue(std::locale(wifs.getloc(),
+         new std::codecvt_utf16<wchar_t, 0x10FFFF, std::consume_header>));
 
-      // set size to skip the BOM
-      int size = static_cast<int>(wifs.tellg()) - 2;
-      wstring wData(size, '\0');
-      wifs.seekg(2);
-      wifs.read(wData.data(), size);
+      int size = static_cast<int>(wifs.tellg());
+      wstring wstr(size, '\0');
+      wifs.seekg(0);
+      wifs.read(wstr.data(), size);
 
-      string mbData{ Utils::WideToNarrow(wData).c_str() };
+      string mbData{ Utils::WideToNarrow(wstr).c_str() };
 
       if (std::ofstream ofs{ file, ios::out | ios::binary | ios::trunc }) {
          ofs.write(mbData.c_str(), mbData.length());

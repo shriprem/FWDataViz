@@ -1,8 +1,6 @@
 #include "ThemeDialog.h"
 #include "EximFileTypeDialog.h"
 
-//#define HEX_COL_LEN 6
-
 extern HINSTANCE _gModule;
 extern ThemeDialog _themeDlg;
 extern EximFileTypeDialog _eximDlg;
@@ -244,11 +242,8 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                if (!promptDiscardChangesNo()) {
                   wstring backupThemeFile;
 
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, FALSE, backupThemeFile)) {
-                     if (_configIO.isUCS16File(backupThemeFile))
-                        _configIO.convertUCS16FiletoUTF8(backupThemeFile);
-
-                     if (!_configIO.isUCS16File(backupThemeFile)) {
+                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupThemeFile)) {
+                     if (_configIO.fixIfUTF16File(backupThemeFile)) {
                         themeFile = backupThemeFile;
                         loadConfigInfo();
                         fillThemes();
@@ -1143,8 +1138,8 @@ void ThemeDialog::saveConfigInfo() {
 
    fileData = L"[Base]\r\nThemes=" + themes + L"\r\n\r\n" + fileData;
 
-   _configIO.backupConfigFile(FALSE);
-   _configIO.saveConfigFile(fileData, FALSE);
+   _configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_THEMES));
+   _configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_THEMES));
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();

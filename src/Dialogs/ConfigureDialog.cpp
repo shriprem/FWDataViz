@@ -405,11 +405,8 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
                if (!promptDiscardChangesNo()) {
                   wstring backupConfigFile;
 
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, TRUE, backupConfigFile)) {
-                     if (_configIO.isUCS16File(backupConfigFile))
-                        _configIO.convertUCS16FiletoUTF8(backupConfigFile);
-
-                     if (!_configIO.isUCS16File(backupConfigFile)) {
+                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupConfigFile)) {
+                     if (_configIO.fixIfUTF16File(backupConfigFile)) {
                         configFile = backupConfigFile;
                         loadConfigInfo();
                         fillFileTypes();
@@ -1354,8 +1351,8 @@ void ConfigureDialog::saveConfigInfo() {
 
    fileData = L"[Base]\r\nFileTypes=" + fileTypes + L"\r\n\r\n" + fileData;
 
-   _configIO.backupConfigFile(TRUE);
-   _configIO.saveConfigFile(fileData, TRUE);
+   _configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_VIZ));
+   _configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_VIZ));
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();

@@ -104,7 +104,7 @@ void DataExtractDialog::initDialog(const string fileType, const vector<RecordInf
    pRecInfoList = &recInfoList;
 
    initFileTypeLabel = _configIO.getConfigWideChar(initFileType, "FileLabel");
-   extractsConfigFile = _configIO.getExtractTemplatesFile();
+   extractsConfigFile = Utils::WideToNarrow(_configIO.getConfigFile(_configIO.CONFIG_EXTRACTS));
 
    initRecTypeLists();
    loadTemplatesList();

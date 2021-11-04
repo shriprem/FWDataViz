@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include <locale>
 #include <commdlg.h>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <regex>
@@ -31,10 +32,18 @@ using std::vector;
 
 class ConfigIO {
 public:
+   enum CF_TYPES {
+      CONFIG_VIZ,
+      CONFIG_THEMES,
+      CONFIG_PREFS,
+      CONFIG_EXTRACTS,
+      CONFIG_FILE_COUNT
+   };
+
    void init();
-   int setCurrentConfigFile(const string& docFileType);
-   void resetCurrentConfigFile();
-   string getExtractTemplatesFile() { return CONFIG_FILE_PATHS[CONFIG_EXTRACTS]; };
+   int setVizConfig(const string& docFileType);
+   void resetVizConfig();
+   wstring getConfigFile(int cfType);
 
    string getConfigStringA(const string& section, const string& key, const string& default = "", string file = "");
    string getConfigStringA(const wstring& section, const string& key, const string& default = "", wstring file = L"");
@@ -79,30 +88,24 @@ public:
    void deleteSection(const string& section, string file = "");
 
    string readConfigFile(wstring file = L"");
-   bool queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile);
-   void saveConfigFile(const wstring& fileData, bool bViz, wstring file = L"");
+   bool queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, wstring& backupConfigFile);
+   void saveConfigFile(const wstring& fileData, wstring file);
 
    int getBackupTempFileName(wstring& tempFileName);
-   void backupConfigFile(bool bViz);
+   void backupConfigFile(wstring file);
    void viewBackupFolder();
+   void flushConfigFile();
 
    bool checkConfigFilesforUCS16();
-   bool isUCS16File(wstring file);
-   void convertUCS16FiletoUTF8(wstring file);
-   void flushConfigFile();
+   bool fixIfUTF16File(int cfType);
+   bool fixIfUTF16File(wstring file);
+   bool hasBOM(wstring file);
+   void convertFromUTF16ToUTF8(wstring file);
 
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
    TCHAR pluginConfigBackupDir[MAX_PATH];
    TCHAR defaultConfigFile[MAX_PATH];
-
-   enum CF_TYPES {
-      CONFIG_VIZ,
-      CONFIG_THEMES,
-      CONFIG_PREFS,
-      CONFIG_EXTRACTS,
-      CONFIG_FILE_COUNT
-   };
 
    const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.ini", L"Preferences.ini", L"Extracts.ini"};
    wstring WCONFIG_FILE_PATHS[CONFIG_FILE_COUNT]{};

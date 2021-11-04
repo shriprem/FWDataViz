@@ -116,7 +116,7 @@ void EximFileTypeDialog::appendExtractFile() {
    wstring tmpFile{};
 
    _configIO.getBackupTempFileName(tmpFile);
-   _configIO.saveConfigFile(getEditControlText(), vizMode, tmpFile);
+   _configIO.saveConfigFile(getEditControlText(), tmpFile);
    display(FALSE);
 
    if (vizMode) {
@@ -134,22 +134,19 @@ void EximFileTypeDialog::appendExtractFile() {
 void EximFileTypeDialog::loadExtractFile() {
    wstring sExtractFile{};
 
-   if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, vizMode, sExtractFile)) {
-      if (_configIO.isUCS16File(sExtractFile))
-         _configIO.convertUCS16FiletoUTF8(sExtractFile);
-
-      if (_configIO.isUCS16File(sExtractFile)) return;
-
-      string sExtractData{ _configIO.readConfigFile(sExtractFile) };
-      SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, Utils::MultiByteToWide(sExtractData).c_str());
+   if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, sExtractFile)) {
+      if (_configIO.fixIfUTF16File(sExtractFile)) {
+         string sExtractData{ _configIO.readConfigFile(sExtractFile) };
+         SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, Utils::NarrowToWide(sExtractData).c_str());
+      }
    }
 }
 
 void EximFileTypeDialog::saveExtractFile() {
    wstring sExtractFile{};
 
-   if (_configIO.queryConfigFileName(_hSelf, FALSE, FALSE, vizMode, sExtractFile)) {
-      _configIO.saveConfigFile(getEditControlText(), vizMode, sExtractFile);
+   if (_configIO.queryConfigFileName(_hSelf, FALSE, FALSE, sExtractFile)) {
+      _configIO.saveConfigFile(getEditControlText(), sExtractFile);
    }
 }
 
