@@ -72,7 +72,7 @@ protected :
 
    // Field Info tracking
    int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos, caretFieldIndex;
-   bool leftAlign{};
+   bool utf8Config{}, leftAlign{};
 
    // File Type data
    std::unordered_map<wstring, string> mapFileDescToType;

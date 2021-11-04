@@ -245,11 +245,16 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                   wstring backupThemeFile;
 
                   if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, FALSE, backupThemeFile)) {
-                     themeFile = backupThemeFile;
-                     loadConfigInfo();
-                     fillThemes();
-                     cleanConfigFile = FALSE;
-                     enableThemeSelection();
+                     if (_configIO.isUCS16File(backupThemeFile))
+                        _configIO.convertUCS16FiletoUTF8(backupThemeFile);
+
+                     if (!_configIO.isUCS16File(backupThemeFile)) {
+                        themeFile = backupThemeFile;
+                        loadConfigInfo();
+                        fillThemes();
+                        cleanConfigFile = FALSE;
+                        enableThemeSelection();
+                     }
                   }
                }
                break;

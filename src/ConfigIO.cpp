@@ -299,19 +299,22 @@ void ConfigIO::deleteSection(const string& section, string file) {
    WritePrivateProfileStringA(section.c_str(), NULL, NULL, file.c_str());
 }
 
-void ConfigIO::openConfigFile(LPSTR configData, const size_t readLength, wstring file) {
+string ConfigIO::readConfigFile(wstring file) {
    if (file.length() < 1) file = wCurrentConfigFile;
 
    using std::ios;
-   std::ifstream fs;
+   if (std::ifstream ifs{ file, ios::binary | ios::ate }) {
+      int size = static_cast<int>(ifs.tellg());
+      string str(size, '\0');
+      ifs.seekg(0);
+      ifs.read(str.data(), size);
+      return str;
+   }
 
-   ZeroMemory(configData, readLength);
-   fs.open(file, ios::binary);
-   fs.read(configData, readLength);
-   fs.close();
+   return "";
 }
 
-BOOL ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile) {
+bool ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile) {
    OPENFILENAME ofn;
 
    TCHAR filePath[MAX_PATH]{};
@@ -353,12 +356,11 @@ void ConfigIO::saveConfigFile(const wstring& fileData, bool bViz, wstring file) 
       file = WCONFIG_FILE_PATHS[bViz ? CONFIG_VIZ : CONFIG_THEMES];
 
    using std::ios;
-   std::ofstream fs;
-   string mbFileData{ Utils::WideToMultiByte(fileData) };
 
-   fs.open(file, ios::out | ios::binary | ios::trunc);
-   fs.write(mbFileData.data(), mbFileData.length());
-   fs.close();
+   if (std::ofstream fs{ file, ios::out | ios::binary | ios::trunc }) {
+      string mbFileData{ Utils::WideToMultiByte(fileData) };
+      fs.write(mbFileData.data(), mbFileData.length());
+   }
 
    flushConfigFile();
 }
@@ -413,6 +415,55 @@ void ConfigIO::backupConfigFile(bool bViz) {
 
 void ConfigIO::viewBackupFolder() {
    ShellExecute(NULL, L"open", pluginConfigBackupDir, NULL, NULL, SW_SHOWNORMAL);
+}
+
+bool ConfigIO::checkConfigFilesforUCS16() {
+   bool status{ true };
+   for (int i{}; i < CONFIG_FILE_COUNT; i++) {
+
+      if (isUCS16File(WCONFIG_FILE_PATHS[i])) {
+         convertUCS16FiletoUTF8(WCONFIG_FILE_PATHS[i]);
+         if (isUCS16File(WCONFIG_FILE_PATHS[i]))
+            status = false;
+      }
+   }
+
+   return status;
+}
+
+bool ConfigIO::isUCS16File(wstring file) {
+   using std::ios;
+
+   if (std::wifstream fs{ file, ios::binary }) {
+      unsigned short bom[2]{};
+      bom[0] = fs.get();
+      bom[1] = fs.get();
+      bool ucs16{ (bom[0] == 0xFF && bom[1] == 0xFE) };
+      return ucs16;
+   }
+
+   return true;
+}
+
+void ConfigIO::convertUCS16FiletoUTF8(wstring file) {
+   using std::ios;
+
+   if (std::wifstream wifs{ file, ios::binary | ios::ate }) {
+      std::locale ucs16(std::locale(), new std::codecvt_utf16<wchar_t, 1114111UL, (std::codecvt_mode)5>);
+      wifs.imbue(ucs16);
+
+      // set size to skip the BOM
+      int size = static_cast<int>(wifs.tellg()) - 2;
+      wstring wData(size, '\0');
+      wifs.seekg(2);
+      wifs.read(wData.data(), size);
+
+      string mbData{ Utils::WideToNarrow(wData).c_str() };
+
+      if (std::ofstream ofs{ file, ios::out | ios::binary | ios::trunc }) {
+         ofs.write(mbData.c_str(), mbData.length());
+      }
+   }
 }
 
 void ConfigIO::flushConfigFile() {

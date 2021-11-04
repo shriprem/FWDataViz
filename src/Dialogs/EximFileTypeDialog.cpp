@@ -135,9 +135,12 @@ void EximFileTypeDialog::loadExtractFile() {
    wstring sExtractFile{};
 
    if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, vizMode, sExtractFile)) {
-      char sExtractData[FW_LINE_MAX_LENGTH];
+      if (_configIO.isUCS16File(sExtractFile))
+         _configIO.convertUCS16FiletoUTF8(sExtractFile);
 
-      _configIO.openConfigFile(sExtractData, FW_LINE_MAX_LENGTH, sExtractFile);
+      if (_configIO.isUCS16File(sExtractFile)) return;
+
+      string sExtractData{ _configIO.readConfigFile(sExtractFile) };
       SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, Utils::MultiByteToWide(sExtractData).c_str());
    }
 }

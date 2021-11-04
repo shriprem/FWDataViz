@@ -78,14 +78,17 @@ public:
    void deleteKey(const wstring& section, const wstring& key, wstring file = L"");
    void deleteSection(const string& section, string file = "");
 
-   void openConfigFile(LPSTR configData, const size_t readLength, wstring file = L"");
-   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile);
+   string readConfigFile(wstring file = L"");
+   bool queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile);
    void saveConfigFile(const wstring& fileData, bool bViz, wstring file = L"");
 
    int getBackupTempFileName(wstring& tempFileName);
    void backupConfigFile(bool bViz);
    void viewBackupFolder();
 
+   bool checkConfigFilesforUCS16();
+   bool isUCS16File(wstring file);
+   void convertUCS16FiletoUTF8(wstring file);
    void flushConfigFile();
 
 protected:

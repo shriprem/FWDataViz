@@ -31,7 +31,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_FILETYPE_CONFIG:
-               ShowConfigDialog();
+               if (utf8Config) ShowConfigDialog();
                break;
 
             case IDC_VIZPANEL_THEME_SELECT:
@@ -43,7 +43,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_THEME_CONFIG:
-               ShowThemeDialog();
+               if (utf8Config) ShowThemeDialog();
                break;
 
             case IDC_VIZPANEL_CLEAR_BTN:
@@ -198,9 +198,6 @@ void VisualizerPanel::initPanel() {
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
    int fontHeight = recentOS ? 10 : 8;
 
-   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), _configIO.getPreference(PREF_PASTE_RPAD).c_str());
-   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), _configIO.getPreference(PREF_PASTE_LPAD).c_str());
-
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
@@ -229,6 +226,11 @@ void VisualizerPanel::initPanel() {
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FALSE);
 
    Utils::setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
+
+   if (!utf8Config) return;
+
+   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), _configIO.getPreference(PREF_PASTE_RPAD).c_str());
+   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), _configIO.getPreference(PREF_PASTE_LPAD).c_str());
 
    if (_gLanguage != LANG_ENGLISH) localize();
 }
@@ -262,6 +264,9 @@ void VisualizerPanel::display(bool toShow) {
    hFieldInfo = GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO);
 
    if (toShow) {
+      utf8Config = _configIO.checkConfigFilesforUCS16();
+      if (!utf8Config) return;
+
       CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT,
          _configIO.getPreferenceBool(PREF_ADFT) ? BST_CHECKED : BST_UNCHECKED);
       showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
@@ -293,6 +298,8 @@ void VisualizerPanel::showCaretFramedState(bool framed) {
 }
 
 void VisualizerPanel::loadListFileTypes() {
+   if (!utf8Config) return;
+
    vector<string> fileTypes;
    _configIO.getConfigValueList(fileTypes, "Base", "FileTypes");
 
@@ -313,6 +320,8 @@ void VisualizerPanel::loadListFileTypes() {
 
 void VisualizerPanel::loadListThemes() {
    SendMessage(hThemesLB, CB_RESETCONTENT, NULL, NULL);
+
+   if (!utf8Config) return;
 
    vector<wstring> themesList;
    _configIO.getThemesList(themesList);
@@ -1285,6 +1294,8 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, string& f
 }
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
+   if (!utf8Config) return false;
+
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
    size_t startPos, endPos;
 

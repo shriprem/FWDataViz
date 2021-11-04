@@ -403,14 +403,19 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_FWVIZ_DEF_BACKUP_LOAD_BTN:
                if (!promptDiscardChangesNo()) {
-                  wstring sBackupConfigFile;
+                  wstring backupConfigFile;
 
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, TRUE, sBackupConfigFile)) {
-                     configFile = sBackupConfigFile;
-                     loadConfigInfo();
-                     fillFileTypes();
-                     cleanConfigFile = FALSE;
-                     enableFileSelection();
+                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, TRUE, backupConfigFile)) {
+                     if (_configIO.isUCS16File(backupConfigFile))
+                        _configIO.convertUCS16FiletoUTF8(backupConfigFile);
+
+                     if (!_configIO.isUCS16File(backupConfigFile)) {
+                        configFile = backupConfigFile;
+                        loadConfigInfo();
+                        fillFileTypes();
+                        cleanConfigFile = FALSE;
+                        enableFileSelection();
+                     }
                   }
                }
                break;
