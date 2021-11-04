@@ -23,7 +23,7 @@ void JumpToField::doDialog(HINSTANCE hInst) {
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
-void JumpToField::initDialog(const wstring fileType, int recordIndex,
+void JumpToField::initDialog(const string fileType, int recordIndex,
    int fieldIndex, const vector<wstring>& fieldLabels) {
    initFileType = fileType;
    initRecordRegIndex = recordIndex;

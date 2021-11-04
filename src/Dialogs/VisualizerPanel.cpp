@@ -17,7 +17,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             case IDC_VIZPANEL_FILETYPE_SELECT:
                switch HIWORD(wParam) {
                   case CBN_SELCHANGE:
-                     visualizeFile(L"", FALSE, FALSE, FALSE);
+                     visualizeFile("", FALSE, FALSE, FALSE);
                      break;
                }
                break;
@@ -111,9 +111,9 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
                switch HIWORD(wParam) {
                   case EN_CHANGE:
-                     TCHAR padChars[MAX_PATH];
+                     wchar_t padChars[MAX_PATH];
                      GetWindowText(GetDlgItem(_hSelf, ctrlID), padChars, MAX_PATH);
-                     _configIO.setPreference(leftEdge ? PREF_PASTE_RPAD : PREF_PASTE_LPAD, wstring(padChars));
+                     _configIO.setPreference(leftEdge ? PREF_PASTE_RPAD : PREF_PASTE_LPAD, padChars);
                      break;
 
                   case EN_SETFOCUS:
@@ -139,7 +139,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case WM_SHOWWINDOW:
          Utils::checkMenuItem(MI_FWVIZ_PANEL, wParam);
          showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
-         visualizeFile(L"", TRUE, TRUE, TRUE);
+         visualizeFile("", TRUE, TRUE, TRUE);
          break;
 
       case WM_SIZE:
@@ -279,7 +279,7 @@ void VisualizerPanel::display(bool toShow) {
       CheckDlgButton(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM,
          _configIO.getPreferenceBool(PREF_COPY_TRIM) ? BST_CHECKED : BST_UNCHECKED);
 
-      visualizeFile(L"", TRUE, TRUE, TRUE);
+      visualizeFile("", TRUE, TRUE, TRUE);
       SetFocus(hFTList);
    }
 }
@@ -293,11 +293,8 @@ void VisualizerPanel::showCaretFramedState(bool framed) {
 }
 
 void VisualizerPanel::loadListFileTypes() {
-   vector<wstring> fileTypes;
-   wstring fileTypeList;
-
-   fileTypeList = _configIO.getConfigWideChar(L"Base", L"FileTypes");
-   _configIO.Tokenize(fileTypeList, fileTypes);
+   vector<string> fileTypes;
+   _configIO.getConfigValueList(fileTypes, "Base", "FileTypes");
 
    mapFileDescToType.clear();
    mapFileTypeToDesc.clear();
@@ -305,10 +302,8 @@ void VisualizerPanel::loadListFileTypes() {
    SendMessage(hFTList, CB_RESETCONTENT, NULL, NULL);
    SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
 
-   for (wstring fType : fileTypes) {
-      wstring fileLabel;
-
-      fileLabel = _configIO.getConfigWideChar(fType, L"FileLabel");
+   for (string fType : fileTypes) {
+      wstring fileLabel{ _configIO.getConfigWideChar(fType, "FileLabel") };
 
       mapFileDescToType[fileLabel] = fType;
       mapFileTypeToDesc[fType] = fileLabel;
@@ -319,7 +314,8 @@ void VisualizerPanel::loadListFileTypes() {
 void VisualizerPanel::loadListThemes() {
    SendMessage(hThemesLB, CB_RESETCONTENT, NULL, NULL);
 
-   vector<wstring> themesList = _configIO.getAvailableThemesList();
+   vector<wstring> themesList;
+   _configIO.getThemesList(themesList);
 
    for (const wstring theme : themesList) {
       SendMessage(hThemesLB, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
@@ -330,7 +326,7 @@ void VisualizerPanel::syncListFileTypes() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   wstring fileType;
+   string fileType;
 
    getDocFileType(hScintilla, fileType);
    _configIO.setCurrentConfigFile(fileType);
@@ -404,7 +400,7 @@ void VisualizerPanel::enableThemeList(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
 }
 
-void VisualizerPanel::visualizeFile(wstring fileType, bool ab_cachedFT, bool autoFT, bool syncFT) {
+void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool autoFT, bool syncFT) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -438,7 +434,7 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool ab_cachedFT, bool aut
    setDocFileType(hScintilla, fileType);
    if (syncFT) syncListFileTypes();
 
-   setDocTheme(hScintilla, fileType, L"");
+   setDocTheme(hScintilla, fileType, "");
    syncListThemes();
 
    loadUsedThemes();
@@ -449,11 +445,11 @@ void VisualizerPanel::visualizeFile(wstring fileType, bool ab_cachedFT, bool aut
    setFocusOnEditor();
 }
 
-void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx) {
+void VisualizerPanel::jumpToField(const string fileType, const int recordIndex, const int fieldIdx) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   wstring currFileType{};
+   string currFileType{};
    if (!getDocFileType(hScintilla, currFileType) || (fileType != currFileType)) {
       MessageBox(_hSelf, VIZ_PANEL_JUMP_CHANGED_DOC, VIZ_PANEL_JUMP_FIELD_TITLE, MB_OK | MB_ICONSTOP);
       return;
@@ -469,12 +465,12 @@ void VisualizerPanel::jumpToField(const wstring fileType, const int recordIndex,
 
 void VisualizerPanel::fieldLeft() {
    if (caretFieldIndex >= 0)
-      moveToFieldEdge(L"", caretFieldIndex, FALSE, FALSE);
+      moveToFieldEdge("", caretFieldIndex, FALSE, FALSE);
 }
 
 void VisualizerPanel::fieldRight() {
    if (caretFieldIndex >= 0)
-      moveToFieldEdge(L"", caretFieldIndex, TRUE, FALSE);
+      moveToFieldEdge("", caretFieldIndex, TRUE, FALSE);
 }
 
 void VisualizerPanel::fieldCopy() {
@@ -484,7 +480,7 @@ void VisualizerPanel::fieldCopy() {
    if (!hScintilla) return;
 
    int leftPos{}, rightPos{};
-   if (getFieldEdges(L"", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
+   if (getFieldEdges("", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
 
    if (leftPos >= rightPos) return;
 
@@ -518,7 +514,7 @@ void VisualizerPanel::fieldPaste() {
    if (!hScintilla) return;
 
    int leftPos{}, rightPos{};
-   if (getFieldEdges(L"", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
+   if (getFieldEdges("", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
 
    int fieldCurrLen{ rightPos - leftPos };
    if (fieldCurrLen < 1) return;
@@ -564,7 +560,7 @@ void VisualizerPanel::visualizeTheme() {
       return;
    }
 
-   setDocTheme(getCurrentScintilla(), L"", theme);
+   setDocTheme(getCurrentScintilla(), "", Utils::WideToNarrow(theme));
    loadUsedThemes();
    applyStyles();
 }
@@ -577,8 +573,8 @@ void VisualizerPanel::clearVisualize(bool sync) {
    SendMessage(hScintilla, SCI_SETSTYLING,
       SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
 
-   setDocFileType(hScintilla, L"");
-   setDocTheme(hScintilla, L"", L"");
+   setDocFileType(hScintilla, "");
+   setDocTheme(hScintilla, "", "");
    clearLexer();
 
    if (sync) {
@@ -591,12 +587,12 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    ThemeInfo TI{};
 
    TI.name = theme;
-   _configIO.getFullStyle(theme, L"EOL", TI.styleEOL);
+   _configIO.getFullStyle(theme, "EOL", TI.styleEOL);
 
    int styleCount{};
-   wchar_t bufKey[8];
+   char bufKey[8];
 
-   styleCount = Utils::StringtoInt(_configIO.getStyleValue(theme, L"Count"));
+   styleCount = Utils::StringtoInt(_configIO.getStyleValue(theme, "Count"));
 
    // Do not load more than FW_STYLE_CACHE_ITEMS_LIMIT styles (including EOL style)
    styleCount = (loadedStyleCount + styleCount >= FW_STYLE_CACHE_ITEMS_LIMIT) ?
@@ -607,7 +603,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    TI.styleSet.resize(styleCount);
 
    for (int i{}; i < styleCount; i++) {
-      swprintf(bufKey, 8, L"BFBI_%02i", i);
+      snprintf(bufKey, 8, "BFBI_%02i", i);
       _configIO.getFullStyle(theme, bufKey, TI.styleSet[i]);
    }
 
@@ -638,7 +634,7 @@ int VisualizerPanel::loadUsedThemes() {
    loadedStyleCount = 0;
    themeSet.clear();
 
-   wstring fileType;
+   string fileType;
    if (!getDocFileType(hScintilla, fileType)) return 0;
    _configIO.setCurrentConfigFile(fileType);
 
@@ -648,16 +644,12 @@ int VisualizerPanel::loadUsedThemes() {
    loadedStyleCount += loadTheme(fileTheme);
 
    // Load Record Type themes different than File Type theme
-   vector<wstring> recTypesList;
-   wstring recTypes;
-   int recTypeCount;
-
-   recTypes = _configIO.getConfigWideChar(fileType, L"RecordTypes", L"");
-   recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
+   vector<string> recTypesList;
+   int recTypeCount{ _configIO.getConfigValueList(recTypesList, fileType, "RecordTypes") };
 
    for (int i{}; i < recTypeCount; i++) {
       wstring recTheme{};
-      recTheme = _configIO.getConfigWideChar(fileType, (recTypesList[i] + L"_Theme"), L"");
+      recTheme = _configIO.getConfigWideChar(fileType, (recTypesList[i] + "_Theme"));
 
       if ((recTheme != L"") && (recTheme != fileTheme))
          loadedStyleCount += loadTheme(recTheme);
@@ -722,10 +714,7 @@ int VisualizerPanel::loadLexer() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
-   wstring fileType;
-   wstring recTypeList;
-   vector<wstring> recTypes;
-   int recTypeCount;
+   string fileType;
 
    if (!getDocFileType(hScintilla, fileType)) {
       clearLexer();
@@ -740,24 +729,24 @@ int VisualizerPanel::loadLexer() {
       return static_cast<int>(recInfoList.size());
    }
 
-   recTypeList = _configIO.getConfigWideChar(fileType, L"RecordTypes");
-   recTypeCount = _configIO.Tokenize(recTypeList, recTypes);
+   vector<string> recTypes;
+   int recTypeCount{ _configIO.getConfigValueList(recTypes, fileType, "RecordTypes") };
 
    recInfoList.resize(recTypeCount);
 
    for (int i{}; i < recTypeCount; i++) {
-      wstring& recType = recTypes[i];
+      string& recType = recTypes[i];
       RecordInfo& RT = recInfoList[i];
 
-      RT.label = _configIO.getConfigWideChar(fileType, (recType + L"_Label"), recType);
-      RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L".");
+      RT.label = _configIO.getConfigWideChar(fileType, (recType + "_Label"), recType, "");
+      RT.marker = _configIO.getConfigStringA(fileType, (recType + "_Marker"), ".", "");
       RT.regExpr = regex{ RT.marker + ".*" };
-      RT.theme = _configIO.getConfigWideChar(fileType, (recType + L"_Theme"), L"");
+      RT.theme = _configIO.getConfigWideChar(fileType, (recType + "_Theme"));
 
-      wstring fieldWidthList;
+      string fieldWidthList;
       int fieldCount;
 
-      fieldWidthList = _configIO.getConfigWideChar(fileType, (recType + L"_FieldWidths"));
+      fieldWidthList = _configIO.getConfigStringA(fileType, (recType + "_FieldWidths"));
       fieldCount = _configIO.Tokenize(fieldWidthList, RT.fieldWidths);
 
       RT.fieldStarts.clear();
@@ -770,7 +759,7 @@ int VisualizerPanel::loadLexer() {
 
       wstring fieldLabelList;
 
-      fieldLabelList = _configIO.getConfigWideChar(fileType, (recType + L"_FieldLabels"));
+      fieldLabelList = _configIO.getConfigWideChar(fileType, (recType + "_FieldLabels"));
       _configIO.Tokenize(fieldLabelList, RT.fieldLabels);
    }
 
@@ -795,7 +784,7 @@ int VisualizerPanel::loadLexer() {
          dbgMessage += L" (" + to_wstring(RT.fieldStarts[j]) + L", " + to_wstring(RT.fieldWidths[j]) + L"),";
       }
 
-      MessageBox(_hSelf, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
+      MessageBox(_hSelf, dbgMessage.c_str(), L"", MB_OK);
    }
 #endif
 
@@ -808,7 +797,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
-   wstring fileType;
+   string fileType;
    if (!getDocFileType(sciFunc, sciPtr, fileType)) return;
 
    wstring fileTheme;
@@ -825,7 +814,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    const size_t regexedCount{ recInfoList.size() };
    bool newRec{ TRUE };
 
-   eolMarker = _configIO.getConfigStringA(fileType, L"RecordTerminator");
+   eolMarker = _configIO.getConfigStringA(fileType, "RecordTerminator");
    eolMarkerLen = eolMarker.length();
 
    bool byteCols{ !_configIO.getMultiByteLexing(fileType) };
@@ -936,7 +925,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          dbgPos += recFieldWidths[i];
       }
 
-      MessageBox(_hSelf, dbgMessage.c_str(), fwVizRegexed.c_str(), MB_OK);
+      MessageBox(_hSelf, dbgMessage.c_str(), L"", MB_OK);
 #endif
 
       if (byteCols) {
@@ -1034,14 +1023,14 @@ void VisualizerPanel::resizeCaretFieldInfo(int width) {
    MoveWindow(hFieldInfo, pt.x, pt.y, (width - pt.x - 3), (rcInfo.bottom - rcInfo.top), TRUE);
 }
 
-int VisualizerPanel::getFieldEdges(const wstring fileType, const int fieldIdx, const int rightPullback,
+int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback,
    int& leftPos, int& rightPos) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
-   wstring currFileType{};
+   string currFileType{};
 
-   if (fileType == L"") {
+   if (fileType == "") {
       if (!getDocFileType(hScintilla, currFileType)) return -1;
    }
    else {
@@ -1075,7 +1064,7 @@ int VisualizerPanel::getFieldEdges(const wstring fileType, const int fieldIdx, c
    return 0;
 }
 
-void VisualizerPanel::moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilite) {
+void VisualizerPanel::moveToFieldEdge(const string fileType, const int fieldIdx, bool rightEdge, bool hilite) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -1104,7 +1093,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   wstring fileType;
+   string fileType;
 
    if (!getDocFileType(hScintilla, fileType)) return;
 
@@ -1242,7 +1231,7 @@ void VisualizerPanel::showJumpDialog() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   wstring fileType;
+   string fileType;
    if (!getDocFileType(hScintilla, fileType)) return;
 
    RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
@@ -1270,50 +1259,47 @@ void VisualizerPanel::showExtractDialog() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   wstring fileType;
+   string fileType;
    if (!getDocFileType(hScintilla, fileType)) return;
 
    _dataExtractDlg.doDialog((HINSTANCE)_gModule);
    _dataExtractDlg.initDialog(fileType, recInfoList);
 }
 
-bool VisualizerPanel::getDocFileType(HWND hScintilla, wstring& fileType) {
+bool VisualizerPanel::getDocFileType(HWND hScintilla, string& fileType) {
    char fType[MAX_PATH]{};
 
    SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
-   fileType = Utils::NarrowToWide(fType);
+   fileType = fType;
 
    return (fileType.length() > 0);
 }
 
-bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, wstring& fileType) {
+bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, string& fileType) {
    char fType[MAX_PATH]{};
 
    sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
-   fileType = Utils::NarrowToWide(fType);
+   fileType = fType;
 
    return (fileType.length() > 0);
 }
 
-bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
+bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
    size_t startPos, endPos;
 
-   vector<wstring> fileTypes;
-   wstring fileTypeList;
+   vector<string> fileTypes;
+   _configIO.getConfigValueList(fileTypes, "Base", "FileTypes");
 
-   fileTypeList = _configIO.getConfigWideChar(L"Base", L"FileTypes");
-   _configIO.Tokenize(fileTypeList, fileTypes);
-
-   for (wstring fType : fileTypes) {
+   for (string fType : fileTypes) {
       bool matched{ FALSE };
 
       for (int i{}; i < ADFT_MAX; i++) {
-         wchar_t idx[5];
-         swprintf(idx, 5, L"%02d", i + 1);
+         char idx[5];
+         snprintf(idx, 5, "%02d", i + 1);
 
-         int line = _configIO.getConfigInt(fType, L"ADFT_Line_" + wstring{ idx });
-         string strRegex = _configIO.getConfigStringA(fType, L"ADFT_Regex_" + wstring{ idx });
+         int line = _configIO.getConfigInt(fType, "ADFT_Line_" + string{ idx });
+         string strRegex = _configIO.getConfigStringA(fType, "ADFT_Regex_" + string{ idx });
 
          if (line == 0) continue;
 
@@ -1341,7 +1327,7 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, wstring& fileType) {
       if (matched) {
          fileType = fType;
          setDocFileType(hScintilla, fileType);
-         setDocTheme(hScintilla, fileType, L"");
+         setDocTheme(hScintilla, fileType, "");
          break;
       }
    }
@@ -1367,33 +1353,31 @@ bool VisualizerPanel::getDocTheme(PSCIFUNC_T sciFunc, void* sciPtr, wstring& the
    return (theme.length() > 0);
 }
 
-void VisualizerPanel::setDocFileType(HWND hScintilla, wstring fileType) {
+void VisualizerPanel::setDocFileType(HWND hScintilla, string fileType) {
    enableThemeList(fileType.length() > 0);
-   SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE,
-      (LPARAM)Utils::WideToNarrow(fileType).c_str());
+   SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fileType.c_str());
 }
 
-void VisualizerPanel::setDocTheme(HWND hScintilla, wstring fileType, wstring theme) {
+void VisualizerPanel::setDocTheme(HWND hScintilla, string fileType, string theme) {
    if (fileType.length() > 0)
-      theme = _configIO.getConfigWideChar(fileType, L"FileTheme");
+      theme = _configIO.getConfigStringA(fileType, "FileTheme");
 
-   SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_THEME,
-      (LPARAM)Utils::WideToNarrow(theme).c_str());
+   SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)theme.c_str());
 }
 
 void VisualizerPanel::setADFTCheckbox() {
    bool checked{ IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED };
 
    _configIO.setPreferenceBool(PREF_ADFT, checked);
-   if (checked) visualizeFile(L"", FALSE, TRUE, TRUE);
+   if (checked) visualizeFile("", FALSE, TRUE, TRUE);
 }
 
 void VisualizerPanel::setPanelMBCharState() {
    _configIO.setPanelMBCharState(IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE));
-   visualizeFile(L"", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
+   visualizeFile("", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
 }
 
-void VisualizerPanel::setPanelMBCharIndicator(wstring fileType) {
+void VisualizerPanel::setPanelMBCharIndicator(string fileType) {
    wstring indicator{};
    UINT state{ IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE) };
 
@@ -1401,7 +1385,7 @@ void VisualizerPanel::setPanelMBCharIndicator(wstring fileType) {
       indicator = L"";
    else if (state == BST_CHECKED)
       indicator = L"*";
-   else if (_configIO.getConfigWideChar(fileType, L"MultiByteChars", L"N") == L"Y")
+   else if (_configIO.getConfigStringA(fileType, "MultiByteChars", "N", "") == "Y")
       indicator = L"+";
    else
       indicator = L"-";
@@ -1410,7 +1394,7 @@ void VisualizerPanel::setPanelMBCharIndicator(wstring fileType) {
 }
 
 void VisualizerPanel::onBufferActivate() {
-   if (isVisible()) visualizeFile(L"", TRUE, TRUE, TRUE);
+   if (isVisible()) visualizeFile("", TRUE, TRUE, TRUE);
 }
 
 void VisualizerPanel::setFocusOnEditor() {
@@ -1422,7 +1406,7 @@ void VisualizerPanel::setFocusOnEditor() {
 
 void VisualizerPanel::clearLexer() {
    recInfoList.clear();
-   fwVizRegexed = L"";
+   fwVizRegexed = "";
 }
 
 void VisualizerPanel::popupSamplesMenu() {

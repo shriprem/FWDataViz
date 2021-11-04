@@ -41,7 +41,7 @@ protected:
    };
 
    vector<ThemeType> vThemeTypes;
-   wstring themeFile{ L"" };
+   wstring themeFile{};
    int swatchTopIndex{};
    bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleDefs, styleDefColor;
 

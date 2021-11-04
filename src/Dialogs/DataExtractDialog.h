@@ -17,13 +17,14 @@ class DataExtractDialog : public StaticDialog {
 public:
    DataExtractDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
-   void initDialog(const wstring fileType, const vector<RecordInfo>& recInfoList);
+   void initDialog(const string fileType, const vector<RecordInfo>& recInfoList);
    bool processKey(HWND hCtrl, WPARAM wParam);
    bool processSysKey(HWND hCtrl, WPARAM wParam);
 
 protected:
    int currentLineItem{}, currentPage{};
-   wstring initFileType{}, initFileTypeLabel{}, extractsConfigFile{};
+   string extractsConfigFile{}, initFileType{};
+   wstring initFileTypeLabel{};
    const vector<RecordInfo>* pRecInfoList;
 
    HWND hIndicator, hTemplatesList, hTemplateName;
@@ -57,8 +58,8 @@ protected:
 
    int loadTemplatesList();
    void loadTemplate();
-   wstring getSelectedTemplate();
-   wstring getTemplateName();
+   string getSelectedTemplate();
+   string getTemplateName();
    void enableSaveTemplate();
    void enableDeleteTemplate();
    void saveTemplate();

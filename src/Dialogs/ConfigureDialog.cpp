@@ -535,61 +535,53 @@ void ConfigureDialog::indicateCleanStatus() {
 }
 
 int ConfigureDialog::loadConfigInfo() {
-   vector<wstring> fileTypeList;
-   wstring sFileTypes;
-   int fileTypeCount;
-
-   sFileTypes = _configIO.getConfigWideChar(L"Base", L"FileTypes", L"", configFile);
-   fileTypeCount = _configIO.Tokenize(sFileTypes, fileTypeList);
+   vector<string> fileTypeList;
+   int fileTypeCount{ _configIO.getConfigValueList(fileTypeList, "Base", "FileTypes", "", Utils::WideToNarrow(configFile)) };
 
    vFileTypes.clear();
    vFileTypes.resize(fileTypeCount);
 
    for (int i{}; i < fileTypeCount; i++) {
-      wstring& fileType = fileTypeList[i];
-      loadFileTypeInfo(i, fileType, configFile);
+      loadFileTypeInfo(i, fileTypeList[i], configFile);
    }
 
    return static_cast<int>(vFileTypes.size());
 }
 
-int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
+int ConfigureDialog::loadFileTypeInfo(int vIndex, const string& fileType, const wstring& wConfigFile) {
+   string sConfigFile{ Utils::WideToNarrow(wConfigFile) };
    FileType& FT = vFileTypes[vIndex];
 
-   FT.label = _configIO.getConfigWideChar(fileType, L"FileLabel", L"", sConfigFile);
-   FT.theme = _configIO.getConfigWideChar(fileType, L"FileTheme", L"", sConfigFile);
-   FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", sConfigFile);
+   FT.label = _configIO.getConfigWideChar(fileType, "FileLabel", "", sConfigFile);
+   FT.theme = _configIO.getConfigWideChar(fileType, "FileTheme", "", sConfigFile);
+   FT.eol = _configIO.getConfigStringA(fileType, "RecordTerminator", "", sConfigFile);
    FT.multiByte = _configIO.getMultiByteLexing(fileType);
 
    // Load ADFT data
    for (int i{}; i < ADFT_MAX; i++) {
-      wchar_t idx[5];
-      swprintf(idx, 5, L"%02d", i + 1);
+      char idx[5];
+      snprintf(idx, 5, "%02d", i + 1);
 
-      FT.lineNums[i] = _configIO.getConfigInt(fileType, L"ADFT_Line_" + wstring{ idx }, 0, sConfigFile);
-      FT.regExprs[i] = _configIO.getConfigStringA(fileType, L"ADFT_Regex_" + wstring{ idx }, L"", sConfigFile);
+      FT.lineNums[i] = _configIO.getConfigInt(fileType, "ADFT_Line_" + string{ idx }, 0, sConfigFile);
+      FT.regExprs[i] = _configIO.getConfigStringA(fileType, "ADFT_Regex_" + string{ idx }, "", sConfigFile);
    }
 
    // Load Record Type data
-   vector<wstring> recTypesList;
-   wstring recTypes;
-   int recTypeCount;
-
-   recTypes = _configIO.getConfigWideChar(fileType, L"RecordTypes", L"", sConfigFile);
-   recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
+   vector<string> recTypesList;
+   int recTypeCount{ _configIO.getConfigValueList(recTypesList, fileType, "RecordTypes", "", sConfigFile) };
 
    FT.vRecTypes.clear();
    FT.vRecTypes.resize(recTypeCount);
 
    for (int j{}; j < recTypeCount; j++) {
-      wstring& recType = recTypesList[j];
+      string& recType = recTypesList[j];
       RecordType& RT = FT.vRecTypes[j];
 
-      RT.label = _configIO.getConfigWideChar(fileType, (recType + L"_Label"), L"", sConfigFile);
-      RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L"", sConfigFile);
-      RT.theme = _configIO.getConfigWideChar(fileType, (recType + L"_Theme"), L"", sConfigFile);
-      RT.fieldWidths = _configIO.getConfigWideChar(fileType, (recType + L"_FieldWidths"), L"", sConfigFile);
-      RT.fieldLabels = _configIO.getConfigWideChar(fileType, (recType + L"_FieldLabels"), L"", sConfigFile);
+      RT.label = _configIO.getConfigWideChar(fileType, (recType + "_Label"), "", sConfigFile);
+      RT.marker = _configIO.getConfigStringA(fileType, (recType + "_Marker"), "", sConfigFile);
+      RT.theme = _configIO.getConfigWideChar(fileType, (recType + "_Theme"), "", sConfigFile);
+      RT.fieldWidths = _configIO.getConfigWideChar(fileType, (recType + "_FieldWidths"), "", sConfigFile);
+      RT.fieldLabels = _configIO.getConfigWideChar(fileType, (recType + "_FieldLabels"), "", sConfigFile);
    }
 
    return recTypeCount;
@@ -611,7 +603,8 @@ void ConfigureDialog::fillFileTypes() {
    SendMessage(hRecThemes, CB_RESETCONTENT, NULL, NULL);
    SendMessage(hRecThemes, CB_ADDSTRING, NULL, (LPARAM)FWVIZ_DEF_REC_THEME_FROM_FT);
 
-   vector<wstring> themesList = _configIO.getAvailableThemesList();
+   vector<wstring> themesList;
+   _configIO.getThemesList(themesList);
 
    for (const wstring theme : themesList) {
       SendMessage(hFileThemes, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
@@ -1213,13 +1206,13 @@ void ConfigureDialog::fileEditAccept() {
 
 int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
    int sectionCount{}, validCount{};
-   vector<wstring> sectionList{};
+   vector<string> sectionList{};
    wstring sectionLabel{};
 
-   sectionCount = _configIO.getConfigAllSectionsList(sectionList, sConfigFile);
+   sectionCount = _configIO.getConfigAllSectionsList(sectionList, Utils::WideToNarrow(sConfigFile));
 
    for (int i{}; i < sectionCount; i++) {
-      sectionLabel = _configIO.getConfigWideChar(sectionList[i], L"FileLabel", L"", sConfigFile);
+      sectionLabel = _configIO.getConfigWideChar(sectionList[i], "FileLabel", "", Utils::WideToNarrow(sConfigFile));
       if (sectionLabel.length() > 0) {
          if (!checkFTLimit(FALSE)) break;
 

@@ -11,12 +11,12 @@
 #include <unordered_map>
 #include <vector>
 
-#define PREF_ADFT             L"AutoDetectFileType"
-#define PREF_CARET_FRAMED     L"FramedCaret"
-#define PREF_CARET_FLASH      L"CaretFlashSeconds"
-#define PREF_MBCHARS_SHOW     L"ShowMBCharsOnPanel"
+#define PREF_ADFT             "AutoDetectFileType"
+#define PREF_CARET_FRAMED     "FramedCaret"
+#define PREF_CARET_FLASH      "CaretFlashSeconds"
+#define PREF_MBCHARS_SHOW     "ShowMBCharsOnPanel"
 #define PREF_MBCHARS_STATE    "PanelMBCharState"
-#define PREF_COPY_TRIM        L"CopyFieldTrim"
+#define PREF_COPY_TRIM        "CopyFieldTrim"
 #define PREF_PASTE_LPAD       "PasteFieldLPAD"
 #define PREF_PASTE_RPAD       "PasteFieldRPAD"
 
@@ -32,57 +32,61 @@ using std::vector;
 class ConfigIO {
 public:
    void init();
-
-   int setCurrentConfigFile(const wstring& docFileType);
+   int setCurrentConfigFile(const string& docFileType);
    void resetCurrentConfigFile();
-   wstring getExtractTemplatesFile();
+   string getExtractTemplatesFile() { return CONFIG_FILE_PATHS[CONFIG_EXTRACTS]; };
 
    string getConfigStringA(const string& section, const string& key, const string& default = "", string file = "");
-   string getConfigStringA(const wstring& section, const wstring& key, const wstring& default = L"", wstring file = L"");
-   wstring getConfigString(const wstring& section, const wstring& key, const wstring& default = L"", wstring file = L"");
-   void setConfigString(const wstring& section, const wstring& key, const wstring& value, wstring file = L"");
-
+   string getConfigStringA(const wstring& section, const string& key, const string& default = "", wstring file = L"");
    wstring getConfigWideChar(const string& section, const string& key, const string& default = "", string file = "");
-   wstring getConfigWideChar(const wstring& section, const wstring& key, const wstring& default = L"", wstring file = L"");
+   wstring getConfigWideChar(const wstring& section, const string& key, const string& default = "", wstring file = L"");
+
+   void setConfigStringA(const string& section, const string& key, const string& value, string file = "");
    void setConfigMultiByte(const string& section, const string& key, const wstring& value, string file = "");
-   void setConfigMultiByte(const wstring& section, const wstring& key, const wstring& value, wstring file = L"");
 
-   int getConfigInt(const wstring& section, const wstring& key, const int& default = 0, wstring file = L"");
-   int getConfigAllSections(wstring& sections, wstring file);
-   int getConfigAllSectionsList(vector<wstring>& sectionsList, wstring file);
+   int getConfigInt(const string& section, const string& key, const int& default = 0, string file = "");
+   int getConfigInt(const wstring& section, const string& key, const int& default = 0, wstring file = L"");
 
-   void deleteKey(const wstring& section, const wstring& key, wstring file = L"");
-   void deleteSection(const wstring& section, wstring file = L"");
-   void flushConfigFile();
-
-   void openConfigFile(LPSTR configData, const size_t readLength, wstring file = L"");
-   void saveConfigFile(const wstring& fileData, bool bViz, wstring file = L"");
-
-   int Tokenize(const wstring& text, vector<wstring>& results, LPCWSTR delim = L",");
-   int Tokenize(const wstring& text, vector<int>& results, LPCWSTR delim = L",");
-
-   void ActivateNewLineTabs(wstring& str);
-
-   vector<wstring> getAvailableThemesList();
-   wstring getStyleValue(const wstring& theme, const wstring& styleName, wstring file = L"");
-   void getFullStyle(const wstring& theme, const wstring& styleName, StyleInfo& style, wstring file = L"");
-
-   void backupConfigFile(bool bViz);
-   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile);
-   void viewBackupFolder();
-   int getBackupTempFileName(wstring& tempFileName);
+   wstring getStyleValue(const wstring& theme, const string& styleName, wstring file = L"");
+   void getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file = L"");
 
    wstring getPreference(const string key, const string default = "");
    void setPreference(const string key, const wstring value);
 
-   bool getPreferenceBool(const wstring key, const bool default = TRUE);
-   void setPreferenceBool(const wstring key, const bool value);
+   bool getPreferenceBool(const string key, const bool default = TRUE);
+   void setPreferenceBool(const string key, const bool value);
 
-   int getPreferenceInt(const wstring key, const int default = 0);
-   void setPreferenceInt(const wstring key, const int value);
+   int getPreferenceInt(const string key, const int default = 0);
+   void setPreferenceInt(const string key, const int value);
 
    void setPanelMBCharState(UINT state);
-   bool getMultiByteLexing(wstring fileType);
+   bool getMultiByteLexing(string fileType);
+
+   int getConfigAllSections(string& sections, string file);
+   int getConfigAllSectionsList(vector<string>& sectionsList, string file);
+   int getConfigAllSectionsList(vector<wstring>& sectionsList, wstring file);
+
+   int getConfigValueList(vector<string>& valList, const string& section, const string& key,
+      const string& default = "", string file = "");
+   int getThemesList(vector<wstring>& valList, wstring file = L"");
+
+   int Tokenize(const string& text, vector<string>& results, const string& delim = ",");
+   int Tokenize(const wstring& text, vector<wstring>& results, const wstring& delim = L",");
+   int Tokenize(const string& text, vector<int>& results, const string& delim = ",");
+
+   void ActivateNewLineTabs(wstring& str);
+   void deleteKey(const wstring& section, const wstring& key, wstring file = L"");
+   void deleteSection(const string& section, string file = "");
+
+   void openConfigFile(LPSTR configData, const size_t readLength, wstring file = L"");
+   BOOL queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, bool bViz, wstring& backupConfigFile);
+   void saveConfigFile(const wstring& fileData, bool bViz, wstring file = L"");
+
+   int getBackupTempFileName(wstring& tempFileName);
+   void backupConfigFile(bool bViz);
+   void viewBackupFolder();
+
+   void flushConfigFile();
 
 protected:
    TCHAR pluginConfigDir[MAX_PATH];
@@ -104,3 +108,4 @@ protected:
    wstring wCurrentConfigFile{};
    string currentConfigFile{};
 };
+

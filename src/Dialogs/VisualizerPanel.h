@@ -48,15 +48,15 @@ public :
    void showCaretFramedState(bool framed);
 
    void loadListFileTypes();
-   bool getDocFileType(HWND hScintilla, wstring& fileType);
-   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, wstring& fileType);
+   bool getDocFileType(HWND hScintilla, string& fileType);
+   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, string& fileType);
    void loadListThemes();
    void onBufferActivate();
    void renderCurrentPage();
-   void visualizeFile(wstring fileType, bool ab_cachedFT, bool autoFT, bool syncFT);
+   void visualizeFile(string fileType, bool ab_cachedFT, bool autoFT, bool syncFT);
 
    void showJumpDialog();
-   void jumpToField(const wstring fileType, const int recordIndex, const int fieldIdx);
+   void jumpToField(const string fileType, const int recordIndex, const int fieldIdx);
    void fieldLeft();
    void fieldRight();
    void fieldCopy();
@@ -75,8 +75,8 @@ protected :
    bool leftAlign{};
 
    // File Type data
-   std::unordered_map<wstring, wstring> mapFileDescToType;
-   std::unordered_map<wstring, wstring> mapFileTypeToDesc;
+   std::unordered_map<wstring, string> mapFileDescToType;
+   std::unordered_map<string, wstring> mapFileTypeToDesc;
 
    // Styleset data
    struct ThemeInfo {
@@ -90,20 +90,20 @@ protected :
    int loadedStyleCount;
 
    // Regex data
-   wstring fwVizRegexed{};
+   string fwVizRegexed{};
 
    vector<RecordInfo> recInfoList;
 
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
-   bool detectFileType(HWND hScintilla, wstring& fileType);
+   bool detectFileType(HWND hScintilla, string& fileType);
    bool getDocTheme(HWND hScintilla, wstring& theme);
    bool getDocTheme(PSCIFUNC_T sci_func, void* sci_ptr, wstring& theme);
-   void setDocFileType(HWND hScintilla, wstring fileType);
-   void setDocTheme(HWND hScintilla, wstring fileType, wstring theme);
+   void setDocFileType(HWND hScintilla, string fileType);
+   void setDocTheme(HWND hScintilla, string fileType, string theme);
    void setADFTCheckbox();
    void setPanelMBCharState();
-   void setPanelMBCharIndicator(wstring fileType);
+   void setPanelMBCharIndicator(string fileType);
 
    void enableThemeList(bool enable);
    void syncListFileTypes();
@@ -122,8 +122,8 @@ protected :
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();
    void resizeCaretFieldInfo(int width);
-   int getFieldEdges(const wstring fileType, const int fieldIdx, const int rightPullback, int& leftPos, int& rightPos);
-   void moveToFieldEdge(const wstring fileType, const int fieldIdx, bool rightEdge, bool hilite);
+   int getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback, int& leftPos, int& rightPos);
+   void moveToFieldEdge(const string fileType, const int fieldIdx, bool rightEdge, bool hilite);
    void setFieldAlign(bool left);
    void popupSamplesMenu();
 

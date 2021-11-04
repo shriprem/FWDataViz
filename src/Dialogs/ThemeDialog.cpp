@@ -376,11 +376,7 @@ void ThemeDialog::indicateCleanStatus() {
 
 int ThemeDialog::loadConfigInfo() {
    vector<wstring> themesList;
-   wstring sThemes;
-   int themesCount;
-
-   sThemes = _configIO.getStyleValue(L"Base", L"Themes", themeFile);
-   themesCount = _configIO.Tokenize(sThemes, themesList);
+   int themesCount{ _configIO.getThemesList(themesList, themeFile) };
 
    vThemeTypes.clear();
    vThemeTypes.resize(themesCount);
@@ -397,18 +393,18 @@ int ThemeDialog::loadThemeInfo(int vIndex, const wstring& themeType, const wstri
    ThemeType& TT = vThemeTypes[vIndex];
 
    TT.label = themeType;
-   _configIO.getFullStyle(themeType, L"EOL", TT.eolStyle, sThemeFile);
+   _configIO.getFullStyle(themeType, "EOL", TT.eolStyle, sThemeFile);
 
-   wchar_t buf[10];
+   char buf[10];
    int styleCount;
 
-   styleCount = Utils::StringtoInt(_configIO.getStyleValue(themeType, L"Count", sThemeFile));
+   styleCount = Utils::StringtoInt(_configIO.getStyleValue(themeType, "Count", sThemeFile));
 
    TT.vStyleInfo.clear();
    TT.vStyleInfo.resize(styleCount);
 
    for (int i{}; i < styleCount; i++) {
-      swprintf(buf, 8, L"BFBI_%02i", i);
+      snprintf(buf, 8, "BFBI_%02i", i);
       _configIO.getFullStyle(themeType, buf, TT.vStyleInfo[i], sThemeFile);
    }
 
@@ -1017,7 +1013,7 @@ int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
    sectionCount = _configIO.getConfigAllSectionsList(sectionList, sThemeFile);
 
    for (int i{}; i < sectionCount; i++) {
-      if (_configIO.getConfigInt(sectionList[i], L"Count", 0, sThemeFile) > 0) {
+      if (_configIO.getConfigInt(sectionList[i], "Count", 0, sThemeFile) > 0) {
          if (!checkThemeLimit(FALSE)) break;
 
          ThemeType newTheme{ getNewTheme() };

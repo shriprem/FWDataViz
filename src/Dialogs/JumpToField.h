@@ -11,11 +11,11 @@ class JumpToField : public StaticDialog {
 public:
    JumpToField() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
-   void initDialog(const wstring fileType, int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels);
+   void initDialog(const string fileType, int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels);
    void setFileTypeData(const wstring& ftConfig);
 
 protected:
-   wstring initFileType{};
+   string initFileType{};
    int initRecordRegIndex;
    HWND hFieldList, hCaretFlash;
 

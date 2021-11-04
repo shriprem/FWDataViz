@@ -226,7 +226,7 @@
 #define DATA_EXTRACT_CLOSE_BTN      L"&Close"
 #define DATA_EXTRACT_TEMPLATE_GROUP L"Reusable Templates"
 #define DATA_EXTRACT_TEMPLATE_CURR  L"Show only current FileType Templates"
-#define DATA_EXTRACT_TEMPLATE_OTHER L"[Other] "
+#define DATA_EXTRACT_TEMPLATE_OTHER "[Other] "
 #define DATA_EXTRACT_TEMPLATE_LOAD  L"Load Template:"
 #define DATA_EXTRACT_TEMPLATE_NAME  L"Template Name:"
 #define DATA_EXTRACT_TEMPLATE_SAVE  L"&Save Template"

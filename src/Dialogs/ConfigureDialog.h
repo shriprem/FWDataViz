@@ -54,7 +54,7 @@ protected:
       string regExprs[ADFT_MAX]{};
    };
 
-   wstring configFile{ L"" };
+   wstring configFile{};
    vector<FileType> vFileTypes;
    bool loadingEdits, cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
    HWND hToolTips[8];
@@ -63,7 +63,7 @@ protected:
    void localize();
    void indicateCleanStatus();
    int loadConfigInfo();
-   int loadFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile);
+   int loadFileTypeInfo(int vIndex, const string& fileType, const wstring& sConfigFile);
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);
