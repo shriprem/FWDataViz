@@ -404,10 +404,11 @@ void ConfigIO::viewBackupFolder() {
 bool ConfigIO::checkConfigFilesforUCS16() {
    bool status{ true };
 
-   for (int i{}; i < CONFIG_FILE_COUNT; i++) {
-      if (!fixIfUTF16File(WCONFIG_FILE_PATHS[i]))
-         status = false;
-   }
+   if (!fixIfUTF16File(WCONFIG_FILE_PATHS[CONFIG_VIZ]))
+      status = false;
+
+   if (!fixIfUTF16File(WCONFIG_FILE_PATHS[CONFIG_THEMES]))
+      status = false;
 
    return status;
 }

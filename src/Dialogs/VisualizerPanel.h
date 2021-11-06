@@ -124,7 +124,7 @@ protected :
    void clearCaretFieldInfo();
    void resizeCaretFieldInfo(int width);
    int getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback, int& leftPos, int& rightPos);
-   void moveToFieldEdge(const string fileType, const int fieldIdx, bool rightEdge, bool hilite);
+   void moveToFieldEdge(const string fileType, const int fieldIdx, bool jumpTo, bool rightEdge, bool hilite);
    void setFieldAlign(bool left);
    void popupSamplesMenu();
 

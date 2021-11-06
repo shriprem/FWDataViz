@@ -300,6 +300,8 @@ void VisualizerPanel::showCaretFramedState(bool framed) {
 }
 
 void VisualizerPanel::loadListFileTypes() {
+   SendMessage(hFTList, CB_RESETCONTENT, NULL, NULL);
+
    if (!utf8Config) return;
 
    vector<string> fileTypes;
@@ -308,7 +310,6 @@ void VisualizerPanel::loadListFileTypes() {
    mapFileDescToType.clear();
    mapFileTypeToDesc.clear();
 
-   SendMessage(hFTList, CB_RESETCONTENT, NULL, NULL);
    SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
 
    for (string fType : fileTypes) {
@@ -381,10 +382,10 @@ void VisualizerPanel::enableFieldControls(bool enable) {
    bool recEnabled{ enable && (caretRecordRegIndex >= 0) };
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN), recEnabled);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_EXTRACT_DATA_BTN), recEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON), recEnabled);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON), recEnabled);
 
    bool fieldEnabled{ recEnabled && (caretFieldIndex >= 0) };
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON), fieldEnabled);
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON), fieldEnabled);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON), fieldEnabled);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON), fieldEnabled);
 
@@ -398,12 +399,12 @@ void VisualizerPanel::enableFieldControls(bool enable) {
    UINT recMenu{ static_cast<UINT>(MF_BYCOMMAND | (recEnabled ? MF_ENABLED : MF_DISABLED)) };
    EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_JUMP]._cmdID, recMenu);
    EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_DATA_EXTRACTION]._cmdID, recMenu);
+   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_LEFT]._cmdID, recMenu);
+   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_RIGHT]._cmdID, recMenu);
 
    UINT fieldMenu{ static_cast<UINT>(MF_BYCOMMAND | (fieldEnabled ? MF_ENABLED : MF_DISABLED)) };
    EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_COPY]._cmdID, fieldMenu);
    EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_PASTE]._cmdID, fieldMenu);
-   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_LEFT]._cmdID, fieldMenu);
-   EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_RIGHT]._cmdID, fieldMenu);
 }
 
 void VisualizerPanel::enableThemeList(bool enable) {
@@ -471,17 +472,15 @@ void VisualizerPanel::jumpToField(const string fileType, const int recordIndex, 
       return;
    }
 
-   moveToFieldEdge(fileType, fieldIdx, FALSE, TRUE);
+   moveToFieldEdge(fileType, fieldIdx, TRUE, FALSE, TRUE);
 }
 
 void VisualizerPanel::fieldLeft() {
-   if (caretFieldIndex >= 0)
-      moveToFieldEdge("", caretFieldIndex, FALSE, FALSE);
+   moveToFieldEdge("", caretFieldIndex, FALSE, FALSE, FALSE);
 }
 
 void VisualizerPanel::fieldRight() {
-   if (caretFieldIndex >= 0)
-      moveToFieldEdge("", caretFieldIndex, TRUE, FALSE);
+   moveToFieldEdge("", caretFieldIndex, FALSE, TRUE, FALSE);
 }
 
 void VisualizerPanel::fieldCopy() {
@@ -566,7 +565,6 @@ void VisualizerPanel::fieldCopy() {
          for (int i{}; i < padLen; i++) {
             if (colText.at(leftTrimLen) == padText.at(i)) {
                leftTrimLen++;
-               leftPos++;
             }
             else {
                keepTrimming = FALSE;
@@ -576,12 +574,11 @@ void VisualizerPanel::fieldCopy() {
       }
    }
 
-   colText = colText.substr(leftTrimLen, colText.length() - leftTrimLen - rightTrimLen);
-
    if (leftPos + leftTrimLen < rightPos - rightTrimLen)
       SendMessage(hScintilla, SCI_COPYRANGE, leftPos + leftTrimLen, rightPos - rightTrimLen);
 
 #if FW_DEBUG_COPY_TRIM
+   colText = colText.substr(leftTrimLen, colText.length() - leftTrimLen - rightTrimLen);
    MessageBoxA(_hSelf, ("(" + to_string(leftTrimLen) + ", " + to_string(rightTrimLen) + ")").c_str(),
       "(LeftTrimLen, RightTrimLen)", MB_OK);
    MessageBox(_hSelf, Utils::NarrowToWide("<|" + colText + "|>").c_str(),
@@ -1046,6 +1043,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
             if (nextPos > 0 && nextPos <= eolMarkerPos) {
                sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(nextPos - currentPos),
                   styleRangeStart + ((i + colorOffset) % styleCount));
+               currentPos = nextPos;
             }
             else {
                sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(eolMarkerPos - currentPos),
@@ -1053,13 +1051,12 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
                sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
                sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, styleRangeStart - 1);
+               currentPos = 0;
                break;
             }
-
-            currentPos = nextPos;
          }
 
-         if (fieldCount > 0 && currentPos > 0 && eolMarkerPos > currentPos) {
+         if (fieldCount > 0 && currentPos > 0 && eolMarkerPos >= currentPos) {
             sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
             sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), styleRangeStart - 1);
          }
@@ -1121,7 +1118,7 @@ int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, co
 
    RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
 
-   if (fieldIdx >= static_cast<int>(FLD.fieldStarts.size())) return -1;
+   if (fieldIdx < 0 || fieldIdx >= static_cast<int>(FLD.fieldStarts.size())) return -1;
 
    int leftOffset{ FLD.fieldStarts[fieldIdx] };
    int rightOffset{ leftOffset + FLD.fieldWidths[fieldIdx] - rightPullback };
@@ -1137,21 +1134,42 @@ int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, co
          (WPARAM)caretRecordStartPos, (LPARAM)rightOffset));
    }
 
-   if (leftPos > caretEolMarkerPos)
-      leftPos = caretEolMarkerPos;
+   if (leftPos >= caretEolMarkerPos)
+      leftPos = caretEolMarkerPos - 1;
 
-   if (rightPos > caretEolMarkerPos)
-      rightPos = caretEolMarkerPos;
+   if (rightPos >= caretEolMarkerPos)
+      rightPos = caretEolMarkerPos - 1;
 
    return 0;
 }
 
-void VisualizerPanel::moveToFieldEdge(const string fileType, const int fieldIdx, bool rightEdge, bool hilite) {
+void VisualizerPanel::moveToFieldEdge(const string fileType, const int fieldIdx, bool jumpTo, bool rightEdge, bool hilite) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
+   int caretPos{ caretPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL)) };
+
+   if (fieldIdx < 0) {
+      if (caretPos >= caretEolMarkerPos) {
+         caretPos = caretEolMarkerPos - 1;
+         SendMessage(hScintilla, SCI_GOTOPOS, caretPos, NULL);
+      }
+      return;
+   }
+
    int leftPos{}, rightPos{};
    if (getFieldEdges(fileType, fieldIdx, 1, leftPos, rightPos) < 0) return;
+
+   if (!jumpTo) {
+      if (rightEdge) {
+         if (caretPos == rightPos && caretPos < caretEolMarkerPos - 1)
+            if (getFieldEdges(fileType, fieldIdx + 1, 1, leftPos, rightPos) < 0) return;
+      }
+      else {
+         if (caretPos == leftPos && caretPos > caretRecordStartPos)
+            if (getFieldEdges(fileType, fieldIdx - 1, 1, leftPos, rightPos) < 0) return;
+      }
+   }
 
    SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
    SendMessage(hScintilla, SCI_GOTOPOS, (rightEdge ? rightPos : leftPos), 0);
@@ -1367,7 +1385,7 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, string& f
 }
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
-   if (!utf8Config) return FALSE;
+   if (!_configIO.checkConfigFilesforUCS16()) return FALSE;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
    size_t startPos, endPos;
