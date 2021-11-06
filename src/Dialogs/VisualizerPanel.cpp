@@ -285,7 +285,7 @@ void VisualizerPanel::display(bool toShow) {
       CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, (mbcState == L"Y") ? BST_CHECKED : BST_UNCHECKED);
 
    CheckDlgButton(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM,
-      _configIO.getPreferenceBool(PREF_COPY_TRIM) ? BST_CHECKED : BST_UNCHECKED);
+      _configIO.getPreferenceBool(PREF_COPY_TRIM, FALSE) ? BST_CHECKED : BST_UNCHECKED);
 
    visualizeFile("", TRUE, TRUE, TRUE);
    SetFocus(hFTList);
@@ -493,29 +493,100 @@ void VisualizerPanel::fieldCopy() {
    int leftPos{}, rightPos{};
    if (getFieldEdges("", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
 
-   if (leftPos >= rightPos) return;
+   int fieldLen{ rightPos - leftPos };
+   if (fieldLen < 1) return;
+
+   // if no trimming is required, copy to clipbard and return early
+   if (!_configIO.getPreferenceBool(PREF_COPY_TRIM)) {
+      SendMessage(hScintilla, SCI_COPYRANGE, leftPos, rightPos);
+      return;
+   }
 
    string padText{};
    padText = Utils::WideToNarrow(_configIO.getPreference(leftAlign ? PREF_PASTE_RPAD : PREF_PASTE_LPAD));
    if (padText.length() < 1) padText = " ";
 
-   if (_configIO.getPreferenceBool(PREF_COPY_TRIM) && padText.length() == 1) {
-      char padChar{ padText.at(0) };
-      //MessageBoxA(_hSelf, ("<<" + to_string(padChar) + ">>").c_str(), "", MB_OK);
-      //MessageBoxA(_hSelf, (to_string(leftPos) + ", " + to_string(rightPos)).c_str(), "", MB_OK);
-      while (leftPos < rightPos - 1) {
-         if (padChar != static_cast<char>(SendMessage(hScintilla, SCI_GETCHARAT, leftAlign ? (rightPos - 1) : leftPos, 0)))
-            break;
+   int padLen{ static_cast<int>(padText.length()) };
+   int leftTrimLen{}, rightTrimLen{};
 
-         if (leftAlign)
-            rightPos--;
-         else
-            leftPos++;
+   string colText(fieldLen + 1, '\0');
+   Sci_TextRange sciTR{};
+
+   sciTR.lpstrText = colText.data();
+   sciTR.chrg.cpMin = static_cast<long>(leftPos);
+   sciTR.chrg.cpMax = static_cast<long>(rightPos);
+   SendMessage(hScintilla, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
+
+   colText = string{ colText.c_str() };
+
+   if (leftAlign && fieldLen >= padLen) {
+      // find right-most full/partial match
+      int lastPadLen{ padLen };
+      int matchStart{ fieldLen - padLen };
+      int matchingPos{};
+
+      while (lastPadLen > 0) {
+         bool matchFailed{ FALSE };
+
+         for (int i{}; i < lastPadLen ; i++) {
+            matchingPos = matchStart + i;
+            if (colText.at(matchingPos) != padText.at(i)) {
+               matchFailed = TRUE;
+               lastPadLen--;
+               matchStart++;
+               break;
+            }
+         }
+         if (!matchFailed && (matchingPos == fieldLen - 1)) break;
       }
-      //MessageBoxA(_hSelf, (to_string(leftPos) + ", " + to_string(rightPos)).c_str(), "", MB_OK);
+
+#if FW_DEBUG_COPY_TRIM
+      MessageBoxA(_hSelf, ("(" + to_string(colText.length()) + ", " + to_string(padText.length()) + ")").c_str(),
+         "(ColLen, PadLen)", MB_OK);
+      MessageBoxA(_hSelf, ("(" + to_string(lastPadLen) + ", " + to_string(matchStart) + ", " +
+         to_string(matchingPos) + ")").c_str(), "(LastPadLen, MatchStart, MatchPos)", MB_OK);
+#endif
+
+      rightTrimLen = lastPadLen;
+
+      // if right-most match found, find prior matches
+      if (lastPadLen > 0) {
+         while (fieldLen >= rightTrimLen + padLen ) {
+            if (colText.substr(fieldLen - rightTrimLen - padLen, padLen) == padText)
+               rightTrimLen += padLen;
+            else
+               break;
+         }
+      }
+   }
+   else if (!leftAlign) {
+      // trim LPADs for right align
+      bool keepTrimming{ TRUE };
+      while (keepTrimming && (leftTrimLen < fieldLen)) {
+         for (int i{}; i < padLen; i++) {
+            if (colText.at(leftTrimLen) == padText.at(i)) {
+               leftTrimLen++;
+               leftPos++;
+            }
+            else {
+               keepTrimming = FALSE;
+               break;
+            }
+         }
+      }
    }
 
-   SendMessage(hScintilla, SCI_COPYRANGE, leftPos, rightPos);
+   colText = colText.substr(leftTrimLen, colText.length() - leftTrimLen - rightTrimLen);
+
+   if (leftPos + leftTrimLen < rightPos - rightTrimLen)
+      SendMessage(hScintilla, SCI_COPYRANGE, leftPos + leftTrimLen, rightPos - rightTrimLen);
+
+#if FW_DEBUG_COPY_TRIM
+   MessageBoxA(_hSelf, ("(" + to_string(leftTrimLen) + ", " + to_string(rightTrimLen) + ")").c_str(),
+      "(LeftTrimLen, RightTrimLen)", MB_OK);
+   MessageBox(_hSelf, Utils::NarrowToWide("<|" + colText + "|>").c_str(),
+      Utils::NarrowToWide("<|" + padText + "|>").c_str(), MB_OK);
+#endif
 }
 
 void VisualizerPanel::fieldPaste() {
@@ -1296,7 +1367,7 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, string& f
 }
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
-   if (!_configIO.checkConfigFilesforUCS16()) return false;
+   if (!utf8Config) return FALSE;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
    size_t startPos, endPos;

@@ -1118,7 +1118,7 @@ bool ThemeDialog::promptDiscardChangesNo() {
          return TRUE;
    }
 
-   return false;
+   return FALSE;
 }
 
 void ThemeDialog::saveConfigInfo() {

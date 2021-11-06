@@ -12,6 +12,7 @@
 #define FW_DEBUG_LOAD_REGEX FALSE
 #define FW_DEBUG_APPLY_LEXER FALSE
 #define FW_DEBUG_LEXER_COUNT FALSE
+#define FW_DEBUG_COPY_TRIM FALSE
 
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
