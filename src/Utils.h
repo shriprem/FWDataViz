@@ -12,8 +12,6 @@ namespace Utils {
    LPCWSTR ToUpper(LPWSTR str);
    wstring NarrowToWide(const string& str);
    string WideToNarrow(const wstring& wStr);
-   wstring MultiByteToWide(const string& str);
-   string WideToMultiByte(const wstring& wStr);
 
    COLORREF intToRGB(int color);
    int scaleDPIX(int x);

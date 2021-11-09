@@ -43,6 +43,7 @@ public:
    void init();
    int setVizConfig(const string& docFileType);
    void resetVizConfig();
+   bool isCurrentVizConfigDefault() { return (wCurrentConfigFile == defaultConfigFile); }
    wstring getConfigFile(int cfType);
 
    string getConfigStringA(const string& section, const string& key, const string& default = "", string file = "");

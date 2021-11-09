@@ -505,7 +505,7 @@ void VisualizerPanel::fieldCopy() {
    if (fieldLen < 1) return;
 
    // if no trimming is required, copy to clipbard and return early
-   if (!_configIO.getPreferenceBool(PREF_COPY_TRIM)) {
+   if (!_configIO.getPreferenceBool(PREF_COPY_TRIM, FALSE)) {
       SendMessage(hScintilla, SCI_COPYRANGE, leftPos, rightPos);
       return;
    }

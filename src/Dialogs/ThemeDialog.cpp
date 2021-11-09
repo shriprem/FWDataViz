@@ -473,7 +473,10 @@ void ThemeDialog::getThemeConfig(size_t idxTh, bool cr_lf, wstring& themeLabel, 
    ThemeType& TT = vThemeTypes[idxTh];
    size_t styleCount = (TT.vStyleInfo.size() > 99) ? 99 : TT.vStyleInfo.size();
 
-   themeLabel = TT.label;
+   themeLabel = regex_replace(themeLabel, wregex(L"(|,|=|\\[|\\])"), L" ");
+   themeLabel = regex_replace(TT.label, wregex(L"(^( )+)|(( )+$)"), L"");
+   themeLabel = regex_replace(themeLabel, wregex(L"( ){2,}"), L" ").substr(0, 50);
+
    ttConfig = L"[" + themeLabel + L"]" + new_line +
       L"Count=" + to_wstring(styleCount) + new_line +
       L"EOL=" + getStyleConfig(0, TT.eolStyle).substr(8) + new_line;

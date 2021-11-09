@@ -88,14 +88,14 @@ void commandMenuInit() {
    shKeyCopy->_isAlt = true;
    shKeyCopy->_isCtrl = false;
    shKeyCopy->_isShift = false;
-   shKeyCopy->_key = VK_UP;
+   shKeyCopy->_key = VK_OEM_COMMA;
    setCommand(MI_FIELD_COPY, MENU_FIELD_COPY, FieldCopy, shKeyCopy);
 
    ShortcutKey *shKeyPaste = new ShortcutKey;
    shKeyPaste->_isAlt = true;
    shKeyPaste->_isCtrl = false;
    shKeyPaste->_isShift = false;
-   shKeyPaste->_key = VK_DOWN;
+   shKeyPaste->_key = VK_OEM_PERIOD;
    setCommand(MI_FIELD_PASTE, MENU_FIELD_PASTE, FieldPaste, shKeyPaste);
 
    setCommand(MI_DATA_EXTRACTION, MENU_DATA_EXTRACTION, ShowDataExtractDialog);

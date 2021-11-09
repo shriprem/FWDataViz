@@ -543,7 +543,7 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const string& fileType, const 
    FT.label = _configIO.getConfigWideChar(fileType, "FileLabel", "", sConfigFile);
    FT.theme = _configIO.getConfigWideChar(fileType, "FileTheme", "", sConfigFile);
    FT.eol = _configIO.getConfigWideChar(fileType, "RecordTerminator", "", sConfigFile);
-   FT.multiByte = _configIO.getMultiByteLexing(fileType);
+   FT.multiByte = (_configIO.getConfigStringA(fileType, "MultiByteChars", "N") == "Y");
 
    // Load ADFT data
    for (int i{}; i < ADFT_MAX; i++) {
@@ -648,7 +648,13 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
    FileType& FT = vFileTypes[idxFT];
    new_line = cr_lf ? L"\r\n" : L"\n";
 
-   rawCode = regex_replace(FT.label, wregex(L"( |,|=|\\[|\\])"), L"_").substr(0, 50);
+   string utf8Code{ Utils::WideToNarrow(FT.label) };
+   utf8Code = regex_replace(utf8Code, std::regex("[^\x20-\x7F]"), "");
+   rawCode = Utils::NarrowToWide(regex_replace(utf8Code, std::regex("(,|=|\\[|\\])"), " "));
+   rawCode = regex_replace(rawCode, wregex(L"(^( )+)|(( )+$)"), L"");
+   rawCode = regex_replace(rawCode, wregex(L"( ){2,}"), L" ");
+   rawCode = regex_replace(rawCode, wregex(L" "), L"_").substr(0, 50);
+
    swprintf(fileTypeCode, 60, L"FT%03d_%s", static_cast<int>(idxFT + 1), rawCode.c_str());
    Utils::ToUpper(fileTypeCode);
 
@@ -1315,6 +1321,11 @@ bool ConfigureDialog::promptDiscardChangesNo() {
 }
 
 void ConfigureDialog::saveConfigInfo() {
+   if (_configIO.isCurrentVizConfigDefault() &&
+      MessageBox(_hSelf, FWVIZ_DEFAULT_OVERWRITE, FWVIZ_DIALOG_TITLE,
+      MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+      return;
+
    if (!cleanFieldVals) fieldEditsAccept();
    if (!cleanRecVals) recEditAccept();
    if (!cleanFileVals) fileEditAccept();

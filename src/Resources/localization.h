@@ -124,6 +124,7 @@
 #define FWVIZ_DIALOG_COMMAS_TITLE   L"Commas are item separators"
 #define FWVIZ_DIALOG_COMMAS_MESSAGE L"The line will be split into multiple items when the 'Accept' button below is clicked."
 #define FWVIZ_DISCARD_CHANGES       L"Discard changes?"
+#define FWVIZ_DEFAULT_OVERWRITE     L"Save the Default Configuration changes as the Primary Configuration?"
 #define FWVIZ_OPEN_BKUP_CONFIG_DLG  L"Open Backup Configuration File"
 #define FWVIZ_SAVE_BKUP_CONFIG_DLG  L"Save Backup Configuration File"
 #define FWVIZ_FT_NEW_ACTION         L"Add New File Type"
