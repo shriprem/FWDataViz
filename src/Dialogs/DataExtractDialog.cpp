@@ -611,7 +611,7 @@ void DataExtractDialog::extractData() {
    const size_t regexedCount{ recInfoList.size() };
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
-   string recStartText{}, eolMarker;
+   string recStartText{}, eolMarker{};
    wstring extract{};
 
    char fieldText[FW_LINE_MAX_LENGTH]{};

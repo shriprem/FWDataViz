@@ -1,4 +1,4 @@
-## Multi-byte Character Data
+## Multi-byte Character Data Visualization
 
 ![Multi-byte_Character_Data](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multibyte_character_data.png)
 
@@ -45,4 +45,4 @@ The indicator is a single character that is selectively displayed to the left of
 | None | CHECKED or MIXED | Current document is *not* a valid FWDataviz file type. |
 | None | UNCHECKED | The multi-byte character mode is *not* active due to the panel-level setting in override mode. |
 
-See also: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md)
+See also: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) | [Support for Multi-byte Characters](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_support.md)

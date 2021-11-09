@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // Common
 #define MENU_PANEL_NAME             L"Fixed-Width Data Visualizer"
@@ -40,11 +40,14 @@
 #define VIZ_PANEL_FILE_SAMPLES_TIP  L"View Sample Files"
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open File Type Metadata Editor"
 #define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
-#define VIZ_PANEL_FIELD_TRIM_TIP    L"When copying a field, trim the padding character on the right or left\r\ndepending on which field edge is closer to the cursor position."
-#define VIZ_PANEL_FIELD_LEFT_TIP    L"Move cursor to the Left edge of the current field"
-#define VIZ_PANEL_FIELD_RIGHT_TIP   L"Move cursor to the Right edge of the current field"
-#define VIZ_PANEL_FIELD_LPAD_TIP    L"Paste clipboard data into the current field,\r\naligned to the left edge with padding on the right."
-#define VIZ_PANEL_FIELD_RPAD_TIP    L"Paste clipboard data into the current field,\r\naligned to the right edge with padding on the left."
+#define VIZ_PANEL_CLEAR_BTN_TIP     L"If \"Auto-detect File Type\" option is:\r\n● Checked: Redo the file type detection and visualization.\r\n● Not checked: Clear the document's fixed-width visualization."
+#define VIZ_PANEL_FIELD_TRIM_TIP    L"When copying a field, trim padding character(s) on either the right or left,\r\nbased on which field edge is closer to the cursor position."
+#define VIZ_PANEL_FIELD_LEFT_TIP    L"Move cursor to the left edge of the current field.\r\n\r\n● If already at the left edge of the field, the cursor will be moved to the left edge of the preceding field.\r\n\r\nAccessible via keyboard shortcut. See the plugin menu."
+#define VIZ_PANEL_FIELD_RIGHT_TIP   L"Move cursor to the right edge of the current field.\r\n\r\n● If already at the right edge of the field, the cursor will be moved to the right edge of the following field.\r\n\r\nAccessible via keyboard shortcut. See the plugin menu."
+#define VIZ_PANEL_FIELD_COPY_TIP    L"Copy current field data.\r\n\r\n● If \"Trim Field Copy\" option is checked, field data will be trimmed off padding character(s) on either the left or right edge, based on which field edge is closer to the cursor position.\r\n\r\nAccessible via keyboard shortcut. See the plugin menu."
+#define VIZ_PANEL_FIELD_PASTE_TIP   L"Paste clipboard data into current field, replacing its current contents.\r\n\r\n● Aligned either to the left or the edge of the field, based on which field edge is closer to the cursor position.\r\n● If the clipboard data is shorter than the field width, it will be paddded on the opposite edge of the aligned edge.\r\n● If the clipboard data is longer, it will be trimmed to the field width.\r\n\r\nAccessible via keyboard shortcut. See the plugin menu."
+#define VIZ_PANEL_FIELD_RPAD_TIP    L"● When pasting, RPAD character(s) will be used for padding the right edge of the field.\r\n● If copying with \"Trim Field Copy\" option checked, characters on the right edge of the field data that match (the sequence of) the padding character(s) will be trimmed.\r\n● When RPAD is left blank, a space will be used as the padding character."
+#define VIZ_PANEL_FIELD_LPAD_TIP    L"● When pasting, LPAD character(s) will be used for padding the left edge of the field.\r\n● If copying with \"Trim Field Copy\" option checked, characters on the left edge of the field data that match (the sequence of) the padding character(s) will be trimmed.\r\n● When LPAD is left blank, a space will be used as the padding character."
 #define VIZ_PANEL_JUMP_FIELD_TITLE  L"Jump to Field"
 #define VIZ_PANEL_JUMP_CHANGED_DOC  L"The currently active document is of a different File Type.\r\n\r\nUnable to jump to the specified field."
 #define VIZ_PANEL_JUMP_CHANGED_REC  L"Caret has moved to a different Record Type.\r\n\r\nUnable to jump to the specified field."
@@ -135,7 +138,7 @@
 #define FWVIZ_DEF_ADFT_HINT_TITLE   L"ADFT in a Nutshell"
 #define FWVIZ_DEF_ADFT_HINT_TEXT    L"1. Line Numbers begin at '1', counting forwards from the start of file. Negative line numbers will count backwards from the end of file. Zero and numbers (+ve or -ve) beyond file line count will fail ADFT matching.\r\n\r\n2. ADFT Regexes with no terminating '$' will be used as *starts-with* match. Whereas, those with terminating '$' will be used as *full-line* match. ADFT Regexes will have an implicit caret(^) at the start if it has not been explicitly included.\r\n\r\nClick the (i) icon to view the online ADFT documentation."
 #define FWVIZ_DEF_RECTHEME_HINT_HDR L"Record-type Theme"
-#define FWVIZ_DEF_RECTHEME_HINT_TXT L"Specify a different color theme than the file-type theme for select-few record types to make them distinctive.\r\n\r\nFor an example, see: 'Transaction Headers' inside the Samples � Treasury IPAC file.\r\n\r\nClick the (i) icon to view the online documentation."
+#define FWVIZ_DEF_RECTHEME_HINT_TXT L"Specify a different color theme than the file-type theme for select-few record types to make them distinctive.\r\n\r\nFor an example, see: 'Transaction Headers' inside the Samples » Treasury IPAC file.\r\n\r\nClick the (i) icon to view the online documentation."
 
 
 // Theme Dialog
@@ -210,10 +213,10 @@
 
 // Data Extraction Dialog
 #define DATA_EXTRACT_DIALOG_TITLE   L"Fixed-Width Data Extraction"
-#define DATA_EXTRACT_PREFIX_LABEL   L"Prefix Text�"
+#define DATA_EXTRACT_PREFIX_LABEL   L"Prefix Text¹"
 #define DATA_EXTRACT_RECORD_LABEL   L"Record Type"
 #define DATA_EXTRACT_FIELD_LABEL    L"Field"
-#define DATA_EXTRACT_SUFFIX_LABEL   L"Suffix Text�"
+#define DATA_EXTRACT_SUFFIX_LABEL   L"Suffix Text¹"
 #define DATA_EXTRACT_ADD_LINE_ITEM  L"Insert Line Item\t[CTRL+Insert]"
 #define DATA_EXTRACT_DEL_LINE_ITEM  L"Delete Line Item\t[CTRL+Delete]"
 #define DATA_EXTRACT_PAGE_PREV      L"Previous Page\t[CTRL+Page Up]"
@@ -232,7 +235,7 @@
 #define DATA_EXTRACT_TEMPLATE_SAVE  L"&Save Template"
 #define DATA_EXTRACT_TEMPLATE_NEW   L"&New"
 #define DATA_EXTRACT_TEMPLATE_DEL   L"&Delete"
-#define DATA_EXTRACT_NEW_LINE_TAB   L"Tip�:\nIn Prefix and Suffix Text boxes,\nuse \\n for New Lines and \\t for TABs."
+#define DATA_EXTRACT_NEW_LINE_TAB   L"Tip¹:\nIn Prefix and Suffix Text boxes,\nuse \\n for New Lines and \\t for TABs."
 #define DATA_EXTRACT_KEYBOARD_TIP   L"Easy Keyboard Shortcuts"
 #define DATA_EXTRACT_DELETE_PROMPT  L"Delete Template?"
 #define DATA_EXTRACT_INVTEMPL_TITLE L"Invalid Template Name!"

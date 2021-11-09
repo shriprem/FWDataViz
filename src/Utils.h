@@ -21,7 +21,8 @@ namespace Utils {
    wstring getSpecialFolder(int folderID);
    wstring getKnownFolderPath(REFKNOWNFOLDERID folderID);
 
-   HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, BOOL bBalloon = TRUE);
+   HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, bool bBalloon = TRUE);
+   HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, int duration, bool bBalloon);
    void addToolbarIcon(int menuIndex, int std, int fluent, int dark);
    void checkMenuItem(int menuIndex, bool check);
    void showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text);

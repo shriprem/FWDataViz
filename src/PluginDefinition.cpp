@@ -151,32 +151,6 @@ LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
    return SendMessage(nppData._nppHandle, messageID, wparam, lparam);
 }
 
-LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-   switch (messageId) {
-   case WM_CHAR:
-      if (static_cast<WCHAR>(wParam) > 255) {
-         showEditBalloonTip(hwnd, FWVIZ_DIALOG_ANSI_TITLE, FWVIZ_DIALOG_ANSI_MESSAGE);
-         return FALSE;
-      }
-      break;
-
-   case WM_PASTE:
-   {
-      wstring clipText;
-
-      Utils::getClipboardText(GetParent(hwnd), clipText);
-
-      if (!regex_match(clipText, wregex(L"^[\x20-\xFF]*$"))) {
-         showEditBalloonTip(hwnd, FWVIZ_DIALOG_ANSI_TITLE, FWVIZ_DIALOG_ANSI_MESSAGE);
-         return FALSE;
-      }
-      break;
-   }
-   }
-
-   return DefSubclassProc(hwnd, messageId, wParam, lParam);
-}
-
 // Dockable Visualizer Dialog
 void ShowVisualizerPanel(bool show) {
    if (show && !_vizPanel.isVisible()) {

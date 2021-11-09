@@ -201,40 +201,49 @@ void VisualizerPanel::initPanel() {
    wstring fontName = recentOS ? L"Consolas" : L"Courier New";
    int fontHeight = recentOS ? 10 : 8;
 
+   using Utils::addTooltip;
+   using Utils::loadBitmap;
+   using Utils::setFont;
+
    utf8Config = _configIO.checkConfigFilesforUCS16();
    if (!utf8Config) return;
 
-   Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
-   Utils::setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
+   setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
+   setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
-   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+   loadBitmap(_hSelf, IDC_VIZPANEL_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   addTooltip(_hSelf, IDC_VIZPANEL_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, IDB_VIZ_FILE_SAMPLES_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, NULL, VIZ_PANEL_FILE_SAMPLES_TIP, FALSE);
+   loadBitmap(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, IDB_VIZ_FILE_SAMPLES_BITMAP);
+   addTooltip(_hSelf, IDC_VIZPANEL_FILE_SAMPLES_BTN, NULL, VIZ_PANEL_FILE_SAMPLES_TIP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDB_VIZ_FILE_CONFIG_BITMAP);
+   loadBitmap(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, IDB_VIZ_FILE_CONFIG_BITMAP);
    Utils::addTooltip(_hSelf, IDC_VIZPANEL_FILETYPE_CONFIG, NULL, VIZ_PANEL_FILE_CONFIG_TIP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_VIZPANEL_THEME_CONFIG, IDB_VIZ_COLOR_CONFIG_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_THEME_CONFIG, NULL, VIZ_PANEL_THEME_CONFIG_TIP, FALSE);
+   loadBitmap(_hSelf, IDC_VIZPANEL_THEME_CONFIG, IDB_VIZ_COLOR_CONFIG_BITMAP);
+   addTooltip(_hSelf, IDC_VIZPANEL_THEME_CONFIG, NULL, VIZ_PANEL_THEME_CONFIG_TIP, FALSE);
 
    SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), _configIO.getPreference(PREF_PASTE_RPAD).c_str());
    SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), _configIO.getPreference(PREF_PASTE_LPAD).c_str());
 
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM, NULL, VIZ_PANEL_FIELD_TRIM_TIP, FALSE);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON, NULL, VIZ_PANEL_FIELD_LEFT_TIP, FALSE);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON, NULL, VIZ_PANEL_FIELD_RIGHT_TIP, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_CLEAR_BTN, NULL, VIZ_PANEL_CLEAR_BTN_TIP, FW_TIP_SHORT, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM, NULL, VIZ_PANEL_FIELD_TRIM_TIP, FW_TIP_SHORT, FALSE);
 
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LEFT_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FALSE);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RPAD_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FALSE);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON, NULL, VIZ_PANEL_FIELD_LEFT_TIP, FW_TIP_SHORT, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON, NULL, VIZ_PANEL_FIELD_RIGHT_TIP, FW_TIP_SHORT, FALSE);
 
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RIGHT_LABEL, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FALSE);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FALSE);
-   Utils::addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON, NULL, VIZ_PANEL_FIELD_COPY_TIP, FW_TIP_MEDIUM, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON, NULL, VIZ_PANEL_FIELD_PASTE_TIP, FW_TIP_LONG, FALSE);
 
-   Utils::setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
+   addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LEFT_LABEL, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FW_TIP_LONG, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RPAD_LABEL, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FW_TIP_LONG, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC, NULL, VIZ_PANEL_FIELD_RPAD_TIP, FW_TIP_LONG, FALSE);
+
+   addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RIGHT_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FW_TIP_LONG, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FW_TIP_LONG, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FW_TIP_LONG, FALSE);
+
+   setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
 
    if (_gLanguage != LANG_ENGLISH) localize();
 }
@@ -886,7 +895,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    if (themeSet[0].styleSet.size() < 1) return;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
-   string recStartText{}, eolMarker;
+   string recStartText{}, eolMarker{};
    size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{},
       currentPos, startPos, endPos, recStartPos{};
 
@@ -1236,8 +1245,8 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          recLength = caretEolMarkerPos - caretRecordStartPos;
       }
       else {
-         caretColumn = static_cast<int>(SendMessage(hScintilla, SCI_GETCOLUMN, caretPos, NULL));
-         recLength = static_cast<int>(SendMessage(hScintilla, SCI_GETCOLUMN, caretEolMarkerPos, NULL));
+         caretColumn = static_cast<int>(SendMessage(hScintilla, SCI_COUNTCHARACTERS, caretRecordStartPos, caretPos));
+         recLength = static_cast<int>(SendMessage(hScintilla, SCI_COUNTCHARACTERS, caretRecordStartPos, caretEolMarkerPos));
       }
 
       fieldInfoText = CUR_POS_DATA_REC_TYPE + FLD.label;

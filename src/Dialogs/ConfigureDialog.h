@@ -38,7 +38,7 @@ protected:
 
    struct RecordType {
       wstring label;
-      string marker;
+      wstring marker;
       wstring fieldLabels;
       wstring fieldWidths;
       wstring theme{};
@@ -47,11 +47,11 @@ protected:
    struct FileType {
       wstring label{};
       wstring theme{};
-      string eol{};
+      wstring eol{};
       bool multiByte{};
       vector<RecordType> vRecTypes;
       int lineNums[ADFT_MAX]{};
-      string regExprs[ADFT_MAX]{};
+      wstring regExprs[ADFT_MAX]{};
    };
 
    wstring configFile{};
@@ -67,7 +67,7 @@ protected:
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);
-   string getOnlyStartsWith(string txt);
+   wstring getOnlyStartsWith(wstring txt);
 
    int getCurrentFileTypeIndex();
    bool getCurrentFileTypeInfo(FileType*& fileInfo);

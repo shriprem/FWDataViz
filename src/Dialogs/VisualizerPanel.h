@@ -19,6 +19,9 @@
 
 constexpr int FW_STYLE_CACHE_START_INDEX{ STYLE_LASTPREDEFINED + 1 };
 constexpr int FW_STYLE_CACHE_ITEMS_LIMIT{ 200 };
+constexpr int FW_TIP_LONG { 30 };
+constexpr int FW_TIP_MEDIUM { 20 };
+constexpr int FW_TIP_SHORT { 10 };
 
 static bool idemPotentKey{ FALSE };
 

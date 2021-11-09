@@ -1,12 +1,15 @@
 # FWDataViz
 #### Fixed Width Data Visualizer plugin for Notepad++
-[Current Version: 2.2.0.0](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
+[Current Version: 2.3.0.0](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md) (_Coming soon!_)
 ![FWDataViz](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_weather_stations.png)
 
 * Visualizes fields within fixed-width data files with distinct colors and font styles.
 * <a href="#fixed-width-data-visualizer-panel">Displays record, field and byte information at cursor position.</a>
-* <a href="#jump-to-field-popup">Feature to jump to a specific field of the current record.</a>
+* [Move to Left or Right Edge](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md) of the current field or adjacent fields.
+* <a href="#jump-to-field-popup">Quick navigation to any field of the current record.</a>
+* [Field Copy and Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md) with smart alignment and padding.
 * [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) feature to extract a handful data fields into an easily readable, quick report.
+* [Menu Items with Keyboard Shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/menu_shortcuts.md) for commonly used actions.
 * [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) to define and customize file, record and field types.
 * [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md) to define and customize themes and colors for data visualization.
 * Easily share customized [File Type Metadata](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md) and [Visualizer Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md) definitions.
@@ -15,6 +18,7 @@
    * <a href="#mixed-record-type-fixed-width-data-files">Mixed record-types data</a>
    * <a href="#multi-line-record-type-fixed-width-data-files">Multiple-line-spanning record-types data</a>
 * Easily switch between single byte (US-ASCII) and [Multi-Byte Character](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) data columns.
+* Extensive Support for [Multi-byte Characters.](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_support.md)
 
 * [Dark mode rendering of the plugin UI.](https://github.com/shriprem/FWDataViz/blob/master/docs/dark_mode_ui.md)
 

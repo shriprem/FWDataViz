@@ -72,7 +72,6 @@ bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey 
 HWND getCurrentScintilla();
 bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr);
 LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam);
-LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR);
 
 // Plugin Command Functions
 void ShowVisualizerPanel(bool show);
