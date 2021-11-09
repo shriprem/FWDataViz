@@ -7,32 +7,6 @@ extern HINSTANCE _gModule;
 extern ConfigureDialog _configDlg;
 EximFileTypeDialog _eximDlg;
 
-LRESULT CALLBACK procANSIEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-   switch (messageId) {
-      case WM_CHAR:
-         if (static_cast<WCHAR>(wParam) > 255) {
-            showEditBalloonTip(hwnd, FWVIZ_DIALOG_ANSI_TITLE, FWVIZ_DIALOG_ANSI_MESSAGE);
-            return FALSE;
-         }
-         break;
-
-      case WM_PASTE:
-      {
-         wstring clipText;
-
-         Utils::getClipboardText(GetParent(hwnd), clipText);
-
-         if (!regex_match(clipText, wregex(L"^[\x20-\xFF]*$"))) {
-            showEditBalloonTip(hwnd, FWVIZ_DIALOG_ANSI_TITLE, FWVIZ_DIALOG_ANSI_MESSAGE);
-            return FALSE;
-         }
-         break;
-      }
-   }
-
-   return DefSubclassProc(hwnd, messageId, wParam, lParam);
-}
-
 LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
    switch (messageId) {
       case WM_CHAR:
@@ -141,18 +115,12 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    SendMessage(hFieldLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
    SendMessage(hFieldWidths, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
 
-   SetWindowSubclass(hFileEOL, procANSIEditControl, NULL, NULL);
-   SetWindowSubclass(hRecStart, procANSIEditControl, NULL, NULL);
-   SetWindowSubclass(hRecRegex, procANSIEditControl, NULL, NULL);
    SetWindowSubclass(hFieldLabels, procFieldEditMessages, NULL, NULL);
    SetWindowSubclass(hFieldWidths, procFieldEditMessages, NULL, NULL);
 
    SetWindowSubclass(hADFTLine[0], procNumberEditControl, NULL, NULL);
-   SetWindowSubclass(hADFTRegex[0], procANSIEditControl, NULL, NULL);
    SetWindowSubclass(hADFTLine[1], procNumberEditControl, NULL, NULL);
-   SetWindowSubclass(hADFTRegex[1], procANSIEditControl, NULL, NULL);
    SetWindowSubclass(hADFTLine[2], procNumberEditControl, NULL, NULL);
-   SetWindowSubclass(hADFTRegex[2], procANSIEditControl, NULL, NULL);
 
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
    hToolTips[0] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
@@ -184,15 +152,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    hToolTips[7] = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   bool recentOS = Utils::checkBaseOS(WV_VISTA);
-   wstring fontName = recentOS ? L"Consolas" : L"Courier New";
-   int fontHeight = recentOS ? 8 : 7;
-
    Utils::setFontUnderline(_hSelf, IDC_FWVIZ_DEF_ADFT_GROUP_LABEL);
-   Utils::setFont(_hSelf, IDC_FWVIZ_DEF_FILE_EOL_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
-   Utils::setFont(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
-   Utils::setFont(_hSelf, IDC_FWVIZ_DEF_REC_START_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
-   Utils::setFont(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_ANSI, fontName, fontHeight, FW_REGULAR, TRUE);
 
    if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
@@ -429,14 +389,16 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
             case IDC_FWVIZ_DEF_BACKUP_LOAD_BTN:
                if (!promptDiscardChangesNo()) {
-                  wstring sBackupConfigFile;
+                  wstring backupConfigFile;
 
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, TRUE, sBackupConfigFile)) {
-                     configFile = sBackupConfigFile;
-                     loadConfigInfo();
-                     fillFileTypes();
-                     cleanConfigFile = FALSE;
-                     enableFileSelection();
+                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupConfigFile)) {
+                     if (_configIO.fixIfUTF16File(backupConfigFile)) {
+                        configFile = backupConfigFile;
+                        loadConfigInfo();
+                        fillFileTypes();
+                        cleanConfigFile = FALSE;
+                        enableFileSelection();
+                     }
                   }
                }
                break;
@@ -561,61 +523,53 @@ void ConfigureDialog::indicateCleanStatus() {
 }
 
 int ConfigureDialog::loadConfigInfo() {
-   vector<wstring> fileTypeList;
-   wstring sFileTypes;
-   int fileTypeCount;
-
-   sFileTypes = _configIO.getConfigString(L"Base", L"FileTypes", L"", configFile);
-   fileTypeCount = _configIO.Tokenize(sFileTypes, fileTypeList);
+   vector<string> fileTypeList;
+   int fileTypeCount{ _configIO.getConfigValueList(fileTypeList, "Base", "FileTypes", "", Utils::WideToNarrow(configFile)) };
 
    vFileTypes.clear();
    vFileTypes.resize(fileTypeCount);
 
    for (int i{}; i < fileTypeCount; i++) {
-      wstring& fileType = fileTypeList[i];
-      loadFileTypeInfo(i, fileType, configFile);
+      loadFileTypeInfo(i, fileTypeList[i], configFile);
    }
 
    return static_cast<int>(vFileTypes.size());
 }
 
-int ConfigureDialog::loadFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile) {
+int ConfigureDialog::loadFileTypeInfo(int vIndex, const string& fileType, const wstring& wConfigFile) {
+   string sConfigFile{ Utils::WideToNarrow(wConfigFile) };
    FileType& FT = vFileTypes[vIndex];
 
-   FT.label = _configIO.getConfigString(fileType, L"FileLabel", L"", sConfigFile);
-   FT.theme = _configIO.getConfigString(fileType, L"FileTheme", L"", sConfigFile);
-   FT.eol = _configIO.getConfigStringA(fileType, L"RecordTerminator", L"", sConfigFile);
+   FT.label = _configIO.getConfigWideChar(fileType, "FileLabel", "", sConfigFile);
+   FT.theme = _configIO.getConfigWideChar(fileType, "FileTheme", "", sConfigFile);
+   FT.eol = _configIO.getConfigWideChar(fileType, "RecordTerminator", "", sConfigFile);
    FT.multiByte = _configIO.getMultiByteLexing(fileType);
 
    // Load ADFT data
    for (int i{}; i < ADFT_MAX; i++) {
-      wchar_t idx[5];
-      swprintf(idx, 5, L"%02d", i + 1);
+      char idx[5];
+      snprintf(idx, 5, "%02d", i + 1);
 
-      FT.lineNums[i] = _configIO.getConfigInt(fileType, L"ADFT_Line_" + wstring{ idx }, 0, sConfigFile);
-      FT.regExprs[i] = _configIO.getConfigStringA(fileType, L"ADFT_Regex_" + wstring{ idx }, L"", sConfigFile);
+      FT.lineNums[i] = _configIO.getConfigInt(fileType, "ADFT_Line_" + string{ idx }, 0, sConfigFile);
+      FT.regExprs[i] = _configIO.getConfigWideChar(fileType, "ADFT_Regex_" + string{ idx }, "", sConfigFile);
    }
 
    // Load Record Type data
-   vector<wstring> recTypesList;
-   wstring recTypes;
-   int recTypeCount;
-
-   recTypes = _configIO.getConfigString(fileType, L"RecordTypes", L"", sConfigFile);
-   recTypeCount = _configIO.Tokenize(recTypes, recTypesList);
+   vector<string> recTypesList;
+   int recTypeCount{ _configIO.getConfigValueList(recTypesList, fileType, "RecordTypes", "", sConfigFile) };
 
    FT.vRecTypes.clear();
    FT.vRecTypes.resize(recTypeCount);
 
    for (int j{}; j < recTypeCount; j++) {
-      wstring& recType = recTypesList[j];
+      string& recType = recTypesList[j];
       RecordType& RT = FT.vRecTypes[j];
 
-      RT.label = _configIO.getConfigString(fileType, (recType + L"_Label"), L"", sConfigFile);
-      RT.marker = _configIO.getConfigStringA(fileType, (recType + L"_Marker"), L"", sConfigFile);
-      RT.theme = _configIO.getConfigString(fileType, (recType + L"_Theme"), L"", sConfigFile);
-      RT.fieldWidths = _configIO.getConfigString(fileType, (recType + L"_FieldWidths"), L"", sConfigFile);
-      RT.fieldLabels = _configIO.getConfigString(fileType, (recType + L"_FieldLabels"), L"", sConfigFile);
+      RT.label = _configIO.getConfigWideChar(fileType, (recType + "_Label"), "", sConfigFile);
+      RT.marker = _configIO.getConfigWideChar(fileType, (recType + "_Marker"), "", sConfigFile);
+      RT.theme = _configIO.getConfigWideChar(fileType, (recType + "_Theme"), "", sConfigFile);
+      RT.fieldWidths = _configIO.getConfigWideChar(fileType, (recType + "_FieldWidths"), "", sConfigFile);
+      RT.fieldLabels = _configIO.getConfigWideChar(fileType, (recType + "_FieldLabels"), "", sConfigFile);
    }
 
    return recTypeCount;
@@ -637,7 +591,8 @@ void ConfigureDialog::fillFileTypes() {
    SendMessage(hRecThemes, CB_RESETCONTENT, NULL, NULL);
    SendMessage(hRecThemes, CB_ADDSTRING, NULL, (LPARAM)FWVIZ_DEF_REC_THEME_FROM_FT);
 
-   vector<wstring> themesList = _configIO.getAvailableThemesList();
+   vector<wstring> themesList;
+   _configIO.getThemesList(themesList);
 
    for (const wstring theme : themesList) {
       SendMessage(hFileThemes, CB_ADDSTRING, NULL, (LPARAM)theme.c_str());
@@ -706,7 +661,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
 
       adft +=
          L"ADFT_Line_" + wstring{ idx } + L"=" + lineNum + new_line +
-         L"ADFT_Regex_" + wstring{ idx } + L"=" + Utils::NarrowToWide(FT.regExprs[i]) + new_line;
+         L"ADFT_Regex_" + wstring{ idx } + L"=" + FT.regExprs[i] + new_line;
    }
 
    // Rec Info
@@ -721,7 +676,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
 
       rtConfig +=
          recTypePrefix + L"_Label=" + RT.label + new_line +
-         recTypePrefix + L"_Marker=" + Utils::NarrowToWide(RT.marker) + new_line +
+         recTypePrefix + L"_Marker=" + RT.marker + new_line +
          recTypePrefix + L"_FieldLabels=" + RT.fieldLabels + new_line +
          recTypePrefix + L"_FieldWidths=" + RT.fieldWidths + new_line;
 
@@ -734,7 +689,7 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
    ftConfig = L"[" + ftCode + L"]" + new_line +
       L"FileLabel=" + FT.label + new_line +
       L"FileTheme=" + FT.theme + new_line +
-      L"RecordTerminator=" + Utils::NarrowToWide(FT.eol) + new_line +
+      L"RecordTerminator=" + FT.eol + new_line +
       L"MultiByteChars=" + (FT.multiByte ? L"Y" : L"N") + new_line +
       adft + recTypes + new_line + rtConfig;
 }
@@ -754,7 +709,7 @@ ConfigureDialog::RecordType ConfigureDialog::getNewRec() {
    RecordType newRec;
 
    newRec.label = L"";
-   newRec.marker = "";
+   newRec.marker = L"";
    newRec.fieldLabels = L"";
    newRec.fieldWidths = L"";
    newRec.theme = L"";
@@ -771,7 +726,7 @@ void ConfigureDialog::onFileTypeSelect() {
 
    loadingEdits = TRUE;
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
-   SetWindowTextA(hFileEOL, fileInfo->eol.c_str());
+   SetWindowText(hFileEOL, fileInfo->eol.c_str());
 
    CheckDlgButton(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX, fileInfo->multiByte ? BST_CHECKED : BST_UNCHECKED);
 
@@ -779,7 +734,7 @@ void ConfigureDialog::onFileTypeSelect() {
       wstring lineNum{ (fileInfo->lineNums[i] == 0) ? L"" : to_wstring(fileInfo->lineNums[i]) };
 
       SetWindowText(hADFTLine[i], lineNum.c_str());
-      SetWindowTextA(hADFTRegex[i], fileInfo->regExprs[i].c_str());
+      SetWindowText(hADFTRegex[i], fileInfo->regExprs[i].c_str());
    }
 
    loadingEdits = FALSE;
@@ -891,10 +846,10 @@ void ConfigureDialog::onRecTypeSelect() {
 
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recInfo->label.c_str());
 
-   string regExpr = recInfo->marker;
+   wstring regExpr = recInfo->marker;
 
-   SetWindowTextA(hRecRegex, regExpr.c_str());
-   SetWindowTextA(hRecStart, getOnlyStartsWith(regExpr).c_str());
+   SetWindowText(hRecRegex, regExpr.c_str());
+   SetWindowText(hRecStart, getOnlyStartsWith(regExpr).c_str());
 
    loadingEdits = FALSE;
 
@@ -1078,22 +1033,17 @@ void ConfigureDialog::fieldEditsAccept() {
 }
 
 void ConfigureDialog::onRecStartEditChange() {
-   char startChars[MAX_PATH + 1];
-   GetWindowTextA(hRecStart, startChars, MAX_PATH);
+   wstring startText(MAX_PATH + 1, '\0');
+   GetWindowText(hRecStart, startText.data(), MAX_PATH);
 
-   string startText = string{ startChars };
-   string regexText = (startText.length() > 0) ? "^" + startText : ".";
-
-   SetWindowTextA(hRecRegex, regexText.c_str());
+   wstring regexText{ (startText.length() > 0) ? L"^" + startText : L"." };
+   SetWindowText(hRecRegex, regexText.c_str());
 }
 
 void ConfigureDialog::onRecRegexEditChange() {
-   char regexChars[MAX_PATH + 1];
-   GetWindowTextA(hRecRegex, regexChars, MAX_PATH);
-
-   string regexText{ regexChars };
-
-   SetWindowTextA(hRecStart, getOnlyStartsWith(regexText).c_str());
+   wstring regexText(MAX_PATH + 1, '\0');
+   GetWindowText(hRecRegex, regexText.data(), MAX_PATH);
+   SetWindowText(hRecStart, getOnlyStartsWith(regexText).c_str());
 }
 
 void ConfigureDialog::recEditAccept() {
@@ -1112,9 +1062,9 @@ void ConfigureDialog::recEditAccept() {
    GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recDesc, MAX_PATH);
    recInfo.label = recDesc;
 
-   char regexVal[MAX_PATH + 1];
+   wchar_t regexVal[MAX_PATH + 1];
 
-   GetWindowTextA(hRecRegex, regexVal, MAX_PATH);
+   GetWindowText(hRecRegex, regexVal, MAX_PATH);
    recInfo.marker = regexVal;
 
    wchar_t themeVal[MAX_PATH + 1];
@@ -1208,22 +1158,22 @@ void ConfigureDialog::fileEditAccept() {
    GetWindowText(hFileThemes, fileVal, MAX_PATH);
    fileInfo.theme = fileVal;
 
-   char eolVal[MAX_PATH + 1];
+   wchar_t eolVal[MAX_PATH + 1];
 
-   GetWindowTextA(hFileEOL, eolVal, MAX_PATH);
+   GetWindowText(hFileEOL, eolVal, MAX_PATH);
    fileInfo.eol = eolVal;
 
    fileInfo.multiByte = (IsDlgButtonChecked(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX) == BST_CHECKED);
 
    // ADFT Info
    wchar_t lineNum[MAX_PATH + 1];
-   char regExpr[MAX_PATH + 1];
+   wchar_t regExpr[MAX_PATH + 1];
 
    for (int i{}; i < ADFT_MAX; i++) {
       GetWindowText(hADFTLine[i], lineNum, MAX_PATH);
       fileInfo.lineNums[i] = Utils::StringtoInt(lineNum);
 
-      GetWindowTextA(hADFTRegex[i], regExpr, MAX_PATH);
+      GetWindowText(hADFTRegex[i], regExpr, MAX_PATH);
       fileInfo.regExprs[i] = regExpr;
    }
 
@@ -1239,14 +1189,13 @@ void ConfigureDialog::fileEditAccept() {
 
 int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
    int sectionCount{}, validCount{};
-   wstring sections{}, sectionLabel{};
-   vector<wstring> sectionList{};
+   vector<string> sectionList{};
+   wstring sectionLabel{};
 
-   sectionCount = _configIO.getConfigSectionList(sections, sConfigFile);
-   sectionCount = _configIO.Tokenize(sections, sectionList);
+   sectionCount = _configIO.getConfigAllSectionsList(sectionList, Utils::WideToNarrow(sConfigFile));
 
    for (int i{}; i < sectionCount; i++) {
-      sectionLabel = _configIO.getConfigString(sectionList[i], L"FileLabel", L"", sConfigFile);
+      sectionLabel = _configIO.getConfigWideChar(sectionList[i], "FileLabel", "", Utils::WideToNarrow(sConfigFile));
       if (sectionLabel.length() > 0) {
          if (!checkFTLimit(FALSE)) break;
 
@@ -1383,8 +1332,8 @@ void ConfigureDialog::saveConfigInfo() {
 
    fileData = L"[Base]\r\nFileTypes=" + fileTypes + L"\r\n\r\n" + fileData;
 
-   _configIO.backupConfigFile(TRUE);
-   _configIO.saveConfigFile(fileData, TRUE);
+   _configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_VIZ));
+   _configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_VIZ));
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();
@@ -1405,7 +1354,7 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
    }
 }
 
-string ConfigureDialog::getOnlyStartsWith(string txt) {
-   return string{ (txt.length() > 0 &&
-      regex_match(txt, std::regex("^\\^[^\\.\\{\\}\\\\[\\]\\*\\?\\+\\<\\>\\=]+"))) ? txt.substr(1) : "" };
+wstring ConfigureDialog::getOnlyStartsWith(wstring txt) {
+   return wstring{ (txt.length() > 0 &&
+      regex_match(txt, std::wregex(L"^\\^[^\\.\\{\\}\\\\[\\]\\*\\?\\+\\<\\>\\=]+"))) ? txt.substr(1) : L"" };
 }

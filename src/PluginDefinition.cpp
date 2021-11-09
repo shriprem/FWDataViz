@@ -55,21 +55,65 @@ void commandMenuInit() {
    shKeyOpen->_isCtrl = true;
    shKeyOpen->_isShift = false;
    shKeyOpen->_key = VK_F8;
-
    setCommand(MI_FWVIZ_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
-   setCommand(MI_CARET_FRAMED, MENU_CARET_FRAMED, ToggleCaretFramedState, NULL, _configIO.getCaretFramed());
-   setCommand(MI_CONFIG_DIALOG, MENU_CONFIG, ShowConfigDialog);
+
+   setCommand(MI_CARET_FRAMED, MENU_CARET_FRAMED, ToggleCaretFramedState, NULL,
+      _configIO.getPreferenceBool(PREF_CARET_FRAMED));
+   setCommand(MI_CONFIG_DIALOG, MENU_CONFIG_FILE_TYPES, ShowConfigDialog);
+   setCommand(MI_CONFIG_THEMES, MENU_CONFIG_THEMES, ShowThemeDialog);
    setCommand(MI_SEPARATOR_1, L"-", NULL);
+
+   ShortcutKey *shKeyJump = new ShortcutKey;
+   shKeyJump->_isAlt = true;
+   shKeyJump->_isCtrl = true;
+   shKeyJump->_isShift = false;
+   shKeyJump->_key = VK_LEFT;
+   setCommand(MI_FIELD_JUMP, MENU_FIELD_JUMP, ShowJumpDialog, shKeyJump);
+
+   ShortcutKey *shKeyLeft = new ShortcutKey;
+   shKeyLeft->_isAlt = true;
+   shKeyLeft->_isCtrl = false;
+   shKeyLeft->_isShift = false;
+   shKeyLeft->_key = VK_LEFT;
+   setCommand(MI_FIELD_LEFT, MENU_FIELD_LEFT, FieldLeft, shKeyLeft);
+
+   ShortcutKey * shKeyRight = new ShortcutKey;
+   shKeyRight->_isAlt = true;
+   shKeyRight->_isCtrl = false;
+   shKeyRight->_isShift = false;
+   shKeyRight->_key = VK_RIGHT;
+   setCommand(MI_FIELD_RIGHT, MENU_FIELD_RIGHT, FieldRight, shKeyRight);
+
+   ShortcutKey *shKeyCopy = new ShortcutKey;
+   shKeyCopy->_isAlt = true;
+   shKeyCopy->_isCtrl = false;
+   shKeyCopy->_isShift = false;
+   shKeyCopy->_key = VK_UP;
+   setCommand(MI_FIELD_COPY, MENU_FIELD_COPY, FieldCopy, shKeyCopy);
+
+   ShortcutKey *shKeyPaste = new ShortcutKey;
+   shKeyPaste->_isAlt = true;
+   shKeyPaste->_isCtrl = false;
+   shKeyPaste->_isShift = false;
+   shKeyPaste->_key = VK_DOWN;
+   setCommand(MI_FIELD_PASTE, MENU_FIELD_PASTE, FieldPaste, shKeyPaste);
+
+   setCommand(MI_DATA_EXTRACTION, MENU_DATA_EXTRACTION, ShowDataExtractDialog);
+   setCommand(MI_SEPARATOR_2, L"-", NULL);
    setCommand(MI_DEMO_SINGLE_REC_FILES, MENU_DEMO_SINGLE_REC_FILES, NULL);
    setCommand(MI_DEMO_MULTI_REC_FILES, MENU_DEMO_MULTI_REC_FILES, NULL);
    setCommand(MI_DEMO_MULTI_LINE_FILES, MENU_DEMO_MULTI_LINE_FILES, NULL);
-   setCommand(MI_SEPARATOR_2, L"-", NULL);
+   setCommand(MI_SEPARATOR_3, L"-", NULL);
    setCommand(MI_ABOUT_DIALOG, MENU_ABOUT, ShowAboutDialog);
 }
 
-
 void commandMenuCleanUp() {
    delete pluginMenuItems[MI_FWVIZ_PANEL]._pShKey;
+   delete pluginMenuItems[MI_FIELD_JUMP]._pShKey;
+   delete pluginMenuItems[MI_FIELD_LEFT]._pShKey;
+   delete pluginMenuItems[MI_FIELD_RIGHT]._pShKey;
+   delete pluginMenuItems[MI_FIELD_COPY]._pShKey;
+   delete pluginMenuItems[MI_FIELD_PASTE]._pShKey;
 }
 
 // Initialize plugin commands
@@ -140,13 +184,14 @@ void RefreshVisualizerPanel() {
 }
 
 void DisplayCaretFrame() {
-   SendMessage(nppData._scintillaMainHandle, SCI_SETCARETLINEFRAME, _configIO.getCaretFramed() ? 2 : 0, NULL);
-   SendMessage(nppData._scintillaSecondHandle, SCI_SETCARETLINEFRAME, _configIO.getCaretFramed() ? 2 : 0, NULL);
+   int frame{ _configIO.getPreferenceBool(PREF_CARET_FRAMED) ? 2 : 0 };
+   SendMessage(nppData._scintillaMainHandle, SCI_SETCARETLINEFRAME, frame, NULL);
+   SendMessage(nppData._scintillaSecondHandle, SCI_SETCARETLINEFRAME, frame, NULL);
 }
 
 void ToggleCaretFramedState() {
-   bool framed = !(_configIO.getCaretFramed());
-   _configIO.setCaretFramed(framed);
+   bool framed = !(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
+   _configIO.setPreferenceBool(PREF_CARET_FRAMED, framed);
 
    DisplayCaretFrame();
    nppMessage(NPPM_SETMENUITEMCHECK, pluginMenuItems[MI_CARET_FRAMED]._cmdID, framed);
@@ -161,6 +206,30 @@ void ShowConfigDialog() {
 
 void ShowThemeDialog() {
    _themeDlg.doDialog((HINSTANCE)_gModule);
+}
+
+void ShowJumpDialog() {
+   _vizPanel.showJumpDialog();
+}
+
+void FieldLeft() {
+   _vizPanel.fieldLeft();
+}
+
+void FieldRight() {
+   _vizPanel.fieldRight();
+}
+
+void FieldCopy() {
+   _vizPanel.fieldCopy();
+}
+
+void FieldPaste() {
+   _vizPanel.fieldPaste();
+}
+
+void ShowDataExtractDialog() {
+   _vizPanel.showExtractDialog();
 }
 
 void ShowAboutDialog() {

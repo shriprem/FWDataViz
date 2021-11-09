@@ -1,4 +1,4 @@
-#include "DataExtractDialog.h"
+﻿#include "DataExtractDialog.h"
 
 extern VisualizerPanel _vizPanel;
 extern DataExtractDialog _dataExtractDlg;
@@ -99,12 +99,12 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    SetFocus(_hSelf);
 }
 
-void DataExtractDialog::initDialog(const wstring fileType, const vector<RecordInfo>& recInfoList) {
+void DataExtractDialog::initDialog(const string fileType, const vector<RecordInfo>& recInfoList) {
    initFileType = fileType;
    pRecInfoList = &recInfoList;
 
-   initFileTypeLabel = _configIO.getConfigString(initFileType, L"FileLabel");
-   extractsConfigFile = _configIO.getExtractTemplatesFile();
+   initFileTypeLabel = _configIO.getConfigWideChar(initFileType, "FileLabel");
+   extractsConfigFile = Utils::WideToNarrow(_configIO.getConfigFile(_configIO.CONFIG_EXTRACTS));
 
    initRecTypeLists();
    loadTemplatesList();
@@ -472,13 +472,13 @@ void DataExtractDialog::clearLineItem(int line) {
 }
 
 void DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
-   char prefix[MAX_PATH + 1];
-   GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, prefix, MAX_PATH);
-   lineItem.prefix = string{ prefix };
+   TCHAR prefix[MAX_PATH + 1];
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, prefix, MAX_PATH);
+   lineItem.prefix = wstring{ prefix };
 
-   char suffix[MAX_PATH + 1];
-   GetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, suffix, MAX_PATH);
-   lineItem.suffix = string{ suffix };
+   TCHAR suffix[MAX_PATH + 1];
+   GetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, suffix, MAX_PATH);
+   lineItem.suffix = wstring{ suffix };
 
    lineItem.recType = static_cast<int>(
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_GETCURSEL, NULL, NULL));
@@ -488,8 +488,8 @@ void DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
 }
 
 void DataExtractDialog::setLineItem(int line, LineItemInfo& lineItem) {
-   SetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, lineItem.prefix.c_str());
-   SetDlgItemTextA(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, lineItem.suffix.c_str());
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, lineItem.prefix.c_str());
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, lineItem.suffix.c_str());
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_SETCURSEL, lineItem.recType, NULL);
    initLineItemFieldList(line);
    SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line, CB_SETCURSEL, lineItem.fieldType, NULL);
@@ -599,7 +599,7 @@ void DataExtractDialog::extractData() {
    if (getValidLineItems(validLIs, TRUE, TRUE) < 1) return;
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
-   wstring fileType{};
+   string fileType{};
    if (!_vizPanel.getDocFileType(sciFunc, sciPtr, fileType) || (initFileType != fileType)) {
       MessageBox(_hSelf, DATA_EXTRACT_CHANGED_DOC, DATA_EXTRACT_DIALOG_TITLE, MB_OK | MB_ICONSTOP);
       return;
@@ -611,7 +611,8 @@ void DataExtractDialog::extractData() {
    const size_t regexedCount{ recInfoList.size() };
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
-   string extract{}, recStartText{}, eolMarker;
+   string recStartText{}, eolMarker{};
+   wstring extract{};
 
    char fieldText[FW_LINE_MAX_LENGTH]{};
    Sci_TextRange sciTR{};
@@ -621,7 +622,7 @@ void DataExtractDialog::extractData() {
    bool newRec{ TRUE };
    bool recMatch{};
 
-   eolMarker = _configIO.getConfigStringA(fileType, L"RecordTerminator");
+   eolMarker = _configIO.getConfigStringA(fileType, "RecordTerminator");
    eolMarkerLen = eolMarker.length();
 
    bool byteCols{ !_configIO.getMultiByteLexing(fileType) };
@@ -700,61 +701,59 @@ void DataExtractDialog::extractData() {
             (recStartPos + pRI->fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
             sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
 
-            extract += validLIs[j].prefix + fieldText + validLIs[j].suffix;
+            extract += validLIs[j].prefix + Utils::NarrowToWide(fieldText) + validLIs[j].suffix;
             recMatch = TRUE;
          }
       }
 
-      if (recMatch) extract += "\n";
+      if (recMatch) extract += L"\n";
    }
 
+
    nppMessage(NPPM_MENUCOMMAND, NULL, IDM_FILE_NEW);
-   sciFunc(sciPtr, SCI_SETTEXT, NULL, (LPARAM)extract.c_str());
+   sciFunc(sciPtr, SCI_SETTEXT, NULL, (LPARAM)(Utils::WideToNarrow(extract)).c_str());
 }
 
 int DataExtractDialog::loadTemplatesList() {
    resetDropDown(hTemplatesList);
    SetWindowText(hTemplateName, L"");
 
-   int sectionCount{};
-   wstring sections{};
-   vector<wstring> sectionList{};
-
    bool currentOnly{ IsDlgButtonChecked(_hSelf, IDC_DAT_EXT_TEMPLATE_CURR_ONLY) == BST_CHECKED };
 
-   sectionCount = _configIO.getConfigSectionList(sections, extractsConfigFile);
-   sectionCount = _configIO.Tokenize(sections, sectionList);
+   int sectionCount{};
+   vector<string> sectionList{};
+
+   sectionCount = _configIO.getConfigAllSectionsList(sectionList, extractsConfigFile);
 
    for (int i{}; i < sectionCount; i++) {
-      wstring templateName{};
-      bool currentTemplate{};
+      string templateName{};
+      bool matching{};
 
-      currentTemplate = (initFileType ==
-         _configIO.getConfigString(sectionList[i], L"FileType", L"", extractsConfigFile));
+      matching = (initFileType == _configIO.getConfigStringA(sectionList[i], "FileType", "", extractsConfigFile));
 
       templateName = currentOnly ?
-         (currentTemplate ? sectionList[i] : L"") :
-         (wstring{ currentTemplate ? L"" : DATA_EXTRACT_TEMPLATE_OTHER } + sectionList[i]);
+         (matching ? sectionList[i] : "") :
+         (string{ matching ? "" : DATA_EXTRACT_TEMPLATE_OTHER } + sectionList[i]);
 
       if (templateName.length() > 0)
-         SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)templateName.c_str());
+         SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)Utils::NarrowToWide(templateName).c_str());
    }
    return sectionCount;
 }
 
 void DataExtractDialog::loadTemplate() {
-   wstring templateName{ getSelectedTemplate() };
+   string templateName{ getSelectedTemplate() };
 
    if (templateName.length() <= 1) {
       newTemplate();
       return;
    }
 
-   SetWindowText(hTemplateName, templateName.c_str());
+   SetWindowText(hTemplateName, Utils::NarrowToWide(templateName).c_str());
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), TRUE);
    enableDeleteTemplate();
 
-   int liCount{ _configIO.getConfigInt(templateName, L"LineItemCount", 0, extractsConfigFile) };
+   int liCount{ _configIO.getConfigInt(templateName, "LineItemCount", 0, extractsConfigFile) };
    if (liCount < 1) {
       newTemplate();
       return;
@@ -770,18 +769,18 @@ void DataExtractDialog::loadTemplate() {
    for (int i{}; i < loadCount; i++) {
       LineItemInfo& LI{ liBuffer[i] };
 
-      wchar_t tNum[4];
-      swprintf(tNum, 4, L"%02d_", i);
-      wstring numSuffix{ tNum };
+      char tNum[4];
+      snprintf(tNum, 4, "%02d_", i);
+      string numSuffix{ tNum };
 
-      LI.prefix = _configIO.getConfigStringA(templateName, (numSuffix + L"Prefix").c_str(), L"", extractsConfigFile);
-      LI.suffix = _configIO.getConfigStringA(templateName, (numSuffix + L"Suffix").c_str(), L"", extractsConfigFile);
+      LI.prefix = _configIO.getConfigWideChar(templateName, (numSuffix + "Prefix").c_str(), "", extractsConfigFile);
+      LI.suffix = _configIO.getConfigWideChar(templateName, (numSuffix + "Suffix").c_str(), "", extractsConfigFile);
 
-      LI.recType = _configIO.getConfigInt(templateName, (numSuffix + L"Record").c_str(), 0, extractsConfigFile);
+      LI.recType = _configIO.getConfigInt(templateName, (numSuffix + "Record").c_str(), 0, extractsConfigFile);
       if (LI.recType > static_cast<int>(recInfoList.size())) LI.recType = -1;
 
       if (LI.recType >= 0) {
-         LI.fieldType = _configIO.getConfigInt(templateName, (numSuffix + L"Field").c_str(), 0, extractsConfigFile);
+         LI.fieldType = _configIO.getConfigInt(templateName, (numSuffix + "Field").c_str(), 0, extractsConfigFile);
          if (LI.fieldType > static_cast<int>(recInfoList[LI.recType].fieldLabels.size())) LI.fieldType = -1;
       }
 
@@ -792,17 +791,17 @@ void DataExtractDialog::loadTemplate() {
    loadPage(0);
 }
 
-wstring DataExtractDialog::getSelectedTemplate() {
+string DataExtractDialog::getSelectedTemplate() {
    bool validTemplate{ SendMessage(hTemplatesList, CB_GETCURSEL, NULL, NULL) > 0 };
-   wstring templateName{};
+   string templateName{};
 
    if (validTemplate) {
       wchar_t tName[MAX_TEMPLATE_NAME + 1];
       GetWindowText(hTemplatesList, tName, MAX_TEMPLATE_NAME);
 
-      templateName = wstring{ tName };
+      templateName = Utils::WideToNarrow(tName);
 
-      size_t otherLen = wstring{ DATA_EXTRACT_TEMPLATE_OTHER }.length();
+      size_t otherLen = string{ DATA_EXTRACT_TEMPLATE_OTHER }.length();
 
       if (templateName.substr(0, otherLen) == DATA_EXTRACT_TEMPLATE_OTHER)
          templateName = templateName.substr(otherLen);
@@ -811,10 +810,10 @@ wstring DataExtractDialog::getSelectedTemplate() {
    return templateName;
 }
 
-wstring DataExtractDialog::getTemplateName() {
+string DataExtractDialog::getTemplateName() {
    wchar_t tName[MAX_TEMPLATE_NAME + 1];
    GetWindowText(hTemplateName, tName, MAX_TEMPLATE_NAME);
-   return wstring{ tName };
+   return Utils::WideToNarrow(tName);
 }
 
 void DataExtractDialog::enableSaveTemplate() {
@@ -830,34 +829,31 @@ void DataExtractDialog::saveTemplate() {
    vector<LineItemInfo> validLIs{};
    getValidLineItems(validLIs, FALSE, FALSE);
 
-   wstring templateName{ getTemplateName() };
+   string templateName{ getTemplateName() };
    if (templateName.length() < 3) return;
 
    // First, delete any existing section with the same name
    _configIO.deleteSection(templateName, extractsConfigFile);
-   _configIO.setConfigString(templateName, L"FileType", initFileType, extractsConfigFile);
-   _configIO.setConfigString(templateName, L"FileLabel", initFileTypeLabel, extractsConfigFile);
-   _configIO.setConfigString(templateName, L"LineItemCount", to_wstring(validLIs.size()), extractsConfigFile);
+   _configIO.setConfigStringA(templateName, "FileType", initFileType, extractsConfigFile);
+   _configIO.setConfigMultiByte(templateName, "FileLabel", initFileTypeLabel, extractsConfigFile);
+   _configIO.setConfigStringA(templateName, "LineItemCount", to_string(validLIs.size()), extractsConfigFile);
 
    for (size_t i{}; i < validLIs.size(); i++) {
       LineItemInfo& LI = validLIs[i];
 
-      wchar_t tNum[4];
-      swprintf(tNum, 4, L"%02d_", static_cast<int>(i));
-      wstring numSuffix{ tNum };
+      char tNum[4];
+      snprintf(tNum, 4, "%02d_", static_cast<int>(i));
+      string numSuffix{ tNum };
 
-      _configIO.setConfigStringA(templateName,
-         (numSuffix + L"Prefix").c_str(), LI.prefix.c_str(), extractsConfigFile);
-      _configIO.setConfigStringA(templateName,
-         (numSuffix + L"Record").c_str(), to_string(LI.recType).c_str(), extractsConfigFile);
-      _configIO.setConfigStringA(templateName,
-         (numSuffix + L"Field").c_str(), to_string(LI.fieldType).c_str(), extractsConfigFile);
-      _configIO.setConfigStringA(templateName,
-         (numSuffix + L"Suffix").c_str(), LI.suffix.c_str(), extractsConfigFile);
+      _configIO.setConfigMultiByte(templateName, numSuffix + "Prefix", LI.prefix, extractsConfigFile);
+      _configIO.setConfigStringA(templateName, numSuffix + "Record", to_string(LI.recType), extractsConfigFile);
+      _configIO.setConfigStringA(templateName, numSuffix + "Field", to_string(LI.fieldType), extractsConfigFile);
+      _configIO.setConfigMultiByte(templateName, numSuffix + "Suffix", LI.suffix, extractsConfigFile);
    }
 
-   if (SendMessage(hTemplatesList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)templateName.c_str()) == CB_ERR) {
-      LRESULT idx{ SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)templateName.c_str()) };
+   wstring lbName{ Utils::NarrowToWide(templateName) };
+   if (SendMessage(hTemplatesList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)lbName.c_str()) == CB_ERR) {
+      LRESULT idx{ SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)lbName.c_str()) };
       SendMessage(hTemplatesList, CB_SETCURSEL, (WPARAM)idx, NULL);
    }
 

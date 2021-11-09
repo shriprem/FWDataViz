@@ -50,6 +50,13 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style) {
 
 // ***************** PUBLIC *****************
 
+int Utils::StringtoInt(const string& str, int base) {
+   if (str.length() < 1)
+      return 0;
+   else
+      return stoi(str, nullptr, base);
+}
+
 int Utils::StringtoInt(const wstring& str, int base) {
    if (str.length() < 1)
       return 0;
@@ -67,6 +74,38 @@ wstring Utils::NarrowToWide(const string& str) {
 
 string Utils::WideToNarrow(const wstring& wStr) {
    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
+}
+
+wstring Utils::MultiByteToWide(const string& str) {
+   int len{ static_cast<int>(str.length()) };
+   if (len < 1) return 0;
+
+   wstring bufStr{};
+   int bufLen{};
+
+   bufLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), len, nullptr, 0);
+   if (bufLen < 1) return bufStr;
+
+   bufStr.resize(bufLen);
+   bufLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), len, bufStr.data(), bufLen);
+
+   return bufStr;
+}
+
+string Utils::WideToMultiByte(const wstring& wStr) {
+   int wLen{ static_cast<int>(wStr.length()) };
+   if (wLen < 1) return 0;
+
+   string bufStr{};
+   int bufLen{};
+
+   bufLen = WideCharToMultiByte(CP_UTF8, 0, wStr.c_str(), wLen, nullptr, 0, NULL, NULL);
+   if (bufLen < 1) return bufStr;
+
+   bufStr.resize(bufLen);
+   bufLen = WideCharToMultiByte(CP_UTF8, 0, wStr.c_str(), wLen, bufStr.data(), bufLen, NULL, NULL);
+
+   return bufStr;
 }
 
 COLORREF Utils::intToRGB(int color) {
@@ -109,7 +148,7 @@ wstring Utils::getKnownFolderPath(REFKNOWNFOLDERID folderID) {
    return sFolderPath;
 }
 
-HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, BOOL bBalloon) {
+HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, bool bBalloon) {
    if (!controlID || !hDlg || !pMessage)
       return FALSE;
 
@@ -140,6 +179,12 @@ HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage,
    SendMessage(hwndTip, TTM_SETTITLE, TTI_INFO, (LPARAM)pTitle);
    SendMessage(hwndTip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)PREFS_TIP_MAX_WIDTH);
 
+   return hwndTip;
+}
+
+HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, int duration, bool bBalloon) {
+   HWND hwndTip{ addTooltip(hDlg, controlID, pTitle, pMessage, bBalloon) };
+   SendMessage(hwndTip, TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(duration * 1000));
    return hwndTip;
 }
 
@@ -217,26 +262,19 @@ wstring Utils::getVersionInfo(LPCWSTR key) {
 
    GetModuleFileName(_gModule, sModuleFilePath, MAX_PATH);
    verSize = GetFileVersionInfoSize(sModuleFilePath, &verHandle);
+   if (verSize < 1) return NULL;
 
-   if (verSize) {
-      LPSTR verData = new char[verSize];
+   string versionData(verSize, '\0');
+   if (!GetFileVersionInfo(sModuleFilePath, verHandle, verSize, versionData.data())) return NULL;
+   VerQueryValue(versionData.data(), L"\\VarFileInfo\\Translation", (VOID FAR* FAR*)& lpTranslate, &querySize);
 
-      if (GetFileVersionInfo(sModuleFilePath, verHandle, verSize, verData)) {
+   wstring verSubBlock(100, '\0');
+   swprintf(verSubBlock.data(), 100, L"\\StringFileInfo\\%04X%04X\\%s",
+      lpTranslate[0].wLanguage, lpTranslate[0].wCodePage, key);
 
-         VerQueryValue(verData, L"\\VarFileInfo\\Translation", (VOID FAR* FAR*)& lpTranslate, &querySize);
-
-         wchar_t qVal[100]{};
-         swprintf(qVal, 100, L"\\StringFileInfo\\%04X%04X\\%s",
-            lpTranslate[0].wLanguage, lpTranslate[0].wCodePage, key);
-
-         if (VerQueryValue(verData, wstring(qVal).c_str(), (VOID FAR* FAR*)& lpBuffer, &querySize)) {
-            if (querySize) {
-               sVersionInfo = wstring((LPCTSTR)lpBuffer);
-            }
-         }
-      }
-      delete[] verData;
-   }
+   if (VerQueryValue(versionData.data(), verSubBlock.c_str(), (VOID FAR* FAR*)& lpBuffer, &querySize)
+      && querySize)
+      sVersionInfo = wstring((LPCTSTR)lpBuffer);
 
    return sVersionInfo;
 }

@@ -1,5 +1,19 @@
 # Version History
 
+### Version 2.3.0.0
+#### Enhancements
+1. [Field Copy and Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md) with proper alignment, padding and trimming.
+
+2. [Move to Left or Right Edge](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md) of the current field or adjacent fields.
+
+3. [Menu Items with Keyboard Shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/menu_shortcuts.md) for commonly used actions. No need to switch focus from the document to the plugin panel.
+
+4. [Full Support for Multi-byte Characters](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_support.md).
+
+**Release:** [2.3.0.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.3.0.0) _Coming soon!_
+
+---
+
 ### Version 2.2.0.0
 #### Enhancements
 1. Visualize files with [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md).

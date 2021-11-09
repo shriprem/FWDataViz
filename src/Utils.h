@@ -7,10 +7,13 @@
 #define PREFS_TIP_MAX_WIDTH         400
 
 namespace Utils {
+   int StringtoInt(const string& str, int base = 10);
    int StringtoInt(const wstring& str, int base = 10);
    LPCWSTR ToUpper(LPWSTR str);
    wstring NarrowToWide(const string& str);
    string WideToNarrow(const wstring& wStr);
+   wstring MultiByteToWide(const string& str);
+   string WideToMultiByte(const wstring& wStr);
 
    COLORREF intToRGB(int color);
    int scaleDPIX(int x);
@@ -18,7 +21,8 @@ namespace Utils {
    wstring getSpecialFolder(int folderID);
    wstring getKnownFolderPath(REFKNOWNFOLDERID folderID);
 
-   HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, BOOL bBalloon = TRUE);
+   HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, bool bBalloon = TRUE);
+   HWND addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, int duration, bool bBalloon);
    void addToolbarIcon(int menuIndex, int std, int fluent, int dark);
    void checkMenuItem(int menuIndex, bool check);
    void showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text);

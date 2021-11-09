@@ -49,7 +49,7 @@ void SubmenuManager::listSampleFiles() {
 
       PathCombine(sampleFile, pluginSamplesDir, gSampleFiles[i].file_name.c_str());
       if (PathFileExists(sampleFile))
-         AppendMenu(hWhich, MF_STRING, itemIDStart + i, gSampleFiles[i].display_name.c_str());
+         AppendMenu(hWhich, MF_STRING, itemIDStart + i, Utils::NarrowToWide(gSampleFiles[i].display_name).c_str());
    }
 }
 

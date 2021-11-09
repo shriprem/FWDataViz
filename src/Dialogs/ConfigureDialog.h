@@ -38,7 +38,7 @@ protected:
 
    struct RecordType {
       wstring label;
-      string marker;
+      wstring marker;
       wstring fieldLabels;
       wstring fieldWidths;
       wstring theme{};
@@ -47,14 +47,14 @@ protected:
    struct FileType {
       wstring label{};
       wstring theme{};
-      string eol{};
+      wstring eol{};
       bool multiByte{};
       vector<RecordType> vRecTypes;
       int lineNums[ADFT_MAX]{};
-      string regExprs[ADFT_MAX]{};
+      wstring regExprs[ADFT_MAX]{};
    };
 
-   wstring configFile{ L"" };
+   wstring configFile{};
    vector<FileType> vFileTypes;
    bool loadingEdits, cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
    HWND hToolTips[8];
@@ -63,11 +63,11 @@ protected:
    void localize();
    void indicateCleanStatus();
    int loadConfigInfo();
-   int loadFileTypeInfo(int vIndex, const wstring& fileType, const wstring& sConfigFile);
+   int loadFileTypeInfo(int vIndex, const string& fileType, const wstring& sConfigFile);
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);
-   string getOnlyStartsWith(string txt);
+   wstring getOnlyStartsWith(wstring txt);
 
    int getCurrentFileTypeIndex();
    bool getCurrentFileTypeInfo(FileType*& fileInfo);

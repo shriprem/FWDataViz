@@ -1,8 +1,6 @@
 #include "ThemeDialog.h"
 #include "EximFileTypeDialog.h"
 
-//#define HEX_COL_LEN 6
-
 extern HINSTANCE _gModule;
 extern ThemeDialog _themeDlg;
 extern EximFileTypeDialog _eximDlg;
@@ -244,12 +242,14 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
                if (!promptDiscardChangesNo()) {
                   wstring backupThemeFile;
 
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, FALSE, backupThemeFile)) {
-                     themeFile = backupThemeFile;
-                     loadConfigInfo();
-                     fillThemes();
-                     cleanConfigFile = FALSE;
-                     enableThemeSelection();
+                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupThemeFile)) {
+                     if (_configIO.fixIfUTF16File(backupThemeFile)) {
+                        themeFile = backupThemeFile;
+                        loadConfigInfo();
+                        fillThemes();
+                        cleanConfigFile = FALSE;
+                        enableThemeSelection();
+                     }
                   }
                }
                break;
@@ -376,11 +376,7 @@ void ThemeDialog::indicateCleanStatus() {
 
 int ThemeDialog::loadConfigInfo() {
    vector<wstring> themesList;
-   wstring sThemes;
-   int themesCount;
-
-   sThemes = _configIO.getStyleValue(L"Base", L"Themes", themeFile);
-   themesCount = _configIO.Tokenize(sThemes, themesList);
+   int themesCount{ _configIO.getThemesList(themesList, themeFile) };
 
    vThemeTypes.clear();
    vThemeTypes.resize(themesCount);
@@ -397,18 +393,18 @@ int ThemeDialog::loadThemeInfo(int vIndex, const wstring& themeType, const wstri
    ThemeType& TT = vThemeTypes[vIndex];
 
    TT.label = themeType;
-   _configIO.getFullStyle(themeType, L"EOL", TT.eolStyle, sThemeFile);
+   _configIO.getFullStyle(themeType, "EOL", TT.eolStyle, sThemeFile);
 
-   wchar_t buf[10];
+   char buf[10];
    int styleCount;
 
-   styleCount = Utils::StringtoInt(_configIO.getStyleValue(themeType, L"Count", sThemeFile));
+   styleCount = Utils::StringtoInt(_configIO.getStyleValue(themeType, "Count", sThemeFile));
 
    TT.vStyleInfo.clear();
    TT.vStyleInfo.resize(styleCount);
 
    for (int i{}; i < styleCount; i++) {
-      swprintf(buf, 8, L"BFBI_%02i", i);
+      snprintf(buf, 8, "BFBI_%02i", i);
       _configIO.getFullStyle(themeType, buf, TT.vStyleInfo[i], sThemeFile);
    }
 
@@ -1012,14 +1008,12 @@ void ThemeDialog::themeEditAccept() {
 
 int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
    int sectionCount{}, validCount{};
-   wstring sections{};
    vector<wstring> sectionList{};
 
-   sectionCount = _configIO.getConfigSectionList(sections, sThemeFile);
-   sectionCount = _configIO.Tokenize(sections, sectionList);
+   sectionCount = _configIO.getConfigAllSectionsList(sectionList, sThemeFile);
 
    for (int i{}; i < sectionCount; i++) {
-      if (_configIO.getConfigString(sectionList[i], L"Count", L"", sThemeFile).length() > 0) {
+      if (_configIO.getConfigInt(sectionList[i], "Count", 0, sThemeFile) > 0) {
          if (!checkThemeLimit(FALSE)) break;
 
          ThemeType newTheme{ getNewTheme() };
@@ -1124,7 +1118,7 @@ bool ThemeDialog::promptDiscardChangesNo() {
          return TRUE;
    }
 
-   return false;
+   return FALSE;
 }
 
 void ThemeDialog::saveConfigInfo() {
@@ -1144,8 +1138,8 @@ void ThemeDialog::saveConfigInfo() {
 
    fileData = L"[Base]\r\nThemes=" + themes + L"\r\n\r\n" + fileData;
 
-   _configIO.backupConfigFile(FALSE);
-   _configIO.saveConfigFile(fileData, FALSE);
+   _configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_THEMES));
+   _configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_THEMES));
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();
