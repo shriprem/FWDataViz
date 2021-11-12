@@ -7,10 +7,7 @@ This editor is organized in a three-level hierarchy:
 2. Record Types
 3. Fields
 
-* The following fields will accept Unicode characters:
-  * File Type Label
-  * Record Type Label
-  * Field Labels
+* Starting with v2.3.0.0, all fields in the Metadata Editor will accept multi-byte characters.
 
 * The following fields are optional:
   * File Records Terminator

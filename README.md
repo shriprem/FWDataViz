@@ -1,11 +1,12 @@
 # FWDataViz
 #### Fixed Width Data Visualizer plugin for Notepad++
 [Current Version: 2.3.0.0](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
+
 ![FWDataViz](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_weather_stations.png)
 
 * Visualizes fields within fixed-width data files with distinct colors and font styles.
 
-* <a href="#fixed-width-data-visualizer-panel">Displays record, field and byte information at cursor position.</a>
+* [Displays record, field and byte information at cursor position.](#fixed-width-data-visualizer-panel)
 
 * [Quick Field Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md) to [Jump](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md#jump-to-field) to any field of the current record or [Hop](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md#hop-field) to the left or right edge of the current field or adjacent fields.
 
@@ -23,10 +24,10 @@
 
 * Easy sharing of customized Themes with [Extract Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md) and [Append Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md).
 
-* <a href="#sample-data-files">Sample Data files</a> in the plugin package demonstrating:
-   * <a href="#homogenous-record-type-fixed-width-data-files">Homogenous record-type data</a>
-   * <a href="#mixed-record-type-fixed-width-data-files">Mixed record-types data</a>
-   * <a href="#multi-line-record-type-fixed-width-data-files">Multiple-line-spanning record-types data</a>
+* [Sample Data files](#sample-data-files) in the plugin package demonstrating:
+   * [Homogenous record-type data](#homogenous-record-type-fixed-width-data-files)
+   * [Mixed record-types data](#mixed-record-type-fixed-width-data-files)
+   * [Multiple-line-spanning record-types data](#multi-line-record-type-fixed-width-data-files)
 
 * Choice of visualization based either on the default single byte (US-ASCII) or [multi-byte](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) character data.
 
@@ -47,7 +48,7 @@ The _Framed Current Line_ feature preserves the color highlights of data fields 
 ### Fixed-Width Data Visualizer Panel
 ![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
 
-* Click on the _View Sample Files_ icon: ![View Sample Files](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_samples.bmp), and choose from the menu options to view various <a href="#sample-data-files">sample files</a>.
+* Click on the _View Sample Files_ icon: ![View Sample Files](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_samples.bmp), and choose from the menu options to view various [sample files](#sample-data-files).
 
 * Click on the _File Type Metadata Editor_ icon: ![File Type Metadata Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_config.bmp), to view, modify or create your custom File Type definitions. For more information, see: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md)
 
