@@ -1,10 +1,10 @@
-## Multi-byte Character Data Visualization
+﻿## Multi-byte Character Data Visualization
 
 ![Multi-byte_Character_Data](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multibyte_character_data.png)
 
 When files are likely to contain multi-byte character data, the plugin must be switched from using bytes to characters to determine field widths and column positions. To do so, the *Multi-byte Character Data* checkbox in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) should be toggled ON.
 
-A sample fixed-width data file with multi-byte character data is packaged with the plugin. To view this sample file, click on the *View Sample Files* icon and then *Sample Multiple-Record-Type Files* � *[Dummy Data] Treasury IPAC (Unicode) File*.
+A sample fixed-width data file with multi-line, multi-byte character data is packaged with the plugin. To view this sample file, click on the *View Sample Files* icon and then *Sample Multiple-Line Record Files* » *[Dummy Data] Multi-Line Multi-Byte ĪƤĂĊ File*.
 
 When multi-byte character data mode is enabled, character column counts will be used in [Jump To Field](https://github.com/shriprem/FWDataViz/blob/master/README.md#jump-to-field-popup) and [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md).
 
