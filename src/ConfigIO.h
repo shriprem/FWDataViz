@@ -37,6 +37,7 @@ public:
       CONFIG_THEMES,
       CONFIG_PREFS,
       CONFIG_EXTRACTS,
+      CONFIG_FIELD_TYPES,
       CONFIG_FILE_COUNT
    };
 
@@ -59,6 +60,7 @@ public:
 
    wstring getStyleValue(const wstring& theme, const string& styleName, wstring file = L"");
    void getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file = L"");
+   bool getFieldStyle(const wstring& fieldName, StyleInfo& style);
 
    wstring getPreference(const string key, const string default = "");
    void setPreference(const string key, const wstring value);
@@ -108,7 +110,8 @@ protected:
    TCHAR pluginConfigBackupDir[MAX_PATH];
    TCHAR defaultConfigFile[MAX_PATH];
 
-   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{ L"Visualizer.ini", L"Themes.ini", L"Preferences.ini", L"Extracts.ini"};
+   const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{
+      L"Visualizer.ini", L"Themes.ini", L"Preferences.ini", L"Extracts.ini", L"FieldTypes.ini" };
    wstring WCONFIG_FILE_PATHS[CONFIG_FILE_COUNT]{};
    string CONFIG_FILE_PATHS[CONFIG_FILE_COUNT]{};
 

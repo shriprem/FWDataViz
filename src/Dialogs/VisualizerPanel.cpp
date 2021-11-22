@@ -682,9 +682,9 @@ int VisualizerPanel::loadTheme(const wstring theme) {
 
    styleCount = Utils::StringtoInt(_configIO.getStyleValue(theme, "Count"));
 
-   // Do not load more than FW_STYLE_CACHE_ITEMS_LIMIT styles (including EOL style)
-   styleCount = (loadedStyleCount + styleCount >= FW_STYLE_CACHE_ITEMS_LIMIT) ?
-      (FW_STYLE_CACHE_ITEMS_LIMIT - loadedStyleCount) : styleCount;
+   // Do not load more than FW_STYLE_THEMES_MAX_ITEMS styles (including EOL style)
+   styleCount = (loadedStyleCount + styleCount >= FW_STYLE_THEMES_MAX_ITEMS) ?
+      (FW_STYLE_THEMES_MAX_ITEMS - loadedStyleCount) : styleCount;
    if (styleCount < 1) return 0;
 
    TI.styleSet.clear();
@@ -738,8 +738,17 @@ int VisualizerPanel::loadUsedThemes() {
    for (int i{}; i < recTypeCount; i++) {
       wstring recTheme{};
       recTheme = _configIO.getConfigWideChar(fileType, (recTypesList[i] + "_Theme"));
+      if (recTheme == L"") continue;
 
-      if ((recTheme != L"") && (recTheme != fileTheme))
+      bool loaded{ FALSE };
+      for (size_t j{}; j < themeSet.size(); j++) {
+         if (recTheme == themeSet[j].name) {
+            loaded = TRUE;
+            break;
+         }
+      }
+
+      if (!loaded)
          loadedStyleCount += loadTheme(recTheme);
    }
 
@@ -755,7 +764,7 @@ int VisualizerPanel::applyStyles() {
    const size_t themeCount{ themeSet.size() };
    if (themeCount < 1) return 0;
 
-   int styleIndex{ FW_STYLE_CACHE_START_INDEX };
+   int styleIndex{ FW_STYLE_THEMES_START_INDEX };
 
    for (size_t i{}; i < themeCount; i++) {
       ThemeInfo& TI = themeSet[i];
@@ -795,16 +804,17 @@ int VisualizerPanel::applyStyles() {
 #endif
    }
 
-   return styleIndex - FW_STYLE_CACHE_START_INDEX;
+   return styleIndex - FW_STYLE_THEMES_START_INDEX;
 }
 
 int VisualizerPanel::loadLexer() {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return -1;
+   PSCIFUNC_T sciFunc;
+   void* sciPtr;
+
+   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
    string fileType;
-
-   if (!getDocFileType(hScintilla, fileType)) {
+   if (!getDocFileType(sciFunc, sciPtr, fileType)) {
       clearLexer();
       return 0;
    }
@@ -816,6 +826,9 @@ int VisualizerPanel::loadLexer() {
    if (recInfoList.size() > 0) {
       return static_cast<int>(recInfoList.size());
    }
+
+   const std::wregex trimSpace{ std::wregex(L"(^( )+)|(( )+$)") };
+   int styleIndex{ FW_STYLE_FIELDS_START_INDEX };
 
    vector<string> recTypes;
    int recTypeCount{ _configIO.getConfigValueList(recTypes, fileType, "RecordTypes") };
@@ -848,10 +861,37 @@ int VisualizerPanel::loadLexer() {
          startPos += RT.fieldWidths[fnum];
       }
 
-      wstring fieldLabelList;
+      wstring fieldLabelList, fieldType;
+      size_t colonPos{};
 
       fieldLabelList = _configIO.getConfigWideChar(fileType, (recType + "_FieldLabels"));
-      _configIO.Tokenize(fieldLabelList, RT.fieldLabels);
+      fieldCount = _configIO.Tokenize(fieldLabelList, RT.fieldLabels);
+
+      RT.fieldStyles.clear();
+      RT.fieldStyles.resize(fieldCount);
+
+      for (int fnum{}; fnum < fieldCount; fnum++) {
+         wstring& field{ RT.fieldLabels[fnum] };
+         RT.fieldStyles[fnum] = -1;
+
+         colonPos = field.find(':');
+         if (colonPos != string::npos) {
+            fieldType = field.substr(colonPos + 1);
+            fieldType = regex_replace(fieldType, trimSpace, L"");
+
+            StyleInfo fieldStyle;
+            if (styleIndex < FW_STYLE_FIELDS_MAX_INDEX &&
+               _configIO.getFieldStyle(fieldType, fieldStyle)) {
+               sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)fieldStyle.backColor);
+               sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)fieldStyle.foreColor);
+               sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)fieldStyle.bold);
+               sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)fieldStyle.italics);
+
+               RT.fieldStyles[fnum] = styleIndex;
+               styleIndex++;
+            }
+         }
+      }
    }
 
    fwVizRegexed = fileType;
@@ -989,19 +1029,15 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          for (size_t i{0}; i < themeSet.size(); i++) {
             if (recTheme == themeSet[i].name) {
                themeIndex = i;
+               colorOffset = 0;
                break;
             }
          }
-         // If no match for recTheme, themeIndex will fallback to 0. i.e., fileTheme
-         // For a recTheme, set colorOffset to zero
-         colorOffset = (themeIndex > 0) ? 0 : colorOffset;
       }
 
       const int styleRangeStart{ themeSet[themeIndex].rangeStartIndex };
       const size_t styleCount{ themeSet[themeIndex].styleSet.size() };
       if (styleCount < 1) continue;
-
-      int unstyledLen{};
 
 #if FW_DEBUG_APPLY_LEXER
       wstring dbgMessage;
@@ -1019,19 +1055,24 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       MessageBox(_hSelf, dbgMessage.c_str(), L"", MB_OK);
 #endif
 
+      size_t styleIndex{};
+      const vector<int>& recFieldStyles{ recInfoList[regexIndex].fieldStyles };
+
       if (byteCols) {
+         int unstyledLen{};
          for (size_t i{}; i < fieldCount; i++) {
             sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
             unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
             currentPos += recFieldWidths[i];
 
+            styleIndex = (recFieldStyles[i] >= 0) ?
+               recFieldStyles[i] : styleRangeStart + ((i + colorOffset) % styleCount);
+
             if (recFieldWidths[i] < unstyledLen) {
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)recFieldWidths[i],
-                  styleRangeStart + ((i + colorOffset) % styleCount));
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)recFieldWidths[i], styleIndex);
             }
             else {
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)unstyledLen,
-                  styleRangeStart + ((i + colorOffset) % styleCount));
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)unstyledLen, styleIndex);
                unstyledLen = 0;
 
                sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
@@ -1052,14 +1093,15 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
             nextPos = static_cast<int>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
                (WPARAM)currentPos, (LPARAM)recFieldWidths[i]));
 
+            styleIndex = (recFieldStyles[i] >= 0) ?
+               recFieldStyles[i] : styleRangeStart + ((i + colorOffset) % styleCount);
+
             if (nextPos > 0 && nextPos <= eolMarkerPos) {
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(nextPos - currentPos),
-                  styleRangeStart + ((i + colorOffset) % styleCount));
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(nextPos - currentPos), styleIndex);
                currentPos = nextPos;
             }
             else {
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(eolMarkerPos - currentPos),
-                  styleRangeStart + ((i + colorOffset) % styleCount));
+               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(eolMarkerPos - currentPos), styleIndex);
 
                sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
                sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, styleRangeStart - 1);
