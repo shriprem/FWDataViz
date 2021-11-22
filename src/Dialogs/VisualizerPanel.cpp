@@ -651,6 +651,7 @@ void VisualizerPanel::visualizeTheme() {
    setDocTheme(getCurrentScintilla(), "", Utils::WideToNarrow(theme));
    loadUsedThemes();
    applyStyles();
+   renderCurrentPage();
 }
 
 void VisualizerPanel::clearVisualize(bool sync) {
