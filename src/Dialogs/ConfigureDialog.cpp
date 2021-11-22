@@ -640,7 +640,7 @@ ConfigureDialog::FileType ConfigureDialog::getNewFileType() {
    return newFile;
 }
 
-void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig) {
+int ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig) {
    size_t recTypeCount;
    wchar_t fileTypeCode[60], recTypeCode[10];
    wstring new_line, rawCode, adft{}, recTypes{}, rtConfig{}, recTypePrefix;
@@ -660,6 +660,11 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
 
    // ADFT Info
    for (int i{}; i < ADFT_MAX; i++) {
+      if (Utils::isInvalidRegex(FT.regExprs[i], _hSelf,
+         wstring(FWVIZ_DEF_FILE_DESC_LABEL) + L" " + FT.label + new_line +
+         FWVIZ_DEF_ADFT_GROUP_LABEL + L" - " + FWVIZ_DEF_ADFT_LINE_LABEL + L" " + to_wstring(i + 1)))
+         return -2;
+
       wchar_t idx[5];
       swprintf(idx, 5, L"%02d", i + 1);
 
@@ -675,6 +680,12 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
 
    for (size_t j{}; j < recTypeCount; j++) {
       RecordType& RT = FT.vRecTypes[j];
+
+      if (Utils::isInvalidRegex(RT.marker, _hSelf,
+         wstring(FWVIZ_DEF_FILE_DESC_LABEL) + L" " + FT.label + new_line +
+         FWVIZ_DEF_REC_DESC_LABEL + L" " + RT.label + new_line +
+         FWVIZ_DEF_REC_REGEX_LABEL))
+         return -2;
 
       swprintf(recTypeCode, 10, L"REC%03d", static_cast<int>(j + 1));
       recTypePrefix = wstring{ recTypeCode };
@@ -698,6 +709,8 @@ void ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCod
       L"RecordTerminator=" + FT.eol + new_line +
       L"MultiByteChars=" + (FT.multiByte ? L"Y" : L"N") + new_line +
       adft + recTypes + new_line + rtConfig;
+
+   return 1;
 }
 
 bool ConfigureDialog::getCurrentRecInfo(RecordType*& recInfo) {
@@ -1042,8 +1055,13 @@ void ConfigureDialog::onRecStartEditChange() {
    wstring startText(MAX_PATH + 1, '\0');
    GetWindowText(hRecStart, startText.data(), MAX_PATH);
 
-   wstring regexText{ (startText.length() > 0) ? L"^" + startText : L"." };
-   SetWindowText(hRecRegex, regexText.c_str());
+   wstring startReg{ L"." };
+   if (startText.length() > 0)
+      startReg =  L"^" + regex_replace(startText,
+         std::wregex(L"[" + REGEX_META_CHARS + L"]"),
+         L"\\$&");
+
+   SetWindowText(hRecRegex, startReg.c_str());
 }
 
 void ConfigureDialog::onRecRegexEditChange() {
@@ -1052,14 +1070,14 @@ void ConfigureDialog::onRecRegexEditChange() {
    SetWindowText(hRecStart, getOnlyStartsWith(regexText).c_str());
 }
 
-void ConfigureDialog::recEditAccept() {
-   if (cleanRecVals) return;
+int ConfigureDialog::recEditAccept() {
+   if (cleanRecVals) return 0;
 
    int idxFT{ getCurrentFileTypeIndex() };
-   if (idxFT == LB_ERR) return;
+   if (idxFT == LB_ERR) return -1;
 
    int idxRec{ getCurrentRecIndex() };
-   if (idxRec == LB_ERR) return;
+   if (idxRec == LB_ERR) return -1;
 
    RecordType& recInfo = vFileTypes[idxFT].vRecTypes[idxRec];
 
@@ -1071,7 +1089,11 @@ void ConfigureDialog::recEditAccept() {
    wchar_t regexVal[MAX_PATH + 1];
 
    GetWindowText(hRecRegex, regexVal, MAX_PATH);
-   recInfo.marker = regexVal;
+
+   if (Utils::isInvalidRegex(regexVal, _hSelf, FWVIZ_DEF_REC_REGEX_LABEL))
+      return -2;
+   else
+      recInfo.marker = regexVal;
 
    wchar_t themeVal[MAX_PATH + 1];
 
@@ -1085,6 +1107,8 @@ void ConfigureDialog::recEditAccept() {
    cleanConfigFile = FALSE;
    cleanRecVals = TRUE;
    enableRecSelection();
+
+   return 1;
 }
 
 void ConfigureDialog::recEditNew(bool clone) {
@@ -1148,11 +1172,11 @@ int ConfigureDialog::recEditDelete() {
    return moveTo;
 }
 
-void ConfigureDialog::fileEditAccept() {
-   if (cleanFileVals) return;
+int ConfigureDialog::fileEditAccept() {
+   if (cleanFileVals) return 0;
 
    int idxFT{ getCurrentFileTypeIndex() };
-   if (idxFT == LB_ERR) return;
+   if (idxFT == LB_ERR) return -1;
 
    FileType& fileInfo = vFileTypes[idxFT];
 
@@ -1180,7 +1204,11 @@ void ConfigureDialog::fileEditAccept() {
       fileInfo.lineNums[i] = Utils::StringtoInt(lineNum);
 
       GetWindowText(hADFTRegex[i], regExpr, MAX_PATH);
-      fileInfo.regExprs[i] = regExpr;
+      if (Utils::isInvalidRegex(regExpr, _hSelf,
+         wstring(FWVIZ_DEF_ADFT_GROUP_LABEL) + L" - " + FWVIZ_DEF_ADFT_LINE_LABEL + L" " + to_wstring(i + 1)))
+         return -2;
+      else
+         fileInfo.regExprs[i] = regExpr;
    }
 
    // Update FT Listbox Entry
@@ -1191,6 +1219,8 @@ void ConfigureDialog::fileEditAccept() {
    cleanConfigFile = FALSE;
    cleanFileVals = TRUE;
    enableFileSelection();
+
+   return 1;
 }
 
 int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
@@ -1327,8 +1357,12 @@ void ConfigureDialog::saveConfigInfo() {
       return;
 
    if (!cleanFieldVals) fieldEditsAccept();
-   if (!cleanRecVals) recEditAccept();
-   if (!cleanFileVals) fileEditAccept();
+
+   if (!cleanRecVals)
+      if (recEditAccept() < 0) return;
+
+   if (!cleanFileVals)
+      if (fileEditAccept() < 0) return;
 
    size_t fileTypeCount;
    wstring fileData{}, fileTypes{}, ftCode{}, ftConfig{};
@@ -1336,7 +1370,7 @@ void ConfigureDialog::saveConfigInfo() {
    fileTypeCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
 
    for (size_t i{}; i < fileTypeCount; i++) {
-      getFileTypeConfig(i, TRUE, ftCode, ftConfig);
+      if (getFileTypeConfig(i, TRUE, ftCode, ftConfig) < 0) return;
       fileTypes += (i == 0 ? L"" : L",") + ftCode;
       fileData += ftConfig + L"\r\n";
    }
@@ -1360,12 +1394,16 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
       if (idxFT == LB_ERR) return;
 
       wstring ftCode{}, ftConfig{};
-      getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig);
+      if (getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig) < 0) {
+         _eximDlg.display(false);
+         return;
+      }
+
       _eximDlg.setFileTypeData(ftConfig);
    }
 }
 
-wstring ConfigureDialog::getOnlyStartsWith(wstring txt) {
-   return wstring{ (txt.length() > 0 &&
-      regex_match(txt, std::wregex(L"^\\^[^\\.\\{\\}\\\\[\\]\\*\\?\\+\\<\\>\\=]+"))) ? txt.substr(1) : L"" };
+wstring ConfigureDialog::getOnlyStartsWith(wstring expr) {
+   return wstring{ (expr.length() > 0 &&
+      regex_match(expr, std::wregex(L"^\\^[^" + REGEX_META_CHARS + L"]+"))) ? expr.substr(1) : L"" };
 }

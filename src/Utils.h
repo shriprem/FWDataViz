@@ -2,6 +2,7 @@
 
 #include "PluginDefinition.h"
 #include <codecvt>
+#include <regex>
 #include <ShlObj_core.h>
 
 #define PREFS_TIP_MAX_WIDTH         400
@@ -12,6 +13,8 @@ namespace Utils {
    LPCWSTR ToUpper(LPWSTR str);
    wstring NarrowToWide(const string& str);
    string WideToNarrow(const wstring& wStr);
+   bool isInvalidRegex(const string& expr);
+   bool isInvalidRegex(const wstring& expr, HWND hWnd, const wstring& context);
 
    COLORREF intToRGB(int color);
    int scaleDPIX(int x);

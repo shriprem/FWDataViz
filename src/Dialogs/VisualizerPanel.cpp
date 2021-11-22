@@ -827,7 +827,10 @@ int VisualizerPanel::loadLexer() {
       RecordInfo& RT = recInfoList[i];
 
       RT.label = _configIO.getConfigWideChar(fileType, (recType + "_Label"), recType, "");
+
       RT.marker = _configIO.getConfigStringA(fileType, (recType + "_Marker"), ".", "");
+      if (Utils::isInvalidRegex(RT.marker)) RT.marker = "";
+
       RT.regExpr = regex{ RT.marker + ".*" };
       RT.theme = _configIO.getConfigWideChar(fileType, (recType + "_Theme"));
 
@@ -1410,9 +1413,11 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
          snprintf(idx, 5, "%02d", i + 1);
 
          int line = _configIO.getConfigInt(fType, "ADFT_Line_" + string{ idx });
-         string strRegex = _configIO.getConfigStringA(fType, "ADFT_Regex_" + string{ idx });
-
          if (line == 0) continue;
+
+         string strRegex = _configIO.getConfigStringA(fType, "ADFT_Regex_" + string{ idx });
+         if (strRegex.length() == 0) continue;
+         if (Utils::isInvalidRegex(strRegex)) continue;
 
          int lineCount = static_cast<int>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
 

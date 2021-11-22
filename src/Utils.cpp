@@ -76,6 +76,32 @@ string Utils::WideToNarrow(const wstring& wStr) {
    return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wStr);
 }
 
+bool Utils::isInvalidRegex(const string& expr) {
+   try {
+      std::regex re(expr);
+   }
+   catch (const std::regex_error&) {
+      return true;
+   }
+
+   return false;
+}
+
+bool Utils::isInvalidRegex(const wstring& expr, HWND hWnd, const wstring& context) {
+   try {
+      std::wregex re(expr);
+   }
+   catch (const std::regex_error& e) {
+      MessageBox(hWnd,
+         (context + (context.length() > 0 ? L"\r\n" : L"") + NarrowToWide(e.what())).c_str(),
+         FWVIZ_DIALOG_REGEX_ERROR,
+         MB_OK | MB_ICONERROR);
+      return true;
+   }
+
+   return false;
+}
+
 COLORREF Utils::intToRGB(int color) {
    return RGB(GetRValue(color), GetGValue(color), GetBValue(color));
 }

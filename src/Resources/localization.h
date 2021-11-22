@@ -117,8 +117,7 @@
 #define FWVIZ_DIALOG_APPEND_BTN     L"&Append New File Type Data"
 #define FWVIZ_DIALOG_CLOSE_BTN      L"&Close"
 
-#define FWVIZ_DIALOG_ANSI_TITLE     L"ANSI characters only!"
-#define FWVIZ_DIALOG_ANSI_MESSAGE   L"This edit field will only accept ANSI characters."
+#define FWVIZ_DIALOG_REGEX_ERROR    L"Invalid Regular Expression"
 #define FWVIZ_DIALOG_NUMERIC_TITLE  L"Numbers only!"
 #define FWVIZ_DIALOG_NUMERIC_MSG    L"This edit field will only accept numbers,\r\nwith an optional leading minus sign."
 #define FWVIZ_DIALOG_COMMAS_TITLE   L"Commas are item separators"

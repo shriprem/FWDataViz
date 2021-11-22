@@ -8,6 +8,7 @@
 
 #define FILE_TYPE_LIMIT 999
 #define REC_TYPE_LIMIT 999
+#define REGEX_META_CHARS wstring{ L"\\^\\$\\\\(\\)\\{\\}\\[\\]\\<\\>\\.\\?\\*\\+\\,\\-\\|\\!\\:\\=" }
 
 using std::wregex;
 using std::regex_replace;
@@ -67,12 +68,12 @@ protected:
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);
-   wstring getOnlyStartsWith(wstring txt);
+   wstring getOnlyStartsWith(wstring expr);
 
    int getCurrentFileTypeIndex();
    bool getCurrentFileTypeInfo(FileType*& fileInfo);
    FileType getNewFileType();
-   void getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig);
+   int getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig);
 
    int getCurrentRecIndex();
    bool getCurrentRecInfo(RecordType*& recInfo);
@@ -83,7 +84,7 @@ protected:
    void enableMoveFileButtons();
    void enableFileSelection();
    int moveFileType(move_dir dir);
-   void fileEditAccept();
+   int fileEditAccept();
    void fileEditNew();
    void fileEditClone();
    int fileEditDelete();
@@ -96,7 +97,7 @@ protected:
    int moveRecType(move_dir dir);
    void onRecStartEditChange();
    void onRecRegexEditChange();
-   void recEditAccept();
+   int recEditAccept();
    void recEditNew(bool clone);
    int recEditDelete();
 
