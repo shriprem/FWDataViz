@@ -296,8 +296,13 @@ void VisualizerPanel::display(bool toShow) {
    CheckDlgButton(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM,
       _configIO.getPreferenceBool(PREF_COPY_TRIM, FALSE) ? BST_CHECKED : BST_UNCHECKED);
 
+   unlexed = TRUE;
    visualizeFile("", TRUE, TRUE, TRUE);
-   SetFocus(hFTList);
+
+   if (unlexed)
+      SetFocus(hFTList);
+   else
+      setFocusOnEditor();
 }
 
 void VisualizerPanel::setParent(HWND parent2set) {
@@ -459,8 +464,6 @@ void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool auto
    syncListThemes();
 
    loadUsedThemes();
-   applyStyles();
-
    loadLexer();
    renderCurrentPage();
    setFocusOnEditor();
@@ -650,7 +653,6 @@ void VisualizerPanel::visualizeTheme() {
 
    setDocTheme(getCurrentScintilla(), "", Utils::WideToNarrow(theme));
    loadUsedThemes();
-   applyStyles();
    renderCurrentPage();
 }
 
@@ -673,47 +675,66 @@ void VisualizerPanel::clearVisualize(bool sync) {
 }
 
 int VisualizerPanel::loadTheme(const wstring theme) {
-   ThemeInfo TI{};
+   PSCIFUNC_T sciFunc;
+   void* sciPtr;
 
-   TI.name = theme;
-   _configIO.getFullStyle(theme, "EOL", TI.styleEOL);
+   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
-   int styleCount{};
-   char bufKey[8];
+   int styleCount{ Utils::StringtoInt(_configIO.getStyleValue(theme, "Count")) };
 
-   styleCount = Utils::StringtoInt(_configIO.getStyleValue(theme, "Count"));
-
-   // Do not load more than FW_STYLE_THEMES_MAX_ITEMS styles (including EOL style)
+   // Do not load more than FW_STYLE_THEMES_MAX_ITEMS styles (including EOL styleInfo)
    styleCount = (loadedStyleCount + styleCount >= FW_STYLE_THEMES_MAX_ITEMS) ?
-      (FW_STYLE_THEMES_MAX_ITEMS - loadedStyleCount) : styleCount;
+      (FW_STYLE_THEMES_MAX_ITEMS - loadedStyleCount - 1) : styleCount;
    if (styleCount < 1) return 0;
 
-   TI.styleSet.clear();
-   TI.styleSet.resize(styleCount);
+   int styleIndex{ FW_STYLE_THEMES_START_INDEX + loadedStyleCount };
 
-   for (int i{}; i < styleCount; i++) {
-      snprintf(bufKey, 8, "BFBI_%02i", i);
-      _configIO.getFullStyle(theme, bufKey, TI.styleSet[i]);
-   }
-
-#if FW_DEBUG_LOAD_STYLES
-   wstring dbgMessage;
-   wstring sPrefix;
-
-   for (int i{}; i < styleCount; i++) {
-      swprintf(bufKey, 8, L"BFBI_%02i", i);
-      sPrefix = wstring(bufKey);
-      dbgMessage = sPrefix + L"_Back = " + to_wstring(TI.styleSet[i].backColor) + L"\n" +
-         sPrefix + L"_Fore = " + to_wstring(TI.styleSet[i].foreColor) + L"\n" +
-         sPrefix + L"_Bold = " + to_wstring(TI.styleSet[i].bold) + L"\n" +
-         sPrefix + L"_Italics = " + to_wstring(TI.styleSet[i].italics) + L"\n";
-      MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
-   }
-#endif
-
+   ThemeInfo TI{};
+   TI.name = theme;
+   TI.styleCount = styleCount;
+   TI.rangeStartIndex = styleIndex + 1; // Offset by 1 to account for EOL Style
    themeSet.emplace_back(TI);
 
-   return styleCount + 1;  // Add 1 to include EOL style
+   StyleInfo styleInfo{};
+
+   _configIO.getFullStyle(theme, "EOL", styleInfo);
+   sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)styleInfo.backColor);
+   sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)styleInfo.foreColor);
+   sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)styleInfo.bold);
+   sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)styleInfo.italics);
+   styleIndex++;
+
+   char bufKey[8];
+   for (int i{}; i < styleCount; i++) {
+      snprintf(bufKey, 8, "BFBI_%02i", i);
+      _configIO.getFullStyle(theme, bufKey, styleInfo);
+
+      sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)styleInfo.backColor);
+      sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)styleInfo.foreColor);
+      sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)styleInfo.bold);
+      sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)styleInfo.italics);
+      styleIndex++;
+   }
+
+#if FW_DEBUG_SET_STYLES
+   wstring dbgMessage;
+   int back, fore, bold, italics;
+
+   for (int i{ styleIndex - styleCount }; i < styleIndex; i++) {
+      back = sciFunc(sciPtr, SCI_STYLEGETBACK, (WPARAM)i, NULL);
+      fore = sciFunc(sciPtr, SCI_STYLEGETFORE, (WPARAM)i, NULL);
+      bold = sciFunc(sciPtr, SCI_STYLEGETBOLD, (WPARAM)i, NULL);
+      italics = sciFunc(sciPtr, SCI_STYLEGETITALIC, (WPARAM)i, NULL);
+
+      dbgMessage = L"C0" + to_wstring(i - styleIndex + styleCount) + L"_STYLES = " +
+         to_wstring(back) + L", " + to_wstring(fore) + L", " +
+         to_wstring(bold) + L", " + to_wstring(italics);
+      MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
+}
+#endif
+
+
+   return styleCount + 1;  // Add 1 to include EOL styleInfo
 }
 
 int VisualizerPanel::loadUsedThemes() {
@@ -754,58 +775,6 @@ int VisualizerPanel::loadUsedThemes() {
    }
 
    return static_cast<int>(themeSet.size());
-}
-
-int VisualizerPanel::applyStyles() {
-   PSCIFUNC_T sciFunc;
-   void* sciPtr;
-
-   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
-
-   const size_t themeCount{ themeSet.size() };
-   if (themeCount < 1) return 0;
-
-   int styleIndex{ FW_STYLE_THEMES_START_INDEX };
-
-   for (size_t i{}; i < themeCount; i++) {
-      ThemeInfo& TI = themeSet[i];
-
-      sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)TI.styleEOL.backColor);
-      sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)TI.styleEOL.foreColor);
-      sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)TI.styleEOL.bold);
-      sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)TI.styleEOL.italics);
-      styleIndex++;
-
-      const int styleCount{ static_cast<int>(TI.styleSet.size()) };
-      TI.rangeStartIndex = styleIndex;
-
-      for (int j{}; j < styleCount; j++) {
-         sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)TI.styleSet[j].backColor);
-         sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)TI.styleSet[j].foreColor);
-         sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)TI.styleSet[j].bold);
-         sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)TI.styleSet[j].italics);
-         styleIndex++;
-      }
-
-#if FW_DEBUG_SET_STYLES
-      wstring dbgMessage;
-      int back, fore, bold, italics;
-
-      for (int i{ styleIndex - styleCount }; i < styleIndex; i++) {
-         back = sciFunc(sciPtr, SCI_STYLEGETBACK, (WPARAM)i, NULL);
-         fore = sciFunc(sciPtr, SCI_STYLEGETFORE, (WPARAM)i, NULL);
-         bold = sciFunc(sciPtr, SCI_STYLEGETBOLD, (WPARAM)i, NULL);
-         italics = sciFunc(sciPtr, SCI_STYLEGETITALIC, (WPARAM)i, NULL);
-
-         dbgMessage = L"C0" + to_wstring(i - styleIndex + styleCount) + L"_STYLES = " +
-            to_wstring(back) + L", " + to_wstring(fore) + L", " +
-            to_wstring(bold) + L", " + to_wstring(italics);
-         MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
-      }
-#endif
-   }
-
-   return styleIndex - FW_STYLE_THEMES_START_INDEX;
 }
 
 int VisualizerPanel::loadLexer() {
@@ -888,7 +857,7 @@ int VisualizerPanel::loadLexer() {
             string styleText{ _configIO.getFieldStyleText(fieldType) };
             if (styleText.length() != 16) continue;
 
-            // If this style is already loaded, just map to that style slot
+            // If this styleInfo is already loaded, just map to that styleInfo slot
             bool styleMatched{ FALSE };
             for (size_t k{}; k < loadedStyles.size(); k++) {
                if (styleText == loadedStyles[k].style) {
@@ -960,7 +929,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    if (!getDocTheme(sciFunc, sciPtr, fileTheme)) return;
 
    if (themeSet.size() < 1) return;
-   if (themeSet[0].styleSet.size() < 1) return;
+   if (themeSet[0].styleCount < 1) return;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
    string recStartText{}, eolMarker{};
@@ -1061,7 +1030,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       }
 
       const int styleRangeStart{ themeSet[themeIndex].rangeStartIndex };
-      const size_t styleCount{ themeSet[themeIndex].styleSet.size() };
+      const int styleCount{ themeSet[themeIndex].styleCount };
       if (styleCount < 1) continue;
 
 #if FW_DEBUG_APPLY_LEXER
@@ -1628,7 +1597,7 @@ DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {
       // OK to continue. Set Idem Potency Hold
       idemPotentKey = TRUE;
 
-   // Modify caret style briefly to highlight the new position
+   // Modify caret styleInfo briefly to highlight the new position
    int currCaret = static_cast<int>(SendMessage(hScintilla, SCI_GETCARETSTYLE, 0, 0));
    SendMessage(hScintilla, SCI_SETCARETSTYLE, CARETSTYLE_BLOCK, 0);
    Sleep(_configIO.getPreferenceInt(PREF_CARET_FLASH, 5) * 1000);

@@ -7,7 +7,6 @@
 #include "../NPP/menuCmdID.h"
 #include <regex>
 
-#define FW_DEBUG_LOAD_STYLES FALSE
 #define FW_DEBUG_SET_STYLES FALSE
 #define FW_DEBUG_LOAD_REGEX FALSE
 #define FW_DEBUG_APPLY_LEXER FALSE
@@ -48,7 +47,7 @@ public :
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
 
    void initPanel();
-   virtual void display(bool toShow=true);
+   virtual void display(bool toShow = TRUE);
    void setParent(HWND parent2set);
    void setFocusOnEditor();
    void showCaretFramedState(bool framed);
@@ -87,9 +86,8 @@ protected :
    // Styleset data
    struct ThemeInfo {
       wstring name{};
-      StyleInfo styleEOL;
+      int styleCount;
       int rangeStartIndex;
-      vector<StyleInfo> styleSet;
    };
 
    vector<ThemeInfo> themeSet;
@@ -116,10 +114,9 @@ protected :
    void syncListThemes();
    void enableFieldControls(bool enable);
 
-   void clearVisualize(bool sync=TRUE);
+   void clearVisualize(bool sync = TRUE);
    int loadTheme(const wstring theme);
    int loadUsedThemes();
-   int applyStyles();
    int loadLexer();
    void applyLexer(const size_t startLine, const size_t endLine);
    void clearLexer();
