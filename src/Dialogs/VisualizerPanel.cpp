@@ -809,6 +809,8 @@ int VisualizerPanel::applyStyles() {
 }
 
 int VisualizerPanel::loadLexer() {
+   if (unlexed && !isVisible()) return 0;
+
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
@@ -820,16 +822,19 @@ int VisualizerPanel::loadLexer() {
       return 0;
    }
 
-   if (fwVizRegexed.compare(fileType) != 0) {
+   if (fwVizRegexed.compare(fileType) != 0)
       clearLexer();
-   }
 
-   if (recInfoList.size() > 0) {
+   if (recInfoList.size() > 0)
       return static_cast<int>(recInfoList.size());
-   }
 
    const std::wregex trimSpace{ std::wregex(L"(^( )+)|(( )+$)") };
-   int styleIndex{ FW_STYLE_FIELDS_START_INDEX };
+   int styleIndex{ FW_STYLE_THEMES_START_INDEX + FW_STYLE_THEMES_MAX_ITEMS };
+   struct loadedStyle {
+      int index;
+      string style;
+   };
+   vector<loadedStyle> loadedStyles{};
 
    vector<string> recTypes;
    int recTypeCount{ _configIO.getConfigValueList(recTypes, fileType, "RecordTypes") };
@@ -880,22 +885,39 @@ int VisualizerPanel::loadLexer() {
             fieldType = field.substr(colonPos + 1);
             fieldType = regex_replace(fieldType, trimSpace, L"");
 
-            StyleInfo fieldStyle;
-            if (styleIndex < FW_STYLE_FIELDS_MAX_INDEX &&
-               _configIO.getFieldStyle(fieldType, fieldStyle)) {
-               sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)fieldStyle.backColor);
-               sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)fieldStyle.foreColor);
-               sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)fieldStyle.bold);
-               sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)fieldStyle.italics);
+            string styleText{ _configIO.getFieldStyleText(fieldType) };
+            if (styleText.length() != 16) continue;
 
-               RT.fieldStyles[fnum] = styleIndex;
-               styleIndex++;
+            // If this style is already loaded, just map to that style slot
+            bool styleMatched{ FALSE };
+            for (size_t k{}; k < loadedStyles.size(); k++) {
+               if (styleText == loadedStyles[k].style) {
+                  RT.fieldStyles[fnum] = loadedStyles[k].index;
+                  styleMatched = TRUE;
+                  break;
+               }
             }
+            if (styleMatched) continue;
+
+            if (styleIndex < FW_STYLE_FIELDS_MIN_INDEX) continue;
+
+            StyleInfo fieldStyle;
+            _configIO.parseFieldStyle(styleText, fieldStyle);
+
+            sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)fieldStyle.backColor);
+            sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)fieldStyle.foreColor);
+            sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)fieldStyle.bold);
+            sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)fieldStyle.italics);
+
+            RT.fieldStyles[fnum] = styleIndex;
+            loadedStyles.emplace_back(loadedStyle{ styleIndex, styleText });
+            styleIndex--;
          }
       }
    }
 
    fwVizRegexed = fileType;
+   unlexed = FALSE;
 
 #if FW_DEBUG_LOAD_REGEX
    int fieldCount;
@@ -924,6 +946,8 @@ int VisualizerPanel::loadLexer() {
 }
 
 void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
+   if (unlexed && !isVisible()) return;
+
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
@@ -1553,6 +1577,7 @@ void VisualizerPanel::setPanelMBCharIndicator(string fileType) {
 }
 
 void VisualizerPanel::onBufferActivate() {
+   unlexed = TRUE;
    if (isVisible()) visualizeFile("", TRUE, TRUE, TRUE);
 }
 

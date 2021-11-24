@@ -60,7 +60,8 @@ public:
 
    wstring getStyleValue(const wstring& theme, const string& styleName, wstring file = L"");
    void getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file = L"");
-   bool getFieldStyle(const wstring& fieldName, StyleInfo& style);
+   string getFieldStyleText(const wstring& fieldName);
+   void parseFieldStyle(const string& styleText, StyleInfo& style);
 
    wstring getPreference(const string key, const string default = "");
    void setPreference(const string key, const wstring value);

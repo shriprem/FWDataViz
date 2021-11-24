@@ -18,9 +18,8 @@
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
 
 constexpr int FW_STYLE_THEMES_START_INDEX{ STYLE_LASTPREDEFINED + 1 };
-constexpr int FW_STYLE_THEMES_MAX_ITEMS{ 150 };
-constexpr int FW_STYLE_FIELDS_START_INDEX{ FW_STYLE_THEMES_START_INDEX + FW_STYLE_THEMES_MAX_ITEMS };
-constexpr int FW_STYLE_FIELDS_MAX_INDEX{ FW_STYLE_FIELDS_START_INDEX + 50 };
+constexpr int FW_STYLE_THEMES_MAX_ITEMS{ 200 };
+constexpr int FW_STYLE_FIELDS_MIN_INDEX{ FW_STYLE_THEMES_START_INDEX + 36 };
 constexpr int FW_TIP_LONG { 30 };
 constexpr int FW_TIP_MEDIUM { 20 };
 constexpr int FW_TIP_SHORT { 10 };
@@ -79,7 +78,7 @@ protected :
 
    // Field Info tracking
    int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos, caretFieldIndex;
-   bool utf8Config{}, leftAlign{};
+   bool unlexed{}, utf8Config{}, leftAlign{};
 
    // File Type data
    std::unordered_map<wstring, string> mapFileDescToType;

@@ -150,15 +150,15 @@ void ConfigIO::getFullStyle(const wstring& theme, const string& styleName, Style
    style.italics = Utils::StringtoInt(val.substr(15, 1));
 }
 
-bool ConfigIO::getFieldStyle(const wstring& fieldName, StyleInfo& style) {
-   wstring val = getConfigWideChar("Styles", Utils::WideToNarrow(fieldName), "", CONFIG_FILE_PATHS[CONFIG_FIELD_TYPES]);
-   if (val.length() < 16) return false;
+string ConfigIO::getFieldStyleText(const wstring& fieldName) {
+   return getConfigStringA("Styles", Utils::WideToNarrow(fieldName), "", CONFIG_FILE_PATHS[CONFIG_FIELD_TYPES]);
+}
 
-   style.backColor = Utils::StringtoInt(val.substr(0, 6), 16);
-   style.foreColor = Utils::StringtoInt(val.substr(7, 6), 16);
-   style.bold = Utils::StringtoInt(val.substr(14, 1));
-   style.italics = Utils::StringtoInt(val.substr(15, 1));
-   return true;
+void ConfigIO::parseFieldStyle(const string& styleText, StyleInfo& style) {
+   style.backColor = Utils::StringtoInt(styleText.substr(0, 6), 16);
+   style.foreColor = Utils::StringtoInt(styleText.substr(7, 6), 16);
+   style.bold = Utils::StringtoInt(styleText.substr(14, 1));
+   style.italics = Utils::StringtoInt(styleText.substr(15, 1));
 }
 
 wstring ConfigIO::getPreference(const string key, const string default) {
