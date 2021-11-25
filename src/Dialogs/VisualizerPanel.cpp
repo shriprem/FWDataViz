@@ -49,6 +49,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
                break;
 
             case IDC_VIZPANEL_CLEAR_BTN:
+               if (_configIO.getPreferenceBool("ClearVizWithAutoDetect", FALSE)) {
+                  CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, BST_UNCHECKED);
+                  setADFTCheckbox();
+               }
                clearVisualize();
                break;
 
@@ -272,12 +276,17 @@ void VisualizerPanel::localize() {
 void VisualizerPanel::display(bool toShow) {
    DockingDlgInterface::display(toShow);
 
+   if (!utf8Config) return;
+
+   if (!toShow) {
+      unlexed = (_configIO.getPreferenceBool("ClearVizOnPanelClose", FALSE));
+      if (unlexed) clearVisualize();
+      return;
+   }
+
    hFTList = GetDlgItem(_hSelf, IDC_VIZPANEL_FILETYPE_SELECT);
    hThemesLB = GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT);
    hFieldInfo = GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_INFO);
-
-   if (!toShow) return;
-   if (!utf8Config) return;
 
    CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT,
       _configIO.getPreferenceBool(PREF_ADFT) ? BST_CHECKED : BST_UNCHECKED);
@@ -929,7 +938,12 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    if (!getDocTheme(sciFunc, sciPtr, fileTheme)) return;
 
    if (themeSet.size() < 1) return;
-   if (themeSet[0].styleCount < 1) return;
+
+   int shiftPerRec{ themeSet[0].styleCount };
+   if (shiftPerRec < 1) return;
+
+   // set shiftPerRec to an integer just less than half of base theme's styleCount
+   shiftPerRec = (shiftPerRec < 5) ? 1 : ((shiftPerRec + 1) >> 1) - 1;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
    string recStartText{}, eolMarker{};
@@ -1008,7 +1022,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          }
 
          regexIndex++;
-         colorOffset += 5;
+         colorOffset += shiftPerRec;
       }
 
       if (regexIndex >= regexedCount) continue;
@@ -1029,8 +1043,8 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          }
       }
 
-      const int styleRangeStart{ themeSet[themeIndex].rangeStartIndex };
-      const int styleCount{ themeSet[themeIndex].styleCount };
+      const int& styleRangeStart{ themeSet[themeIndex].rangeStartIndex };
+      const int& styleCount{ themeSet[themeIndex].styleCount };
       if (styleCount < 1) continue;
 
 #if FW_DEBUG_APPLY_LEXER
