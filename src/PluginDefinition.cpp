@@ -235,3 +235,30 @@ void ShowDataExtractDialog() {
 void ShowAboutDialog() {
    _aboutDlg.doDialog((HINSTANCE)_gModule);
 }
+
+LRESULT CALLBACK procHexColorEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
+   switch (messageId) {
+   case WM_CHAR:
+   {
+      char ch{ static_cast<char>(wParam) };
+      if (!((ch == VK_BACK) || (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))) {
+         showEditBalloonTip(hwnd, THEME_DIALOG_HEX_TITLE, THEME_DIALOG_HEX_CHARS_ONLY);
+         return FALSE;
+      }
+      break;
+   }
+
+   case WM_PASTE:
+   {
+      wstring clipText;
+      Utils::getClipboardText(GetParent(hwnd), clipText);
+      if (!regex_match(clipText, std::wregex(L"^[0-9A-Fa-f]{0,6}$"))) {
+         showEditBalloonTip(hwnd, THEME_DIALOG_HEX_TITLE, THEME_DIALOG_HEX_CHARS_ONLY);
+         return FALSE;
+      }
+      break;
+   }
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}

@@ -7,36 +7,9 @@ extern EximFileTypeDialog _eximDlg;
 
 LRESULT CALLBACK procStylesListBox(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
    switch (messageId) {
-      case WM_VSCROLL:
-         _themeDlg.initPreviewSwatch();
-         break;
-   }
-
-   return DefSubclassProc(hwnd, messageId, wParam, lParam);
-}
-
-LRESULT CALLBACK procHexColorEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-   switch (messageId) {
-      case WM_CHAR:
-      {
-         char ch{ static_cast<char>(wParam) };
-         if (!((ch == VK_BACK) || (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))) {
-            showEditBalloonTip(hwnd, THEME_DIALOG_HEX_TITLE, THEME_DIALOG_HEX_CHARS_ONLY);
-            return FALSE;
-         }
-         break;
-      }
-
-      case WM_PASTE:
-      {
-         wstring clipText;
-         Utils::getClipboardText(GetParent(hwnd), clipText);
-         if (!regex_match(clipText, std::wregex(L"^[0-9A-Fa-f]{0,6}$"))) {
-            showEditBalloonTip(hwnd, THEME_DIALOG_HEX_TITLE, THEME_DIALOG_HEX_CHARS_ONLY);
-            return FALSE;
-         }
-         break;
-      }
+   case WM_VSCROLL:
+      _themeDlg.initPreviewSwatch();
+      break;
    }
 
    return DefSubclassProc(hwnd, messageId, wParam, lParam);
@@ -97,220 +70,220 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
 
 INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-      case WM_COMMAND:
-         switch LOWORD(wParam) {
-            case IDC_THEME_DEF_LIST_BOX:
-               switch HIWORD(wParam) {
-                  case LBN_SELCHANGE:
-                     onThemeSelect();
-                     break;
-               }
-               break;
+   case WM_COMMAND:
+      switch LOWORD(wParam) {
+      case IDC_THEME_DEF_LIST_BOX:
+         switch HIWORD(wParam) {
+         case LBN_SELCHANGE:
+            onThemeSelect();
+            break;
+         }
+         break;
 
-            case IDC_THEME_DEF_DOWN_BUTTON:
-               moveThemeType(MOVE_DOWN);
-               break;
+      case IDC_THEME_DEF_DOWN_BUTTON:
+         moveThemeType(MOVE_DOWN);
+         break;
 
-            case IDC_THEME_DEF_UP_BUTTON:
-               moveThemeType(MOVE_UP);
-               break;
+      case IDC_THEME_DEF_UP_BUTTON:
+         moveThemeType(MOVE_UP);
+         break;
 
-            case IDC_THEME_DEF_INFO_BUTTON:
-               ShellExecute(NULL, L"open", THEME_DEF_INFO_README, NULL, NULL, SW_SHOW);
-               break;
+      case IDC_THEME_DEF_INFO_BUTTON:
+         ShellExecute(NULL, L"open", THEME_DEF_INFO_README, NULL, NULL, SW_SHOW);
+         break;
 
-            case IDC_THEME_DEF_DESC_EDIT:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     if (!loadingEdits) {
-                        cleanThemeVals = FALSE;
-                        enableThemeSelection();
-                     }
-                     break;
-                  }
-               break;
+      case IDC_THEME_DEF_DESC_EDIT:
+         switch HIWORD(wParam) {
+         case EN_CHANGE:
+            if (!loadingEdits) {
+               cleanThemeVals = FALSE;
+               enableThemeSelection();
+            }
+            break;
+         }
+         break;
 
-            case IDC_THEME_DEF_ACCEPT_BTN:
-               themeEditAccept();
-               break;
+      case IDC_THEME_DEF_ACCEPT_BTN:
+         themeEditAccept();
+         break;
 
-            case IDC_THEME_DEF_NEW_BTN:
-               themeEditNew();
-               break;
+      case IDC_THEME_DEF_NEW_BTN:
+         themeEditNew();
+         break;
 
-            case IDC_THEME_DEF_CLONE_BTN:
-               themeEditClone();
-               break;
+      case IDC_THEME_DEF_CLONE_BTN:
+         themeEditClone();
+         break;
 
-            case IDC_THEME_DEF_DEL_BTN:
-               themeEditDelete();
-               break;
+      case IDC_THEME_DEF_DEL_BTN:
+         themeEditDelete();
+         break;
 
-            case IDC_THEME_STYLE_LIST_BOX:
-               switch HIWORD(wParam) {
-                  case LBN_SELCHANGE:
-                     onStyleSelect();
-                     if (swatchTopIndex !=
-                        static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL)))
-                        initPreviewSwatch();
-                     break;
-               }
-               break;
+      case IDC_THEME_STYLE_LIST_BOX:
+         switch HIWORD(wParam) {
+         case LBN_SELCHANGE:
+            onStyleSelect();
+            if (swatchTopIndex !=
+               static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL)))
+               initPreviewSwatch();
+            break;
+         }
+         break;
 
-            case IDC_THEME_STYLE_DOWN_BUTTON:
-               moveStyleType(MOVE_DOWN);
-               break;
+      case IDC_THEME_STYLE_DOWN_BUTTON:
+         moveStyleType(MOVE_DOWN);
+         break;
 
-            case IDC_THEME_STYLE_UP_BUTTON:
-               moveStyleType(MOVE_UP);
-               break;
+      case IDC_THEME_STYLE_UP_BUTTON:
+         moveStyleType(MOVE_UP);
+         break;
 
-            case IDC_THEME_STYLE_NEW_BTN:
-               styleEditNew(FALSE);
-               break;
+      case IDC_THEME_STYLE_NEW_BTN:
+         styleEditNew(FALSE);
+         break;
 
-            case IDC_THEME_STYLE_CLONE_BTN:
-               styleEditNew(TRUE);
-               break;
+      case IDC_THEME_STYLE_CLONE_BTN:
+         styleEditNew(TRUE);
+         break;
 
-            case IDC_THEME_STYLE_DEL_BTN:
-               styleEditDelete();
-               break;
+      case IDC_THEME_STYLE_DEL_BTN:
+         styleEditDelete();
+         break;
 
-            case IDC_THEME_STYLE_DEF_BACK_EDIT:
-            case IDC_THEME_STYLE_DEF_FORE_EDIT:
-               switch (HIWORD(wParam)) {
-                  case EN_CHANGE:
-                     bool back = (LOWORD(wParam) == IDC_THEME_STYLE_DEF_BACK_EDIT);
-                     setStyleDefColor(FALSE, getStyleDefColor(back), back);
-                     if (!loadingEdits) {
-                        cleanStyleDefs = FALSE;
-                        enableStyleSelection();
-                     }
-                     break;
-               }
-               break;
-
-            case IDC_THEME_STYLE_DEF_BACKCOLOR:
-               chooseStyleDefColor(TRUE);
-               break;
-
-            case IDC_THEME_STYLE_DEF_FORECOLOR:
-               chooseStyleDefColor(FALSE);
-               break;
-
-            case IDC_THEME_STYLE_DEF_BOLD:
-            case IDC_THEME_STYLE_DEF_ITALICS:
-               setOutputFontStyle();
+      case IDC_THEME_STYLE_DEF_BACK_EDIT:
+      case IDC_THEME_STYLE_DEF_FORE_EDIT:
+         switch (HIWORD(wParam)) {
+         case EN_CHANGE:
+            bool back = (LOWORD(wParam) == IDC_THEME_STYLE_DEF_BACK_EDIT);
+            setStyleDefColor(FALSE, getStyleDefColor(back), back);
+            if (!loadingEdits) {
                cleanStyleDefs = FALSE;
                enableStyleSelection();
-               break;
+            }
+            break;
+         }
+         break;
 
-            case IDC_THEME_STYLE_DEF_OUTPUT:
-               setPangram();
-               break;
+      case IDC_THEME_STYLE_DEF_BACKCOLOR:
+         chooseStyleDefColor(TRUE);
+         break;
 
-            case IDC_THEME_STYLE_DEF_ACCEPT_BTN:
-               styleDefsAccept();
-               break;
+      case IDC_THEME_STYLE_DEF_FORECOLOR:
+         chooseStyleDefColor(FALSE);
+         break;
 
-            case IDC_THEME_STYLE_DEF_RESET_BTN:
-               fillStyleDefs();
-               break;
+      case IDC_THEME_STYLE_DEF_BOLD:
+      case IDC_THEME_STYLE_DEF_ITALICS:
+         setOutputFontStyle();
+         cleanStyleDefs = FALSE;
+         enableStyleSelection();
+         break;
 
-            case IDCANCEL:
-            case IDCLOSE:
-               if (promptDiscardChangesNo()) return TRUE;
-               display(FALSE);
-               return TRUE;
+      case IDC_THEME_STYLE_DEF_OUTPUT:
+         setPangram();
+         break;
 
-            case IDC_THEME_DEF_SAVE_CONFIG_BTN:
-               SetCursor(LoadCursor(NULL, IDC_WAIT));
-               saveConfigInfo();
-               SetCursor(LoadCursor(NULL, IDC_ARROW));
-               return TRUE;
+      case IDC_THEME_STYLE_DEF_ACCEPT_BTN:
+         styleDefsAccept();
+         break;
 
-            case IDC_THEME_DEF_RESET_BTN:
-               if (!promptDiscardChangesNo()) {
-                  themeFile = L"";
+      case IDC_THEME_STYLE_DEF_RESET_BTN:
+         fillStyleDefs();
+         break;
+
+      case IDCANCEL:
+      case IDCLOSE:
+         if (promptDiscardChangesNo()) return TRUE;
+         display(FALSE);
+         return TRUE;
+
+      case IDC_THEME_DEF_SAVE_CONFIG_BTN:
+         SetCursor(LoadCursor(NULL, IDC_WAIT));
+         saveConfigInfo();
+         SetCursor(LoadCursor(NULL, IDC_ARROW));
+         return TRUE;
+
+      case IDC_THEME_DEF_RESET_BTN:
+         if (!promptDiscardChangesNo()) {
+            themeFile = L"";
+            loadConfigInfo();
+            fillThemes();
+         }
+         break;
+
+      case IDC_THEME_DEF_BACKUP_LOAD_BTN:
+         if (!promptDiscardChangesNo()) {
+            wstring backupThemeFile;
+
+            if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupThemeFile)) {
+               if (_configIO.fixIfUTF16File(backupThemeFile)) {
+                  themeFile = backupThemeFile;
                   loadConfigInfo();
                   fillThemes();
+                  cleanConfigFile = FALSE;
+                  enableThemeSelection();
                }
-               break;
-
-            case IDC_THEME_DEF_BACKUP_LOAD_BTN:
-               if (!promptDiscardChangesNo()) {
-                  wstring backupThemeFile;
-
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupThemeFile)) {
-                     if (_configIO.fixIfUTF16File(backupThemeFile)) {
-                        themeFile = backupThemeFile;
-                        loadConfigInfo();
-                        fillThemes();
-                        cleanConfigFile = FALSE;
-                        enableThemeSelection();
-                     }
-                  }
-               }
-               break;
-
-            case IDC_THEME_DEF_BACKUP_VIEW_BTN:
-               _configIO.viewBackupFolder();
-               break;
-
-            case IDC_THEME_DEF_EXTRACT_BTN:
-               showEximDialog(TRUE);
-               break;
-
-            case IDC_THEME_DEF_APPEND_BTN:
-               showEximDialog(FALSE);
-               break;
-
-            default:
-               if (cleanStyleDefs)
-                  processSwatchClick(LOWORD(wParam));
+            }
          }
          break;
 
-      case WM_CTLCOLORSTATIC:
-         if (styleDefColor) {
-            INT_PTR ptr = colorStaticControl(wParam, lParam);
-            if (ptr != NULL) return ptr;
-
-            ptr = colorPreviewSwatch(wParam, lParam);
-            if (ptr != NULL) return ptr;
-         }
-
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
-         }
-
+      case IDC_THEME_DEF_BACKUP_VIEW_BTN:
+         _configIO.viewBackupFolder();
          break;
 
-      case WM_INITDIALOG:
-         if (NppDarkMode::isEnabled()) {
-            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-         }
+      case IDC_THEME_DEF_EXTRACT_BTN:
+         showEximDialog(TRUE);
          break;
 
-      case WM_CTLCOLORDLG:
-      case WM_CTLCOLORLISTBOX:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
-         }
+      case IDC_THEME_DEF_APPEND_BTN:
+         showEximDialog(FALSE);
          break;
 
-      case WM_CTLCOLOREDIT:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
-         }
-         break;
+      default:
+         if (cleanStyleDefs)
+            processSwatchClick(LOWORD(wParam));
+      }
+      break;
 
-      case WM_PRINTCLIENT:
-         if (NppDarkMode::isEnabled()) {
-            return TRUE;
-         }
-         break;
+   case WM_CTLCOLORSTATIC:
+      if (styleDefColor) {
+         INT_PTR ptr = colorStaticControl(wParam, lParam);
+         if (ptr != NULL) return ptr;
+
+         ptr = colorPreviewSwatch(wParam, lParam);
+         if (ptr != NULL) return ptr;
+      }
+
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+
+      break;
+
+   case WM_CTLCOLORDLG:
+   case WM_CTLCOLORLISTBOX:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLOREDIT:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_INITDIALOG:
+      if (NppDarkMode::isEnabled()) {
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NppDarkMode::isEnabled()) {
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;
@@ -558,17 +531,17 @@ int ThemeDialog::moveThemeType(move_dir dir) {
    const int idxTheme{ getCurrentThemeIndex() };
    if (idxTheme == LB_ERR) return LB_ERR;
 
-   switch(dir) {
-      case MOVE_DOWN:
-         if (idxTheme >= static_cast<int>(vThemeTypes.size()) - 1) return LB_ERR;
-         break;
+   switch (dir) {
+   case MOVE_DOWN:
+      if (idxTheme >= static_cast<int>(vThemeTypes.size()) - 1) return LB_ERR;
+      break;
 
-      case MOVE_UP:
-         if (idxTheme == 0) return LB_ERR;
-         break;
+   case MOVE_UP:
+      if (idxTheme == 0) return LB_ERR;
+      break;
 
-      default:
-         return LB_ERR;
+   default:
+      return LB_ERR;
    }
 
    ThemeType currType = vThemeTypes[idxTheme];
@@ -768,26 +741,25 @@ INT_PTR ThemeDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
 
    if (hbr != NULL) DeleteObject(hbr);
 
-   switch (ctrlID)
-   {
-      case IDC_THEME_STYLE_DEF_BACKCOLOR:
-         SetBkColor(hdc, styleBack);
-         hbr = CreateSolidBrush(styleBack);
-         return (INT_PTR)hbr;
+   switch (ctrlID) {
+   case IDC_THEME_STYLE_DEF_BACKCOLOR:
+      SetBkColor(hdc, styleBack);
+      hbr = CreateSolidBrush(styleBack);
+      return (INT_PTR)hbr;
 
-      case IDC_THEME_STYLE_DEF_FORECOLOR:
-         SetBkColor(hdc, styleFore);
-         hbr = CreateSolidBrush(styleFore);
-         return (INT_PTR)hbr;
+   case IDC_THEME_STYLE_DEF_FORECOLOR:
+      SetBkColor(hdc, styleFore);
+      hbr = CreateSolidBrush(styleFore);
+      return (INT_PTR)hbr;
 
-      case IDC_THEME_STYLE_DEF_OUTPUT:
-         SetBkColor(hdc, styleBack);
-         SetTextColor(hdc, styleFore);
-         hbr = CreateSolidBrush(styleBack);
-         return (INT_PTR)hbr;
+   case IDC_THEME_STYLE_DEF_OUTPUT:
+      SetBkColor(hdc, styleBack);
+      SetTextColor(hdc, styleFore);
+      hbr = CreateSolidBrush(styleBack);
+      return (INT_PTR)hbr;
 
-      default:
-         return NULL;
+   default:
+      return NULL;
    }
 }
 
@@ -846,7 +818,7 @@ void ThemeDialog::initPreviewSwatch(int idxStart, int idxEnd) {
    swatchTopIndex = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
    int styleCount = static_cast<int>(TT.vStyleInfo.size());
 
-   for (int i{idxStart}; i <= idxEnd; i++) {
+   for (int i{ idxStart }; i <= idxEnd; i++) {
       ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_BACK_00 + i), (i + swatchTopIndex <= styleCount));
       Utils::setFontRegular(_hSelf, IDC_THEME_SWATCH_BACK_00 + i);
 
@@ -893,7 +865,7 @@ void ThemeDialog::chooseStyleDefColor(bool back) {
    cc.lStructSize = sizeof(cc);
    cc.hwndOwner = _hSelf;
    cc.rgbResult = Utils::intToRGB(color);
-   cc.lpCustColors = (LPDWORD) customColors;
+   cc.lpCustColors = (LPDWORD)customColors;
    cc.Flags = CC_FULLOPEN | CC_RGBINIT;
 
    if (!ChooseColor(&cc)) return;

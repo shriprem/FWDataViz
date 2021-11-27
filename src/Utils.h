@@ -6,6 +6,8 @@
 #include <ShlObj_core.h>
 
 #define PREFS_TIP_MAX_WIDTH         400
+#define mbox(message)               MessageBox(NULL, message, L"", MB_OK)
+#define mboxA(message)              MessageBoxA(NULL, message, "", MB_OK)
 
 namespace Utils {
    int StringtoInt(const string& str, int base = 10);

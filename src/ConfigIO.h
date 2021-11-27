@@ -20,6 +20,8 @@
 #define PREF_COPY_TRIM        "CopyFieldTrim"
 #define PREF_PASTE_LPAD       "PasteFieldLPAD"
 #define PREF_PASTE_RPAD       "PasteFieldRPAD"
+#define PREF_CLEARVIZ_AUTO    "ClearVizWithAutoDetect"
+#define PREF_CLEARVIZ_PANEL   "ClearVizOnPanelClose"
 
 struct StyleInfo {
    int backColor;
@@ -75,9 +77,13 @@ public:
    void setPanelMBCharState(UINT state);
    bool getMultiByteLexing(string fileType);
 
-   int getConfigAllSections(string& sections, string file);
-   int getConfigAllSectionsList(vector<string>& sectionsList, string file);
-   int getConfigAllSectionsList(vector<wstring>& sectionsList, wstring file);
+   int getConfigAllSections(string& sections, const string file);
+   int getConfigAllSectionsList(vector<string>& sectionsList, const string file);
+   int getConfigAllSectionsList(vector<wstring>& sectionsList, const wstring file);
+
+   int getConfigAllKeys(const string& section, string& keys, const string file);
+   int getConfigAllKeysList(const string& section, vector<string>& keysList, const string file);
+   int getConfigAllKeysList(const string& section, vector<wstring>& keysList, const string file);
 
    int getConfigValueList(vector<string>& valList, const string& section, const string& key,
       const string& default = "", string file = "");
@@ -88,6 +94,7 @@ public:
    int Tokenize(const string& text, vector<int>& results, const string& delim = ",");
 
    void ActivateNewLineTabs(wstring& str);
+   void deleteKey(const string& section, const string& key, string file = "");
    void deleteKey(const wstring& section, const wstring& key, wstring file = L"");
    void deleteSection(const string& section, string file = "");
 

@@ -5,11 +5,11 @@ extern DataExtractDialog _dataExtractDlg;
 
 LRESULT CALLBACK procKeyNavigation(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
    switch (messageId) {
-      case WM_KEYDOWN:
-         if (_dataExtractDlg.processKey(hwnd, wParam)) return FALSE;
+   case WM_KEYDOWN:
+      if (_dataExtractDlg.processKey(hwnd, wParam)) return FALSE;
 
-      case WM_SYSKEYDOWN:
-         if (_dataExtractDlg.processSysKey(hwnd, wParam)) return FALSE;
+   case WM_SYSKEYDOWN:
+      if (_dataExtractDlg.processSysKey(hwnd, wParam)) return FALSE;
    }
 
    return DefSubclassProc(hwnd, messageId, wParam, lParam);
@@ -18,25 +18,25 @@ LRESULT CALLBACK procKeyNavigation(HWND hwnd, UINT messageId, WPARAM wParam, LPA
 
 LRESULT CALLBACK procTemplateName(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
    switch (messageId) {
-      case WM_CHAR:
-         if (wParam == '[' || wParam == ']') {
-            Utils::showEditBalloonTip(hwnd, DATA_EXTRACT_INVTEMPL_TITLE, DATA_EXTRACT_INVTEMPL_MSG);
-            return FALSE;
-         }
-         break;
-
-      case WM_PASTE:
-      {
-         wstring clipText;
-
-         Utils::getClipboardText(GetParent(hwnd), clipText);
-
-         if (!regex_match(clipText, std::wregex(L"[|]"))) {
-            Utils::showEditBalloonTip(hwnd, DATA_EXTRACT_INVTEMPL_TITLE, DATA_EXTRACT_INVTEMPL_MSG);
-            return FALSE;
-         }
-         break;
+   case WM_CHAR:
+      if (wParam == '[' || wParam == ']') {
+         Utils::showEditBalloonTip(hwnd, DATA_EXTRACT_INVTEMPL_TITLE, DATA_EXTRACT_INVTEMPL_MSG);
+         return FALSE;
       }
+      break;
+
+   case WM_PASTE:
+   {
+      wstring clipText;
+
+      Utils::getClipboardText(GetParent(hwnd), clipText);
+
+      if (!regex_match(clipText, std::wregex(L"[|]"))) {
+         Utils::showEditBalloonTip(hwnd, DATA_EXTRACT_INVTEMPL_TITLE, DATA_EXTRACT_INVTEMPL_MSG);
+         return FALSE;
+      }
+      break;
+   }
    }
 
    return DefSubclassProc(hwnd, messageId, wParam, lParam);
@@ -114,248 +114,248 @@ void DataExtractDialog::initDialog(const string fileType, const vector<RecordInf
 
 INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-      case WM_COMMAND:
-         switch LOWORD(wParam) {
-            case IDC_DAT_EXT_ITEM_RECORD_01:
-            case IDC_DAT_EXT_ITEM_RECORD_02:
-            case IDC_DAT_EXT_ITEM_RECORD_03:
-            case IDC_DAT_EXT_ITEM_RECORD_04:
-            case IDC_DAT_EXT_ITEM_RECORD_05:
-            case IDC_DAT_EXT_ITEM_RECORD_06:
-            case IDC_DAT_EXT_ITEM_RECORD_07:
-            case IDC_DAT_EXT_ITEM_RECORD_08:
-            case IDC_DAT_EXT_ITEM_RECORD_09:
-            case IDC_DAT_EXT_ITEM_RECORD_10:
-               switch HIWORD(wParam) {
-                  case CBN_SELCHANGE:
-                     initLineItemFieldList(LOWORD(wParam) - IDC_DAT_EXT_ITEM_RECORD_01);
-                     break;
+   case WM_COMMAND:
+      switch LOWORD(wParam) {
+      case IDC_DAT_EXT_ITEM_RECORD_01:
+      case IDC_DAT_EXT_ITEM_RECORD_02:
+      case IDC_DAT_EXT_ITEM_RECORD_03:
+      case IDC_DAT_EXT_ITEM_RECORD_04:
+      case IDC_DAT_EXT_ITEM_RECORD_05:
+      case IDC_DAT_EXT_ITEM_RECORD_06:
+      case IDC_DAT_EXT_ITEM_RECORD_07:
+      case IDC_DAT_EXT_ITEM_RECORD_08:
+      case IDC_DAT_EXT_ITEM_RECORD_09:
+      case IDC_DAT_EXT_ITEM_RECORD_10:
+         switch HIWORD(wParam) {
+         case CBN_SELCHANGE:
+            initLineItemFieldList(LOWORD(wParam) - IDC_DAT_EXT_ITEM_RECORD_01);
+            break;
 
-                  case CBN_SETFOCUS:
-                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_RECORD_01, FALSE);
-                     break;
-                  }
-                  break;
-
-            case IDC_DAT_EXT_ITEM_FIELD_01:
-            case IDC_DAT_EXT_ITEM_FIELD_02:
-            case IDC_DAT_EXT_ITEM_FIELD_03:
-            case IDC_DAT_EXT_ITEM_FIELD_04:
-            case IDC_DAT_EXT_ITEM_FIELD_05:
-            case IDC_DAT_EXT_ITEM_FIELD_06:
-            case IDC_DAT_EXT_ITEM_FIELD_07:
-            case IDC_DAT_EXT_ITEM_FIELD_08:
-            case IDC_DAT_EXT_ITEM_FIELD_09:
-            case IDC_DAT_EXT_ITEM_FIELD_10:
-               switch HIWORD(wParam) {
-                  case CBN_SETFOCUS:
-                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_FIELD_01, FALSE);
-                     break;
-                  }
-                  break;
-
-            case IDC_DAT_EXT_ITEM_PREFIX_01:
-            case IDC_DAT_EXT_ITEM_PREFIX_02:
-            case IDC_DAT_EXT_ITEM_PREFIX_03:
-            case IDC_DAT_EXT_ITEM_PREFIX_04:
-            case IDC_DAT_EXT_ITEM_PREFIX_05:
-            case IDC_DAT_EXT_ITEM_PREFIX_06:
-            case IDC_DAT_EXT_ITEM_PREFIX_07:
-            case IDC_DAT_EXT_ITEM_PREFIX_08:
-            case IDC_DAT_EXT_ITEM_PREFIX_09:
-            case IDC_DAT_EXT_ITEM_PREFIX_10:
-               switch HIWORD(wParam) {
-                  case EN_SETFOCUS:
-                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_PREFIX_01, FALSE);
-                     break;
-                  }
-                  break;
-
-            case IDC_DAT_EXT_ITEM_SUFFIX_01:
-            case IDC_DAT_EXT_ITEM_SUFFIX_02:
-            case IDC_DAT_EXT_ITEM_SUFFIX_03:
-            case IDC_DAT_EXT_ITEM_SUFFIX_04:
-            case IDC_DAT_EXT_ITEM_SUFFIX_05:
-            case IDC_DAT_EXT_ITEM_SUFFIX_06:
-            case IDC_DAT_EXT_ITEM_SUFFIX_07:
-            case IDC_DAT_EXT_ITEM_SUFFIX_08:
-            case IDC_DAT_EXT_ITEM_SUFFIX_09:
-            case IDC_DAT_EXT_ITEM_SUFFIX_10:
-               switch HIWORD(wParam) {
-                  case EN_SETFOCUS:
-                     moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_SUFFIX_01, FALSE);
-                     break;
-                  }
-                  break;
-
-            case IDC_DAT_EXT_ITEM_ADD_BTN_01:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_02:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_03:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_04:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_05:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_06:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_07:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_08:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_09:
-            case IDC_DAT_EXT_ITEM_ADD_BTN_10:
-               addLineItem(LOWORD(wParam) - IDC_DAT_EXT_ITEM_ADD_BTN_01);
-               break;
-
-            case IDC_DAT_EXT_ITEM_DEL_BTN_01:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_02:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_03:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_04:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_05:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_06:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_07:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_08:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_09:
-            case IDC_DAT_EXT_ITEM_DEL_BTN_10:
-               delLineItem(LOWORD(wParam) - IDC_DAT_EXT_ITEM_DEL_BTN_01);
-               break;
-
-            case IDC_DAT_EXT_PAGE_PREV_BUTTON:
-               previousPage();
-               break;
-
-            case IDC_DAT_EXT_PAGE_NEXT_BUTTON:
-               nextPage();
-               break;
-
-            case IDC_DAT_EXT_PAGE_ADD_BUTTON:
-               addPage();
-               break;
-
-            case IDC_DAT_EXT_PAGE_DEL_BUTTON:
-               deletePage();
-               break;
-
-            case IDC_DAT_EXT_ITEM_DOWN_BUTTON:
-               swapLineItems(currentLineItem, currentLineItem + 1);
-               break;
-
-            case IDC_DAT_EXT_ITEM_UP_BUTTON:
-               swapLineItems(currentLineItem, currentLineItem - 1);
-               break;
-
-            case IDC_DAT_EXT_INFO_BUTTON:
-               ShellExecute(NULL, L"open", DATA_EXTRACT_INFO_README, NULL, NULL, SW_SHOW);
-               break;
-
-            case IDC_DAT_EXT_EXTRACT_BTN:
-               extractData();
-               break;
-
-            case IDCANCEL:
-            case IDCLOSE:
-               display(FALSE);
-               return TRUE;
-
-            case IDC_DAT_EXT_TEMPLATE_CURR_ONLY:
-               loadTemplatesList();
-               newTemplate();
-               break;
-
-            case IDC_DAT_EXT_TEMPLATE_LIST:
-               switch HIWORD(wParam) {
-                  case CBN_SELCHANGE:
-                     loadTemplate();
-                     break;
-                  }
-               break;
-
-            case IDC_DAT_EXT_TEMPLATE_NAME:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     enableSaveTemplate();
-                     break;
-                  }
-               break;
-
-            case IDC_DAT_EXT_TEMPLATE_SAVE_BTN:
-               saveTemplate();
-               break;
-
-            case IDC_DAT_EXT_TEMPLATE_NEW_BTN:
-               newTemplate();
-               break;
-
-            case IDC_DAT_EXT_TEMPLATE_DEL_BTN:
-               deleteTemplate();
-               break;
-
+         case CBN_SETFOCUS:
+            moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_RECORD_01, FALSE);
+            break;
          }
          break;
 
-      case WM_NOTIFY:
-         switch (((LPNMHDR)lParam)->code) {
-         case NM_CLICK:
-         case NM_RETURN:
-            ShellExecute(NULL, L"open", DATA_EXTRACT_KEYNAV_README, NULL, NULL, SW_SHOW);
-            display(FALSE);
-            return TRUE;
+      case IDC_DAT_EXT_ITEM_FIELD_01:
+      case IDC_DAT_EXT_ITEM_FIELD_02:
+      case IDC_DAT_EXT_ITEM_FIELD_03:
+      case IDC_DAT_EXT_ITEM_FIELD_04:
+      case IDC_DAT_EXT_ITEM_FIELD_05:
+      case IDC_DAT_EXT_ITEM_FIELD_06:
+      case IDC_DAT_EXT_ITEM_FIELD_07:
+      case IDC_DAT_EXT_ITEM_FIELD_08:
+      case IDC_DAT_EXT_ITEM_FIELD_09:
+      case IDC_DAT_EXT_ITEM_FIELD_10:
+         switch HIWORD(wParam) {
+         case CBN_SETFOCUS:
+            moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_FIELD_01, FALSE);
+            break;
          }
          break;
 
-      case WM_INITDIALOG:
+      case IDC_DAT_EXT_ITEM_PREFIX_01:
+      case IDC_DAT_EXT_ITEM_PREFIX_02:
+      case IDC_DAT_EXT_ITEM_PREFIX_03:
+      case IDC_DAT_EXT_ITEM_PREFIX_04:
+      case IDC_DAT_EXT_ITEM_PREFIX_05:
+      case IDC_DAT_EXT_ITEM_PREFIX_06:
+      case IDC_DAT_EXT_ITEM_PREFIX_07:
+      case IDC_DAT_EXT_ITEM_PREFIX_08:
+      case IDC_DAT_EXT_ITEM_PREFIX_09:
+      case IDC_DAT_EXT_ITEM_PREFIX_10:
+         switch HIWORD(wParam) {
+         case EN_SETFOCUS:
+            moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_PREFIX_01, FALSE);
+            break;
+         }
+         break;
+
+      case IDC_DAT_EXT_ITEM_SUFFIX_01:
+      case IDC_DAT_EXT_ITEM_SUFFIX_02:
+      case IDC_DAT_EXT_ITEM_SUFFIX_03:
+      case IDC_DAT_EXT_ITEM_SUFFIX_04:
+      case IDC_DAT_EXT_ITEM_SUFFIX_05:
+      case IDC_DAT_EXT_ITEM_SUFFIX_06:
+      case IDC_DAT_EXT_ITEM_SUFFIX_07:
+      case IDC_DAT_EXT_ITEM_SUFFIX_08:
+      case IDC_DAT_EXT_ITEM_SUFFIX_09:
+      case IDC_DAT_EXT_ITEM_SUFFIX_10:
+         switch HIWORD(wParam) {
+         case EN_SETFOCUS:
+            moveIndicators(LOWORD(wParam) - IDC_DAT_EXT_ITEM_SUFFIX_01, FALSE);
+            break;
+         }
+         break;
+
+      case IDC_DAT_EXT_ITEM_ADD_BTN_01:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_02:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_03:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_04:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_05:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_06:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_07:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_08:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_09:
+      case IDC_DAT_EXT_ITEM_ADD_BTN_10:
+         addLineItem(LOWORD(wParam) - IDC_DAT_EXT_ITEM_ADD_BTN_01);
+         break;
+
+      case IDC_DAT_EXT_ITEM_DEL_BTN_01:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_02:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_03:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_04:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_05:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_06:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_07:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_08:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_09:
+      case IDC_DAT_EXT_ITEM_DEL_BTN_10:
+         delLineItem(LOWORD(wParam) - IDC_DAT_EXT_ITEM_DEL_BTN_01);
+         break;
+
+      case IDC_DAT_EXT_PAGE_PREV_BUTTON:
+         previousPage();
+         break;
+
+      case IDC_DAT_EXT_PAGE_NEXT_BUTTON:
+         nextPage();
+         break;
+
+      case IDC_DAT_EXT_PAGE_ADD_BUTTON:
+         addPage();
+         break;
+
+      case IDC_DAT_EXT_PAGE_DEL_BUTTON:
+         deletePage();
+         break;
+
+      case IDC_DAT_EXT_ITEM_DOWN_BUTTON:
+         swapLineItems(currentLineItem, currentLineItem + 1);
+         break;
+
+      case IDC_DAT_EXT_ITEM_UP_BUTTON:
+         swapLineItems(currentLineItem, currentLineItem - 1);
+         break;
+
+      case IDC_DAT_EXT_INFO_BUTTON:
+         ShellExecute(NULL, L"open", DATA_EXTRACT_INFO_README, NULL, NULL, SW_SHOW);
+         break;
+
+      case IDC_DAT_EXT_EXTRACT_BTN:
+         extractData();
+         break;
+
+      case IDCANCEL:
+      case IDCLOSE:
+         display(FALSE);
+         return TRUE;
+
+      case IDC_DAT_EXT_TEMPLATE_CURR_ONLY:
+         loadTemplatesList();
+         newTemplate();
+         break;
+
+      case IDC_DAT_EXT_TEMPLATE_LIST:
+         switch HIWORD(wParam) {
+         case CBN_SELCHANGE:
+            loadTemplate();
+            break;
+         }
+         break;
+
+      case IDC_DAT_EXT_TEMPLATE_NAME:
+         switch HIWORD(wParam) {
+         case EN_CHANGE:
+            enableSaveTemplate();
+            break;
+         }
+         break;
+
+      case IDC_DAT_EXT_TEMPLATE_SAVE_BTN:
+         saveTemplate();
+         break;
+
+      case IDC_DAT_EXT_TEMPLATE_NEW_BTN:
+         newTemplate();
+         break;
+
+      case IDC_DAT_EXT_TEMPLATE_DEL_BTN:
+         deleteTemplate();
+         break;
+
+      }
+      break;
+
+   case WM_NOTIFY:
+      switch (((LPNMHDR)lParam)->code) {
+      case NM_CLICK:
+      case NM_RETURN:
+         ShellExecute(NULL, L"open", DATA_EXTRACT_KEYNAV_README, NULL, NULL, SW_SHOW);
+         display(FALSE);
+         return TRUE;
+      }
+      break;
+
+   case WM_INITDIALOG:
+      if (NppDarkMode::isEnabled()) {
+         LITEM item = { 0 };
+         item.iLink = 0;
+         item.mask = LIF_ITEMINDEX | LIF_STATE;
+         item.state = LIS_DEFAULTCOLORS;
+         item.stateMask = LIS_DEFAULTCOLORS;
+         SendMessage(GetDlgItem(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP), LM_SETITEM, 0, (LPARAM)&item);
+
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      }
+
+      break;
+
+   case WM_CTLCOLORSTATIC:
+      switch (GetDlgCtrlID((HWND)lParam)) {
+      case IDC_DAT_EXT_CURRENT_LINE:
          if (NppDarkMode::isEnabled()) {
-            LITEM item = { 0 };
-            item.iLink = 0;
-            item.mask = LIF_ITEMINDEX | LIF_STATE;
-            item.state = LIS_DEFAULTCOLORS;
-            item.stateMask = LIS_DEFAULTCOLORS;
-            SendMessage(GetDlgItem(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP), LM_SETITEM, 0, (LPARAM)&item);
-
-            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+            return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
          }
-
-         break;
-
-      case WM_CTLCOLORSTATIC:
-         switch (GetDlgCtrlID((HWND)lParam)) {
-            case IDC_DAT_EXT_CURRENT_LINE:
-               if (NppDarkMode::isEnabled()) {
-                  return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
-               }
-               else {
-                  SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
-                  SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
-                  return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
-               }
-               break;
-
-            case IDC_DAT_EXT_NEW_KEYBOARD_TIP:
-               if (NppDarkMode::isEnabled()) {
-                  return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
-               }
-               break;
-
-            default:
-               if (NppDarkMode::isEnabled()) {
-                  return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
-               }
+         else {
+            SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
+            SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
+            return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
          }
          break;
 
-      case WM_CTLCOLORDLG:
-      case WM_CTLCOLORLISTBOX:
+      case IDC_DAT_EXT_NEW_KEYBOARD_TIP:
+         if (NppDarkMode::isEnabled()) {
+            return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+         }
+         break;
+
+      default:
          if (NppDarkMode::isEnabled()) {
             return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
          }
-         break;
-
-      case WM_CTLCOLOREDIT:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
-         }
-         break;
-
-      case WM_PRINTCLIENT:
-         if (NppDarkMode::isEnabled()) {
-            return TRUE;
-         }
-         break;
       }
+      break;
+
+   case WM_CTLCOLORDLG:
+   case WM_CTLCOLORLISTBOX:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLOREDIT:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NppDarkMode::isEnabled()) {
+         return TRUE;
+      }
+      break;
+   }
 
    return FALSE;
 }
@@ -514,7 +514,7 @@ void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
       getLineItem(lineTo, liBuffer[idxFrom]);
    }
    else {
-      LineItemInfo &liFrom{ liBuffer[idxFrom] };
+      LineItemInfo& liFrom{ liBuffer[idxFrom] };
       LineItemInfo liTo{ liBuffer[idxTo] };
 
       getLineItem(lineFrom, liBuffer[idxTo]);
@@ -924,7 +924,7 @@ void DataExtractDialog::readPage() {
 void DataExtractDialog::previousPage() {
    if (currentPage > 0)
       readPage();
-      loadPage(currentPage - 1);
+   loadPage(currentPage - 1);
 }
 
 void DataExtractDialog::nextPage() {
@@ -966,108 +966,108 @@ bool DataExtractDialog::processKey(HWND hCtrl, WPARAM wParam) {
    int ctrlID{ GetDlgCtrlID(hCtrl) };
 
    switch (wParam) {
-      case VK_DOWN:
-         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-            swapLineItems(currentLineItem, currentLineItem + 1);
-            return TRUE;
-         }
-         else {
-            gotoLine(ctrlID, currentLineItem + 1);
-            return TRUE;
-         }
-         break;
-
-      case VK_UP:
-         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-            swapLineItems(currentLineItem, currentLineItem - 1);
-            return TRUE;
-         }
-         else {
-            gotoLine(ctrlID, currentLineItem - 1);
-            return TRUE;
-         }
-         break;
-
-      case VK_HOME:
-         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-            SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01));
-            return TRUE;
-         }
-         break;
-
-      case VK_END:
-         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-            SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + LINES_PER_PAGE - 1));
-            return TRUE;
-         }
+   case VK_DOWN:
+      if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         swapLineItems(currentLineItem, currentLineItem + 1);
          return TRUE;
-         break;
-
-      case VK_PRIOR:
-         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-            previousPage();
-         }
-         else {
-            SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem));
-         }
+      }
+      else {
+         gotoLine(ctrlID, currentLineItem + 1);
          return TRUE;
-         break;
+      }
+      break;
 
-      case VK_NEXT:
-         if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-            nextPage();
-         }
-         else {
-            SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem + LINES_PER_PAGE - 1));
-         }
+   case VK_UP:
+      if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         swapLineItems(currentLineItem, currentLineItem - 1);
          return TRUE;
-         break;
+      }
+      else {
+         gotoLine(ctrlID, currentLineItem - 1);
+         return TRUE;
+      }
+      break;
 
-      case VK_ADD:
-      case VK_OEM_PLUS:
-      case VK_INSERT:
-         if (Utils::checkKeyHeldDown(VK_CONTROL) && Utils::checkKeyHeldDown(VK_SHIFT)) {
-            addPage();
-            return TRUE;
-         }
-         else if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-            addLineItem(currentLineItem);
-            return TRUE;
-         }
-         break;
+   case VK_HOME:
+      if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01));
+         return TRUE;
+      }
+      break;
 
-      case VK_SUBTRACT:
-      case VK_OEM_MINUS:
-      case VK_DELETE:
-         if (Utils::checkKeyHeldDown(VK_CONTROL) && Utils::checkKeyHeldDown(VK_SHIFT)) {
-            deletePage();
-            return TRUE;
-         }
-         else if (Utils::checkKeyHeldDown(VK_CONTROL)) {
-            delLineItem(currentLineItem);
-            return TRUE;
-         }
-         break;
+   case VK_END:
+      if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + LINES_PER_PAGE - 1));
+         return TRUE;
+      }
+      return TRUE;
+      break;
+
+   case VK_PRIOR:
+      if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         previousPage();
+      }
+      else {
+         SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem));
+      }
+      return TRUE;
+      break;
+
+   case VK_NEXT:
+      if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         nextPage();
+      }
+      else {
+         SetFocus(GetDlgItem(_hSelf, ctrlID - currentLineItem + LINES_PER_PAGE - 1));
+      }
+      return TRUE;
+      break;
+
+   case VK_ADD:
+   case VK_OEM_PLUS:
+   case VK_INSERT:
+      if (Utils::checkKeyHeldDown(VK_CONTROL) && Utils::checkKeyHeldDown(VK_SHIFT)) {
+         addPage();
+         return TRUE;
+      }
+      else if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         addLineItem(currentLineItem);
+         return TRUE;
+      }
+      break;
+
+   case VK_SUBTRACT:
+   case VK_OEM_MINUS:
+   case VK_DELETE:
+      if (Utils::checkKeyHeldDown(VK_CONTROL) && Utils::checkKeyHeldDown(VK_SHIFT)) {
+         deletePage();
+         return TRUE;
+      }
+      else if (Utils::checkKeyHeldDown(VK_CONTROL)) {
+         delLineItem(currentLineItem);
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;
 }
 
-bool DataExtractDialog::processSysKey(HWND , WPARAM wParam) {
+bool DataExtractDialog::processSysKey(HWND, WPARAM wParam) {
    switch (wParam) {
-      case VK_HOME:
-         if (Utils::checkKeyHeldDown(VK_MENU)) {
-            SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + currentLineItem));
-            return TRUE;
-         }
-         break;
+   case VK_HOME:
+      if (Utils::checkKeyHeldDown(VK_MENU)) {
+         SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + currentLineItem));
+         return TRUE;
+      }
+      break;
 
-      case VK_END:
-         if (Utils::checkKeyHeldDown(VK_MENU)) {
-            SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + currentLineItem));
-            return TRUE;
-         }
-         break;
+   case VK_END:
+      if (Utils::checkKeyHeldDown(VK_MENU)) {
+         SetFocus(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + currentLineItem));
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;

@@ -19,7 +19,7 @@ protected:
    int initRecordRegIndex;
    HWND hFieldList, hCaretFlash;
 
-   INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
+   INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
    void onJumpBtnClick();
 

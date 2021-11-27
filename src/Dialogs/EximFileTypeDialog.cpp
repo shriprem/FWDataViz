@@ -54,59 +54,59 @@ void EximFileTypeDialog::localize() {
 
 INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
    switch (message) {
-      case WM_COMMAND:
-         switch LOWORD(wParam) {
-            case IDC_FTEXIM_INFO_BUTTON:
-               ShellExecute(NULL, L"open", vizMode ?
-                  extractMode ? FILE_EXTRACT_INFO_README : FILE_APPEND_INFO_README:
-                  extractMode ? THEME_EXTRACT_INFO_README : THEME_APPEND_INFO_README,
-                  NULL, NULL, SW_SHOW);
-               break;
-
-            case IDCANCEL:
-               case IDCLOSE:
-                  display(FALSE);
-                  return TRUE;
-
-            case IDC_FTEXIM_LOAD_FILE:
-               loadExtractFile();
-               break;
-
-            case IDC_FTEXIM_SAVE_FILE:
-               saveExtractFile();
-               break;
-
-            case IDC_FTEXIM_APPEND:
-               appendExtractFile();
-               break;
-         }
+   case WM_COMMAND:
+      switch LOWORD(wParam) {
+      case IDC_FTEXIM_INFO_BUTTON:
+         ShellExecute(NULL, L"open", vizMode ?
+            extractMode ? FILE_EXTRACT_INFO_README : FILE_APPEND_INFO_README :
+            extractMode ? THEME_EXTRACT_INFO_README : THEME_APPEND_INFO_README,
+            NULL, NULL, SW_SHOW);
          break;
 
-      case WM_INITDIALOG:
-         if (NppDarkMode::isEnabled()) {
-            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-         }
+      case IDCANCEL:
+      case IDCLOSE:
+         display(FALSE);
+         return TRUE;
+
+      case IDC_FTEXIM_LOAD_FILE:
+         loadExtractFile();
          break;
 
-      case WM_CTLCOLORDLG:
-      case WM_CTLCOLORLISTBOX:
-      case WM_CTLCOLORSTATIC:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
-         }
+      case IDC_FTEXIM_SAVE_FILE:
+         saveExtractFile();
          break;
 
-      case WM_CTLCOLOREDIT:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
-         }
+      case IDC_FTEXIM_APPEND:
+         appendExtractFile();
          break;
+      }
+      break;
 
-      case WM_PRINTCLIENT:
-         if (NppDarkMode::isEnabled()) {
-            return TRUE;
-         }
-         break;
+   case WM_INITDIALOG:
+      if (NppDarkMode::isEnabled()) {
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      }
+      break;
+
+   case WM_CTLCOLORDLG:
+   case WM_CTLCOLORLISTBOX:
+   case WM_CTLCOLORSTATIC:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLOREDIT:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NppDarkMode::isEnabled()) {
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;
@@ -151,7 +151,7 @@ void EximFileTypeDialog::saveExtractFile() {
 }
 
 wstring EximFileTypeDialog::getEditControlText() {
-      TCHAR sExtractData[FW_LINE_MAX_LENGTH];
-      GetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData, FW_LINE_MAX_LENGTH);
-      return wstring{ sExtractData };
+   TCHAR sExtractData[FW_LINE_MAX_LENGTH];
+   GetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData, FW_LINE_MAX_LENGTH);
+   return wstring{ sExtractData };
 }

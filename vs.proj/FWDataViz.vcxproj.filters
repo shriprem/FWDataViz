@@ -52,6 +52,9 @@
     <ClCompile Include="..\src\NPP\tinyxml2.cpp">
       <Filter>_NPP Framework</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Dialogs\FieldTypeDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -140,6 +143,9 @@
     </ClInclude>
     <ClInclude Include="..\src\NPP\tinyxml2.h">
       <Filter>_NPP Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Dialogs\FieldTypeDialog.h">
+      <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

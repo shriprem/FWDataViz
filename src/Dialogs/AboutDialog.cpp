@@ -35,62 +35,62 @@ void AboutDialog::localize() {
 
 INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-      case WM_INITDIALOG:
+   case WM_INITDIALOG:
+      if (NppDarkMode::isEnabled()) {
+         LITEM item = { 0 };
+         item.iLink = 0;
+         item.mask = LIF_ITEMINDEX | LIF_STATE;
+         item.state = LIS_DEFAULTCOLORS;
+         item.stateMask = LIS_DEFAULTCOLORS;
+         SendMessage(GetDlgItem(_hSelf, IDC_ABOUT_PROD_URL), LM_SETITEM, 0, (LPARAM)&item);
+
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      }
+
+      break;
+
+   case WM_COMMAND:
+      switch LOWORD(wParam) {
+      case IDCANCEL:
+      case IDOK:
+         display(FALSE);
+         return TRUE;
+      }
+      break;
+
+   case WM_NOTIFY:
+      switch (((LPNMHDR)lParam)->code) {
+      case NM_CLICK:
+      case NM_RETURN:
+         ShellExecute(NULL, L"open", getVersionInfo(L"CompanyName").c_str(), NULL, NULL, SW_SHOW);
+         display(FALSE);
+         return TRUE;
+      }
+      break;
+
+   case WM_CTLCOLORDLG:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLORSTATIC:
+      if (GetDlgCtrlID((HWND)lParam) == IDC_ABOUT_PROD_URL) {
          if (NppDarkMode::isEnabled()) {
-            LITEM item = { 0 };
-            item.iLink = 0;
-            item.mask = LIF_ITEMINDEX | LIF_STATE;
-            item.state = LIS_DEFAULTCOLORS;
-            item.stateMask = LIS_DEFAULTCOLORS;
-            SendMessage(GetDlgItem(_hSelf, IDC_ABOUT_PROD_URL), LM_SETITEM, 0, (LPARAM)&item);
-
-            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+            return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
          }
+      }
 
-         break;
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker((HDC)wParam);
+      }
+      break;
 
-      case WM_COMMAND:
-         switch LOWORD(wParam) {
-            case IDCANCEL:
-            case IDOK:
-               display(FALSE);
-               return TRUE;
-         }
-         break;
-
-      case WM_NOTIFY:
-         switch (((LPNMHDR)lParam)->code) {
-            case NM_CLICK:
-            case NM_RETURN:
-               ShellExecute(NULL, L"open", getVersionInfo(L"CompanyName").c_str(), NULL, NULL, SW_SHOW);
-               display(FALSE);
-               return TRUE;
-         }
-         break;
-
-      case WM_CTLCOLORDLG:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
-         }
-         break;
-
-      case WM_CTLCOLORSTATIC:
-         if (GetDlgCtrlID((HWND)lParam) == IDC_ABOUT_PROD_URL) {
-            if (NppDarkMode::isEnabled()) {
-               return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
-            }
-         }
-
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker((HDC)wParam);
-         }
-         break;
-
-      case WM_PRINTCLIENT:
-         if (NppDarkMode::isEnabled()) {
-            return TRUE;
-         }
-         break;
+   case WM_PRINTCLIENT:
+      if (NppDarkMode::isEnabled()) {
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;

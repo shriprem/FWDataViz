@@ -52,49 +52,49 @@ void JumpToField::setFileTypeData(const wstring& ftConfig) {
 
 INT_PTR CALLBACK JumpToField::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-      case WM_COMMAND:
-         switch LOWORD(wParam) {
-            case IDCANCEL:
-            case IDCLOSE:
-               display(FALSE);
-               return TRUE;
+   case WM_COMMAND:
+      switch LOWORD(wParam) {
+      case IDCANCEL:
+      case IDCLOSE:
+         display(FALSE);
+         return TRUE;
 
-            case IDC_JUMP_FIELD_LIST:
-               switch HIWORD(wParam) {
-                  case CBN_SELCHANGE:
-                     break;
-                  }
-               break;
-
-            case IDC_JUMP_FIELD_GO_BTN:
-               onJumpBtnClick();
-               break;
+      case IDC_JUMP_FIELD_LIST:
+         switch HIWORD(wParam) {
+         case CBN_SELCHANGE:
+            break;
          }
          break;
 
-      case WM_HSCROLL:
-         if (lParam == (LPARAM)hCaretFlash) syncTbarToText();
+      case IDC_JUMP_FIELD_GO_BTN:
+         onJumpBtnClick();
          break;
+      }
+      break;
 
-      case WM_INITDIALOG:
-         if (NppDarkMode::isEnabled()) {
-            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-         }
-         break;
+   case WM_HSCROLL:
+      if (lParam == (LPARAM)hCaretFlash) syncTbarToText();
+      break;
 
-      case WM_CTLCOLORDLG:
-      case WM_CTLCOLORLISTBOX:
-      case WM_CTLCOLORSTATIC:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
-         }
-         break;
+   case WM_INITDIALOG:
+      if (NppDarkMode::isEnabled()) {
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      }
+      break;
 
-      case WM_PRINTCLIENT:
-         if (NppDarkMode::isEnabled()) {
-            return TRUE;
-         }
-         break;
+   case WM_CTLCOLORDLG:
+   case WM_CTLCOLORLISTBOX:
+   case WM_CTLCOLORSTATIC:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NppDarkMode::isEnabled()) {
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;

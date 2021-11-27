@@ -1,57 +1,60 @@
 #include "ConfigureDialog.h"
 #include "EximFileTypeDialog.h"
+#include "FieldTypeDialog.h"
 
 #pragma comment(lib, "comctl32.lib")
 
 extern HINSTANCE _gModule;
 extern ConfigureDialog _configDlg;
+
 EximFileTypeDialog _eximDlg;
+FieldTypeDialog _fieldTypeDlg;
 
 LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
    switch (messageId) {
-      case WM_CHAR:
-      {
-         wchar_t editChar{ static_cast<WCHAR>(wParam) };
-         bool valid{ editChar < ' ' || (editChar >= '0' && editChar <= '9') };
+   case WM_CHAR:
+   {
+      wchar_t editChar{ static_cast<WCHAR>(wParam) };
+      bool valid{ editChar < ' ' || (editChar >= '0' && editChar <= '9') };
 
-         int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
+      int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
 
-         if (LOWORD(editSel) == 0) {
-            wchar_t editText[MAX_PATH + 1];
-            GetWindowText(hwnd, editText, MAX_PATH);
-
-            if (HIWORD(editSel) == 0 && editText[0] == '-')
-               valid = editChar < ' ';
-            else
-               valid |= editChar == '-';
-         }
-
-         if (!valid) {
-            showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
-            return FALSE;
-         }
-         break;
-      }
-
-      case WM_PASTE:
-      {
-         wstring clipText;
-         Utils::getClipboardText(GetParent(hwnd), clipText);
-
-         int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
-
+      if (LOWORD(editSel) == 0) {
          wchar_t editText[MAX_PATH + 1];
          GetWindowText(hwnd, editText, MAX_PATH);
 
-         wstring clipValid{ (editText[0] == '-' && (LOWORD(editSel) > 0 || HIWORD(editSel) == 0)) ? L"" : L"-?" };
-         clipValid += L"[0-9]*";
-
-         if (!regex_match(clipText, wregex(clipValid))) {
-            showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
-            return FALSE;
-         }
-         break;
+         if (HIWORD(editSel) == 0 && editText[0] == '-')
+            valid = editChar < ' ';
+         else
+            valid |= editChar == '-';
       }
+
+      if (!valid) {
+         showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
+         return FALSE;
+      }
+      break;
+   }
+
+   case WM_PASTE:
+   {
+      wstring clipText;
+      Utils::getClipboardText(GetParent(hwnd), clipText);
+
+      int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
+
+      wchar_t editText[MAX_PATH + 1];
+      GetWindowText(hwnd, editText, MAX_PATH);
+
+      wstring clipValid{ (editText[0] == '-' && (LOWORD(editSel) > 0 || HIWORD(editSel) == 0)) ? L"" : L"-?" };
+      clipValid += L"[0-9]*";
+
+      if (!regex_match(clipText, wregex(clipValid))) {
+         showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
+         return FALSE;
+      }
+      break;
+   }
    }
 
    return DefSubclassProc(hwnd, messageId, wParam, lParam);
@@ -62,21 +65,21 @@ LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
    HWND hThat{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldWidths : _configDlg.hFieldLabels };
 
    switch (messageId) {
-      case WM_CHAR:
-         if (wParam == ',' && hwnd == _configDlg.hFieldLabels) {
-            showEditBalloonTip(hwnd, FWVIZ_DIALOG_COMMAS_TITLE, FWVIZ_DIALOG_COMMAS_MESSAGE);
-         }
-         break;
+   case WM_CHAR:
+      if (wParam == ',' && hwnd == _configDlg.hFieldLabels) {
+         showEditBalloonTip(hwnd, FWVIZ_DIALOG_COMMAS_TITLE, FWVIZ_DIALOG_COMMAS_MESSAGE);
+      }
+      break;
 
-      case WM_KEYDOWN:
-      case WM_KEYUP:
-      case WM_LBUTTONUP:
-         _configDlg.hiliteFieldEditPairedItem(hThis, hThat);
-         break;
+   case WM_KEYDOWN:
+   case WM_KEYUP:
+   case WM_LBUTTONUP:
+      _configDlg.hiliteFieldEditPairedItem(hThis, hThat);
+      break;
 
-      case WM_VSCROLL:
-         _configDlg.syncFieldEditScrolling(hThis, hThat);
-         break;
+   case WM_VSCROLL:
+      _configDlg.syncFieldEditScrolling(hThis, hThat);
+      break;
    }
 
    return DefSubclassProc(hwnd, messageId, wParam, lParam);
@@ -85,7 +88,7 @@ LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam,
 void ConfigureDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
-      create(IDD_FWVIZ_DEFINER_DIALOG);
+      create(IDD_FILE_TYPE_DEFINER_DIALOG);
    }
 
    hFilesLB = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_LIST_BOX);
@@ -98,7 +101,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    hFieldLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hFieldWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
 
-   for (int i{}, id{IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01}; i < ADFT_MAX; i++) {
+   for (int i{}, id{ IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01 }; i < ADFT_MAX; i++) {
       hADFTLine[i] = GetDlgItem(_hSelf, id++);
       hADFTRegex[i] = GetDlgItem(_hSelf, id++);
    }
@@ -165,283 +168,287 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
 INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
    switch (message) {
-      case WM_COMMAND:
-         switch LOWORD(wParam) {
-            case IDC_FWVIZ_DEF_FILE_LIST_BOX:
-               switch HIWORD(wParam) {
-                  case LBN_SELCHANGE:
-                     onFileTypeSelect();
-                     break;
-               }
-               break;
+   case WM_COMMAND:
+      switch LOWORD(wParam) {
+      case IDC_FWVIZ_DEF_FILE_LIST_BOX:
+         switch HIWORD(wParam) {
+         case LBN_SELCHANGE:
+            onFileTypeSelect();
+            break;
+         }
+         break;
 
-            case IDC_FWVIZ_DEF_FILE_DOWN_BUTTON:
-               moveFileType(MOVE_DOWN);
-               break;
+      case IDC_FWVIZ_DEF_FILE_DOWN_BUTTON:
+         moveFileType(MOVE_DOWN);
+         break;
 
-            case IDC_FWVIZ_DEF_FILE_UP_BUTTON:
-               moveFileType(MOVE_UP);
-               break;
+      case IDC_FWVIZ_DEF_FILE_UP_BUTTON:
+         moveFileType(MOVE_UP);
+         break;
 
-            case IDC_FWVIZ_DEF_MCBS_INFO_BUTTON:
-               ShellExecute(NULL, L"open", FWVIZ_DEF_MCBS_INFO_README, NULL, NULL, SW_SHOW);
-               break;
+      case IDC_FWVIZ_DEF_MCBS_INFO_BUTTON:
+         ShellExecute(NULL, L"open", FWVIZ_DEF_MCBS_INFO_README, NULL, NULL, SW_SHOW);
+         break;
 
-            case IDC_FWVIZ_DEF_ADFT_INFO_BUTTON:
-               ShellExecute(NULL, L"open", FWVIZ_DEF_ADFT_INFO_README, NULL, NULL, SW_SHOW);
-               break;
+      case IDC_FWVIZ_DEF_ADFT_INFO_BUTTON:
+         ShellExecute(NULL, L"open", FWVIZ_DEF_ADFT_INFO_README, NULL, NULL, SW_SHOW);
+         break;
 
-            case IDC_FWVIZ_DEF_REC_THEME_INFOBTN:
-               ShellExecute(NULL, L"open", FWVIZ_RT_THEME_INFO_README, NULL, NULL, SW_SHOW);
-               break;
+      case IDC_FWVIZ_DEF_REC_THEME_INFOBTN:
+         ShellExecute(NULL, L"open", FWVIZ_RT_THEME_INFO_README, NULL, NULL, SW_SHOW);
+         break;
 
-            case IDC_FWVIZ_DEF_INFO_BUTTON:
-               ShellExecute(NULL, L"open", FWVIZ_DEF_INFO_README, NULL, NULL, SW_SHOW);
-               break;
+      case IDC_FWVIZ_DEF_INFO_BUTTON:
+         ShellExecute(NULL, L"open", FWVIZ_DEF_INFO_README, NULL, NULL, SW_SHOW);
+         break;
 
-            case IDC_FWVIZ_DEF_FILE_DESC_EDIT:
-            case IDC_FWVIZ_DEF_FILE_EOL_EDIT:
-            case IDC_FWVIZ_DEF_MCBS_CHECKBOX:
-            case IDC_FWVIZ_DEF_FILE_THEME_LIST:
-            case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01:
-            case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_01:
-            case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_02:
-            case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_02:
-            case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_03:
-            case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03:
-               switch HIWORD(wParam) {
-                  case BN_CLICKED:
-                  case EN_CHANGE:
-                  case CBN_SELCHANGE:
-                     if (!loadingEdits) {
-                        cleanFileVals = FALSE;
-                        enableFileSelection();
-                     }
-                     break;
-                  }
-               break;
+      case IDC_FWVIZ_DEF_FILE_DESC_EDIT:
+      case IDC_FWVIZ_DEF_FILE_EOL_EDIT:
+      case IDC_FWVIZ_DEF_MCBS_CHECKBOX:
+      case IDC_FWVIZ_DEF_FILE_THEME_LIST:
+      case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01:
+      case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_01:
+      case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_02:
+      case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_02:
+      case IDC_FWVIZ_DEF_ADFT_LINE_EDIT_03:
+      case IDC_FWVIZ_DEF_ADFT_REGEX_EDT_03:
+         switch HIWORD(wParam) {
+         case BN_CLICKED:
+         case EN_CHANGE:
+         case CBN_SELCHANGE:
+            if (!loadingEdits) {
+               cleanFileVals = FALSE;
+               enableFileSelection();
+            }
+            break;
+         }
+         break;
 
-            case IDC_FWVIZ_DEF_FILE_ACCEPT_BTN:
-               fileEditAccept();
-               break;
+      case IDC_FWVIZ_DEF_FILE_ACCEPT_BTN:
+         fileEditAccept();
+         break;
 
-            case IDC_FWVIZ_DEF_FILE_NEW_BTN:
-               fileEditNew();
-               break;
+      case IDC_FWVIZ_DEF_FILE_NEW_BTN:
+         fileEditNew();
+         break;
 
-            case IDC_FWVIZ_DEF_FILE_CLONE_BTN:
-               fileEditClone();
-               break;
+      case IDC_FWVIZ_DEF_FILE_CLONE_BTN:
+         fileEditClone();
+         break;
 
-            case IDC_FWVIZ_DEF_FILE_DEL_BTN:
-               fileEditDelete();
-               break;
+      case IDC_FWVIZ_DEF_FILE_DEL_BTN:
+         fileEditDelete();
+         break;
 
-            case IDC_FWVIZ_DEF_REC_LIST_BOX:
-               switch HIWORD(wParam) {
-                  case LBN_SELCHANGE:
-                     onRecTypeSelect();
-                     break;
-               }
-               break;
+      case IDC_FWVIZ_DEF_REC_LIST_BOX:
+         switch HIWORD(wParam) {
+         case LBN_SELCHANGE:
+            onRecTypeSelect();
+            break;
+         }
+         break;
 
-            case IDC_FWVIZ_DEF_REC_DOWN_BUTTON:
-               moveRecType(MOVE_DOWN);
-               break;
+      case IDC_FWVIZ_DEF_REC_DOWN_BUTTON:
+         moveRecType(MOVE_DOWN);
+         break;
 
-            case IDC_FWVIZ_DEF_REC_UP_BUTTON:
-               moveRecType(MOVE_UP);
-               break;
+      case IDC_FWVIZ_DEF_REC_UP_BUTTON:
+         moveRecType(MOVE_UP);
+         break;
 
-            case IDC_FWVIZ_DEF_REC_DESC_EDIT:
-            case IDC_FWVIZ_DEF_REC_THEME_LIST:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                  case CBN_SELCHANGE:
-                     if (!loadingEdits) {
-                        cleanRecVals = FALSE;
-                        enableRecSelection();
-                     }
-                     break;
-               }
-               break;
+      case IDC_FWVIZ_DEF_REC_DESC_EDIT:
+      case IDC_FWVIZ_DEF_REC_THEME_LIST:
+         switch HIWORD(wParam) {
+         case EN_CHANGE:
+         case CBN_SELCHANGE:
+            if (!loadingEdits) {
+               cleanRecVals = FALSE;
+               enableRecSelection();
+            }
+            break;
+         }
+         break;
 
-            case IDC_FWVIZ_DEF_REC_START_EDIT:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     if (!loadingEdits) {
-                        cleanRecVals = FALSE;
-                        enableRecSelection();
-                     }
+      case IDC_FWVIZ_DEF_REC_START_EDIT:
+         switch HIWORD(wParam) {
+         case EN_CHANGE:
+            if (!loadingEdits) {
+               cleanRecVals = FALSE;
+               enableRecSelection();
+            }
 
-                     if (GetFocus() == hRecStart) {
-                        onRecStartEditChange();
-                     }
-                     break;
-               }
-               break;
+            if (GetFocus() == hRecStart) {
+               onRecStartEditChange();
+            }
+            break;
+         }
+         break;
 
-            case IDC_FWVIZ_DEF_REC_REGEX_EDIT:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     if (!loadingEdits) {
-                        cleanRecVals = FALSE;
-                        enableRecSelection();
-                     }
+      case IDC_FWVIZ_DEF_REC_REGEX_EDIT:
+         switch HIWORD(wParam) {
+         case EN_CHANGE:
+            if (!loadingEdits) {
+               cleanRecVals = FALSE;
+               enableRecSelection();
+            }
 
-                     if (GetFocus() == hRecRegex) {
-                        onRecRegexEditChange();
-                     }
-                     break;
+            if (GetFocus() == hRecRegex) {
+               onRecRegexEditChange();
+            }
+            break;
 
-                  case EN_KILLFOCUS:
-                     if (GetWindowTextLength(hRecRegex) == 0) {
-                        SetWindowTextA(hRecRegex, ".");
-                     }
-                     break;
-               }
-               break;
+         case EN_KILLFOCUS:
+            if (GetWindowTextLength(hRecRegex) == 0) {
+               SetWindowTextA(hRecRegex, ".");
+            }
+            break;
+         }
+         break;
 
-            case IDC_FWVIZ_DEF_REC_ACCEPT_BTN:
-               recEditAccept();
-               break;
+      case IDC_FWVIZ_DEF_REC_ACCEPT_BTN:
+         recEditAccept();
+         break;
 
-            case IDC_FWVIZ_DEF_REC_NEW_BTN:
-               recEditNew(FALSE);
-               break;
+      case IDC_FWVIZ_DEF_REC_NEW_BTN:
+         recEditNew(FALSE);
+         break;
 
-            case IDC_FWVIZ_DEF_REC_CLONE_BTN:
-               recEditNew(TRUE);
-               break;
+      case IDC_FWVIZ_DEF_REC_CLONE_BTN:
+         recEditNew(TRUE);
+         break;
 
-            case IDC_FWVIZ_DEF_REC_DEL_BTN:
-               recEditDelete();
-               break;
+      case IDC_FWVIZ_DEF_REC_DEL_BTN:
+         recEditDelete();
+         break;
 
-            case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     if (!loadingEdits) {
-                        cleanFieldVals = FALSE;
-                        enableRecSelection();
-                     }
-                     break;
+      case IDC_FWVIZ_DEF_FIELD_LABELS_EDIT:
+         switch HIWORD(wParam) {
+         case EN_CHANGE:
+            if (!loadingEdits) {
+               cleanFieldVals = FALSE;
+               enableRecSelection();
+            }
+            break;
 
-                  case EN_SETFOCUS:
-                     setFieldEditCaretOnFocus(hFieldLabels);
-                     break;
+         case EN_SETFOCUS:
+            setFieldEditCaretOnFocus(hFieldLabels);
+            break;
 
-                  case EN_VSCROLL:
-                     if (GetFocus() == hFieldLabels) {
-                        syncFieldEditScrolling(hFieldLabels, hFieldWidths);
-                     }
-               }
-               break;
+         case EN_VSCROLL:
+            if (GetFocus() == hFieldLabels) {
+               syncFieldEditScrolling(hFieldLabels, hFieldWidths);
+            }
+         }
+         break;
 
-            case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     if (!loadingEdits) {
-                        cleanFieldVals = FALSE;
-                        enableRecSelection();
-                     }
-                     break;
+      case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
+         switch HIWORD(wParam) {
+         case EN_CHANGE:
+            if (!loadingEdits) {
+               cleanFieldVals = FALSE;
+               enableRecSelection();
+            }
+            break;
 
-                  case EN_SETFOCUS:
-                     setFieldEditCaretOnFocus(hFieldWidths);
-                     break;
+         case EN_SETFOCUS:
+            setFieldEditCaretOnFocus(hFieldWidths);
+            break;
 
-                  case EN_VSCROLL:
-                     if (GetFocus() == hFieldWidths) {
-                        syncFieldEditScrolling(hFieldWidths, hFieldLabels);
-                     }
-               }
-               break;
+         case EN_VSCROLL:
+            if (GetFocus() == hFieldWidths) {
+               syncFieldEditScrolling(hFieldWidths, hFieldLabels);
+            }
+         }
+         break;
 
-            case IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN:
-               fieldEditsAccept();
-               break;
+      case IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN:
+         fieldEditsAccept();
+         break;
 
-            case IDC_FWVIZ_DEF_FIELD_RESET_BTN:
-               fillFieldTypes();
-               break;
+      case IDC_FWVIZ_DEF_FIELD_RESET_BTN:
+         fillFieldTypes();
+         break;
 
-            case IDCANCEL:
-            case IDCLOSE:
-               if (promptDiscardChangesNo()) return TRUE;
+      case IDC_FWVIZ_FIELD_TYPE_BUTTON:
+         _fieldTypeDlg.doDialog((HINSTANCE)_gModule);
+         break;
 
-               display(FALSE);
-               return TRUE;
+      case IDCANCEL:
+      case IDCLOSE:
+         if (promptDiscardChangesNo()) return TRUE;
 
-            case IDC_FWVIZ_DEF_SAVE_CONFIG_BTN:
-               SetCursor(LoadCursor(NULL, IDC_WAIT));
-               saveConfigInfo();
-               SetCursor(LoadCursor(NULL, IDC_ARROW));
-               return TRUE;
+         display(FALSE);
+         return TRUE;
 
-            case IDC_FWVIZ_DEF_RESET_BTN:
-               if (!promptDiscardChangesNo()) {
-                  configFile = L"";
+      case IDC_FWVIZ_DEF_SAVE_CONFIG_BTN:
+         SetCursor(LoadCursor(NULL, IDC_WAIT));
+         saveConfigInfo();
+         SetCursor(LoadCursor(NULL, IDC_ARROW));
+         return TRUE;
+
+      case IDC_FWVIZ_DEF_RESET_BTN:
+         if (!promptDiscardChangesNo()) {
+            configFile = L"";
+            loadConfigInfo();
+            fillFileTypes();
+         }
+         break;
+
+      case IDC_FWVIZ_DEF_BACKUP_LOAD_BTN:
+         if (!promptDiscardChangesNo()) {
+            wstring backupConfigFile;
+
+            if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupConfigFile)) {
+               if (_configIO.fixIfUTF16File(backupConfigFile)) {
+                  configFile = backupConfigFile;
                   loadConfigInfo();
                   fillFileTypes();
+                  cleanConfigFile = FALSE;
+                  enableFileSelection();
                }
-               break;
-
-            case IDC_FWVIZ_DEF_BACKUP_LOAD_BTN:
-               if (!promptDiscardChangesNo()) {
-                  wstring backupConfigFile;
-
-                  if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupConfigFile)) {
-                     if (_configIO.fixIfUTF16File(backupConfigFile)) {
-                        configFile = backupConfigFile;
-                        loadConfigInfo();
-                        fillFileTypes();
-                        cleanConfigFile = FALSE;
-                        enableFileSelection();
-                     }
-                  }
-               }
-               break;
-
-            case IDC_FWVIZ_DEF_BACKUP_VIEW_BTN:
-               _configIO.viewBackupFolder();
-               break;
-
-            case IDC_FWVIZ_DEF_EXTRACT_BTN:
-               showEximDialog(TRUE);
-               break;
-
-            case IDC_FWVIZ_DEF_APPEND_BTN:
-               showEximDialog(FALSE);
-               break;
+            }
          }
          break;
 
-      case WM_INITDIALOG:
-         if (NppDarkMode::isEnabled()) {
-            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-         }
+      case IDC_FWVIZ_DEF_BACKUP_VIEW_BTN:
+         _configIO.viewBackupFolder();
          break;
 
-      case WM_CTLCOLORDLG:
-      case WM_CTLCOLORLISTBOX:
-      case WM_CTLCOLORSTATIC:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
-         }
+      case IDC_FWVIZ_DEF_EXTRACT_BTN:
+         showEximDialog(TRUE);
          break;
 
-      case WM_CTLCOLOREDIT:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
-         }
+      case IDC_FWVIZ_DEF_APPEND_BTN:
+         showEximDialog(FALSE);
          break;
+      }
+      break;
 
-      case WM_PRINTCLIENT:
-         if (NppDarkMode::isEnabled()) {
-            return TRUE;
-         }
-         break;
+   case WM_INITDIALOG:
+      if (NppDarkMode::isEnabled()) {
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      }
+      break;
+
+   case WM_CTLCOLORDLG:
+   case WM_CTLCOLORLISTBOX:
+   case WM_CTLCOLORSTATIC:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLOREDIT:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NppDarkMode::isEnabled()) {
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;
@@ -475,6 +482,7 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_TEXT, FWVIZ_DEF_FIELD_LABELS_TEXT);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN, FWVIZ_DEF_FIELD_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FIELD_RESET_BTN, FWVIZ_DEF_FIELD_RESET_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_FIELD_TYPE_BUTTON, FWVIZ_DEF_FIELD_TYPE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_SAVE_CONFIG_BTN, FWVIZ_DIALOG_SAVE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_RESET_BTN, FWVIZ_DIALOG_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_BACKUP_LOAD_BTN, FWVIZ_DIALOG_BKUP_LOAD_BTN);
@@ -749,7 +757,7 @@ void ConfigureDialog::onFileTypeSelect() {
 
    CheckDlgButton(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX, fileInfo->multiByte ? BST_CHECKED : BST_UNCHECKED);
 
-   for (int i{}; i <ADFT_MAX; i++) {
+   for (int i{}; i < ADFT_MAX; i++) {
       wstring lineNum{ (fileInfo->lineNums[i] == 0) ? L"" : to_wstring(fileInfo->lineNums[i]) };
 
       SetWindowText(hADFTLine[i], lineNum.c_str());
@@ -798,17 +806,17 @@ int ConfigureDialog::moveFileType(move_dir dir) {
    const int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return LB_ERR;
 
-   switch(dir) {
-      case MOVE_DOWN:
-         if (idxFT >= static_cast<int>(vFileTypes.size()) - 1) return LB_ERR;
-         break;
+   switch (dir) {
+   case MOVE_DOWN:
+      if (idxFT >= static_cast<int>(vFileTypes.size()) - 1) return LB_ERR;
+      break;
 
-      case MOVE_UP:
-         if (idxFT == 0) return LB_ERR;
-         break;
+   case MOVE_UP:
+      if (idxFT == 0) return LB_ERR;
+      break;
 
-      default:
-         return LB_ERR;
+   default:
+      return LB_ERR;
    }
 
    FileType currType = vFileTypes[idxFT];
@@ -854,7 +862,7 @@ void ConfigureDialog::fillRecTypes() {
 }
 
 void ConfigureDialog::onRecTypeSelect() {
-   RecordType *recInfo;
+   RecordType* recInfo;
 
    if (!getCurrentRecInfo(recInfo)) {
       RecordType newRec{ getNewRec() };
@@ -953,7 +961,7 @@ int ConfigureDialog::moveRecType(move_dir dir) {
 }
 
 void ConfigureDialog::fillFieldTypes() {
-   RecordType *recInfo;
+   RecordType* recInfo;
 
    if (!getCurrentRecInfo(recInfo)) {
       RecordType newRec{ getNewRec() };
@@ -987,7 +995,7 @@ void ConfigureDialog::setFieldEditCaretOnFocus(HWND hEdit) {
 
 void ConfigureDialog::hiliteFieldEditPairedItem(HWND hThis, HWND hThat) {
    int thisLine = static_cast<int>(SendMessage(hThis, EM_LINEFROMCHAR,
-      (WPARAM) SendMessage(hThis, EM_LINEINDEX, (WPARAM)-1, NULL), NULL));
+      (WPARAM)SendMessage(hThis, EM_LINEINDEX, (WPARAM)-1, NULL), NULL));
 
    int thatLineCount = static_cast<int>(SendMessage(hThat, EM_GETLINECOUNT, NULL, NULL));
    if (thisLine >= thatLineCount) return;
@@ -1016,7 +1024,7 @@ void ConfigureDialog::syncFieldEditScrolling(HWND hThis, HWND hThat) {
 void ConfigureDialog::fieldEditsAccept() {
    if (cleanFieldVals) return;
 
-   RecordType *recInfo;
+   RecordType* recInfo;
    if (!getCurrentRecInfo(recInfo)) return;
 
    wchar_t fieldValues[FW_LINE_MAX_LENGTH + 1];
@@ -1057,7 +1065,7 @@ void ConfigureDialog::onRecStartEditChange() {
 
    wstring startReg{ L"." };
    if (startText.length() > 0)
-      startReg =  L"^" + regex_replace(startText,
+      startReg = L"^" + regex_replace(startText,
          std::wregex(L"[" + REGEX_META_CHARS + L"]"),
          L"\\$&");
 
@@ -1353,7 +1361,7 @@ bool ConfigureDialog::promptDiscardChangesNo() {
 void ConfigureDialog::saveConfigInfo() {
    if (_configIO.isCurrentVizConfigDefault() &&
       MessageBox(_hSelf, FWVIZ_DEFAULT_OVERWRITE, FWVIZ_DIALOG_TITLE,
-      MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+         MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
       return;
 
    if (!cleanFieldVals) fieldEditsAccept();

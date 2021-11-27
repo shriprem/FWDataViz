@@ -155,6 +155,8 @@ string ConfigIO::getFieldStyleText(const wstring& fieldName) {
 }
 
 void ConfigIO::parseFieldStyle(const string& styleText, StyleInfo& style) {
+   if (styleText.length() != 16) return;
+
    style.backColor = Utils::StringtoInt(styleText.substr(0, 6), 16);
    style.foreColor = Utils::StringtoInt(styleText.substr(7, 6), 16);
    style.bold = Utils::StringtoInt(styleText.substr(14, 1));
@@ -238,6 +240,44 @@ int ConfigIO::getConfigAllSectionsList(vector<wstring>& sectionsList, wstring fi
    return Tokenize(Utils::NarrowToWide(sections), sectionsList);
 }
 
+int ConfigIO::getConfigAllKeys(const string& section, string& keys, const string file) {
+   const int bufSize{ FW_LINE_MAX_LENGTH };
+   char keyBuf[bufSize];
+
+   DWORD charCount{};
+   charCount = GetPrivateProfileStringA(section.c_str(), NULL, "", keyBuf, bufSize, file.c_str());
+   if (charCount < 1) return 0;
+
+   int keyCount{};
+   for (unsigned int i{}; i < charCount; i++) {
+      if (keyBuf[i] == 0) {
+         keyBuf[i] = ',';
+         keyCount++;
+      }
+   }
+
+   keys = keyBuf;
+   return keyCount;
+}
+
+int ConfigIO::getConfigAllKeysList(const string& section, vector<string>& keysList, const string file) {
+   string keys{};
+
+   int keyCount{ getConfigAllKeys(section, keys, file) };
+   if (keyCount < 1) return 0;
+
+   return Tokenize(keys, keysList);
+}
+
+int ConfigIO::getConfigAllKeysList(const string& section, vector<wstring>& keysList, const string file) {
+   string keys{};
+
+   int keyCount{ getConfigAllKeys(section, keys, file) };
+   if (keyCount < 1) return 0;
+
+   return Tokenize(Utils::NarrowToWide(keys), keysList);
+}
+
 int ConfigIO::getConfigValueList(vector<string>& valList, const string& section, const string& key,
    const string& default, string file) {
    return Tokenize(getConfigStringA(section, key, default, file), valList);
@@ -304,6 +344,12 @@ int ConfigIO::Tokenize(const string& text, vector<int>& results, const string& d
 void ConfigIO::ActivateNewLineTabs(wstring& str) {
    str = std::regex_replace(str, std::wregex(L"\\\\n"), L"\n");
    str = std::regex_replace(str, std::wregex(L"\\\\t"), L"\t");
+}
+
+void ConfigIO::deleteKey(const string& section, const string& key, string file) {
+   if (file.length() < 1) file = currentConfigFile;
+
+   WritePrivateProfileStringA(section.c_str(), key.c_str(), NULL, file.c_str());
 }
 
 void ConfigIO::deleteKey(const wstring& section, const wstring& key, wstring file) {

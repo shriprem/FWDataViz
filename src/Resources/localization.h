@@ -109,6 +109,7 @@
 #define FWVIZ_DEF_FIELD_LABELS_TEXT L"Labels:"
 #define FWVIZ_DEF_FIELD_ACCEPT_BTN  L"Accept"
 #define FWVIZ_DEF_FIELD_RESET_BTN   L"Reset"
+#define FWVIZ_DEF_FIELD_TYPE_BTN    L"Define Field TypesIA"
 #define FWVIZ_DIALOG_SAVE_BTN       L"&Save as Primary Configuration"
 #define FWVIZ_DIALOG_RESET_BTN      L"&Reload Primary Configuration"
 #define FWVIZ_DIALOG_BKUP_LOAD_BTN  L"&Load Backup Configuration"
@@ -188,6 +189,22 @@
 #define THEME_OPEN_BKUP_CONFIG_DLG  L"Open Backup Themes File"
 #define THEME_SAVE_BKUP_CONFIG_DLG  L"Save Backup Themes File"
 
+// Define File Type Dialog
+#define FIELD_TYPE_DEF_DLG_TITLE    L"Define Field Types"
+#define FIELD_TYPE_GROUP_BOX        L"Field Types"
+#define FIELD_TYPE_NEW_BTN          L"New"
+#define FIELD_TYPE_CLONE_BTN        L"Clone"
+#define FIELD_TYPE_DEL_BTN          L"Delete"
+#define FIELD_TYPE_DESC_LABEL       L"Field Type Label:"
+#define FIELD_TYPE_REGEX_LABEL      L"Field Validation Regex:"
+#define FIELD_STYLE_DEF_GROUP_BOX   L"Field Style Definition"
+#define FIELD_STYLE_DEF_BACK_LABEL  L"Back Color:"
+#define FIELD_STYLE_DEF_FORE_LABEL  L"Fore Color:"
+#define FIELD_STYLE_DEF_BOLD        L"Bold"
+#define FIELD_STYLE_DEF_ITALICS     L"Italics"
+#define FIELD_STYLE_DEF_OUT_LABEL   L"Output:"
+#define FIELD_STYLE_DEF_SAVE_BTN    L"Save"
+#define FIELD_STYLE_DEF_RESET_BTN   L"Reset"
 
 // Exim File Type Dialog
 #define FT_EXIM_EXTRACT_FT_TITLE    L"Extract File Type Metadata"
@@ -252,6 +269,7 @@
 #define THEME_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md"
 #define FILE_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md"
 #define FILE_APPEND_INFO_README     L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md"
+#define FIELD_TYPE_INFO_README      L"https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md"
 #define THEME_EXTRACT_INFO_README   L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md"
 #define THEME_APPEND_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md"
 #define DATA_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md"

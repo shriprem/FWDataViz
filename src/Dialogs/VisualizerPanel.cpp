@@ -1,4 +1,5 @@
 #include "VisualizerPanel.h"
+//#include "FieldTypeDialog.h"
 #include "JumpToField.h"
 #include "DataExtractDialog.h"
 #include <WindowsX.h>
@@ -7,194 +8,199 @@ extern HINSTANCE _gModule;
 extern SubmenuManager _submenu;
 extern FuncItem pluginMenuItems[MI_COUNT];
 
+//extern FieldTypeDialog _fieldTypeDlg;
 JumpToField _jumpDlg;
 DataExtractDialog _dataExtractDlg;
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
-      case WM_COMMAND:
-         switch LOWORD(wParam) {
-            case IDC_VIZPANEL_FILETYPE_SELECT:
-               switch HIWORD(wParam) {
-                  case CBN_SELCHANGE:
-                     visualizeFile("", FALSE, FALSE, FALSE);
-                     break;
-               }
-               break;
-
-            case IDC_VIZPANEL_INFO_BUTTON:
-               ShellExecute(NULL, L"open", VIZPANEL_INFO_README, NULL, NULL, SW_SHOW);
-               break;
-
-            case IDC_VIZPANEL_FILE_SAMPLES_BTN:
-               popupSamplesMenu();
-               break;
-
-            case IDC_VIZPANEL_FILETYPE_CONFIG:
-               if (_configIO.fixIfUTF16File(_configIO.CONFIG_VIZ))
-                  ShowConfigDialog();
-               break;
-
-            case IDC_VIZPANEL_THEME_SELECT:
-               switch HIWORD(wParam) {
-                  case CBN_SELCHANGE:
-                     visualizeTheme();
-                     break;
-               }
-               break;
-
-            case IDC_VIZPANEL_THEME_CONFIG:
-               if (_configIO.fixIfUTF16File(_configIO.CONFIG_THEMES))
-                  ShowThemeDialog();
-               break;
-
-            case IDC_VIZPANEL_CLEAR_BTN:
-               if (_configIO.getPreferenceBool("ClearVizWithAutoDetect", FALSE)) {
-                  CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, BST_UNCHECKED);
-                  setADFTCheckbox();
-               }
-               clearVisualize();
-               break;
-
-            case IDCANCEL:
-            case IDCLOSE:
-               setFocusOnEditor();
-               ShowVisualizerPanel(FALSE);
-               break;
-
-            case IDC_VIZPANEL_AUTO_DETECT_FT:
-               setADFTCheckbox();
-               break;
-
-            case IDC_VIZPANEL_MCBS_OVERRIDE:
-               setPanelMBCharState();
-               break;
-
-            case IDC_VIZPANEL_CARET_FRAMED:
-               ToggleCaretFramedState();
-               break;
-
-            case IDC_VIZPANEL_FIELD_COPY_TRIM:
-               _configIO.setPreferenceBool(PREF_COPY_TRIM,
-                  IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM) == BST_CHECKED);
-               break;
-
-            case IDC_VIZPANEL_JUMP_FIELD_BTN:
-               showJumpDialog();
-               break;
-
-            case IDC_VIZPANEL_FIELD_LEFT_BUTTON:
-               fieldLeft();
-               break;
-
-            case IDC_VIZPANEL_FIELD_RIGHT_BUTTON:
-               fieldRight();
-               break;
-
-            case IDC_VIZPANEL_FIELD_COPY_BUTTON:
-               fieldCopy();
-               break;
-
-            case IDC_VIZPANEL_FIELD_PASTE_BUTTON:
-               fieldPaste();
-               break;
-
-            case IDC_VIZPANEL_PASTE_LEFT_LABEL:
-            case IDC_VIZPANEL_PASTE_RPAD_LABEL:
-               setFieldAlign(TRUE);
-               break;
-
-            case IDC_VIZPANEL_PASTE_RIGHT_LABEL:
-            case IDC_VIZPANEL_PASTE_LPAD_LABEL:
-               setFieldAlign(FALSE);
-               break;
-
-            case IDC_VIZPANEL_PASTE_RPAD_FIELD:
-            case IDC_VIZPANEL_PASTE_LPAD_FIELD:
-            {
-               int ctrlID{ LOWORD(wParam) };
-               bool leftEdge{ ctrlID == IDC_VIZPANEL_PASTE_RPAD_FIELD };
-
-               switch HIWORD(wParam) {
-                  case EN_CHANGE:
-                     wchar_t padChars[MAX_PATH];
-                     GetWindowText(GetDlgItem(_hSelf, ctrlID), padChars, MAX_PATH);
-                     _configIO.setPreference(leftEdge ? PREF_PASTE_RPAD : PREF_PASTE_LPAD, padChars);
-                     break;
-
-                  case EN_SETFOCUS:
-                     setFieldAlign(leftEdge);
-                     break;
-               }
-               break;
-            }
-
-            case IDC_VIZPANEL_EXTRACT_DATA_BTN:
-               if (_configIO.fixIfUTF16File(_configIO.CONFIG_EXTRACTS))
-                  showExtractDialog();
-               break;
+   case WM_COMMAND:
+      switch LOWORD(wParam) {
+      case IDC_VIZPANEL_FILETYPE_SELECT:
+         switch HIWORD(wParam) {
+         case CBN_SELCHANGE:
+            visualizeFile("", FALSE, FALSE, FALSE);
+            break;
          }
+         break;
+
+      case IDC_VIZPANEL_INFO_BUTTON:
+         ShellExecute(NULL, L"open", VIZPANEL_INFO_README, NULL, NULL, SW_SHOW);
+         break;
+
+      case IDC_VIZPANEL_FILE_SAMPLES_BTN:
+         popupSamplesMenu();
+         break;
+
+      case IDC_VIZPANEL_FILETYPE_CONFIG:
+         if (_configIO.fixIfUTF16File(_configIO.CONFIG_VIZ))
+            ShowConfigDialog();
+         break;
+
+      case IDC_VIZPANEL_THEME_SELECT:
+         switch HIWORD(wParam) {
+         case CBN_SELCHANGE:
+            visualizeTheme();
+            break;
+         }
+         break;
+
+      case IDC_VIZPANEL_THEME_CONFIG:
+         if (_configIO.fixIfUTF16File(_configIO.CONFIG_THEMES))
+            ShowThemeDialog();
+         break;
+
+      case IDC_VIZPANEL_CLEAR_BTN:
+         if (_configIO.getPreferenceBool("ClearVizWithAutoDetect", FALSE)) {
+            CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, BST_UNCHECKED);
+            setADFTCheckbox();
+         }
+         clearVisualize();
+         break;
+
+      case IDCANCEL:
+      case IDCLOSE:
+         setFocusOnEditor();
+         ShowVisualizerPanel(FALSE);
+         break;
+
+      case IDC_VIZPANEL_AUTO_DETECT_FT:
+         setADFTCheckbox();
+         break;
+
+      case IDC_VIZPANEL_MCBS_OVERRIDE:
+         setPanelMBCharState();
+         break;
+
+      case IDC_VIZPANEL_CARET_FRAMED:
+         ToggleCaretFramedState();
+         break;
+
+      case IDC_VIZPANEL_FIELD_COPY_TRIM:
+         _configIO.setPreferenceBool(PREF_COPY_TRIM,
+            IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM) == BST_CHECKED);
+         break;
+
+      case IDC_VIZPANEL_JUMP_FIELD_BTN:
+         showJumpDialog();
+         break;
+
+      case IDC_VIZPANEL_FIELD_LEFT_BUTTON:
+         fieldLeft();
+         break;
+
+      case IDC_VIZPANEL_FIELD_RIGHT_BUTTON:
+         fieldRight();
+         break;
+
+      case IDC_VIZPANEL_FIELD_COPY_BUTTON:
+         fieldCopy();
+         break;
+
+      case IDC_VIZPANEL_FIELD_PASTE_BUTTON:
+         fieldPaste();
+         break;
+
+      case IDC_VIZPANEL_PASTE_LEFT_LABEL:
+      case IDC_VIZPANEL_PASTE_RPAD_LABEL:
+         setFieldAlign(TRUE);
+         break;
+
+      case IDC_VIZPANEL_PASTE_RIGHT_LABEL:
+      case IDC_VIZPANEL_PASTE_LPAD_LABEL:
+         setFieldAlign(FALSE);
+         break;
+
+      case IDC_VIZPANEL_PASTE_RPAD_FIELD:
+      case IDC_VIZPANEL_PASTE_LPAD_FIELD:
+      {
+         int ctrlID{ LOWORD(wParam) };
+         bool leftEdge{ ctrlID == IDC_VIZPANEL_PASTE_RPAD_FIELD };
+
+         switch HIWORD(wParam) {
+         case EN_CHANGE:
+            wchar_t padChars[MAX_PATH];
+            GetWindowText(GetDlgItem(_hSelf, ctrlID), padChars, MAX_PATH);
+            _configIO.setPreference(leftEdge ? PREF_PASTE_RPAD : PREF_PASTE_LPAD, padChars);
+            break;
+
+         case EN_SETFOCUS:
+            setFieldAlign(leftEdge);
+            break;
+         }
+         break;
+      }
+
+      case IDC_VIZPANEL_EXTRACT_DATA_BTN:
+         if (_configIO.fixIfUTF16File(_configIO.CONFIG_EXTRACTS))
+            showExtractDialog();
+         break;
+
+         //case IDC_FWVIZ_FIELD_TYPE_BUTTON:
+         //   _fieldTypeDlg.doDialog((HINSTANCE)_gModule);
+         //   break;
+      }
 
       break;
 
-      case WM_LBUTTONDOWN:
-      case WM_MBUTTONDOWN:
-      case WM_RBUTTONDOWN:
-         SetFocus(hFTList);
-         break;
+   case WM_LBUTTONDOWN:
+   case WM_MBUTTONDOWN:
+   case WM_RBUTTONDOWN:
+      SetFocus(hFTList);
+      break;
 
-      case WM_SHOWWINDOW:
-         Utils::checkMenuItem(MI_FWVIZ_PANEL, wParam);
-         showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
-         visualizeFile("", TRUE, TRUE, TRUE);
-         break;
+   case WM_SHOWWINDOW:
+      Utils::checkMenuItem(MI_FWVIZ_PANEL, wParam);
+      showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
+      visualizeFile("", TRUE, TRUE, TRUE);
+      break;
 
-      case WM_SIZE:
-         resizeCaretFieldInfo(LOWORD(lParam));
-         break;
+   case WM_SIZE:
+      resizeCaretFieldInfo(LOWORD(lParam));
+      break;
 
-      case WM_INITDIALOG:
+   case WM_INITDIALOG:
+      if (NppDarkMode::isEnabled()) {
+         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      }
+      break;
+
+   case WM_CTLCOLORDLG:
+   case WM_CTLCOLORLISTBOX:
+      if (NppDarkMode::isEnabled()) {
+         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLORSTATIC:
+      switch (GetDlgCtrlID((HWND)lParam)) {
+      case IDC_VIZPANEL_PASTE_RPAD_INDIC:
+      case IDC_VIZPANEL_PASTE_LPAD_INDIC:
          if (NppDarkMode::isEnabled()) {
-            NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+            return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+         }
+         else {
+            SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
+            SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
+            return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
          }
          break;
 
-      case WM_CTLCOLORDLG:
-      case WM_CTLCOLORLISTBOX:
+      default:
          if (NppDarkMode::isEnabled()) {
             return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
          }
-         break;
+      }
+      break;
 
-      case WM_CTLCOLORSTATIC:
-         switch (GetDlgCtrlID((HWND)lParam)) {
-            case IDC_VIZPANEL_PASTE_RPAD_INDIC:
-            case IDC_VIZPANEL_PASTE_LPAD_INDIC:
-               if (NppDarkMode::isEnabled()) {
-                  return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
-               }
-               else {
-                  SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
-                  SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
-                  return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
-               }
-               break;
+   case WM_PRINTCLIENT:
+      if (NppDarkMode::isEnabled()) {
+         return TRUE;
+      }
+      break;
 
-            default:
-               if (NppDarkMode::isEnabled()) {
-                  return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
-               }
-         }
-         break;
-
-      case WM_PRINTCLIENT:
-         if (NppDarkMode::isEnabled()) {
-            return TRUE;
-         }
-         break;
-
-      default :
-         return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
+   default:
+      return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
    }
 
    return FALSE;
@@ -296,7 +302,7 @@ void VisualizerPanel::display(bool toShow) {
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE), showMCBS);
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND), showMCBS);
 
-   wstring mbcState{ _configIO.getPreference(PREF_MBCHARS_STATE, "FT")};
+   wstring mbcState{ _configIO.getPreference(PREF_MBCHARS_STATE, "FT") };
    if (mbcState == L"FT")
       CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, BST_INDETERMINATE);
    else
@@ -548,7 +554,7 @@ void VisualizerPanel::fieldCopy() {
       while (lastPadLen > 0) {
          bool matchFailed{ FALSE };
 
-         for (int i{}; i < lastPadLen ; i++) {
+         for (int i{}; i < lastPadLen; i++) {
             matchingPos = matchStart + i;
             if (colText.at(matchingPos) != padText.at(i)) {
                matchFailed = TRUE;
@@ -571,7 +577,7 @@ void VisualizerPanel::fieldCopy() {
 
       // if right-most match found, find prior matches
       if (lastPadLen > 0) {
-         while (fieldLen >= rightTrimLen + padLen ) {
+         while (fieldLen >= rightTrimLen + padLen) {
             if (colText.substr(fieldLen - rightTrimLen - padLen, padLen) == padText)
                rightTrimLen += padLen;
             else
@@ -739,7 +745,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
          to_wstring(back) + L", " + to_wstring(fore) + L", " +
          to_wstring(bold) + L", " + to_wstring(italics);
       MessageBox(_hSelf, dbgMessage.c_str(), L"Theme Styles", MB_OK);
-}
+   }
 #endif
 
 
@@ -1034,7 +1040,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       size_t themeIndex{};
 
       if ((recTheme != L"") && (recTheme != fileTheme)) {
-         for (size_t i{0}; i < themeSet.size(); i++) {
+         for (size_t i{ 0 }; i < themeSet.size(); i++) {
             if (recTheme == themeSet[i].name) {
                themeIndex = i;
                colorOffset = 0;
