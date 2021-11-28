@@ -48,6 +48,7 @@ public:
 
    void initPanel();
    virtual void display(bool toShow = TRUE);
+   void initMBCharsCheckbox();
    void setParent(HWND parent2set);
    void setFocusOnEditor();
    void showCaretFramedState(bool framed);

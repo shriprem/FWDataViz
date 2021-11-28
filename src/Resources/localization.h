@@ -22,7 +22,8 @@
 #define VIZ_PANEL_FILETYPE_LABEL    L"&File Type:"
 #define VIZ_PANEL_THEME_LABEL       L"&Visualizer Theme:"
 #define VIZ_PANEL_CLEAR_BUTTON      L"Cle&ar"
-#define VIZ_PANEL_CLOSE             L"C&lose"
+#define VIZ_PANEL_CLOSE             L"Clos&e"
+#define VIZ_PANEL_PREFERENCES       L"Prefere&nces"
 #define VIZ_PANEL_AUTO_DETECT_FT    L"Auto-detect File Type"
 #define VIZ_PANEL_MCBS_OVERRIDE     L"Multi-Byte Chars"
 #define VIZ_PANEL_CARET_FRAMED      L"Framed Current Line"
@@ -40,7 +41,7 @@
 #define VIZ_PANEL_FILE_SAMPLES_TIP  L"View Sample Files"
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open File Type Metadata Editor"
 #define VIZ_PANEL_THEME_CONFIG_TIP  L"Open Visualizer Theme Editor"
-#define VIZ_PANEL_CLEAR_BTN_TIP     L"If \"Auto-detect File Type\" option is:\r\n● Checked: Redo the file type detection and visualization.\r\n● Not checked: Clear the document's fixed-width visualization."
+#define VIZ_PANEL_CLEAR_BTN_TIP     L"If \"Auto-detect File Type\" option is:\r\n● Checked: Redo the file type detection and visualization.\r\n● Not checked: Clear the document's fixed-width visualization.\r\n\r\nTo always clear visualization, modify the setting in \"Preferences\"."
 #define VIZ_PANEL_FIELD_TRIM_TIP    L"When copying a field, trim padding character(s) on either the left or right,\r\nbased on which field edge is closer to the cursor position."
 #define VIZ_PANEL_FIELD_LEFT_TIP    L"Move cursor to the left edge of the current field.\r\n\r\n● If already at the left edge of the field, the cursor will be moved to the left edge of the preceding field.\r\n\r\nAccessible via keyboard shortcut. See the plugin menu."
 #define VIZ_PANEL_FIELD_RIGHT_TIP   L"Move cursor to the right edge of the current field.\r\n\r\n● If already at the right edge of the field, the cursor will be moved to the right edge of the following field.\r\n\r\nAccessible via keyboard shortcut. See the plugin menu."
@@ -141,6 +142,7 @@
 #define FWVIZ_DEF_RECTHEME_HINT_HDR L"Record-type Theme"
 #define FWVIZ_DEF_RECTHEME_HINT_TXT L"Specify a different color theme than the file-type theme for select-few record types to make them distinctive.\r\n\r\nFor an example, see: 'Transaction Headers' inside the Samples » Treasury IPAC file.\r\n\r\nClick the (i) icon to view the online documentation."
 
+
 // Style Definition Component
 #define STYLE_DEF_GROUP_BOX         L"Style Definition"
 #define STYLE_DEF_BACK_LABEL        L"Back Color:"
@@ -150,6 +152,7 @@
 #define STYLE_DEF_PREVIEW_LABEL     L"Output:"
 #define STYLE_DEF_HEX_TITLE         L"Hexadecimal characters only!"
 #define STYLE_DEF_HEX_CHARS_ONLY    L"This edit field will only accept characters in the following range: 0-9|A-F|a-f"
+
 
 // Theme Dialog
 #define THEME_DIALOG_TITLE          L"Visualizer Theme Editor"
@@ -189,6 +192,7 @@
 #define THEME_OPEN_BKUP_CONFIG_DLG  L"Open Backup Themes File"
 #define THEME_SAVE_BKUP_CONFIG_DLG  L"Save Backup Themes File"
 
+
 // Define File Type Dialog
 #define FIELD_TYPE_DEF_DLG_TITLE    L"Define Field Types"
 #define FIELD_TYPE_GROUP_BOX        L"Field &Types"
@@ -199,6 +203,7 @@
 #define FIELD_TYPE_REGEX_LABEL      L"Field &Validation Regex:"
 #define FIELD_STYLE_DEF_SAVE_BTN    L"&Save"
 #define FIELD_STYLE_DEF_RESET_BTN   L"&Reset"
+
 
 // Exim File Type Dialog
 #define FT_EXIM_EXTRACT_FT_TITLE    L"Extract File Type Metadata"
@@ -211,6 +216,17 @@
 #define FT_EXIM_SAVE_FILE_BTN       L"&Save to a File"
 #define FT_EXIM_APPEND_BTN          L"&Append File Type"
 #define FT_EXIM_CLOSE_BTN           L"&Close"
+
+
+// Preferences Dialog
+#define PREFERENCES_DIALOG_TITLE    L"Preferences"
+#define PREFERENCES_CLEARVIZ_AUTO   L"\"Clear\" button click unchecks Auto-detect File Type"
+#define PREFERENCES_CLEARVIZ_PANEL  L"Closing plugin panel clears visualization"
+#define PREFERENCES_MBCHARS_STATE   L"Show Multi-byte checkbox in plugin panel"
+#define PREFERENCES_CLOSE_BTN       L"&Close"
+#define PREF_CLEARVIZ_AUTO_TIP      L"● When this box is unchecked, clicking the \"Clear\" button will redo the auto-file detection, followed by document visualization.\r\n\r\n● When this box is checked, clicking the \"Clear\" button will also uncheck the \"Auto-detect File Type\" checkbox, and also clear the document visualization."
+#define PREF_CLEARVIZ_PANEL_TIP      L"● Leave this box unchecked if you are only closing the plugin panel for more document viewing area but wish to retain the document visualization.\r\n\r\n● When this box is checked, closing the plugin panel will also clear the document visualization."
+#define PREF_MBCHARS_STATE_TIP      L"● When this box is checked, the \"Multi-Byte Chars\" 3-state checkbox will be displayed on the plugin panel. The 3-state checkbox is useful for quickly toggling between the single-byte and multi-byte modes of visualization of a document with multi-byte character data."
 
 
 // Jump Field Dialog

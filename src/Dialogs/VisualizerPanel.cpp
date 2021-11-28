@@ -1,4 +1,5 @@
 #include "VisualizerPanel.h"
+#include "PreferencesDialog.h"
 //#include "FieldTypeDialog.h"
 #include "JumpToField.h"
 #include "DataExtractDialog.h"
@@ -7,8 +8,9 @@
 extern HINSTANCE _gModule;
 extern SubmenuManager _submenu;
 extern FuncItem pluginMenuItems[MI_COUNT];
-
 //extern FieldTypeDialog _fieldTypeDlg;
+
+PreferencesDialog _prefsDlg;
 JumpToField _jumpDlg;
 DataExtractDialog _dataExtractDlg;
 
@@ -62,6 +64,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case IDCLOSE:
          setFocusOnEditor();
          ShowVisualizerPanel(FALSE);
+         break;
+
+      case IDC_VIZPANEL_PREFERENCES_BTN:
+         _prefsDlg.doDialog((HINSTANCE)_gModule);
          break;
 
       case IDC_VIZPANEL_AUTO_DETECT_FT:
@@ -236,7 +242,7 @@ void VisualizerPanel::initPanel() {
    SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), _configIO.getPreference(PREF_PASTE_RPAD).c_str());
    SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), _configIO.getPreference(PREF_PASTE_LPAD).c_str());
 
-   addTooltip(_hSelf, IDC_VIZPANEL_CLEAR_BTN, NULL, VIZ_PANEL_CLEAR_BTN_TIP, FW_TIP_SHORT, FALSE);
+   addTooltip(_hSelf, IDC_VIZPANEL_CLEAR_BTN, NULL, VIZ_PANEL_CLEAR_BTN_TIP, FW_TIP_MEDIUM, FALSE);
    addTooltip(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM, NULL, VIZ_PANEL_FIELD_TRIM_TIP, FW_TIP_SHORT, FALSE);
 
    addTooltip(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON, NULL, VIZ_PANEL_FIELD_LEFT_TIP, FW_TIP_SHORT, FALSE);
@@ -264,6 +270,7 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_THEME_LABEL, VIZ_PANEL_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BTN, VIZ_PANEL_CLEAR_BUTTON);
    SetDlgItemText(_hSelf, IDCLOSE, VIZ_PANEL_CLOSE);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_PREFERENCES_BTN, VIZ_PANEL_PREFERENCES);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, VIZ_PANEL_AUTO_DETECT_FT);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, VIZ_PANEL_MCBS_OVERRIDE);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
@@ -298,15 +305,7 @@ void VisualizerPanel::display(bool toShow) {
       _configIO.getPreferenceBool(PREF_ADFT) ? BST_CHECKED : BST_UNCHECKED);
    showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
 
-   int showMCBS{ _configIO.getPreferenceBool(PREF_MBCHARS_SHOW, FALSE) ? SW_SHOW : SW_HIDE };
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE), showMCBS);
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND), showMCBS);
-
-   wstring mbcState{ _configIO.getPreference(PREF_MBCHARS_STATE, "FT") };
-   if (mbcState == L"FT")
-      CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, BST_INDETERMINATE);
-   else
-      CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, (mbcState == L"Y") ? BST_CHECKED : BST_UNCHECKED);
+   initMBCharsCheckbox();
 
    CheckDlgButton(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM,
       _configIO.getPreferenceBool(PREF_COPY_TRIM, FALSE) ? BST_CHECKED : BST_UNCHECKED);
@@ -318,6 +317,18 @@ void VisualizerPanel::display(bool toShow) {
       SetFocus(hFTList);
    else
       setFocusOnEditor();
+}
+
+void VisualizerPanel::initMBCharsCheckbox() {
+   int showMCBS{ _configIO.getPreferenceBool(PREF_MBCHARS_SHOW, FALSE) ? SW_SHOW : SW_HIDE };
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE), showMCBS);
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND), showMCBS);
+
+   wstring mbcState{ _configIO.getPreference(PREF_MBCHARS_STATE, "FT") };
+   if (mbcState == L"FT")
+      CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, BST_INDETERMINATE);
+   else
+      CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, (mbcState == L"Y") ? BST_CHECKED : BST_UNCHECKED);
 }
 
 void VisualizerPanel::setParent(HWND parent2set) {
