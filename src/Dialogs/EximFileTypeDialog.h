@@ -18,7 +18,7 @@ public:
    void initDialog(bool bExtract, bool bViz);
    void setFileTypeData(const wstring& ftConfig);
 
-protected:
+private:
    bool vizMode{}, extractMode{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);

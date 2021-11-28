@@ -55,6 +55,9 @@
     <ClCompile Include="..\src\Dialogs\FieldTypeDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Dialogs\StyleDefComponent.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -145,6 +148,9 @@
       <Filter>_NPP Framework</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Dialogs\FieldTypeDialog.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Dialogs\StyleDefComponent.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>

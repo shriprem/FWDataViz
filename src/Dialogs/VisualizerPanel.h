@@ -19,9 +19,9 @@
 constexpr int FW_STYLE_THEMES_START_INDEX{ STYLE_LASTPREDEFINED + 1 };
 constexpr int FW_STYLE_THEMES_MAX_ITEMS{ 200 };
 constexpr int FW_STYLE_FIELDS_MIN_INDEX{ FW_STYLE_THEMES_START_INDEX + 36 };
-constexpr int FW_TIP_LONG { 30 };
-constexpr int FW_TIP_MEDIUM { 20 };
-constexpr int FW_TIP_SHORT { 10 };
+constexpr int FW_TIP_LONG{ 30 };
+constexpr int FW_TIP_MEDIUM{ 20 };
+constexpr int FW_TIP_SHORT{ 10 };
 
 static bool idemPotentKey{ FALSE };
 
@@ -32,7 +32,7 @@ using std::regex;
 using std::vector;
 
 class VisualizerPanel : public DockingDlgInterface {
-public :
+public:
    struct RecordInfo {
       wstring label;
       string marker;
@@ -72,7 +72,7 @@ public :
    int lexCount{};
 #endif
 
-protected :
+private:
    HWND hFTList, hThemesLB, hFieldInfo;
 
    // Field Info tracking

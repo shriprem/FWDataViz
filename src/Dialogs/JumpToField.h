@@ -14,7 +14,7 @@ public:
    void initDialog(const string fileType, int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels);
    void setFileTypeData(const wstring& ftConfig);
 
-protected:
+private:
    string initFileType{};
    int initRecordRegIndex;
    HWND hFieldList, hCaretFlash;

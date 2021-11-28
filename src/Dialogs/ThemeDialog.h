@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Utils.h"
-#include "../ConfigIO.h"
+#include "StyleDefComponent.h"
 #include "../NPP/StaticDialog.h"
+
 #include <regex>
 #include <vector>
 
@@ -13,22 +13,16 @@
 using std::wregex;
 using std::regex_replace;
 using std::vector;
-using Utils::showEditBalloonTip;
 
-extern NppData nppData;
-extern ConfigIO _configIO;
-
-class ThemeDialog : public StaticDialog {
+class ThemeDialog : public StaticDialog, StyleDefComponent {
 public:
    ThemeDialog() : StaticDialog() {};
-   ~ThemeDialog();
 
    void doDialog(HINSTANCE hInst);
    int appendThemeConfigs(const wstring& sThemeFile);
    void initPreviewSwatch(int idxStart=0, int idxEnd=SWATCH_ITEM_COUNT);
 
-
-protected:
+private:
    enum move_dir {
       MOVE_DOWN = 1,
       MOVE_UP = -1
@@ -43,11 +37,9 @@ protected:
    vector<ThemeType> vThemeTypes;
    wstring themeFile{};
    int swatchTopIndex{};
-   bool loadingEdits, cleanConfigFile, cleanThemeVals, cleanStyleDefs, styleDefColor;
+   bool loadingEdits, cleanConfigFile, cleanThemeVals;
 
    HWND hThemesLB, hStylesLB;
-   HBRUSH hbr;
-   COLORREF styleBack, styleFore, customColors[16];
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
@@ -86,15 +78,11 @@ protected:
    void styleEditNew(bool clone);
    int styleEditDelete();
 
-   int getStyleDefColor(bool back);
    void setStyleDefColor(bool setEdit, int color, bool back);
-   void setOutputFontStyle();
    void fillStyleDefs();
    wstring getStyleConfig(int idx, StyleInfo& style);
    void styleDefsAccept();
-   void setPangram();
 
-   INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
    INT_PTR colorPreviewSwatch(WPARAM wParam, LPARAM lParam);
    void processSwatchClick(int ctrlID);
    void chooseStyleDefColor(bool back);

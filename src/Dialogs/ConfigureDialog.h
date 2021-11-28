@@ -31,7 +31,7 @@ public:
    HWND hFilesLB, hFileEOL, hFileThemes, hADFTLine[ADFT_MAX], hADFTRegex[ADFT_MAX],
       hRecsLB, hRecStart, hRecRegex, hRecThemes, hFieldLabels, hFieldWidths;
 
-protected:
+private:
    enum move_dir {
       MOVE_DOWN = 1,
       MOVE_UP = -1

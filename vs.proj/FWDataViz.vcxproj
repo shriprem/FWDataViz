@@ -34,6 +34,7 @@
     <ClInclude Include="..\src\Dialogs\EximFileTypeDialog.h" />
     <ClInclude Include="..\src\Dialogs\FieldTypeDialog.h" />
     <ClInclude Include="..\src\Dialogs\JumpToField.h" />
+    <ClInclude Include="..\src\Dialogs\StyleDefComponent.h" />
     <ClInclude Include="..\src\Dialogs\ThemeDialog.h" />
     <ClInclude Include="..\src\Dialogs\VisualizerPanel.h" />
     <ClInclude Include="..\src\NPP\DarkMode.h" />
@@ -66,6 +67,7 @@
     <ClCompile Include="..\src\Dialogs\EximFileTypeDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\FieldTypeDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\JumpToField.cpp" />
+    <ClCompile Include="..\src\Dialogs\StyleDefComponent.cpp" />
     <ClCompile Include="..\src\Dialogs\ThemeDialog.cpp" />
     <ClCompile Include="..\src\Dialogs\VisualizerPanel.cpp" />
     <ClCompile Include="..\src\NPP\DarkMode.cpp" />

@@ -21,7 +21,7 @@ public:
    bool processKey(HWND hCtrl, WPARAM wParam);
    bool processSysKey(HWND hCtrl, WPARAM wParam);
 
-protected:
+private:
    int currentLineItem{}, currentPage{};
    string extractsConfigFile{}, initFileType{};
    wstring initFileTypeLabel{};

@@ -91,6 +91,3 @@ void FieldPaste();
 void ShowDataExtractDialog();
 
 void ShowAboutDialog();
-
-// Subclass Functions
-LRESULT CALLBACK procHexColorEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR);

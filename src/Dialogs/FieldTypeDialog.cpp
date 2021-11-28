@@ -1,41 +1,26 @@
 #include "FieldTypeDialog.h"
 
-FieldTypeDialog::~FieldTypeDialog() {
-   if (hbr != NULL) DeleteObject(hbr);
-}
-
 void FieldTypeDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
       create(IDD_FIELD_TYPE_DEFINER_DIALOG);
    }
 
+   initComponent(_hSelf);
+
    fieldDefConfigFile = Utils::WideToNarrow(_configIO.getConfigFile(_configIO.CONFIG_FIELD_TYPES));
    hFieldsLB = GetDlgItem(_hSelf, IDC_FIELD_TYPE_LIST_BOX);
 
    SendDlgItemMessage(_hSelf, IDC_FIELD_TYPE_DESC_EDIT, EM_LIMITTEXT, MAX_PATH, NULL);
-   SendDlgItemMessage(_hSelf, IDC_FIELD_STYLE_DEF_BACK_EDIT, EM_LIMITTEXT, 6, NULL);
-   SendDlgItemMessage(_hSelf, IDC_FIELD_STYLE_DEF_FORE_EDIT, EM_LIMITTEXT, 6, NULL);
-
-   SetWindowSubclass(GetDlgItem(_hSelf, IDC_FIELD_STYLE_DEF_BACK_EDIT), procHexColorEditControl, NULL, NULL);
-   SetWindowSubclass(GetDlgItem(_hSelf, IDC_FIELD_STYLE_DEF_FORE_EDIT), procHexColorEditControl, NULL, NULL);
 
    Utils::loadBitmap(_hSelf, IDC_FIELD_TYPE_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FIELD_TYPE_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
-
-   bool recentOS = Utils::checkBaseOS(WV_VISTA);
-   wstring fontName = recentOS ? L"Consolas" : L"Courier New";
-   int fontHeight = recentOS ? 8 : 7;
-
-   Utils::setFont(_hSelf, IDC_FIELD_STYLE_DEF_OUTPUT, fontName, fontHeight);
 
    if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
-
    fillFields();
-   setPangram();
 }
 
 INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -77,11 +62,11 @@ INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
          fieldEditDelete();
          break;
 
-      case IDC_FIELD_STYLE_DEF_BACK_EDIT:
-      case IDC_FIELD_STYLE_DEF_FORE_EDIT:
+      case IDC_STYLE_DEF_BACK_EDIT:
+      case IDC_STYLE_DEF_FORE_EDIT:
          switch (HIWORD(wParam)) {
          case EN_CHANGE:
-            bool back = (LOWORD(wParam) == IDC_FIELD_STYLE_DEF_BACK_EDIT);
+            bool back = (LOWORD(wParam) == IDC_STYLE_DEF_BACK_EDIT);
             setStyleDefColor(FALSE, getStyleDefColor(back), back);
             if (!loadingEdits) {
                cleanStyleDefs = FALSE;
@@ -91,22 +76,22 @@ INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
          }
          break;
 
-      case IDC_FIELD_STYLE_DEF_BACKCOLOR:
+      case IDC_STYLE_DEF_BACKCOLOR:
          chooseStyleDefColor(TRUE);
          break;
 
-      case IDC_FIELD_STYLE_DEF_FORECOLOR:
+      case IDC_STYLE_DEF_FORECOLOR:
          chooseStyleDefColor(FALSE);
          break;
 
-      case IDC_FIELD_STYLE_DEF_BOLD:
-      case IDC_FIELD_STYLE_DEF_ITALICS:
+      case IDC_STYLE_DEF_BOLD:
+      case IDC_STYLE_DEF_ITALICS:
          setOutputFontStyle();
          cleanStyleDefs = FALSE;
          enableFieldSelection();
          break;
 
-      case IDC_FIELD_STYLE_DEF_OUTPUT:
+      case IDC_STYLE_DEF_PREVIEW_BOX:
          setPangram();
          break;
 
@@ -181,14 +166,10 @@ void FieldTypeDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FIELD_TYPE_DEL_BTN, FIELD_TYPE_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_FIELD_TYPE_DESC_LABEL, FIELD_TYPE_DESC_LABEL);
    SetDlgItemText(_hSelf, IDC_FIELD_TYPE_REGEX_LABEL, FIELD_TYPE_REGEX_LABEL);
-   SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_GROUP_BOX, FIELD_STYLE_DEF_GROUP_BOX);
-   SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_BACK_LABEL, FIELD_STYLE_DEF_BACK_LABEL);
-   SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_FORE_LABEL, FIELD_STYLE_DEF_FORE_LABEL);
-   SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_BOLD, FIELD_STYLE_DEF_BOLD);
-   SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_ITALICS, FIELD_STYLE_DEF_ITALICS);
-   SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_OUT_LABEL, FIELD_STYLE_DEF_OUT_LABEL);
    SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_SAVE_BTN, FIELD_STYLE_DEF_SAVE_BTN);
    SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_RESET_BTN, FIELD_STYLE_DEF_RESET_BTN);
+
+   StyleDefComponent::localize();
 }
 
 int FieldTypeDialog::getCurrentFieldIndex() {
@@ -212,8 +193,8 @@ string FieldTypeDialog::getNewStyle() {
 string FieldTypeDialog::getStyleConfig() {
    int backColor{ getStyleDefColor(TRUE) };
    int foreColor{ getStyleDefColor(FALSE) };
-   bool bold{ (IsDlgButtonChecked(_hSelf, IDC_FIELD_STYLE_DEF_BOLD) == BST_CHECKED) };
-   bool italics{ (IsDlgButtonChecked(_hSelf, IDC_FIELD_STYLE_DEF_ITALICS) == BST_CHECKED) };
+   bool bold{ (IsDlgButtonChecked(_hSelf, IDC_STYLE_DEF_BOLD) == BST_CHECKED) };
+   bool italics{ (IsDlgButtonChecked(_hSelf, IDC_STYLE_DEF_ITALICS) == BST_CHECKED) };
 
    char styleDef[15];
    snprintf(styleDef, 15, "%06X %06X ", backColor, foreColor);
@@ -328,39 +309,10 @@ void FieldTypeDialog::fieldEditDelete() {
    onFieldSelect();
 }
 
-int FieldTypeDialog::getStyleDefColor(bool back) {
-   TCHAR buf[10];
-
-   GetDlgItemText(_hSelf, back ? IDC_FIELD_STYLE_DEF_BACK_EDIT : IDC_FIELD_STYLE_DEF_FORE_EDIT, buf, 7);
-
-   return Utils::StringtoInt(buf, 16);
-}
-
 void FieldTypeDialog::setStyleDefColor(bool setEdit, int color, bool back) {
-   if (setEdit) {
-      TCHAR buf[10];
-      swprintf(buf, 7, L"%06X", color);
-
-      loadingEdits = TRUE;
-      SetDlgItemText(_hSelf, back ? IDC_FIELD_STYLE_DEF_BACK_EDIT : IDC_FIELD_STYLE_DEF_FORE_EDIT, buf);
-      loadingEdits = FALSE;
-   }
-
-   // Set styleBack | styleFore here. Will be used in WM_CTLCOLORSTATIC, triggered by the setFontRegular() calls
-   styleDefColor = TRUE;
-   (back ? styleBack : styleFore) = Utils::intToRGB(color);
-   Utils::setFontRegular(_hSelf, back ? IDC_FIELD_STYLE_DEF_BACKCOLOR : IDC_FIELD_STYLE_DEF_FORECOLOR);
-   setOutputFontStyle();
-}
-
-void FieldTypeDialog::setOutputFontStyle() {
-   Utils::setFontRegular(_hSelf, IDC_FIELD_STYLE_DEF_OUTPUT);
-
-   if (IsDlgButtonChecked(_hSelf, IDC_FIELD_STYLE_DEF_BOLD) == BST_CHECKED)
-      Utils::setFontBold(_hSelf, IDC_FIELD_STYLE_DEF_OUTPUT);
-
-   if (IsDlgButtonChecked(_hSelf, IDC_FIELD_STYLE_DEF_ITALICS) == BST_CHECKED)
-      Utils::setFontItalic(_hSelf, IDC_FIELD_STYLE_DEF_OUTPUT);
+   loadingEdits = TRUE;
+   StyleDefComponent::setStyleDefColor(setEdit, color, back);
+   loadingEdits = FALSE;
 }
 
 void FieldTypeDialog::fillStyleDefs() {
@@ -375,13 +327,7 @@ void FieldTypeDialog::fillStyleDefs() {
    StyleInfo style{};
    _configIO.parseFieldStyle(fieldDefStyle, style);
 
-   CheckDlgButton(_hSelf, IDC_FIELD_STYLE_DEF_BOLD, style.bold ? BST_CHECKED : BST_UNCHECKED);
-   CheckDlgButton(_hSelf, IDC_FIELD_STYLE_DEF_ITALICS, style.italics ? BST_CHECKED : BST_UNCHECKED);
-
-   setStyleDefColor(TRUE, style.backColor, TRUE);
-   setStyleDefColor(TRUE, style.foreColor, FALSE);
-
-   cleanStyleDefs = TRUE;
+   StyleDefComponent::fillStyleDefs(style);
    enableFieldSelection();
 }
 
@@ -419,70 +365,7 @@ void FieldTypeDialog::styleDefSave() {
    enableFieldSelection();
 }
 
-void FieldTypeDialog::setPangram() {
-   constexpr int count{ 10 };
-
-   wstring pangrams[count] = {
-      L"SPHINX OF BLACK QUARTZ,\r\nJUDGE MY VOW.",
-      L"A QUART JAR OF OIL\r\nMIXED WITH ZINC OXIDE\r\nMAKES A VERY BRIGHT PAINT.",
-      L"A WIZARD'S JOB IS TO\r\nVEX CHUMPS QUICKLY IN FOG.",
-      L"AMAZINGLY FEW DISCOTHEQUES\r\nPROVIDE JUKEBOXES.",
-      L"PACK MY BOX WITH\r\nFIVE DOZEN LIQUOR JUGS.",
-      L"THE LAZY MAJOR WAS FIXING\r\nCUPID'S BROKEN QUIVER.",
-      L"MY FAXED JOKE WON A PAGER\r\nIN THE CABLE TV QUIZ SHOW.",
-      L"THE FIVE BOXING WIZARDS\r\nJUMP QUICKLY.",
-      L"FEW BLACK TAXIS\r\nDRIVE UP MAJOR ROADS\r\nON QUIET HAZY NIGHTS.",
-      L"WE PROMPTLY JUDGED\r\nANTIQUE IVORY BUCKLES\r\nFOR THE NEXT PRIZE."
-   };
-
-   SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_OUTPUT, (pangrams[rand() % count]).c_str());
-}
-
-INT_PTR FieldTypeDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
-   HDC hdc = (HDC)wParam;
-   DWORD ctrlID = GetDlgCtrlID((HWND)lParam);
-
-   if (hbr != NULL) DeleteObject(hbr);
-
-   switch (ctrlID) {
-   case IDC_FIELD_STYLE_DEF_BACKCOLOR:
-      SetBkColor(hdc, styleBack);
-      hbr = CreateSolidBrush(styleBack);
-      return (INT_PTR)hbr;
-
-   case IDC_FIELD_STYLE_DEF_FORECOLOR:
-      SetBkColor(hdc, styleFore);
-      hbr = CreateSolidBrush(styleFore);
-      return (INT_PTR)hbr;
-
-   case IDC_FIELD_STYLE_DEF_OUTPUT:
-      SetBkColor(hdc, styleBack);
-      SetTextColor(hdc, styleFore);
-      hbr = CreateSolidBrush(styleBack);
-      return (INT_PTR)hbr;
-
-   default:
-      return NULL;
-   }
-}
-
 void FieldTypeDialog::chooseStyleDefColor(bool back) {
-   int color = getStyleDefColor(back);
-
-   CHOOSECOLOR cc;
-   ZeroMemory(&cc, sizeof(cc));
-
-   cc.lStructSize = sizeof(cc);
-   cc.hwndOwner = _hSelf;
-   cc.rgbResult = Utils::intToRGB(color);
-   cc.lpCustColors = (LPDWORD)customColors;
-   cc.Flags = CC_FULLOPEN | CC_RGBINIT;
-
-   if (!ChooseColor(&cc)) return;
-
-   color = static_cast<int>(cc.rgbResult);
-   setStyleDefColor(TRUE, color, back);
-
-   cleanStyleDefs = FALSE;
+   StyleDefComponent::chooseStyleDefColor(back);
    enableFieldSelection();
 }
