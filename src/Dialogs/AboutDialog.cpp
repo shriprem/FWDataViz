@@ -36,7 +36,7 @@ void AboutDialog::localize() {
 INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
    case WM_INITDIALOG:
-      if (NppDarkMode::isEnabled()) {
+      if (NPPDM_IsEnabled()) {
          LITEM item = { 0 };
          item.iLink = 0;
          item.mask = LIF_ITEMINDEX | LIF_STATE;
@@ -44,7 +44,7 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          item.stateMask = LIS_DEFAULTCOLORS;
          SendMessage(GetDlgItem(_hSelf, IDC_ABOUT_PROD_URL), LM_SETITEM, 0, (LPARAM)&item);
 
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       }
 
       break;
@@ -69,25 +69,25 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
       break;
 
    case WM_CTLCOLORDLG:
-      if (NppDarkMode::isEnabled()) {
-         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
       break;
 
    case WM_CTLCOLORSTATIC:
       if (GetDlgCtrlID((HWND)lParam) == IDC_ABOUT_PROD_URL) {
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+         if (NPPDM_IsEnabled()) {
+            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
          }
       }
 
-      if (NppDarkMode::isEnabled()) {
-         return NppDarkMode::onCtlColorDarker((HDC)wParam);
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorDarker((HDC)wParam);
       }
       break;
 
    case WM_PRINTCLIENT:
-      if (NppDarkMode::isEnabled()) {
+      if (NPPDM_IsEnabled()) {
          return TRUE;
       }
       break;

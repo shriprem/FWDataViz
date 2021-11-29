@@ -298,7 +298,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
       break;
 
    case WM_INITDIALOG:
-      if (NppDarkMode::isEnabled()) {
+      if (NPPDM_IsEnabled()) {
          LITEM item = { 0 };
          item.iLink = 0;
          item.mask = LIF_ITEMINDEX | LIF_STATE;
@@ -306,7 +306,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
          item.stateMask = LIS_DEFAULTCOLORS;
          SendMessage(GetDlgItem(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP), LM_SETITEM, 0, (LPARAM)&item);
 
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+         NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       }
 
       break;
@@ -314,8 +314,8 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
    case WM_CTLCOLORSTATIC:
       switch (GetDlgCtrlID((HWND)lParam)) {
       case IDC_DAT_EXT_CURRENT_LINE:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+         if (NPPDM_IsEnabled()) {
+            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
          }
          else {
             SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
@@ -325,33 +325,33 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
          break;
 
       case IDC_DAT_EXT_NEW_KEYBOARD_TIP:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+         if (NPPDM_IsEnabled()) {
+            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
          }
          break;
 
       default:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         if (NPPDM_IsEnabled()) {
+            return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
          }
       }
       break;
 
    case WM_CTLCOLORDLG:
    case WM_CTLCOLORLISTBOX:
-      if (NppDarkMode::isEnabled()) {
-         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
       break;
 
    case WM_CTLCOLOREDIT:
-      if (NppDarkMode::isEnabled()) {
-         return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
       }
       break;
 
    case WM_PRINTCLIENT:
-      if (NppDarkMode::isEnabled()) {
+      if (NPPDM_IsEnabled()) {
          return TRUE;
       }
       break;

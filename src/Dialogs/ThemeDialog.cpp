@@ -241,33 +241,33 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          if (ptr != NULL) return ptr;
       }
 
-      if (NppDarkMode::isEnabled()) {
-         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
 
       break;
 
    case WM_CTLCOLORDLG:
    case WM_CTLCOLORLISTBOX:
-      if (NppDarkMode::isEnabled()) {
-         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
       break;
 
    case WM_CTLCOLOREDIT:
-      if (NppDarkMode::isEnabled()) {
-         return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
       }
       break;
 
    case WM_INITDIALOG:
-      if (NppDarkMode::isEnabled()) {
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      if (NPPDM_IsEnabled()) {
+         NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       }
       break;
 
    case WM_PRINTCLIENT:
-      if (NppDarkMode::isEnabled()) {
+      if (NPPDM_IsEnabled()) {
          return TRUE;
       }
       break;

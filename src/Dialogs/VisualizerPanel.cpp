@@ -166,15 +166,15 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       break;
 
    case WM_INITDIALOG:
-      if (NppDarkMode::isEnabled()) {
-         NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
+      if (NPPDM_IsEnabled()) {
+         NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       }
       break;
 
    case WM_CTLCOLORDLG:
    case WM_CTLCOLORLISTBOX:
-      if (NppDarkMode::isEnabled()) {
-         return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
       break;
 
@@ -182,8 +182,8 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       switch (GetDlgCtrlID((HWND)lParam)) {
       case IDC_VIZPANEL_PASTE_RPAD_INDIC:
       case IDC_VIZPANEL_PASTE_LPAD_INDIC:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+         if (NPPDM_IsEnabled()) {
+            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
          }
          else {
             SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
@@ -193,14 +193,14 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       default:
-         if (NppDarkMode::isEnabled()) {
-            return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         if (NPPDM_IsEnabled()) {
+            return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
          }
       }
       break;
 
    case WM_PRINTCLIENT:
-      if (NppDarkMode::isEnabled()) {
+      if (NPPDM_IsEnabled()) {
          return TRUE;
       }
       break;

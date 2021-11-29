@@ -15,7 +15,7 @@
 #include "PluginDefinition.h"
 #include "SubmenuManager.h"
 #include "Dialogs/VisualizerPanel.h"
-#include "NPP/NppDarkMode.h"
+#include "NPP_Plugin_Darkmode.h"
 
 extern FuncItem pluginMenuItems[MI_COUNT];
 extern NppData nppData;
@@ -26,7 +26,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  reasonForCall, LPVOID /*lpReserved*
     switch (reasonForCall) {
       case DLL_PROCESS_ATTACH:
         pluginInit(hModule);
-        NppDarkMode::initDarkMode();
+        NPPDM_InitDarkMode(nppData._nppHandle);
         break;
 
       case DLL_PROCESS_DETACH:
@@ -72,7 +72,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
 
       case NPPN_TBMODIFICATION:
       {
-         bool filled{ NppDarkMode::isToolBarFilled() };
+         bool filled{ NPPDM_IsToolBarFilled() };
          Utils::addToolbarIcon(MI_FWVIZ_PANEL, IDB_VIZ_TOOL_BTN_STD_FIELDS,
             filled ? IDI_VIZ_TOOL_BTN_FLUENTF_FIELDS : IDI_VIZ_TOOL_BTN_FLUENT_FIELDS,
             filled ? IDI_VIZ_TOOL_BTN_DARKF_FIELDS : IDI_VIZ_TOOL_BTN_DARK_FIELDS);
