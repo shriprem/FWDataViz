@@ -1,6 +1,6 @@
 # FWDataViz
 #### Fixed Width Data Visualizer plugin for Notepad++
-[Current Version: 2.3.0.0](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
+[Current Version: 2.4.0.0](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
 
 ![FWDataViz](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_weather_stations.png)
 

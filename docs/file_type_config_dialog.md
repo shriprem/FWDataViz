@@ -17,6 +17,8 @@ This editor is organized in a three-level hierarchy:
   * Record Regex Key
   * [Record Color Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md)
 
+* [Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md) can be affixed to File Labels with distinctive shared traits.
+
 * Field Labels and Field Widths are synchronized for editing and scrolling.
 
 * Changes in the Fields section will disable change of selections at the File Types and Record Type levels until the changes are accepted or reset or the configuration file is saved or reloaded.

@@ -1,5 +1,19 @@
 # Version History
 
+### Version 2.4.0.0
+
+1. [Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md) for distinguishing fields sharing the same traits.
+
+2. Preferences is now available with three settings.
+
+3. Regex expression fields are now validated for user input errors.
+
+4. Darkmode functionality has been moved out from the plugin DLL into a separate _NPP_Plugin_Darkmode.dll_.
+
+**Release:** [2.4.0.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.4.0.0)
+
+---
+
 ### Version 2.3.0.0
 #### Enhancements
 1. [Field Copy](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-copy) and [Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-paste) with smart left or right alignment and padding or trimming.
