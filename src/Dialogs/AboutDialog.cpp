@@ -75,14 +75,11 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
       break;
 
    case WM_CTLCOLORSTATIC:
-      if (GetDlgCtrlID((HWND)lParam) == IDC_ABOUT_PROD_URL) {
-         if (NPPDM_IsEnabled()) {
-            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
-         }
-      }
-
       if (NPPDM_IsEnabled()) {
-         return NPPDM_OnCtlColorDarker((HDC)wParam);
+         if (GetDlgCtrlID((HWND)lParam) == IDC_ABOUT_PROD_URL)
+            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
+         else
+            return NPPDM_OnCtlColorDarker((HDC)wParam);
       }
       break;
 

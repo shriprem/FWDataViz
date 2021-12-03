@@ -11,9 +11,9 @@ void PreferencesDialog::doDialog(HINSTANCE hInst) {
       create(IDD_PREFERENCES_DIALOG);
    }
 
-   initCheckbox(IDC_PREF_CLEARVIZ_AUTO, PREF_CLEARVIZ_AUTO);
-   initCheckbox(IDC_PREF_CLEARVIZ_PANEL, PREF_CLEARVIZ_PANEL);
-   initCheckbox(IDC_PREF_MBCHARS_STATE, PREF_MBCHARS_SHOW);
+   initCheckbox(IDC_PREF_CLEARVIZ_AUTO, PREF_CLEARVIZ_AUTO, FALSE);
+   initCheckbox(IDC_PREF_CLEARVIZ_PANEL, PREF_CLEARVIZ_PANEL, FALSE);
+   initCheckbox(IDC_PREF_MBCHARS_STATE, PREF_MBCHARS_SHOW, FALSE);
 
    Utils::addTooltip(_hSelf, IDC_PREF_CLEARVIZ_AUTO, NULL, PREF_CLEARVIZ_AUTO_TIP, PREF_TIP_LONG, TRUE);
    Utils::addTooltip(_hSelf, IDC_PREF_CLEARVIZ_PANEL, NULL, PREF_CLEARVIZ_PANEL_TIP, PREF_TIP_LONG, TRUE);
@@ -47,6 +47,27 @@ INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM /*lPa
          display(FALSE);
          return TRUE;
       }
+      break;
+
+   case WM_INITDIALOG:
+      if (NPPDM_IsEnabled()) {
+         NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+      }
+      break;
+
+   case WM_CTLCOLORDLG:
+   case WM_CTLCOLORLISTBOX:
+   case WM_CTLCOLORSTATIC:
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NPPDM_IsEnabled()) {
+         return TRUE;
+      }
+      break;
    }
 
    return FALSE;
@@ -60,8 +81,8 @@ void PreferencesDialog::localize() {
    SetDlgItemText(_hSelf, IDCLOSE, PREFERENCES_CLOSE_BTN);
 }
 
-void PreferencesDialog::initCheckbox(int nIDButton, const string& preference) {
-   CheckDlgButton(_hSelf, nIDButton, _configIO.getPreferenceBool(preference) ? BST_CHECKED : BST_UNCHECKED);
+void PreferencesDialog::initCheckbox(int nIDButton, const string& preference, bool default) {
+   CheckDlgButton(_hSelf, nIDButton, _configIO.getPreferenceBool(preference, default) ? BST_CHECKED : BST_UNCHECKED);
 }
 
 void PreferencesDialog::setCheckbox(int nIDButton, const string& preference) {

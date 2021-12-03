@@ -4,11 +4,13 @@
 
 1. [Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md) for distinguishing fields sharing the same traits.
 
-2. Preferences is now available with three settings.
+2. Preferences dialog added to configure three new settings.
 
 3. Regex expression fields are now validated for user input errors.
 
-4. Darkmode functionality has been moved out from the plugin DLL into a separate _NPP_Plugin_Darkmode.dll_.
+4. Darkmode for the plugin is now rendered by a separate DLL that can be shared by multiple plugins, thus reducing the overall memory footprint. For instance, if you have both the [FWDataViz](https://github.com/shriprem/FWDataViz) and [GotoLineCol](https://github.com/shriprem/Goto-Line-Col-NPP-Plugin) plugins installed, move the `NPP_Plugin_Darkmode.dll` file either from `<NPP_Plugins_folder>/FWDataViz` or `<NPP_Plugins_folder>/GotoLineCol` folder into the `<NPP_folder>`, and delete `NPP_Plugin_Darkmode.dll` in the other plugin folder.
+
+**Plugin Developers**: For more information on using `NPP_Plugin_Darkmode.dll` in your plugins, please refer to the documentation at the [NPP_Plugin_Darkmode](https://github.com/shriprem/NPP_Plugin_Darkmode) repository.
 
 **Release:** [2.4.0.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.4.0.0)
 
