@@ -338,6 +338,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
       break;
 
    case WM_CTLCOLORDLG:
+   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
@@ -347,12 +348,6 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
    case WM_CTLCOLOREDIT:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
-      }
-      break;
-
-   case WM_PRINTCLIENT:
-      if (NPPDM_IsEnabled()) {
-         return TRUE;
       }
       break;
    }

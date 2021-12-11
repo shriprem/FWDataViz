@@ -248,6 +248,7 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
       break;
 
    case WM_CTLCOLORDLG:
+   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
@@ -263,12 +264,6 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
    case WM_INITDIALOG:
       if (NPPDM_IsEnabled()) {
          NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
-      }
-      break;
-
-   case WM_PRINTCLIENT:
-      if (NPPDM_IsEnabled()) {
-         return TRUE;
       }
       break;
    }

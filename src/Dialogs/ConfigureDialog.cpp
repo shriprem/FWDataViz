@@ -431,6 +431,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
       break;
 
    case WM_CTLCOLORDLG:
+   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
    case WM_CTLCOLORSTATIC:
       if (NPPDM_IsEnabled()) {
@@ -441,12 +442,6 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
    case WM_CTLCOLOREDIT:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
-      }
-      break;
-
-   case WM_PRINTCLIENT:
-      if (NPPDM_IsEnabled()) {
-         return TRUE;
       }
       break;
    }

@@ -130,6 +130,7 @@ INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
       break;
 
    case WM_CTLCOLORDLG:
+   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
@@ -145,12 +146,6 @@ INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
    case WM_INITDIALOG:
       if (NPPDM_IsEnabled()) {
          NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
-      }
-      break;
-
-   case WM_PRINTCLIENT:
-      if (NPPDM_IsEnabled()) {
-         return TRUE;
       }
       break;
    }

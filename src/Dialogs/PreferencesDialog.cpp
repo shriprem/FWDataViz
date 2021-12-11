@@ -56,16 +56,11 @@ INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM /*lPa
       break;
 
    case WM_CTLCOLORDLG:
+   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
    case WM_CTLCOLORSTATIC:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
-      }
-      break;
-
-   case WM_PRINTCLIENT:
-      if (NPPDM_IsEnabled()) {
-         return TRUE;
       }
       break;
    }

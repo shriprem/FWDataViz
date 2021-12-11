@@ -69,6 +69,7 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
       break;
 
    case WM_CTLCOLORDLG:
+   case WM_CTLCOLORBTN:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
@@ -80,12 +81,6 @@ INT_PTR CALLBACK AboutDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
             return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
          else
             return NPPDM_OnCtlColorDarker((HDC)wParam);
-      }
-      break;
-
-   case WM_PRINTCLIENT:
-      if (NPPDM_IsEnabled()) {
-         return TRUE;
       }
       break;
    }
