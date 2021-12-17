@@ -1,5 +1,12 @@
 # Version History
 
+### Version 2.4.0.1
+1. Updated `NPP_Plugin_Darkmode.dll` to [version 1.1.0.0](https://github.com/shriprem/NPP_Plugin_Darkmode/releases/tag/v1.1.0.0). This fixes darkmode rendering issue in Windows 11.
+
+**Release:** [2.4.0.1 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.4.0.1)
+
+---
+
 ### Version 2.4.0.0
 
 1. [Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md) for distinguishing fields sharing the same traits.
