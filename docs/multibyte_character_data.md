@@ -18,11 +18,7 @@ Some users may see the need to quickly toggle between byte-based and character-b
 
 This quick override option is primarily intended for users who mostly deal with data restricted within the US-ASCII (0 to 127) range; but occasionally need to resolve processing issues with files containing stray, special characters like smart quotes.
 
-#### Uncovering the hidden option
-To make the **Multi-Byte Chars** option visible on the plugin panel, manually edit the `<NPP_PLUGINS_CONFIG_DIR>/FWDataViz/Preferences.ini` file to add the following line under the `[Preferences]` section:
-```ini
-ShowMBCharsOnPanel=Y
-```
+The **Multi-Byte Chars** option is hidden by default on the plugin panel. This is to spare the confusion of its three-state nature to the bulk of users who may not need the multi-byte feature. To make this checkbox visible, click on the _Preferences_ button on the plugin panel, and then click the **Show Multi-byte checkbox in plugin panel** option to checked.
 
 #### Three-state *Multi-Byte Chars* checkbox control
 The *Multi-Byte Chars* checkbox on the plugin panel is a three-state control. Its operation may not be immediately intuitive to many users of this plugin. That is why it is hidden by default. Users willing to make the extra effort to uncover this option can be reasonably expected to have read this section.
