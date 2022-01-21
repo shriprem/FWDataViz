@@ -1,4 +1,6 @@
 # FWDataViz
+
+![GitHub](https://img.shields.io/github/license/shriprem/FWDataViz) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/shriprem/FWDataViz) ![GitHub all releases](https://img.shields.io/github/downloads/shriprem/FWDataViz/total)
 #### Fixed Width Data Visualizer plugin for Notepad++
 [Current Version: 2.4.0.1](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
 
@@ -104,7 +106,7 @@ __Weather Stations List with location wiki and Daily Weather data__ _(A contrive
 ## Installation
 1. Install Notepad++ version 8.0 or higher.
 2. Open Notepad++.
-3. In Notepad++, go to menu **Plugins** » **Plugins Admin...**.
+3. In Notepad++, go to menu **Plugins** Â» **Plugins Admin...**.
 4. In the **Available** tab, check the box for **Fixed-width Data Visualizer**.
 5. Click the **Install** button.
 
