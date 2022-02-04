@@ -1,5 +1,14 @@
 # Version History
 
+### Version 2.4.0.2
+**Background:** With its v8.3 release, the Notepad++ *x64* binary will support opening 2GB+ files. However, this change causes compability issue with many *x64* plugins, [and they will need to be recompiled with a modified C++ header file](https://community.notepad-plus-plus.org/topic/22471/recompile-your-x64-plugins-with-new-header).
+
+The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue specifically when trying to extract data in the [Data Extraction dialog](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md). With the suggested recompile of the _FWDataViz_ plugin with the modified C++ header file, the v2.4.0.2 release fixes this issue.
+
+**Release:** [2.4.0.2 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.4.0.2)
+
+---
+
 ### Version 2.4.0.1
 1. Updated `NPP_Plugin_Darkmode.dll` to [version 1.1.0.0](https://github.com/shriprem/NPP_Plugin_Darkmode/releases/tag/v1.1.0.0). This fixes darkmode rendering issue in Windows 11.
 
