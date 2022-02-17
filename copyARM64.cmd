@@ -2,7 +2,7 @@
 
 SET DM_DIR=DM_includes\ARM64
 SET BIN_DIR=arm64
-REM SET NOTEPAD_DIR=E:\Portable\Notepad++
+REM SET NOTEPAD_DIR=C:\Portable\Notepad++
 
 COPY license.txt %BIN_DIR%
 COPY %DM_DIR%\NPP_Plugin_Darkmode.dll %BIN_DIR%
