@@ -18,3 +18,5 @@ extern "C" NPP_PLUGIN_DARKMODE_API LRESULT NPPDM_OnCtlColorSofter(HDC hdc);
 extern "C" NPP_PLUGIN_DARKMODE_API LRESULT NPPDM_OnCtlColorDarker(HDC hdc);
 extern "C" NPP_PLUGIN_DARKMODE_API LRESULT NPPDM_OnCtlColorError(HDC hdc);
 extern "C" NPP_PLUGIN_DARKMODE_API LRESULT NPPDM_OnCtlColorSysLink(HDC hdc);
+extern "C" NPP_PLUGIN_DARKMODE_API LRESULT NPPDM_OnCtlColorIfEnabled(HDC hdc, bool isEnabled);
+extern "C" NPP_PLUGIN_DARKMODE_API LRESULT NPPDM_OnCtlHiliteIfEnabled(HDC hdc, bool isEnabled);

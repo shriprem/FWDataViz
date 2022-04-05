@@ -175,23 +175,24 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
    case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
-         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         return NPPDM_OnCtlColorDarker((HDC)wParam);
+      }
+      break;
+
+   case WM_CTLCOLOREDIT:
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
       }
       break;
 
    case WM_CTLCOLORSTATIC:
       switch (GetDlgCtrlID((HWND)lParam)) {
+      case IDC_VIZPANEL_THEME_LABEL:
+         return NPPDM_OnCtlColorIfEnabled((HDC)wParam, themeEnabled);
+
       case IDC_VIZPANEL_PASTE_RPAD_INDIC:
       case IDC_VIZPANEL_PASTE_LPAD_INDIC:
-         if (NPPDM_IsEnabled()) {
-            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
-         }
-         else {
-            SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
-            SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
-            return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
-         }
-         break;
+         return NPPDM_OnCtlHiliteIfEnabled((HDC)wParam, fieldEnabled);
 
       default:
          if (NPPDM_IsEnabled()) {
@@ -420,14 +421,14 @@ void VisualizerPanel::enableFieldControls(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON), recEnabled);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON), recEnabled);
 
-   bool fieldEnabled{ recEnabled && (caretFieldIndex >= 0) };
+   fieldEnabled = recEnabled && (caretFieldIndex >= 0);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON), fieldEnabled);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON), fieldEnabled);
 
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), fieldEnabled);
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), fieldEnabled);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), NULL, TRUE);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), fieldEnabled);
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), fieldEnabled);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), NULL, TRUE);
 
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
 
@@ -443,7 +444,8 @@ void VisualizerPanel::enableFieldControls(bool enable) {
 }
 
 void VisualizerPanel::enableThemeList(bool enable) {
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), enable);
+   themeEnabled = enable;
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), NULL, TRUE);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
 }
 

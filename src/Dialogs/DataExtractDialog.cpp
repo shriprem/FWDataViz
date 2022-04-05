@@ -314,15 +314,7 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
    case WM_CTLCOLORSTATIC:
       switch (GetDlgCtrlID((HWND)lParam)) {
       case IDC_DAT_EXT_CURRENT_LINE:
-         if (NPPDM_IsEnabled()) {
-            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
-         }
-         else {
-            SetTextColor((HDC)wParam, GetSysColor(COLOR_HIGHLIGHT));
-            SetBkColor((HDC)wParam, GetSysColor(COLOR_BTNFACE));
-            return (INT_PTR)GetSysColorBrush(COLOR_BTNFACE);
-         }
-         break;
+         return NPPDM_OnCtlHiliteIfEnabled((HDC)wParam, TRUE);
 
       case IDC_DAT_EXT_NEW_KEYBOARD_TIP:
          if (NPPDM_IsEnabled()) {
