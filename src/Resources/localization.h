@@ -221,11 +221,11 @@
 // Preferences Dialog
 #define PREFERENCES_DIALOG_TITLE    L"Preferences"
 #define PREFERENCES_CLEARVIZ_AUTO   L"\"Clear\" button click unchecks Auto-detect File Type"
-#define PREFERENCES_CLEARVIZ_PANEL  L"Closing plugin panel clears visualization"
+#define PREFERENCES_CLEARVIZ_PANEL  L"Closing plugin panel via menu/toolbar clears visualization"
 #define PREFERENCES_MBCHARS_STATE   L"Show Multi-byte checkbox in plugin panel"
 #define PREFERENCES_CLOSE_BTN       L"&Close"
 #define PREF_CLEARVIZ_AUTO_TIP      L"● When this box is unchecked, clicking the \"Clear\" button will redo the auto-file detection, followed by document visualization.\r\n\r\n● When this box is checked, clicking the \"Clear\" button will also uncheck the \"Auto-detect File Type\" checkbox, and also clear the document visualization."
-#define PREF_CLEARVIZ_PANEL_TIP      L"● Leave this box unchecked if you are only closing the plugin panel for more document viewing area but wish to retain the document visualization.\r\n\r\n● When this box is checked, closing the plugin panel will also clear the document visualization."
+#define PREF_CLEARVIZ_PANEL_TIP      L"● Leave this box unchecked if you are only closing the plugin panel for more document viewing area but wish to retain the document visualization.\r\n\r\n● When this box is checked, closing the plugin panel via menu/toolbar will also clear the document visualization.\r\n\r\n● This setting could have no effect when closing the plugin panel via its 'X' button if there are other panels in the docked grouping."
 #define PREF_MBCHARS_STATE_TIP      L"● When this box is checked, the \"Multi-Byte Chars\" 3-state checkbox will be displayed on the plugin panel. The 3-state checkbox is useful for quickly toggling between the single-byte and multi-byte modes of visualization of a document with multi-byte character data."
 
 

@@ -83,9 +83,7 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
       break;
 
    case WM_INITDIALOG:
-      if (NPPDM_IsEnabled()) {
-         NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
-      }
+      NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       break;
 
    case WM_CTLCOLORDLG:

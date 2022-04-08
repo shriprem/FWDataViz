@@ -53,7 +53,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_CLEAR_BTN:
-         if (_configIO.getPreferenceBool("ClearVizWithAutoDetect", FALSE)) {
+         if (_configIO.getPreferenceBool(PREF_CLEARVIZ_AUTO, FALSE)) {
             CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, BST_UNCHECKED);
             setADFTCheckbox();
          }
@@ -161,21 +161,33 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       visualizeFile("", TRUE, TRUE, TRUE);
       break;
 
+   case WM_NOTIFY:
+   {
+      LPNMHDR pnmh = reinterpret_cast<LPNMHDR>(lParam);
+      if (pnmh->hwndFrom == _hParent && LOWORD(pnmh->code) == DMN_CLOSE) {
+         // Partial handling for when the plugin panel is closed using the 'X' button in its title bar.
+         // The clearVisualize is working only when there are no other panels in the docked grouping.
+         unlexed = (_configIO.getPreferenceBool(PREF_CLEARVIZ_PANEL, FALSE));
+         if (unlexed) {
+            clearVisualize(FALSE);
+         }
+      }
+      break;
+   }
+
    case WM_SIZE:
       resizeCaretFieldInfo(LOWORD(lParam));
       break;
 
    case WM_INITDIALOG:
-      if (NPPDM_IsEnabled()) {
-         NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
-      }
+      NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       break;
 
    case WM_CTLCOLORDLG:
    case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
-         return NPPDM_OnCtlColorDarker((HDC)wParam);
+         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
       break;
 
@@ -188,11 +200,11 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
    case WM_CTLCOLORSTATIC:
       switch (GetDlgCtrlID((HWND)lParam)) {
       case IDC_VIZPANEL_THEME_LABEL:
-         return NPPDM_OnCtlColorIfEnabled((HDC)wParam, themeEnabled);
+         return NPPDM_OnCtlColorIfEnabled(reinterpret_cast<HDC>(wParam), themeEnabled);
 
       case IDC_VIZPANEL_PASTE_RPAD_INDIC:
       case IDC_VIZPANEL_PASTE_LPAD_INDIC:
-         return NPPDM_OnCtlHiliteIfEnabled((HDC)wParam, fieldEnabled);
+         return NPPDM_OnCtlHiliteIfEnabled(reinterpret_cast<HDC>(wParam), fieldEnabled);
 
       default:
          if (NPPDM_IsEnabled()) {
@@ -288,8 +300,8 @@ void VisualizerPanel::display(bool toShow) {
    if (!utf8Config) return;
 
    if (!toShow) {
-      unlexed = (_configIO.getPreferenceBool("ClearVizOnPanelClose", FALSE));
-      if (unlexed) clearVisualize();
+      unlexed = (_configIO.getPreferenceBool(PREF_CLEARVIZ_PANEL, FALSE));
+      if (unlexed) clearVisualize(FALSE);
       return;
    }
 
@@ -371,6 +383,8 @@ void VisualizerPanel::loadListThemes() {
 }
 
 void VisualizerPanel::syncListFileTypes() {
+   if (!isVisible()) return;
+
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -413,6 +427,8 @@ void VisualizerPanel::syncListThemes() {
 }
 
 void VisualizerPanel::enableFieldControls(bool enable) {
+   if (!isVisible()) return;
+
    EnableWindow(hFieldInfo, enable);
 
    bool recEnabled{ enable && (caretRecordRegIndex >= 0) };
@@ -444,12 +460,15 @@ void VisualizerPanel::enableFieldControls(bool enable) {
 }
 
 void VisualizerPanel::enableThemeList(bool enable) {
+   if (!isVisible()) return;
+
    themeEnabled = enable;
    InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), NULL, TRUE);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
 }
 
 void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool autoFT, bool syncFT) {
+   if (!isVisible()) return;
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -1163,6 +1182,8 @@ void VisualizerPanel::renderCurrentPage() {
 }
 
 void VisualizerPanel::clearCaretFieldInfo() {
+   if (!isVisible()) return;
+
    enableFieldControls(FALSE);
    SetWindowText(hFieldInfo, L"");
 }
@@ -1266,6 +1287,8 @@ void VisualizerPanel::setFieldAlign(bool left) {
 }
 
 void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
+   if (!isVisible()) return;
+
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -1461,6 +1484,7 @@ bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, string& f
 }
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
+   if (!isVisible()) return FALSE;
    if (!_configIO.checkConfigFilesforUCS16()) return FALSE;
 
    char lineTextCStr[FW_LINE_MAX_LENGTH]{};
@@ -1534,6 +1558,8 @@ bool VisualizerPanel::getDocTheme(PSCIFUNC_T sciFunc, void* sciPtr, wstring& the
 }
 
 void VisualizerPanel::setDocFileType(HWND hScintilla, string fileType) {
+   if (!isVisible()) return;
+
    enableThemeList(fileType.length() > 0);
    SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fileType.c_str());
 }
