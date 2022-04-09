@@ -158,19 +158,15 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
    case WM_SHOWWINDOW:
       Utils::checkMenuItem(MI_FWVIZ_PANEL, wParam);
       showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
-      visualizeFile("", TRUE, TRUE, TRUE);
+      if (wParam) visualizeFile("", TRUE, TRUE, TRUE);
       break;
 
    case WM_NOTIFY:
    {
       LPNMHDR pnmh = reinterpret_cast<LPNMHDR>(lParam);
       if (pnmh->hwndFrom == _hParent && LOWORD(pnmh->code) == DMN_CLOSE) {
-         // Partial handling for when the plugin panel is closed using the 'X' button in its title bar.
-         // The clearVisualize is working only when there are no other panels in the docked grouping.
          unlexed = (_configIO.getPreferenceBool(PREF_CLEARVIZ_PANEL, FALSE));
-         if (unlexed) {
-            clearVisualize(FALSE);
-         }
+         if (unlexed) clearVisualize(FALSE);
       }
       break;
    }
@@ -469,6 +465,7 @@ void VisualizerPanel::enableThemeList(bool enable) {
 
 void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool autoFT, bool syncFT) {
    if (!isVisible()) return;
+
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -683,6 +680,8 @@ void VisualizerPanel::fieldPaste() {
 }
 
 void VisualizerPanel::visualizeTheme() {
+   if (!isVisible()) return;
+
    wchar_t fDesc[MAX_PATH]{};
 
    SendMessage(hThemesLB, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
@@ -1182,8 +1181,6 @@ void VisualizerPanel::renderCurrentPage() {
 }
 
 void VisualizerPanel::clearCaretFieldInfo() {
-   if (!isVisible()) return;
-
    enableFieldControls(FALSE);
    SetWindowText(hFieldInfo, L"");
 }

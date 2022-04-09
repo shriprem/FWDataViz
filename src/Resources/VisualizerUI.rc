@@ -294,18 +294,18 @@ BEGIN
     PUSHBUTTON      "&Cancel",IDCLOSE,116,90,68,14
 END
 
-IDD_PREFERENCES_DIALOG DIALOGEX 0, 0, 223, 116
+IDD_PREFERENCES_DIALOG DIALOGEX 0, 0, 205, 116
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Preferences"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         """Clear"" button click unchecks Auto-detect File Type",IDC_PREF_CLEARVIZ_AUTO,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,15,200,11
-    CONTROL         "Closing plugin panel via menu/toolbar clears visualization",IDC_PREF_CLEARVIZ_PANEL,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,40,200,11
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,15,183,11
+    CONTROL         "Closing plugin panel clears visualization",IDC_PREF_CLEARVIZ_PANEL,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,40,183,11
     CONTROL         "Show Multi-byte checkbox in plugin panel",IDC_PREF_MBCHARS_STATE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,65,200,11
-    PUSHBUTTON      "&Close",IDCLOSE,90,90,42,14
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,65,183,11
+    PUSHBUTTON      "&Close",IDCLOSE,81,90,42,14
 END
 
 IDD_DATA_EXTRACT_DIALOG DIALOGEX 0, 0, 663, 303
@@ -420,17 +420,17 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include <windows.h>\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\0"
 END
@@ -481,7 +481,7 @@ BEGIN
 
     IDD_PREFERENCES_DIALOG, DIALOG
     BEGIN
-        RIGHTMARGIN, 222
+        RIGHTMARGIN, 204
         BOTTOMMARGIN, 115
     END
 
@@ -552,5 +552,4 @@ IDI_VIZ_TOOL_BTN_DARKF_FRAMED ICON                    "framed_filled_dark.ico"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
-
 
