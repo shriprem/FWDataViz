@@ -76,9 +76,11 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
          Utils::addToolbarIcon(MI_FWVIZ_PANEL, IDB_VIZ_TOOL_BTN_STD_FIELDS,
             filled ? IDI_VIZ_TOOL_BTN_FLUENTF_FIELDS : IDI_VIZ_TOOL_BTN_FLUENT_FIELDS,
             filled ? IDI_VIZ_TOOL_BTN_DARKF_FIELDS : IDI_VIZ_TOOL_BTN_DARK_FIELDS);
-         Utils::addToolbarIcon(MI_CARET_FRAMED, IDB_VIZ_TOOL_BTN_STD_FRAMED,
-            filled ? IDI_VIZ_TOOL_BTN_FLUENTF_FRAMED : IDI_VIZ_TOOL_BTN_FLUENT_FRAMED,
-            filled ? IDI_VIZ_TOOL_BTN_DARKF_FRAMED : IDI_VIZ_TOOL_BTN_DARK_FRAMED);
+
+         if (IsFramingControlNeeded())
+            Utils::addToolbarIcon(MI_CARET_FRAMED, IDB_VIZ_TOOL_BTN_STD_FRAMED,
+               filled ? IDI_VIZ_TOOL_BTN_FLUENTF_FRAMED : IDI_VIZ_TOOL_BTN_FLUENT_FRAMED,
+               filled ? IDI_VIZ_TOOL_BTN_DARKF_FRAMED : IDI_VIZ_TOOL_BTN_DARK_FRAMED);
          break;
       }
 

@@ -36,9 +36,13 @@ enum LangType {L_TEXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,\
 			   // Don't use L_JS, use L_JAVASCRIPT instead
 			   // The end of enumated language type, so it should be always at the end
 			   L_EXTERNAL};
+enum class ExternalLexerAutoIndentMode { Standard, C_Like, Custom };
+enum class MacroStatus { Idle, RecordInProgress, RecordingStopped, PlayingBack };
 
-enum winVer{ WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV_S2003, WV_XPX64, WV_VISTA, WV_WIN7, WV_WIN8, WV_WIN81, WV_WIN10};
-enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64 };
+enum winVer { WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV_S2003, WV_XPX64, WV_VISTA, WV_WIN7, WV_WIN8, WV_WIN81, WV_WIN10 };
+enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
+
+
 
 #define NPPMSG  (WM_USER + 1000)
 
@@ -145,7 +149,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64 };
 
 	#define NPPM_ADDTOOLBARICON_DEPRECATED (NPPMSG + 41)
 	//void NPPM_ADDTOOLBARICON(UINT funcItem[X]._cmdID, toolbarIcons iconHandles) -- DEPRECATED : use NPPM_ADDTOOLBARICON_FORDARKMODE instead
-	//2 formats of icon are needed: .ico & .bmp
+	//2 formats of icon are needed: .ico & .bmp 
 	//Both handles below should be set so the icon will be displayed correctly if toolbar icon sets are changed by users
 		struct toolbarIcons {
 			HBITMAP	hToolbarBmp;
@@ -381,9 +385,13 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64 };
 	// INT NPPM_GETCURRENTVIEW(0, 0)
 	// Return: current edit view of Notepad++. Only 2 possible values: 0 = Main, 1 = Secondary
 
-	#define NPPM_DOCLISTDISABLECOLUMN    (NPPMSG + 89)
-	// VOID NPPM_DOCLISTDISABLECOLUMN(0, BOOL disableOrNot)
+	#define NPPM_DOCLISTDISABLEEXTCOLUMN    (NPPMSG + 89)
+	// VOID NPPM_DOCLISTDISABLEEXTCOLUMN(0, BOOL disableOrNot)
 	// Disable or enable extension column of Document List
+
+	#define NPPM_DOCLISTDISABLEPATHCOLUMN    (NPPMSG + 102)
+	// VOID NPPM_DOCLISTDISABLEPATHCOLUMN(0, BOOL disableOrNot)
+	// Disable or enable path column of Document List
 
 	#define NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR    (NPPMSG + 90)
 	// INT NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR(0, 0)
@@ -440,13 +448,47 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64 };
 	#define NPPM_ADDTOOLBARICON_FORDARKMODE (NPPMSG + 101)
 	// VOID NPPM_ADDTOOLBARICON_FORDARKMODE(UINT funcItem[X]._cmdID, toolbarIconsWithDarkMode iconHandles)
 	// Use NPPM_ADDTOOLBARICON_FORDARKMODE instead obsolete NPPM_ADDTOOLBARICON which doesn't support the dark mode
-	// 2 formats / 3 icons are needed:  1 * BMP + 2 * ICO
+	// 2 formats / 3 icons are needed:  1 * BMP + 2 * ICO 
 	// All 3 handles below should be set so the icon will be displayed correctly if toolbar icon sets are changed by users, also in dark mode
 	struct toolbarIconsWithDarkMode {
 		HBITMAP	hToolbarBmp;
 		HICON	hToolbarIcon;
 		HICON	hToolbarIconDarkMode;
 	};
+
+	#define NPPM_GETEXTERNALLEXERAUTOINDENTMODE  (NPPMSG + 103)
+	// BOOL NPPM_GETEXTERNALLEXERAUTOINDENTMODE(const TCHAR *languageName, ExternalLexerAutoIndentMode &autoIndentMode)
+	// Get ExternalLexerAutoIndentMode for an installed external programming language.
+	// - Standard means Notepad++ will keep the same TAB indentation between lines;
+	// - C_Like means Notepad++ will perform a C-Language style indentation for the selected external language;
+	// - Custom means a Plugin will be controlling auto-indentation for the current language.
+	// returned values: TRUE for successful searches, otherwise FALSE.
+
+	#define NPPM_SETEXTERNALLEXERAUTOINDENTMODE  (NPPMSG + 104)
+	// BOOL NPPM_SETEXTERNALLEXERAUTOINDENTMODE(const TCHAR *languageName, ExternalLexerAutoIndentMode autoIndentMode)
+	// Set ExternalLexerAutoIndentMode for an installed external programming language.
+	// - Standard means Notepad++ will keep the same TAB indentation between lines;
+	// - C_Like means Notepad++ will perform a C-Language style indentation for the selected external language;
+	// - Custom means a Plugin will be controlling auto-indentation for the current language.
+	// returned value: TRUE if function call was successful, otherwise FALSE.
+
+	#define NPPM_ISAUTOINDENTON  (NPPMSG + 105)
+	// BOOL NPPM_ISAUTOINDENTON(0, 0)
+	// Returns the current Use Auto-Indentation setting in Notepad++ Preferences.
+
+	#define NPPM_GETCURRENTMACROSTATUS (NPPMSG + 106)
+	// MacroStatus NPPM_GETCURRENTMACROSTATUS(0, 0)
+	// Gets current enum class MacroStatus { Idle - means macro is not in use and it's empty, RecordInProgress, RecordingStopped, PlayingBack }
+
+	#define NPPM_GETINITIALCMDLINE (NPPMSG + 107)
+	// MacroStatus NPPM_GETINITIALCMDLINE(0, 0)
+	// Returns the Initial Command Line string
+
+	#define NPPM_GETCURRENTCMDLINE (NPPMSG + 108)
+	// MacroStatus NPPM_GETCURRENTCMDLINE(0, 0)
+	// Returns the Current Command Line string
+
+
 
 #define VAR_NOT_RECOGNIZED 0
 #define FULL_CURRENT_PATH 1
@@ -460,6 +502,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64 };
 #define CURRENT_COLUMN 9
 #define NPP_FULL_FILE_PATH 10
 #define GETFILENAMEATCURSOR 11
+#define CURRENT_LINESTR 12
 
 #define	RUNCOMMAND_USER    (WM_USER + 3000)
 	#define NPPM_GETFULLCURRENTPATH		(RUNCOMMAND_USER + FULL_CURRENT_PATH)
@@ -470,6 +513,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64 };
 	#define NPPM_GETCURRENTWORD			(RUNCOMMAND_USER + CURRENT_WORD)
 	#define NPPM_GETNPPDIRECTORY		(RUNCOMMAND_USER + NPP_DIRECTORY)
 	#define NPPM_GETFILENAMEATCURSOR	(RUNCOMMAND_USER + GETFILENAMEATCURSOR)
+	#define NPPM_GETCURRENTLINESTR      (RUNCOMMAND_USER + CURRENT_LINESTR)
 	// BOOL NPPM_GETXXXXXXXXXXXXXXXX(size_t strLen, TCHAR *str)
 	// where str is the allocated TCHAR array,
 	//	     strLen is the allocated array size
@@ -628,5 +672,10 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64 };
 
 	#define NPPN_FILEDELETED (NPPN_FIRST + 26)  // To notify plugins that file has been deleted
 	//scnNotification->nmhdr.code = NPPN_FILEDELETED;
+	//scnNotification->nmhdr.hwndFrom = hwndNpp;
+	//scnNotification->nmhdr.idFrom = BufferID;
+
+	#define NPPN_CMDLINECHANGED (NPPN_FIRST + 27)  // To notify plugins that current command line parameters have changed
+	//scnNotification->nmhdr.code = NPPN_CMDLINECHANGED;
 	//scnNotification->nmhdr.hwndFrom = hwndNpp;
 	//scnNotification->nmhdr.idFrom = BufferID;

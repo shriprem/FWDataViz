@@ -91,3 +91,4 @@ void FieldPaste();
 void ShowDataExtractDialog();
 
 void ShowAboutDialog();
+bool IsFramingControlNeeded();

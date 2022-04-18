@@ -228,6 +228,8 @@ void VisualizerPanel::initPanel() {
    utf8Config = _configIO.checkConfigFilesforUCS16();
    if (!utf8Config) return;
 
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_CARET_FRAMED), IsFramingControlNeeded());
+
    setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
