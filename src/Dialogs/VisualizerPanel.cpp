@@ -180,7 +180,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
@@ -207,6 +206,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
          }
       }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NPPDM_IsEnabled()) return TRUE;
       break;
 
    default:
@@ -323,6 +326,19 @@ void VisualizerPanel::display(bool toShow) {
       SetFocus(hFTList);
    else
       setFocusOnEditor();
+}
+
+void VisualizerPanel::refreshDarkMode() {
+   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+
+   if (_prefsDlg.isCreated())
+      NPPDM_AutoSubclassAndThemeChildControls(_prefsDlg.getHSelf());
+
+   if (_jumpDlg.isCreated())
+      _jumpDlg.refreshDarkMode();
+
+   if (_dataExtractDlg.isCreated())
+      NPPDM_AutoSubclassAndThemeChildControls(_dataExtractDlg.getHSelf());
 }
 
 void VisualizerPanel::initMBCharsCheckbox() {

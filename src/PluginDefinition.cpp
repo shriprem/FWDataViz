@@ -28,7 +28,7 @@
    #define generic_itoa itoa
 #endif
 
-#define NPP_VERSION_WITH_CARET_FRAME     L"8.33"
+#define NPP_MIN_VERSION_WITH_CARET_FRAME     8.40f
 
 FuncItem pluginMenuItems[MI_COUNT];
 
@@ -47,16 +47,16 @@ bool _framingControlNeeded{};
 void pluginInit(HANDLE hModule) {
    _gModule = (HINSTANCE)hModule;
    _vizPanel.init(_gModule, NULL);
-
 }
 
 void pluginCleanUp(){}
 
 void commandMenuInit() {
    _configIO.init();
+   NPPDM_InitDarkMode(nppData._nppHandle);
 
    long versionNum{ static_cast<long>(nppMessage(NPPM_GETNPPVERSION, 0, 0)) };
-   _framingControlNeeded = std::stof(to_wstring(HIWORD(versionNum)) + L"." + to_wstring(LOWORD(versionNum))) < std::stof(NPP_VERSION_WITH_CARET_FRAME);
+   _framingControlNeeded = std::stof(to_wstring(HIWORD(versionNum)) + L"." + to_wstring(LOWORD(versionNum))) < NPP_MIN_VERSION_WITH_CARET_FRAME;
 
    ShortcutKey *shKeyOpen = new ShortcutKey;
    shKeyOpen->_isAlt = false;
@@ -247,6 +247,20 @@ void ShowDataExtractDialog() {
 
 void ShowAboutDialog() {
    _aboutDlg.doDialog((HINSTANCE)_gModule);
+}
+
+void refreshDarkMode() {
+   if (_vizPanel.isCreated())
+      _vizPanel.refreshDarkMode();
+
+   if (_configDlg.isCreated())
+      _configDlg.refreshDarkMode();
+
+   if (_themeDlg.isCreated())
+      _themeDlg.refreshDarkMode();
+
+   if (_aboutDlg.isCreated())
+      NPPDM_AutoSubclassAndThemeChildControls(_aboutDlg.getHSelf());
 }
 
 bool IsFramingControlNeeded() { return _framingControlNeeded; };

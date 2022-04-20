@@ -91,4 +91,5 @@ void FieldPaste();
 void ShowDataExtractDialog();
 
 void ShowAboutDialog();
+void refreshDarkMode();
 bool IsFramingControlNeeded();

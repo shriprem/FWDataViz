@@ -298,27 +298,15 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
       break;
 
    case WM_INITDIALOG:
-      if (NPPDM_IsEnabled()) {
-         LITEM item = { 0 };
-         item.iLink = 0;
-         item.mask = LIF_ITEMINDEX | LIF_STATE;
-         item.state = LIS_DEFAULTCOLORS;
-         item.stateMask = LIS_DEFAULTCOLORS;
-         SendMessage(GetDlgItem(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP), LM_SETITEM, 0, (LPARAM)&item);
-      }
-
+      NPPDM_InitSysLink(GetDlgItem(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP));
       NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       break;
 
    case WM_CTLCOLORSTATIC:
       switch (GetDlgCtrlID((HWND)lParam)) {
       case IDC_DAT_EXT_CURRENT_LINE:
-         return NPPDM_OnCtlHiliteIfEnabled((HDC)wParam, TRUE);
-
       case IDC_DAT_EXT_NEW_KEYBOARD_TIP:
-         if (NPPDM_IsEnabled()) {
-            return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
-         }
+         return NPPDM_OnCtlColorSysLink(reinterpret_cast<HDC>(wParam));
          break;
 
       default:
@@ -329,7 +317,6 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
@@ -340,6 +327,10 @@ INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPA
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
       }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NPPDM_IsEnabled()) return TRUE;
       break;
    }
 

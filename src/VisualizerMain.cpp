@@ -26,7 +26,6 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  reasonForCall, LPVOID /*lpReserved*
     switch (reasonForCall) {
       case DLL_PROCESS_ATTACH:
         pluginInit(hModule);
-        NPPDM_InitDarkMode(nppData._nppHandle);
         break;
 
       case DLL_PROCESS_DETACH:
@@ -83,6 +82,11 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
                filled ? IDI_VIZ_TOOL_BTN_DARKF_FRAMED : IDI_VIZ_TOOL_BTN_DARK_FRAMED);
          break;
       }
+
+      case NPPN_DARKMODECHANGED:
+         NPPDM_QueryNPPDarkmode();
+         refreshDarkMode();
+         break;
 
       case SCN_UPDATEUI:
          if (notifyCode->updated & 0xF)
