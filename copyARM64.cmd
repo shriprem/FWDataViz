@@ -1,15 +1,11 @@
 @ECHO OFF
 
 SET PLUGIN_NAME=FWDataViz
-SET DM_DIR=DM_includes\ARM64\
 SET BIN_DIR=arm64\
 REM SET NOTEPAD_DIR=C:\Portable\Notepad++\
 REM SET PLUGINS_DIR=%NOTEPAD_DIR%\plugins\%PLUGIN_NAME%\
 
 COPY license.txt %BIN_DIR%
-COPY %DM_DIR%\NPP_Plugin_Darkmode.dll %BIN_DIR%
-REM COPY %DM_DIR%\NPP_Plugin_Darkmode.dll "%NOTEPAD_DIR%"
-REM COPY %DM_DIR%\NPP_Plugin_Darkmode.dll "%PLUGINS_DIR%"
 REM COPY %BIN_DIR%\%PLUGIN_NAME%.dll "%PLUGINS_DIR%"
 
 REM START /D "%NOTEPAD_DIR%" notepa~1.exe

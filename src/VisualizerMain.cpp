@@ -15,7 +15,7 @@
 #include "PluginDefinition.h"
 #include "SubmenuManager.h"
 #include "Dialogs/VisualizerPanel.h"
-#include "NPP_Plugin_Darkmode.h"
+#include "Darkmode/NPP_Plugin_Darkmode.h"
 
 extern FuncItem pluginMenuItems[MI_COUNT];
 extern NppData nppData;
@@ -71,15 +71,10 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
 
       case NPPN_TBMODIFICATION:
       {
-         bool filled{ NPPDM_IsToolBarFilled() };
-         Utils::addToolbarIcon(MI_FWVIZ_PANEL, IDB_VIZ_TOOL_BTN_STD_FIELDS,
-            filled ? IDI_VIZ_TOOL_BTN_FLUENTF_FIELDS : IDI_VIZ_TOOL_BTN_FLUENT_FIELDS,
-            filled ? IDI_VIZ_TOOL_BTN_DARKF_FIELDS : IDI_VIZ_TOOL_BTN_DARK_FIELDS);
+         Utils::addToolbarIcon(MI_FWVIZ_PANEL, IDB_VIZ_TOOL_BTN_STD_FIELDS, IDI_VIZ_TOOL_BTN_FLUENT_FIELDS, IDI_VIZ_TOOL_BTN_DARK_FIELDS);
 
          if (IsFramingControlNeeded())
-            Utils::addToolbarIcon(MI_CARET_FRAMED, IDB_VIZ_TOOL_BTN_STD_FRAMED,
-               filled ? IDI_VIZ_TOOL_BTN_FLUENTF_FRAMED : IDI_VIZ_TOOL_BTN_FLUENT_FRAMED,
-               filled ? IDI_VIZ_TOOL_BTN_DARKF_FRAMED : IDI_VIZ_TOOL_BTN_DARK_FRAMED);
+            Utils::addToolbarIcon(MI_CARET_FRAMED, IDB_VIZ_TOOL_BTN_STD_FRAMED, IDI_VIZ_TOOL_BTN_FLUENT_FRAMED, IDI_VIZ_TOOL_BTN_DARK_FRAMED);
          break;
       }
 

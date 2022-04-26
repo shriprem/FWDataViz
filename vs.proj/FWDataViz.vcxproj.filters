@@ -49,6 +49,21 @@
     <ClCompile Include="..\src\Dialogs\PreferencesDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Darkmode\DarkMode.cpp">
+      <Filter>Darkmode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Darkmode\NPP_Plugin_Darkmode.cpp">
+      <Filter>Darkmode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Darkmode\NppDarkMode.cpp">
+      <Filter>Darkmode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Darkmode\NppParameters.cpp">
+      <Filter>Darkmode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Darkmode\tinyxml2.cpp">
+      <Filter>Darkmode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -132,8 +147,26 @@
     <ClInclude Include="..\src\Dialogs\PreferencesDialog.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\NPP_Plugin_Darkmode.h">
-      <Filter>Base</Filter>
+    <ClInclude Include="..\src\Darkmode\DarkMode.h">
+      <Filter>Darkmode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Darkmode\IatHook.h">
+      <Filter>Darkmode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Darkmode\NPP_Plugin_Darkmode.h">
+      <Filter>Darkmode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Darkmode\NppDarkMode.h">
+      <Filter>Darkmode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Darkmode\NppParameters.h">
+      <Filter>Darkmode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Darkmode\tinyxml2.h">
+      <Filter>Darkmode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Resources\control_ids.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +204,9 @@
     </Filter>
     <Filter Include="Resources\Icons">
       <UniqueIdentifier>{8fe69672-5428-4dcc-b70a-68725733d6e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Darkmode">
+      <UniqueIdentifier>{e47f53f9-026e-4be4-b8ff-a2cf8b65c135}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

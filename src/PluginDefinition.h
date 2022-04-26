@@ -27,6 +27,7 @@
 
 #include "NPP/PluginInterface.h"
 #include "Resources/resource.h"
+#include "Resources/control_ids.h"
 #include "Resources/localization.h"
 
 #define PLUGIN_FOLDER_NAME L"FWDataViz"

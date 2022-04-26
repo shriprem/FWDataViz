@@ -28,7 +28,7 @@
    #define generic_itoa itoa
 #endif
 
-#define NPP_MIN_VERSION_WITH_CARET_FRAME     8.40f
+#define NPP_MIN_VERSION_WITH_CARET_FRAME     8.41f
 
 FuncItem pluginMenuItems[MI_COUNT];
 
@@ -53,7 +53,7 @@ void pluginCleanUp(){}
 
 void commandMenuInit() {
    _configIO.init();
-   NPPDM_InitDarkMode(nppData._nppHandle);
+   NPPDM_InitDarkMode();
 
    long versionNum{ static_cast<long>(nppMessage(NPPM_GETNPPVERSION, 0, 0)) };
    _framingControlNeeded = std::stof(to_wstring(HIWORD(versionNum)) + L"." + to_wstring(LOWORD(versionNum))) < NPP_MIN_VERSION_WITH_CARET_FRAME;
