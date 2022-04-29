@@ -48,6 +48,7 @@ public:
 
    void initPanel();
    virtual void display(bool toShow = TRUE);
+   void refreshDarkMode();
    void initMBCharsCheckbox();
    void setParent(HWND parent2set);
    void setFocusOnEditor();

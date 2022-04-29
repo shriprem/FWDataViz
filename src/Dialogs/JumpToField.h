@@ -11,6 +11,7 @@ class JumpToField : public StaticDialog {
 public:
    JumpToField() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
+   void refreshDarkMode();
    void initDialog(const string fileType, int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels);
    void setFileTypeData(const wstring& ftConfig);
 

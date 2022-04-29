@@ -166,6 +166,16 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    fillFileTypes();
 }
 
+void ConfigureDialog::refreshDarkMode() {
+   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+
+   if (_eximDlg.isCreated())
+      NPPDM_AutoSubclassAndThemeChildControls(_eximDlg.getHSelf());
+
+   if (_fieldTypeDlg.isCreated())
+      NPPDM_AutoSubclassAndThemeChildControls(_fieldTypeDlg.getHSelf());
+}
+
 INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
    switch (message) {
    case WM_COMMAND:
@@ -429,7 +439,6 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
    case WM_CTLCOLORSTATIC:
       if (NPPDM_IsEnabled()) {
@@ -441,6 +450,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
       }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NPPDM_IsEnabled()) return TRUE;
       break;
    }
 

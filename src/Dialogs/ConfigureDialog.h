@@ -22,6 +22,7 @@ class ConfigureDialog : public StaticDialog {
 public:
    ConfigureDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
+   void refreshDarkMode();
 
    void setFieldEditCaretOnFocus(HWND hEdit);
    void hiliteFieldEditPairedItem(HWND hThis, HWND hThat);

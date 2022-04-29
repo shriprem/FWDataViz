@@ -220,6 +220,12 @@ bool Utils::checkBaseOS(winVer os) {
    return (nppMessage(NPPM_GETWINDOWSVERSION, NULL, NULL) >= os);
 }
 
+float Utils::getNPPVersion() {
+   long versionNum{ static_cast<long>(nppMessage(NPPM_GETNPPVERSION, 0, 0)) };
+
+   return std::stof(to_wstring(HIWORD(versionNum)) + L"." + to_wstring(LOWORD(versionNum)));
+}
+
 bool Utils::checkKeyHeldDown(int vKey) {
    return (GetKeyState(vKey) & 0x8000) > 0;
 }

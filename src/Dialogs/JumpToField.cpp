@@ -23,6 +23,11 @@ void JumpToField::doDialog(HINSTANCE hInst) {
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
+void JumpToField::refreshDarkMode() {
+   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   SendMessage(hCaretFlash, TBM_SETRANGEMIN, FALSE, 1);
+}
+
 void JumpToField::initDialog(const string fileType, int recordIndex,
    int fieldIndex, const vector<wstring>& fieldLabels) {
    initFileType = fileType;
@@ -81,12 +86,15 @@ INT_PTR CALLBACK JumpToField::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
    case WM_CTLCOLORSTATIC:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
+      break;
+
+   case WM_PRINTCLIENT:
+      if (NPPDM_IsEnabled()) return TRUE;
       break;
    }
 

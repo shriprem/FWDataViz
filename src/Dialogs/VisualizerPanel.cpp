@@ -180,7 +180,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORBTN:
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
@@ -209,6 +208,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       }
       break;
 
+   case WM_PRINTCLIENT:
+      if (NPPDM_IsEnabled()) return TRUE;
+      break;
+
    default:
       return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
    }
@@ -227,6 +230,8 @@ void VisualizerPanel::initPanel() {
 
    utf8Config = _configIO.checkConfigFilesforUCS16();
    if (!utf8Config) return;
+
+   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_CARET_FRAMED), IsFramingControlNeeded());
 
    setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
@@ -321,6 +326,19 @@ void VisualizerPanel::display(bool toShow) {
       SetFocus(hFTList);
    else
       setFocusOnEditor();
+}
+
+void VisualizerPanel::refreshDarkMode() {
+   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+
+   if (_prefsDlg.isCreated())
+      NPPDM_AutoSubclassAndThemeChildControls(_prefsDlg.getHSelf());
+
+   if (_jumpDlg.isCreated())
+      _jumpDlg.refreshDarkMode();
+
+   if (_dataExtractDlg.isCreated())
+      NPPDM_AutoSubclassAndThemeChildControls(_dataExtractDlg.getHSelf());
 }
 
 void VisualizerPanel::initMBCharsCheckbox() {
