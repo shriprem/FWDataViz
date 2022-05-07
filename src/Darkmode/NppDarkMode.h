@@ -43,6 +43,7 @@ namespace NppDarkMode
       COLORREF disabledText = 0;
       COLORREF linkText = 0;
       COLORREF edge = 0;
+      COLORREF hotEdge = 0;
    };
 
    struct Options

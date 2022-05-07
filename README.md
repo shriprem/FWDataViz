@@ -41,24 +41,18 @@
 
 ## User Interface
 
-### Toolbar Plugin Icons
-![Show_Panel_icon](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/show_panel_toolbutton.png)
-![Framed_Caret_icon](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/framed_caret_line_toolbutton.png)
-
-The _Framed Current Line_ feature preserves the color highlights of data fields on the caret line, while still indicating its current line status. This feature is functional even when the fixed-width data visualization is not active.
-
 ### Fixed-Width Data Visualizer Panel
 ![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
 
 * Click on the _View Sample Files_ icon: ![View Sample Files](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_samples.bmp), and choose from the menu options to view various [sample files](#sample-data-files).
+
+* Click the _Preferences_ button to specify [preferences](#preferences-dialog).
 
 * Click on the _File Type Metadata Editor_ icon: ![File Type Metadata Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_config.bmp), to view, modify or create your custom File Type definitions. For more information, see: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md)
 
 * Click on the _Visualizer Theme Editor_ icon: ![Visualizer Theme Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/color_config.bmp), to view, modify or create your custom Visualizer Theme definitions. For more information, see: [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md)
 
 * Check the _Auto-detect File Type_ box to automatically visualize files with matching file type from the defined list. For more information on this feature, see: [Auto-Detect File Type Configuration](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md)
-
-* Check the _Framed Current Line_ box to preserve the color highlights of data fields on the caret line, while still indicating its current line status.
 
 * Check the _Trim Field Copy_ box to automatically ignore the left or right padding characters when copying a field. For more information on this feature, see: [Field Copy](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-copy)
 
@@ -67,6 +61,11 @@ The _Framed Current Line_ feature preserves the color highlights of data fields 
 * For more information on _Field Copy_ and _Field Paste_ buttons, see: [Field Copy and Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md)
 
 * For more information on the _Data Extraction_ button, see: [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md)
+
+### Preferences dialog
+
+![Prefereces_dialog](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/preferences_dialog.png)
+
 
 ---
 
