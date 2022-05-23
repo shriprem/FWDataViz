@@ -914,7 +914,10 @@ int VisualizerPanel::loadLexer() {
             fieldType = regex_replace(fieldType, trimSpace, L"");
 
             string styleText{ _configIO.getFieldStyleText(fieldType) };
-            if (styleText.length() != 16) continue;
+            if (styleText.length() != 16) {
+               RT.fieldStyles[fnum] = STYLE_DEFAULT;
+               continue;
+            }
 
             // If this styleInfo is already loaded, just map to that styleInfo slot
             bool styleMatched{ FALSE };
