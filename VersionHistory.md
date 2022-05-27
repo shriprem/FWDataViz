@@ -1,5 +1,14 @@
 # Version History
 
+### Version 2.5.1.0
+
+1.Fields tagged with an undefined field type such as _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_ will be rendered with the default background and foreground colors. See [Field Types - Default Style](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md#default-style) for more info.
+
+
+**Release:** [2.5.1.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.5.1.0)
+
+---
+
 ### Version 2.5.0.0
 
 1. Dynamic change of Dark mode tones: When dark mode settings are changed in the Preferences dialog of Notepad++ (version 8.4.1 or higher), they will be immediately reflected in the _FwDataViz_ plugin user interfaces -- without requiring a restart of Notepad++.
