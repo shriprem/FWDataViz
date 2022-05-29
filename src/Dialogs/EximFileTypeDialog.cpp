@@ -31,6 +31,11 @@ void EximFileTypeDialog::initDialog(bool bExtract, bool bViz) {
    SetFocus(GetDlgItem(_hSelf, IDC_FTEXIM_EDIT_CNTRL));
 }
 
+void EximFileTypeDialog::refreshDarkMode() {
+   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   redraw();
+}
+
 void EximFileTypeDialog::setFileTypeData(const wstring& ftConfig) {
    SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, ftConfig.c_str());
 }

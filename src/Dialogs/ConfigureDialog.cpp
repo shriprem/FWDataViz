@@ -168,12 +168,13 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
 void ConfigureDialog::refreshDarkMode() {
    NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   redraw();
 
    if (_eximDlg.isCreated())
-      NPPDM_AutoSubclassAndThemeChildControls(_eximDlg.getHSelf());
+      _eximDlg.refreshDarkMode();
 
    if (_fieldTypeDlg.isCreated())
-      NPPDM_AutoSubclassAndThemeChildControls(_fieldTypeDlg.getHSelf());
+      _fieldTypeDlg.refreshDarkMode();
 }
 
 INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {

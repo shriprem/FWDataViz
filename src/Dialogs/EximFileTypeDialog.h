@@ -16,6 +16,7 @@ public:
    EximFileTypeDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
    void initDialog(bool bExtract, bool bViz);
+   void refreshDarkMode();
    void setFileTypeData(const wstring& ftConfig);
 
 private:

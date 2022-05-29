@@ -112,6 +112,11 @@ void DataExtractDialog::initDialog(const string fileType, const vector<RecordInf
    moveIndicators(0, TRUE);
 }
 
+void DataExtractDialog::refreshDarkMode() {
+   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   redraw();
+}
+
 INT_PTR CALLBACK DataExtractDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
    case WM_COMMAND:

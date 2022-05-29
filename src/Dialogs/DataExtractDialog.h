@@ -18,6 +18,7 @@ public:
    DataExtractDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
    void initDialog(const string fileType, const vector<RecordInfo>& recInfoList);
+   void refreshDarkMode();
    bool processKey(HWND hCtrl, WPARAM wParam);
    bool processSysKey(HWND hCtrl, WPARAM wParam);
 

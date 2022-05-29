@@ -330,15 +330,16 @@ void VisualizerPanel::display(bool toShow) {
 
 void VisualizerPanel::refreshDarkMode() {
    NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   redraw();
 
    if (_prefsDlg.isCreated())
-      NPPDM_AutoSubclassAndThemeChildControls(_prefsDlg.getHSelf());
+      _prefsDlg.refreshDarkMode();
 
    if (_jumpDlg.isCreated())
       _jumpDlg.refreshDarkMode();
 
    if (_dataExtractDlg.isCreated())
-      NPPDM_AutoSubclassAndThemeChildControls(_dataExtractDlg.getHSelf());
+      _dataExtractDlg.refreshDarkMode();
 }
 
 void VisualizerPanel::initMBCharsCheckbox() {
