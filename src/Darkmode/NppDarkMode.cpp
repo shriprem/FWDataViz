@@ -16,7 +16,6 @@
 
 
 #include "NppDarkMode.h"
-#include "NppParameters.h"
 #include "DarkMode.h"
 
 #include <Uxtheme.h>
@@ -32,12 +31,8 @@
 #define WINAPI_LAMBDA
 #endif
 
-#pragma comment(lib, "uxtheme.lib")
-
 namespace NppDarkMode
 {
-   bool darkModeQuerySupported{};
-
    struct Brushes
    {
       HBRUSH background = nullptr;
@@ -120,111 +115,6 @@ namespace NppDarkMode
       HEXRGB(0x646464)  // edgeColor
    };
 
-   // red tone
-   static const Colors darkRedColors{
-      HEXRGB(0x302020), // background
-      HEXRGB(0x504040), // softerBackground
-      HEXRGB(0x504040), // hotBackground
-      HEXRGB(0x302020), // pureBackground
-      HEXRGB(0xC00000), // errorBackground
-      HEXRGB(0xE0E0E0), // textColor
-      HEXRGB(0xC0C0C0), // darkerTextColor
-      HEXRGB(0x808080), // disabledTextColor
-      HEXRGB(0xFFFF00), // linkTextColor
-      HEXRGB(0x908080)  // edgeColor
-   };
-
-   // green tone
-   static const Colors darkGreenColors{
-      HEXRGB(0x203020), // background
-      HEXRGB(0x405040), // softerBackground
-      HEXRGB(0x405040), // hotBackground
-      HEXRGB(0x203020), // pureBackground
-      HEXRGB(0xB01000), // errorBackground
-      HEXRGB(0xE0E0E0), // textColor
-      HEXRGB(0xC0C0C0), // darkerTextColor
-      HEXRGB(0x808080), // disabledTextColor
-      HEXRGB(0xFFFF00), // linkTextColor
-      HEXRGB(0x809080)  // edgeColor
-   };
-
-   // blue tone
-   static const Colors darkBlueColors{
-      HEXRGB(0x202040), // background
-      HEXRGB(0x404060), // softerBackground
-      HEXRGB(0x404060), // hotBackground
-      HEXRGB(0x202040), // pureBackground
-      HEXRGB(0xB00020), // errorBackground
-      HEXRGB(0xE0E0E0), // textColor
-      HEXRGB(0xC0C0C0), // darkerTextColor
-      HEXRGB(0x808080), // disabledTextColor
-      HEXRGB(0xFFFF00), // linkTextColor
-      HEXRGB(0x8080A0)  // edgeColor
-   };
-
-   // purple tone
-   static const Colors darkPurpleColors{
-      HEXRGB(0x302040), // background
-      HEXRGB(0x504060), // softerBackground
-      HEXRGB(0x504060), // hotBackground
-      HEXRGB(0x302040), // pureBackground
-      HEXRGB(0xC00020), // errorBackground
-      HEXRGB(0xE0E0E0), // textColor
-      HEXRGB(0xC0C0C0), // darkerTextColor
-      HEXRGB(0x808080), // disabledTextColor
-      HEXRGB(0xFFFF00), // linkTextColor
-      HEXRGB(0x9080A0)  // edgeColor
-   };
-
-   // cyan tone
-   static const Colors darkCyanColors{
-      HEXRGB(0x203040), // background
-      HEXRGB(0x405060), // softerBackground
-      HEXRGB(0x405060), // hotBackground
-      HEXRGB(0x203040), // pureBackground
-      HEXRGB(0xB01020), // errorBackground
-      HEXRGB(0xE0E0E0), // textColor
-      HEXRGB(0xC0C0C0), // darkerTextColor
-      HEXRGB(0x808080), // disabledTextColor
-      HEXRGB(0xFFFF00), // linkTextColor
-      HEXRGB(0x8090A0)  // edgeColor
-   };
-
-   // olive tone
-   static const Colors darkOliveColors{
-      HEXRGB(0x303020), // background
-      HEXRGB(0x505040), // softerBackground
-      HEXRGB(0x505040), // hotBackground
-      HEXRGB(0x303020), // pureBackground
-      HEXRGB(0xC01000), // errorBackground
-      HEXRGB(0xE0E0E0), // textColor
-      HEXRGB(0xC0C0C0), // darkerTextColor
-      HEXRGB(0x808080), // disabledTextColor
-      HEXRGB(0xFFFF00), // linkTextColor
-      HEXRGB(0x909080)  // edgeColor
-   };
-
-   // customized
-   Colors darkCustomizedColors{
-      HEXRGB(0x202020), // background
-      HEXRGB(0x404040), // softerBackground
-      HEXRGB(0x404040), // hotBackground
-      HEXRGB(0x202020), // pureBackground
-      HEXRGB(0xB00000), // errorBackground
-      HEXRGB(0xE0E0E0), // textColor
-      HEXRGB(0xC0C0C0), // darkerTextColor
-      HEXRGB(0x808080), // disabledTextColor
-      HEXRGB(0xFFFF00), // linkTextColor
-      HEXRGB(0x646464)  // edgeColor
-   };
-
-   ColorTone g_colorToneChoice = blackTone;
-
-   void setDarkTone(ColorTone colorToneChoice)
-   {
-      g_colorToneChoice = colorToneChoice;
-   }
-
    struct Theme
    {
       Colors _colors;
@@ -247,111 +137,28 @@ namespace NppDarkMode
 
    Theme tCurrent(darkColors);
 
-   Theme tDefault(darkColors);
-   Theme tR(darkRedColors);
-   Theme tG(darkGreenColors);
-   Theme tB(darkBlueColors);
-   Theme tP(darkPurpleColors);
-   Theme tC(darkCyanColors);
-   Theme tO(darkOliveColors);
-
-   Theme tCustom(darkCustomizedColors);
-
-   Theme& getTheme()
-   {
-      if (darkModeQuerySupported)
-         return tCurrent;
-
-      switch (g_colorToneChoice)
-      {
-         case redTone:
-            return tR;
-
-         case greenTone:
-            return tG;
-
-         case blueTone:
-            return tB;
-
-         case purpleTone:
-            return tP;
-
-         case cyanTone:
-            return tC;
-
-         case oliveTone:
-            return tO;
-
-         case customizedTone:
-            return tCustom;
-
-         default:
-            return tDefault;
-      }
-   }
-
-   static Options _options;
+   static boolean _isDarkModeEnabled;
 
    void queryNPPDarkmode()
    {
-      _options.enable = nppMessage(NPPM_ISDARKMODEENABLED, 0, 0);
+      _isDarkModeEnabled = static_cast<boolean>(nppMessage(NPPM_ISDARKMODEENABLED, 0, 0));
 
       Colors customColors{};
       nppMessage(NPPM_GETDARKMODECOLORS, sizeof(customColors), reinterpret_cast<LPARAM>(&customColors));
       tCurrent.change(customColors);
    }
 
-   Options configuredOptions()
+   void initDarkMode()
    {
       queryNPPDarkmode();
 
-      NppParameters nppParams = NppParameters::getInstance();
-      nppParams.init(darkModeQuerySupported);
-
-      DarkModeConf dmConf = nppParams.getDarkModeConf();
-
-      Options opt;
-      opt.enable = dmConf._isEnabled;
-      opt.enableMenubar = opt.enable;
-
-      g_colorToneChoice = dmConf._colorTone;
-      tCustom.change(dmConf._customColors);
-
-      return opt;
-   }
-
-   void initDarkMode()
-   {
-      _options = configuredOptions();
-      darkModeQuerySupported = (Utils::getNPPVersion() >= NPP_MIN_VERSION_WITH_DARKMODE_QUERY);
-
-      initExperimentalDarkMode();
-      setDarkMode(_options.enable, true);
+      ::InitDarkMode();
+      ::SetDarkMode(_isDarkModeEnabled, true);
    }
 
    bool isEnabled()
    {
-      return _options.enable;
-   }
-
-   bool isDarkMenuEnabled()
-   {
-      return _options.enableMenubar;
-   }
-
-   bool isExperimentalActive()
-   {
-      return g_darkModeEnabled;
-   }
-
-   bool isExperimentalSupported()
-   {
-      return g_darkModeSupported;
-   }
-
-   bool isWindows11()
-   {
-      return IsWindows11();
+      return _isDarkModeEnabled;
    }
 
    COLORREF invertLightness(COLORREF c)
@@ -384,7 +191,7 @@ namespace NppDarkMode
 
    TreeViewStyle treeViewStyle = TreeViewStyle::classic;
 
-   COLORREF treeViewBg = NppParameters::nppBackgroundRGB();
+   COLORREF treeViewBg = Utils::intToRGB(static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL)));
    double lighnessTreeView = 50.0;
 
    // adapted from https://stackoverflow.com/a/56678483
@@ -408,65 +215,27 @@ namespace NppDarkMode
       return lighness;
    }
 
-   COLORREF getBackgroundColor()         { return getTheme()._colors.background; }
-   COLORREF getSofterBackgroundColor()   { return getTheme()._colors.softerBackground; }
-   COLORREF getHotBackgroundColor()      { return getTheme()._colors.hotBackground; }
-   COLORREF getDarkerBackgroundColor()   { return getTheme()._colors.pureBackground; }
-   COLORREF getErrorBackgroundColor()    { return getTheme()._colors.errorBackground; }
-   COLORREF getTextColor()               { return getTheme()._colors.text; }
-   COLORREF getDarkerTextColor()         { return getTheme()._colors.darkerText; }
-   COLORREF getDisabledTextColor()       { return getTheme()._colors.disabledText; }
-   COLORREF getLinkTextColor()           { return getTheme()._colors.linkText; }
-   COLORREF getEdgeColor()               { return getTheme()._colors.edge; }
+   COLORREF getBackgroundColor()         { return tCurrent._colors.background; }
+   COLORREF getSofterBackgroundColor()   { return tCurrent._colors.softerBackground; }
+   COLORREF getHotBackgroundColor()      { return tCurrent._colors.hotBackground; }
+   COLORREF getDarkerBackgroundColor()   { return tCurrent._colors.pureBackground; }
+   COLORREF getErrorBackgroundColor()    { return tCurrent._colors.errorBackground; }
+   COLORREF getTextColor()               { return tCurrent._colors.text; }
+   COLORREF getDarkerTextColor()         { return tCurrent._colors.darkerText; }
+   COLORREF getDisabledTextColor()       { return tCurrent._colors.disabledText; }
+   COLORREF getLinkTextColor()           { return tCurrent._colors.linkText; }
+   COLORREF getEdgeColor()               { return tCurrent._colors.edge; }
 
-   HBRUSH getBackgroundBrush()           { return getTheme()._brushes.background; }
-   HBRUSH getSofterBackgroundBrush()     { return getTheme()._brushes.softerBackground; }
-   HBRUSH getHotBackgroundBrush()        { return getTheme()._brushes.hotBackground; }
-   HBRUSH getDarkerBackgroundBrush()     { return getTheme()._brushes.pureBackground; }
-   HBRUSH getErrorBackgroundBrush()      { return getTheme()._brushes.errorBackground; }
+   HBRUSH getBackgroundBrush()           { return tCurrent._brushes.background; }
+   HBRUSH getSofterBackgroundBrush()     { return tCurrent._brushes.softerBackground; }
+   HBRUSH getHotBackgroundBrush()        { return tCurrent._brushes.hotBackground; }
+   HBRUSH getDarkerBackgroundBrush()     { return tCurrent._brushes.pureBackground; }
+   HBRUSH getErrorBackgroundBrush()      { return tCurrent._brushes.errorBackground; }
 
-   HPEN getDarkerTextPen()               { return getTheme()._pens.darkerTextPen; }
-   HPEN getEdgePen()                     { return getTheme()._pens.edgePen; }
-
-   Colors getDarkModeDefaultColors()
-   {
-      return darkColors;
-   }
-
-   void changeCustomTheme(const Colors& colors)
-   {
-      tCustom.change(colors);
-   }
-
-   // handle events
-
-   void handleSettingChange(HWND hwnd, LPARAM lParam)
-   {
-      UNREFERENCED_PARAMETER(hwnd);
-
-      if (!isExperimentalSupported())
-      {
-         return;
-      }
-
-      if (IsColorSchemeChangeMessage(lParam))
-      {
-         g_darkModeEnabled = ShouldAppsUseDarkMode() && !IsHighContrast();
-      }
-   }
+   HPEN getDarkerTextPen()               { return tCurrent._pens.darkerTextPen; }
+   HPEN getEdgePen()                     { return tCurrent._pens.edgePen; }
 
    // from DarkMode.h
-
-   void initExperimentalDarkMode()
-   {
-      ::InitDarkMode();
-   }
-
-   void setDarkMode(bool useDark, bool fixDarkScrollbar)
-   {
-      ::SetDarkMode(useDark, fixDarkScrollbar);
-   }
-
    void allowDarkModeForApp(bool allow)
    {
       ::AllowDarkModeForApp(allow);
@@ -573,11 +342,11 @@ namespace NppDarkMode
       DrawThemeBackground(hTheme, hdc, iPartID, iStateID, &rcBackground, nullptr);
 
       DTTOPTS dtto = { sizeof(DTTOPTS), DTT_TEXTCOLOR };
-      dtto.crText = NppDarkMode::getTextColor();
+      dtto.crText = getTextColor();
 
       if (nStyle & WS_DISABLED)
       {
-         dtto.crText = NppDarkMode::getDisabledTextColor();
+         dtto.crText = getDisabledTextColor();
       }
 
       DrawThemeTextEx(hTheme, hdc, iPartID, iStateID, szText, -1, dtFlags, &rcText, &dtto);
@@ -697,7 +466,7 @@ namespace NppDarkMode
             delete pButtonData;
             break;
          case WM_ERASEBKGND:
-            if (NppDarkMode::isEnabled() && pButtonData->ensureTheme(hWnd))
+            if (isEnabled() && pButtonData->ensureTheme(hWnd))
             {
                return TRUE;
             }
@@ -710,7 +479,7 @@ namespace NppDarkMode
             break;
          case WM_PRINTCLIENT:
          case WM_PAINT:
-            if (NppDarkMode::isEnabled() && pButtonData->ensureTheme(hWnd))
+            if (isEnabled() && pButtonData->ensureTheme(hWnd))
             {
                PAINTSTRUCT ps = { 0 };
                HDC hdc = reinterpret_cast<HDC>(wParam);
@@ -737,7 +506,7 @@ namespace NppDarkMode
             BufferedPaintStopAllAnimations(hWnd);
             break;
          case WM_ENABLE:
-            if (NppDarkMode::isEnabled())
+            if (isEnabled())
             {
                // skip the button's normal wndproc so it won't redraw out of wm_paint
                LRESULT lr = DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -831,7 +600,7 @@ namespace NppDarkMode
          rcText.left += 2;
 
          DTTOPTS dtto = { sizeof(DTTOPTS), DTT_TEXTCOLOR };
-         dtto.crText = NppDarkMode::getTextColor();
+         dtto.crText = getTextColor();
 
          DWORD textFlags = isCenter ? DT_CENTER : DT_LEFT;
 
@@ -864,7 +633,7 @@ namespace NppDarkMode
          delete pButtonData;
          break;
       case WM_ERASEBKGND:
-         if (NppDarkMode::isEnabled() && pButtonData->ensureTheme(hWnd))
+         if (isEnabled() && pButtonData->ensureTheme(hWnd))
          {
             return TRUE;
          }
@@ -877,7 +646,7 @@ namespace NppDarkMode
          break;
       case WM_PRINTCLIENT:
       case WM_PAINT:
-         if (NppDarkMode::isEnabled() && pButtonData->ensureTheme(hWnd))
+         if (isEnabled() && pButtonData->ensureTheme(hWnd))
          {
             PAINTSTRUCT ps = { 0 };
             HDC hdc = reinterpret_cast<HDC>(wParam);
@@ -928,7 +697,7 @@ namespace NppDarkMode
       {
       case WM_PAINT:
       {
-         if (!NppDarkMode::isEnabled())
+         if (!isEnabled())
          {
             break;
          }
@@ -941,9 +710,9 @@ namespace NppDarkMode
 
          PAINTSTRUCT ps;
          HDC hdc = ::BeginPaint(hWnd, &ps);
-         ::FillRect(hdc, &ps.rcPaint, NppDarkMode::getDarkerBackgroundBrush());
+         ::FillRect(hdc, &ps.rcPaint, getDarkerBackgroundBrush());
 
-         auto holdPen = static_cast<HPEN>(::SelectObject(hdc, NppDarkMode::getEdgePen()));
+         auto holdPen = static_cast<HPEN>(::SelectObject(hdc, getEdgePen()));
 
          HRGN holdClip = CreateRectRgn(0, 0, 0, 0);
          if (1 != GetClipRgn(hdc, holdClip))
@@ -983,13 +752,13 @@ namespace NppDarkMode
 
                SelectClipRgn(hdc, hClip);
 
-               SetTextColor(hdc, (bHot || (i == nSelTab)) ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
+               SetTextColor(hdc, (bHot || (i == nSelTab)) ? getTextColor() : getDarkerTextColor());
 
                // for consistency getBackgroundBrush()
                // would be better, than getSofterBackgroundBrush(),
                // however default getBackgroundBrush() has same color
                // as getDarkerBackgroundBrush()
-               ::FillRect(hdc, &rcItem, (i == nSelTab) ? NppDarkMode::getDarkerBackgroundBrush() : NppDarkMode::getSofterBackgroundBrush());
+               ::FillRect(hdc, &rcItem, (i == nSelTab) ? getDarkerBackgroundBrush() : getSofterBackgroundBrush());
 
                SetBkMode(hdc, TRANSPARENT);
 
@@ -1059,7 +828,7 @@ namespace NppDarkMode
       {
          case WM_PAINT:
          {
-            if (!NppDarkMode::isEnabled())
+            if (!isEnabled())
             {
                break;
             }
@@ -1070,14 +839,14 @@ namespace NppDarkMode
             PAINTSTRUCT ps;
             auto hdc = ::BeginPaint(hWnd, &ps);
 
-            auto holdPen = static_cast<HPEN>(::SelectObject(hdc, NppDarkMode::getEdgePen()));
+            auto holdPen = static_cast<HPEN>(::SelectObject(hdc, getEdgePen()));
             ::SelectObject(hdc, reinterpret_cast<HFONT>(::SendMessage(hWnd, WM_GETFONT, 0, 0)));
-            ::SetBkColor(hdc, NppDarkMode::getBackgroundColor());
+            ::SetBkColor(hdc, getBackgroundColor());
 
             ::SelectObject(hdc, ::GetStockObject(NULL_BRUSH)); // to avoid text flicker, use only border
             ::Rectangle(hdc, 0, 0, rc.right, rc.bottom);
 
-            auto holdBrush = ::SelectObject(hdc, NppDarkMode::getDarkerBackgroundBrush());
+            auto holdBrush = ::SelectObject(hdc, getDarkerBackgroundBrush());
 
             RECT arrowRc = {rc.right - Utils::scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
 
@@ -1090,13 +859,13 @@ namespace NppDarkMode
                bkRc.top += 1;
                bkRc.right = arrowRc.left - 1;
                bkRc.bottom -= 1;
-               ::FillRect(hdc, &bkRc, NppDarkMode::getSofterBackgroundBrush()); // erase background on item change
+               ::FillRect(hdc, &bkRc, getSofterBackgroundBrush()); // erase background on item change
 
                auto index = static_cast<int>(::SendMessage(hWnd, CB_GETCURSEL, 0, 0));
                if (index != CB_ERR)
                {
-                  ::SetTextColor(hdc, NppDarkMode::getTextColor());
-                  ::SetBkColor(hdc, NppDarkMode::getSofterBackgroundColor());
+                  ::SetTextColor(hdc, getTextColor());
+                  ::SetBkColor(hdc, getSofterBackgroundColor());
                   auto bufferLen = static_cast<size_t>(::SendMessage(hWnd, CB_GETLBTEXTLEN, index, 0));
                   TCHAR* buffer = new TCHAR[(bufferLen + 1)];
                   ::SendMessage(hWnd, CB_GETLBTEXT, index, reinterpret_cast<LPARAM>(buffer));
@@ -1116,8 +885,8 @@ namespace NppDarkMode
 
             bool isHot = PtInRect(&rc, ptCursor);
 
-            ::SetTextColor(hdc, !isHot ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
-            ::SetBkColor(hdc, !isHot ? NppDarkMode::getHotBackgroundColor() : NppDarkMode::getBackgroundColor());
+            ::SetTextColor(hdc, !isHot ? getTextColor() : getDarkerTextColor());
+            ::SetBkColor(hdc, !isHot ? getHotBackgroundColor() : getBackgroundColor());
             ::ExtTextOut(hdc,
                arrowRc.left + (arrowRc.right - arrowRc.left) / 2 - Utils::scaleDPIX(4),
                arrowRc.top + 3,
@@ -1125,7 +894,7 @@ namespace NppDarkMode
                &arrowRc, L"˅", // Choose from: [V v ˅ ▼ ▾ ▽ ▿]
                1,
                nullptr);
-            ::SetBkColor(hdc, NppDarkMode::getBackgroundColor());
+            ::SetBkColor(hdc, getBackgroundColor());
 
             POINT edge[] = {
                {arrowRc.left - 1, arrowRc.top},
@@ -1164,12 +933,12 @@ namespace NppDarkMode
       };
 
       Params p{
-         NppDarkMode::isEnabled() ? L"DarkMode_Explorer" : nullptr
+         isEnabled() ? L"DarkMode_Explorer" : nullptr
          , subclass
          , theme
       };
 
-      ::EnableThemeDialogTexture(hwndParent, theme && !NppDarkMode::isEnabled() ? ETDT_ENABLETAB : ETDT_DISABLE);
+      ::EnableThemeDialogTexture(hwndParent, theme && !isEnabled() ? ETDT_ENABLETAB : ETDT_DISABLE);
 
       EnumChildWindows(hwndParent, [](HWND hwnd, LPARAM lParam) WINAPI_LAMBDA{
          auto& p = *reinterpret_cast<Params*>(lParam);
@@ -1195,7 +964,7 @@ namespace NppDarkMode
                   }
                }
 
-               NppDarkMode::subclassComboBoxControl(hwnd);
+               subclassComboBoxControl(hwnd);
             }
             return TRUE;
          }
@@ -1236,13 +1005,13 @@ namespace NppDarkMode
                case BS_AUTORADIOBUTTON:
                   if (p.subclass)
                   {
-                     NppDarkMode::subclassButtonControl(hwnd);
+                     subclassButtonControl(hwnd);
                   }
                   break;
                case BS_GROUPBOX:
                   if (p.subclass)
                   {
-                     NppDarkMode::subclassGroupboxControl(hwnd);
+                     subclassGroupboxControl(hwnd);
                   }
                   break;
                case BS_DEFPUSHBUTTON:
@@ -1266,18 +1035,18 @@ namespace NppDarkMode
 
    void setDarkTitleBar(HWND hwnd)
    {
-      NppDarkMode::allowDarkModeForWindow(hwnd, NppDarkMode::isEnabled());
-      NppDarkMode::setTitleBarThemeColor(hwnd);
+      allowDarkModeForWindow(hwnd, isEnabled());
+      setTitleBarThemeColor(hwnd);
    }
 
    void setDarkExplorerTheme(HWND hwnd)
    {
-      SetWindowTheme(hwnd, NppDarkMode::isEnabled() ? L"DarkMode_Explorer" : nullptr, nullptr);
+      SetWindowTheme(hwnd, isEnabled() ? L"DarkMode_Explorer" : nullptr, nullptr);
    }
 
    void setDarkScrollBar(HWND hwnd)
    {
-      NppDarkMode::setDarkExplorerTheme(hwnd);
+      setDarkExplorerTheme(hwnd);
    }
 
    void setDarkTooltips(HWND hwnd, ToolTipsType type)
@@ -1285,16 +1054,16 @@ namespace NppDarkMode
       UINT msg = 0;
       switch (type)
       {
-         case NppDarkMode::ToolTipsType::toolbar:
+         case ToolTipsType::toolbar:
             msg = TB_GETTOOLTIPS;
             break;
-         case NppDarkMode::ToolTipsType::listview:
+         case ToolTipsType::listview:
             msg = LVM_GETTOOLTIPS;
             break;
-         case NppDarkMode::ToolTipsType::treeview:
+         case ToolTipsType::treeview:
             msg = TVM_GETTOOLTIPS;
             break;
-         case NppDarkMode::ToolTipsType::tabbar:
+         case ToolTipsType::tabbar:
             msg = TCM_GETTOOLTIPS;
             break;
          default:
@@ -1304,14 +1073,14 @@ namespace NppDarkMode
 
       if (msg == 0)
       {
-         NppDarkMode::setDarkExplorerTheme(hwnd);
+         setDarkExplorerTheme(hwnd);
       }
       else
       {
          auto hTips = reinterpret_cast<HWND>(::SendMessage(hwnd, msg, 0, 0));
          if (hTips != nullptr)
          {
-            NppDarkMode::setDarkExplorerTheme(hTips);
+            setDarkExplorerTheme(hTips);
          }
       }
    }
@@ -1321,10 +1090,10 @@ namespace NppDarkMode
       COLORSCHEME scheme;
       scheme.dwSize = sizeof(COLORSCHEME);
 
-      if (NppDarkMode::isEnabled())
+      if (isEnabled())
       {
-         scheme.clrBtnHighlight = NppDarkMode::getDarkerBackgroundColor();
-         scheme.clrBtnShadow = NppDarkMode::getDarkerBackgroundColor();
+         scheme.clrBtnHighlight = getDarkerBackgroundColor();
+         scheme.clrBtnShadow = getDarkerBackgroundColor();
       }
       else
       {
@@ -1337,13 +1106,13 @@ namespace NppDarkMode
 
    void setDarkListView(HWND hwnd)
    {
-      bool useDark = NppDarkMode::isEnabled();
+      bool useDark = isEnabled();
 
       HWND hHeader = ListView_GetHeader(hwnd);
-      NppDarkMode::allowDarkModeForWindow(hHeader, useDark);
+      allowDarkModeForWindow(hHeader, useDark);
       SetWindowTheme(hHeader, useDark ? L"ItemsView" : nullptr, nullptr);
 
-      NppDarkMode::allowDarkModeForWindow(hwnd, useDark);
+      allowDarkModeForWindow(hwnd, useDark);
       SetWindowTheme(hwnd, L"Explorer", nullptr);
    }
 
@@ -1427,67 +1196,67 @@ namespace NppDarkMode
 
    LRESULT onCtlColor(HDC hdc)
    {
-      ::SetTextColor(hdc, NppDarkMode::getTextColor());
-      ::SetBkColor(hdc, NppDarkMode::getBackgroundColor());
-      return reinterpret_cast<LRESULT>(NppDarkMode::getBackgroundBrush());
+      ::SetTextColor(hdc, getTextColor());
+      ::SetBkColor(hdc, getBackgroundColor());
+      return reinterpret_cast<LRESULT>(getBackgroundBrush());
    }
 
    LRESULT onCtlColorSofter(HDC hdc)
    {
-      ::SetTextColor(hdc, NppDarkMode::getTextColor());
-      ::SetBkColor(hdc, NppDarkMode::getSofterBackgroundColor());
-      return reinterpret_cast<LRESULT>(NppDarkMode::getSofterBackgroundBrush());
+      ::SetTextColor(hdc, getTextColor());
+      ::SetBkColor(hdc, getSofterBackgroundColor());
+      return reinterpret_cast<LRESULT>(getSofterBackgroundBrush());
    }
 
    LRESULT onCtlColorDarker(HDC hdc)
    {
-      ::SetTextColor(hdc, NppDarkMode::getTextColor());
-      ::SetBkColor(hdc, NppDarkMode::getDarkerBackgroundColor());
-      return reinterpret_cast<LRESULT>(NppDarkMode::getDarkerBackgroundBrush());
+      ::SetTextColor(hdc, getTextColor());
+      ::SetBkColor(hdc, getDarkerBackgroundColor());
+      return reinterpret_cast<LRESULT>(getDarkerBackgroundBrush());
    }
 
    LRESULT onCtlColorError(HDC hdc)
    {
-      ::SetTextColor(hdc, NppDarkMode::getTextColor());
-      ::SetBkColor(hdc, NppDarkMode::getErrorBackgroundColor());
-      return reinterpret_cast<LRESULT>(NppDarkMode::getErrorBackgroundBrush());
+      ::SetTextColor(hdc, getTextColor());
+      ::SetBkColor(hdc, getErrorBackgroundColor());
+      return reinterpret_cast<LRESULT>(getErrorBackgroundBrush());
    }
 
    LRESULT onCtlColorSysLink(HDC hdc)
    {
-      if (NppDarkMode::isEnabled()) {
-         SetTextColor(hdc, NppDarkMode::getLinkTextColor());
-         SetBkColor(hdc, NppDarkMode::getBackgroundColor());
-         return reinterpret_cast<LRESULT>(NppDarkMode::getBackgroundBrush());
+      if (isEnabled()) {
+         SetTextColor(hdc, getLinkTextColor());
+         SetBkColor(hdc, getBackgroundColor());
+         return reinterpret_cast<LRESULT>(getBackgroundBrush());
       }
       else {
          SetTextColor(hdc, GetSysColor(COLOR_HIGHLIGHT));
          return FALSE;
       }
    }
- 
-   LRESULT onCtlColorIfEnabled(HDC hdc, bool isEnabled) {
+
+   LRESULT onCtlColorIfEnabled(HDC hdc, bool bEnabled) {
       LRESULT result{ FALSE };
 
-      if (NppDarkMode::isEnabled()) {
+      if (isEnabled()) {
          result = onCtlColorDarker(hdc);
-         SetTextColor(hdc, isEnabled ? NppDarkMode::getTextColor() : NppDarkMode::getDisabledTextColor());
+         SetTextColor(hdc, bEnabled ? getTextColor() : getDisabledTextColor());
       }
       else {
-         SetTextColor(hdc, GetSysColor(isEnabled ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
+         SetTextColor(hdc, GetSysColor(bEnabled ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
       }
 
       return result;
    }
 
-   LRESULT onCtlHiliteIfEnabled(HDC hdc, bool isEnabled) {
-      if (NppDarkMode::isEnabled()) {
-         SetTextColor(hdc, isEnabled ? NppDarkMode::getLinkTextColor() : NppDarkMode::getDisabledTextColor());
-         SetBkColor(hdc, NppDarkMode::getBackgroundColor());
-         return reinterpret_cast<LRESULT>(NppDarkMode::getBackgroundBrush());
+   LRESULT onCtlHiliteIfEnabled(HDC hdc, bool bEnabled) {
+      if (isEnabled()) {
+         SetTextColor(hdc, bEnabled ? getLinkTextColor() : getDisabledTextColor());
+         SetBkColor(hdc, getBackgroundColor());
+         return reinterpret_cast<LRESULT>(getBackgroundBrush());
       }
       else {
-         SetTextColor(hdc, GetSysColor(isEnabled ? COLOR_HIGHLIGHT : COLOR_GRAYTEXT));
+         SetTextColor(hdc, GetSysColor(bEnabled ? COLOR_HIGHLIGHT : COLOR_GRAYTEXT));
          return FALSE;
       }
    }

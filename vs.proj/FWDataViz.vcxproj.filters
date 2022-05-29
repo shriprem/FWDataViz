@@ -58,12 +58,6 @@
     <ClCompile Include="..\src\Darkmode\NppDarkMode.cpp">
       <Filter>Darkmode</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Darkmode\NppParameters.cpp">
-      <Filter>Darkmode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Darkmode\tinyxml2.cpp">
-      <Filter>Darkmode</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -157,12 +151,6 @@
       <Filter>Darkmode</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Darkmode\NppDarkMode.h">
-      <Filter>Darkmode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Darkmode\NppParameters.h">
-      <Filter>Darkmode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Darkmode\tinyxml2.h">
       <Filter>Darkmode</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Resources\control_ids.h">

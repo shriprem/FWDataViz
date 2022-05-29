@@ -16,7 +16,8 @@
 
 #pragma once
 
-#define NPP_MIN_VERSION_WITH_DARKMODE_QUERY 8.41f
+#pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "uxtheme.lib")
 
 #include "..\Utils.h"
 
@@ -46,11 +47,6 @@ namespace NppDarkMode
       COLORREF hotEdge = 0;
    };
 
-   struct Options
-   {
-      bool enable = false;
-      bool enableMenubar = false;
-   };
 
    enum class ToolTipsType
    {
@@ -61,32 +57,6 @@ namespace NppDarkMode
       tabbar
    };
 
-   enum ColorTone {
-      blackTone  = 0,
-      redTone    = 1,
-      greenTone  = 2,
-      blueTone   = 3,
-      purpleTone = 4,
-      cyanTone   = 5,
-      oliveTone  = 6,
-      customizedTone = 32
-   };
-
-   enum toolBarStatusType {
-      TB_SMALL,
-      TB_LARGE,
-      TB_SMALL2,
-      TB_LARGE2,
-      TB_STANDARD
-   };
-
-   struct DarkModeConf final
-   {
-      bool _isEnabled = false;
-      ColorTone _colorTone = blackTone;
-      Colors _customColors;
-   };
-
    enum class TreeViewStyle
    {
       classic = 0,
@@ -94,19 +64,13 @@ namespace NppDarkMode
       dark = 2
    };
 
-   void initDarkMode();          // pulls options from NppParameters
+   void initDarkMode();
    void queryNPPDarkmode();      // sync options from NPP instance
    bool isEnabled();
-   bool isDarkMenuEnabled();
-   bool isExperimentalSupported();
-
-   bool isWindows11();
 
    COLORREF invertLightness(COLORREF c);
    COLORREF invertLightnessSofter(COLORREF c);
    double calculatePerceivedLighness(COLORREF c);
-
-   void setDarkTone(ColorTone colorToneChoice);
 
    COLORREF getBackgroundColor();
    COLORREF getSofterBackgroundColor();
@@ -130,15 +94,7 @@ namespace NppDarkMode
    HPEN getDarkerTextPen();
    HPEN getEdgePen();
 
-   Colors getDarkModeDefaultColors();
-   void changeCustomTheme(const Colors& colors);
-
-   // handle events
-   void handleSettingChange(HWND hwnd, LPARAM lParam);
-
    // from DarkMode.h
-   void initExperimentalDarkMode();
-   void setDarkMode(bool useDark, bool fixDarkScrollbar);
    void allowDarkModeForApp(bool allow);
    bool allowDarkModeForWindow(HWND hWnd, bool allow);
    void setTitleBarThemeColor(HWND hWnd);
@@ -171,6 +127,6 @@ namespace NppDarkMode
    LRESULT onCtlColorError(HDC hdc);
    LRESULT onCtlColorSysLink(HDC hdc);
 
-   LRESULT onCtlColorIfEnabled(HDC hdc, bool isEnabled);
-   LRESULT onCtlHiliteIfEnabled(HDC hdc, bool isEnabled);
+   LRESULT onCtlColorIfEnabled(HDC hdc, bool bEnabled);
+   LRESULT onCtlHiliteIfEnabled(HDC hdc, bool bEnabled);
 }
