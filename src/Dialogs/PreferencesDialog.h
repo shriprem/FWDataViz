@@ -11,6 +11,7 @@ class PreferencesDialog : public StaticDialog {
 public:
    PreferencesDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
+   void refreshDarkMode();
 
 private:
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);

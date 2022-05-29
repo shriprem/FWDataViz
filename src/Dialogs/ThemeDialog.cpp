@@ -57,9 +57,10 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
 
 void ThemeDialog::refreshDarkMode() {
    NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   redraw();
 
    if (_eximDlg.isCreated())
-      NPPDM_AutoSubclassAndThemeChildControls(_eximDlg.getHSelf());
+      _eximDlg.refreshDarkMode();
 }
 
 INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {

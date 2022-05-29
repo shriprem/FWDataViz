@@ -8,6 +8,7 @@ public:
    FieldTypeDialog() : StaticDialog() {};
 
    void doDialog(HINSTANCE hInst);
+   void refreshDarkMode();
 
 private:
    bool loadingEdits, newFieldDef;

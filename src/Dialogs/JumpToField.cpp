@@ -25,6 +25,7 @@ void JumpToField::doDialog(HINSTANCE hInst) {
 
 void JumpToField::refreshDarkMode() {
    NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   redraw();
    SendMessage(hCaretFlash, TBM_SETRANGEMIN, FALSE, 1);
 }
 

@@ -23,6 +23,11 @@ void FieldTypeDialog::doDialog(HINSTANCE hInst) {
    fillFields();
 }
 
+void FieldTypeDialog::refreshDarkMode() {
+   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   redraw();
+}
+
 INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
    case WM_COMMAND:

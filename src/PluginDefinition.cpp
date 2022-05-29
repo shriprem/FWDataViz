@@ -67,7 +67,7 @@ void commandMenuInit() {
 
    if (_framingControlNeeded)
       setCommand(MI_CARET_FRAMED, MENU_CARET_FRAMED, ToggleCaretFramedState, NULL, _configIO.getPreferenceBool(PREF_CARET_FRAMED));
-   
+
    setCommand(MI_CONFIG_DIALOG, MENU_CONFIG_FILE_TYPES, ShowConfigDialog);
    setCommand(MI_CONFIG_THEMES, MENU_CONFIG_THEMES, ShowThemeDialog);
    setCommand(MI_SEPARATOR_1, L"-", NULL);
@@ -260,7 +260,7 @@ void refreshDarkMode() {
       _themeDlg.refreshDarkMode();
 
    if (_aboutDlg.isCreated())
-      NPPDM_AutoSubclassAndThemeChildControls(_aboutDlg.getHSelf());
+      _aboutDlg.refreshDarkMode();
 }
 
 bool IsFramingControlNeeded() { return _framingControlNeeded; };

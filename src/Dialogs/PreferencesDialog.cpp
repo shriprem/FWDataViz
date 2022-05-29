@@ -25,6 +25,11 @@ void PreferencesDialog::doDialog(HINSTANCE hInst) {
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
+void PreferencesDialog::refreshDarkMode() {
+   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   redraw();
+}
+
 INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM /*lParam*/) {
    switch (message) {
    case WM_COMMAND:
