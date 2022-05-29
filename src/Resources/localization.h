@@ -3,7 +3,6 @@
 // Common
 #define MENU_PANEL_NAME             L"Fixed-Width Data Visualizer"
 #define MENU_SHOW_PANEL             L"Show FWData&Viz Panel"
-#define MENU_CARET_FRAMED           L"Fr&amed Current Line"
 #define MENU_CONFIG_FILE_TYPES      L"Configure &File Types"
 #define MENU_CONFIG_THEMES          L"Configure Color &Themes"
 #define MENU_FIELD_JUMP             L"&Jump to Field"
@@ -26,7 +25,6 @@
 #define VIZ_PANEL_PREFERENCES       L"Prefere&nces"
 #define VIZ_PANEL_AUTO_DETECT_FT    L"Auto-detect File Type"
 #define VIZ_PANEL_MCBS_OVERRIDE     L"Multi-Byte Chars"
-#define VIZ_PANEL_CARET_FRAMED      L"Framed Current Line"
 #define VIZ_PANEL_FIELD_COPY_TRIM   L"Trim Field Copy"
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
 #define VIZ_PANEL_JUMP_FIELD_BTN    L"&Jump to Field"

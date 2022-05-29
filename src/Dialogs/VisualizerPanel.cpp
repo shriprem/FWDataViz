@@ -78,10 +78,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          setPanelMBCharState();
          break;
 
-      case IDC_VIZPANEL_CARET_FRAMED:
-         ToggleCaretFramedState();
-         break;
-
       case IDC_VIZPANEL_FIELD_COPY_TRIM:
          _configIO.setPreferenceBool(PREF_COPY_TRIM,
             IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM) == BST_CHECKED);
@@ -157,7 +153,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
    case WM_SHOWWINDOW:
       Utils::checkMenuItem(MI_FWVIZ_PANEL, wParam);
-      showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
       if (wParam) visualizeFile("", TRUE, TRUE, TRUE);
       break;
 
@@ -231,8 +226,6 @@ void VisualizerPanel::initPanel() {
    utf8Config = _configIO.checkConfigFilesforUCS16();
    if (!utf8Config) return;
 
-   ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_CARET_FRAMED), IsFramingControlNeeded());
-
    setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
 
@@ -282,7 +275,6 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_PREFERENCES_BTN, VIZ_PANEL_PREFERENCES);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, VIZ_PANEL_AUTO_DETECT_FT);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, VIZ_PANEL_MCBS_OVERRIDE);
-   SetDlgItemText(_hSelf, IDC_VIZPANEL_CARET_FRAMED, VIZ_PANEL_CARET_FRAMED);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM, VIZ_PANEL_FIELD_COPY_TRIM);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
@@ -312,7 +304,6 @@ void VisualizerPanel::display(bool toShow) {
 
    CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT,
       _configIO.getPreferenceBool(PREF_ADFT) ? BST_CHECKED : BST_UNCHECKED);
-   showCaretFramedState(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
 
    initMBCharsCheckbox();
 
@@ -356,10 +347,6 @@ void VisualizerPanel::initMBCharsCheckbox() {
 
 void VisualizerPanel::setParent(HWND parent2set) {
    _hParent = parent2set;
-}
-
-void VisualizerPanel::showCaretFramedState(bool framed) {
-   CheckDlgButton(_hSelf, IDC_VIZPANEL_CARET_FRAMED, framed ? BST_CHECKED : BST_UNCHECKED);
 }
 
 void VisualizerPanel::loadListFileTypes() {

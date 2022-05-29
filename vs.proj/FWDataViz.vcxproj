@@ -91,15 +91,8 @@
     <Image Include="..\src\Resources\down.bmp" />
     <Image Include="..\src\Resources\fields.bmp" />
     <Image Include="..\src\Resources\fields_dark.ico" />
-    <Image Include="..\src\Resources\fields_filled.ico" />
-    <Image Include="..\src\Resources\fields_filled_dark.ico" />
     <Image Include="..\src\Resources\file_config.bmp" />
     <Image Include="..\src\Resources\file_samples.bmp" />
-    <Image Include="..\src\Resources\framed.bmp" />
-    <Image Include="..\src\Resources\framed.ico" />
-    <Image Include="..\src\Resources\framed_dark.ico" />
-    <Image Include="..\src\Resources\framed_filled.ico" />
-    <Image Include="..\src\Resources\framed_filled_dark.ico" />
     <Image Include="..\src\Resources\information.bmp" />
     <Image Include="..\src\Resources\minus.bmp" />
     <Image Include="..\src\Resources\page_add.bmp" />

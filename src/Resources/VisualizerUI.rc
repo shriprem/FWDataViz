@@ -25,8 +25,7 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,107,90,11
     RTEXT           "-",IDC_VIZPANEL_MCBS_OVERRIDE_IND,98,106,8,8,NOT WS_VISIBLE
     CONTROL         "Multi-Byte Chars",IDC_VIZPANEL_MCBS_OVERRIDE,"Button",BS_AUTO3STATE | NOT WS_VISIBLE | WS_TABSTOP,108,107,70,11
-    CONTROL         "Framed Current Line",IDC_VIZPANEL_CARET_FRAMED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,121,90,11
-    CONTROL         "Trim Field Copy",IDC_VIZPANEL_FIELD_COPY_TRIM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,108,121,70,11
+    CONTROL         "Trim Field Copy",IDC_VIZPANEL_FIELD_COPY_TRIM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,121,70,11
     LTEXT           "Cursor Position Data",IDC_VIZPANEL_FIELD_LABEL,8,141,173,11
     EDITTEXT        IDC_VIZPANEL_FIELD_INFO,8,155,173,82,ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_HSCROLL
     PUSHBUTTON      "<",IDC_VIZPANEL_FIELD_LEFT_BUTTON,37,243,15,14
@@ -398,7 +397,6 @@ END
 // BITMAPS
 IDB_VIZ_COLOR_CONFIG_BITMAP BITMAP                 "color_config.bmp"
 IDB_VIZ_TOOL_BTN_STD_FIELDS BITMAP                 "fields.bmp"
-IDB_VIZ_TOOL_BTN_STD_FRAMED BITMAP                 "framed.bmp"
 IDB_VIZ_FILE_CONFIG_BITMAP BITMAP                  "file_config.bmp"
 IDB_VIZ_FILE_SAMPLES_BITMAP BITMAP                 "file_samples.bmp"
 IDB_VIZ_MOVE_DOWN_BITMAP BITMAP                    "down.bmp"
@@ -415,6 +413,4 @@ IDB_DAT_EXT_PAGE_NEXT_BITMAP BITMAP                "page_next.bmp"
 // ICONS
 IDI_VIZ_TOOL_BTN_FLUENT_FIELDS ICON                "fields.ico"
 IDI_VIZ_TOOL_BTN_DARK_FIELDS ICON                  "fields_dark.ico"
-IDI_VIZ_TOOL_BTN_FLUENT_FRAMED ICON                "framed.ico"
-IDI_VIZ_TOOL_BTN_DARK_FRAMED ICON                  "framed_dark.ico"
 

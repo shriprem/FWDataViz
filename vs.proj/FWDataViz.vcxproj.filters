@@ -213,9 +213,6 @@
     <Image Include="..\src\Resources\file_samples.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
-    <Image Include="..\src\Resources\framed.bmp">
-      <Filter>Resources\Bitmaps</Filter>
-    </Image>
     <Image Include="..\src\Resources\up.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
@@ -226,12 +223,6 @@
       <Filter>Resources\Icons</Filter>
     </Image>
     <Image Include="..\src\Resources\fields_dark.ico">
-      <Filter>Resources\Icons</Filter>
-    </Image>
-    <Image Include="..\src\Resources\framed.ico">
-      <Filter>Resources\Icons</Filter>
-    </Image>
-    <Image Include="..\src\Resources\framed_dark.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
     <Image Include="..\src\Resources\minus.bmp">
@@ -251,18 +242,6 @@
     </Image>
     <Image Include="..\src\Resources\page_prev.bmp">
       <Filter>Resources\Bitmaps</Filter>
-    </Image>
-    <Image Include="..\src\Resources\fields_filled.ico">
-      <Filter>Resources\Icons</Filter>
-    </Image>
-    <Image Include="..\src\Resources\fields_filled_dark.ico">
-      <Filter>Resources\Icons</Filter>
-    </Image>
-    <Image Include="..\src\Resources\framed_filled.ico">
-      <Filter>Resources\Icons</Filter>
-    </Image>
-    <Image Include="..\src\Resources\framed_filled_dark.ico">
-      <Filter>Resources\Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

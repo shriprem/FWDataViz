@@ -65,7 +65,6 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
          break;
 
       case NPPN_BUFFERACTIVATED:
-         DisplayCaretFrame();
          _vizPanel.onBufferActivate();
          break;
 
@@ -73,8 +72,6 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
       {
          Utils::addToolbarIcon(MI_FWVIZ_PANEL, IDB_VIZ_TOOL_BTN_STD_FIELDS, IDI_VIZ_TOOL_BTN_FLUENT_FIELDS, IDI_VIZ_TOOL_BTN_DARK_FIELDS);
 
-         if (IsFramingControlNeeded())
-            Utils::addToolbarIcon(MI_CARET_FRAMED, IDB_VIZ_TOOL_BTN_STD_FRAMED, IDI_VIZ_TOOL_BTN_FLUENT_FRAMED, IDI_VIZ_TOOL_BTN_DARK_FRAMED);
          break;
       }
 

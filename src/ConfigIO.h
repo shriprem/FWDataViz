@@ -13,7 +13,6 @@
 #include <vector>
 
 #define PREF_ADFT             "AutoDetectFileType"
-#define PREF_CARET_FRAMED     "FramedCaret"
 #define PREF_CARET_FLASH      "CaretFlashSeconds"
 #define PREF_MBCHARS_SHOW     "ShowMBCharsOnPanel"
 #define PREF_MBCHARS_STATE    "PanelMBCharState"

@@ -43,7 +43,6 @@ static int _gLanguage = LANG_ENGLISH;
 
 const enum MenuIndex {
    MI_FWVIZ_PANEL,
-   MI_CARET_FRAMED,
    MI_CONFIG_DIALOG,
    MI_CONFIG_THEMES,
    MI_SEPARATOR_1,
@@ -79,8 +78,6 @@ void ShowVisualizerPanel(bool show);
 void ToggleVisualizerPanel();
 void RefreshVisualizerPanel();
 
-void DisplayCaretFrame();
-void ToggleCaretFramedState();
 void ShowConfigDialog();
 void ShowThemeDialog();
 
@@ -93,4 +90,3 @@ void ShowDataExtractDialog();
 
 void ShowAboutDialog();
 void refreshDarkMode();
-bool IsFramingControlNeeded();

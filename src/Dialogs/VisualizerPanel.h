@@ -52,7 +52,6 @@ public:
    void initMBCharsCheckbox();
    void setParent(HWND parent2set);
    void setFocusOnEditor();
-   void showCaretFramedState(bool framed);
 
    void loadListFileTypes();
    bool getDocFileType(HWND hScintilla, string& fileType);

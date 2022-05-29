@@ -28,8 +28,6 @@
    #define generic_itoa itoa
 #endif
 
-#define NPP_MIN_VERSION_WITH_CARET_FRAME     8.41f
-
 FuncItem pluginMenuItems[MI_COUNT];
 
 NppData nppData;
@@ -42,8 +40,6 @@ ConfigureDialog _configDlg;
 ThemeDialog _themeDlg;
 AboutDialog _aboutDlg;
 
-bool _framingControlNeeded{};
-
 void pluginInit(HANDLE hModule) {
    _gModule = (HINSTANCE)hModule;
    _vizPanel.init(_gModule, NULL);
@@ -55,18 +51,12 @@ void commandMenuInit() {
    _configIO.init();
    NPPDM_InitDarkMode();
 
-   long versionNum{ static_cast<long>(nppMessage(NPPM_GETNPPVERSION, 0, 0)) };
-   _framingControlNeeded = std::stof(to_wstring(HIWORD(versionNum)) + L"." + to_wstring(LOWORD(versionNum))) < NPP_MIN_VERSION_WITH_CARET_FRAME;
-
    ShortcutKey *shKeyOpen = new ShortcutKey;
    shKeyOpen->_isAlt = false;
    shKeyOpen->_isCtrl = true;
    shKeyOpen->_isShift = false;
    shKeyOpen->_key = VK_F8;
    setCommand(MI_FWVIZ_PANEL, MENU_SHOW_PANEL, ToggleVisualizerPanel, shKeyOpen, _vizPanel.isVisible());
-
-   if (_framingControlNeeded)
-      setCommand(MI_CARET_FRAMED, MENU_CARET_FRAMED, ToggleCaretFramedState, NULL, _configIO.getPreferenceBool(PREF_CARET_FRAMED));
 
    setCommand(MI_CONFIG_DIALOG, MENU_CONFIG_FILE_TYPES, ShowConfigDialog);
    setCommand(MI_CONFIG_THEMES, MENU_CONFIG_THEMES, ShowThemeDialog);
@@ -192,27 +182,6 @@ void RefreshVisualizerPanel() {
     _vizPanel.loadListThemes();
 }
 
-void DisplayCaretFrame() {
-   if (!_framingControlNeeded) return;
-   int frame{ _configIO.getPreferenceBool(PREF_CARET_FRAMED) ? 2 : 0 };
-
-   SendMessage(nppData._scintillaMainHandle, SCI_SETCARETLINEFRAME, frame, NULL);
-   SendMessage(nppData._scintillaSecondHandle, SCI_SETCARETLINEFRAME, frame, NULL);
-}
-
-void ToggleCaretFramedState() {
-   if (!_framingControlNeeded) return;
-
-   bool framed = !(_configIO.getPreferenceBool(PREF_CARET_FRAMED));
-   _configIO.setPreferenceBool(PREF_CARET_FRAMED, framed);
-
-   DisplayCaretFrame();
-   nppMessage(NPPM_SETMENUITEMCHECK, pluginMenuItems[MI_CARET_FRAMED]._cmdID, framed);
-
-   if (_vizPanel.isVisible()) _vizPanel.showCaretFramedState(framed);
-   _vizPanel.setFocusOnEditor();
-}
-
 void ShowConfigDialog() {
    _configDlg.doDialog((HINSTANCE)_gModule);
 }
@@ -263,4 +232,3 @@ void refreshDarkMode() {
       _aboutDlg.refreshDarkMode();
 }
 
-bool IsFramingControlNeeded() { return _framingControlNeeded; };
