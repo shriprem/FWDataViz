@@ -11,7 +11,7 @@
 #### Known Issue with the _CSVLint_ plugin
 Starting with Notepad++ v8.4.1, if you have both the _FWDataViz_ and _CSVLint_ plugins installed and then open a CSV file while the _FWDataViz_ side panel is open, Notepad++ will crash.
 
-This issue got introduced when the _CSVLint_ plugin made code changes to comply with the Scintilla Lexer upgrade of Notepad++ 8.4. (_FWDataViz_ was not affected by the Scintilla lexer upgrade since it uses Scintilla _**styles**_ instead of the Scintilla _**lexer**_). An [issue](https://github.com/BdR76/CSVLint/issues/25) has been opened at the _CSVLint_ repository.
+This issue got introduced when the _CSVLint_ plugin made code changes to comply with the Scintilla Lexer upgrade of Notepad++ 8.4. (_FWDataViz_ was not affected by the Scintilla lexer upgrade since it uses Scintilla _**styles**_ instead of the Scintilla _**lexer**_). To resolve this, two issues ([#25](https://github.com/BdR76/CSVLint/issues/25) and [#26](https://github.com/BdR76/CSVLint/issues/26)) have been opened at the _CSVLint_ repository.
 
 As a workaround, if you have the _CSVLint_ plugin installed, close the _FWDataViz_ side panel before opening any CSV files. Alternatively, use the _CSVQuery_ plugin which has no such issues.
 
