@@ -2,8 +2,18 @@
 
 ### Version 2.5.1.0
 
-1.Fields tagged with an undefined field type such as _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_ will be rendered with the default background and foreground colors. See [Field Types - Default Style](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md#default-style) for more info.
+1. Fields tagged with an undefined field type such as _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_ will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**. For more info, see: [Field Types - Default Style](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md#default-style).
 
+2. With the built-in support for *Framed Current Line* in Notepad++ 8.4.1, the *Framed Current Line* checkbox control has been permanently removed from the *FWDataViz* plugin panel and menu.
+
+3. With Notepad++ 8.4.2, plugins now have query support for Darkmode. By utilizing this support, the Darkmode render code in the _FWDataViz_ plugin has been significantly trimmed down. This has resulted in a smaller size of the plugin DLL for this version.
+
+#### Known Issue with the _CSVLint_ plugin
+Starting with Notepad++ v8.4.1, if you have both the _FWDataViz_ and _CSVLint_ plugins installed and then open a CSV file while the _FWDataViz_ side panel is open, Notepad++ will crash.
+
+This issue got introduced when the _CSVLint_ plugin made code changes to comply with the Scintilla Lexer upgrade of Notepad++ 8.4. (_FWDataViz_ was not affected by the Scintilla lexer upgrade since it uses Scintilla _**styles**_ instead of the Scintilla _**lexer**_). An [issue](https://github.com/BdR76/CSVLint/issues/25) has been opened at the _CSVLint_ repository.
+
+As a workaround, if you have the _CSVLint_ plugin installed, close the _FWDataViz_ side panel before opening any CSV files. Alternatively, use the _CSVQuery_ plugin which has no such issues.
 
 **Release:** [2.5.1.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.5.1.0)
 

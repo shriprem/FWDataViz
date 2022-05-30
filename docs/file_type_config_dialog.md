@@ -17,7 +17,9 @@ This editor is organized in a three-level hierarchy:
   * Record Regex Key
   * [Record Color Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md)
 
-* [Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md) can be affixed to File Labels with distinctive shared traits.
+* Fields with shared traits can be tagged so that they always render with a distinct visual styling. Fore more info, see: [Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md).
+
+* Fields tagged with an undefined field type such as _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_ will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**. For more info, see: [Field Types - Default Style](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md#default-style).
 
 * Field Labels and Field Widths are synchronized for editing and scrolling.
 

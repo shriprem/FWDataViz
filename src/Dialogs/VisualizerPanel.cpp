@@ -137,10 +137,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          if (_configIO.fixIfUTF16File(_configIO.CONFIG_EXTRACTS))
             showExtractDialog();
          break;
-
-         //case IDC_FWVIZ_FIELD_TYPE_BUTTON:
-         //   _fieldTypeDlg.doDialog((HINSTANCE)_gModule);
-         //   break;
       }
 
       break;

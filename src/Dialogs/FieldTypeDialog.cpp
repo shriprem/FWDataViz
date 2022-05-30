@@ -129,8 +129,14 @@ INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
          if (ptr != NULL) return ptr;
       }
 
-      if (NPPDM_IsEnabled()) {
-         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      switch (GetDlgCtrlID((HWND)lParam)) {
+      case IDC_FIELD_TYPE_REGEX_LABEL:
+         return NPPDM_OnCtlColorIfEnabled(reinterpret_cast<HDC>(wParam), FALSE);
+
+      default:
+         if (NPPDM_IsEnabled()) {
+            return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
+         }
       }
       break;
 
