@@ -29,10 +29,10 @@ These tagged fields will then be visualized using the distinctive styles defined
 (In a future version of the plugin, you will also be able to specify a validating regular expression for the generic field types. Then these validations can be used in the [Data Extraction dialog](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) to list only those record fields passing or not passing these validations.)
 
 ### Default Style
-You can tag fields with a field type named appropriately like _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_. But leave them undefined in the **Define Field Type** dialog. Such tagged fields will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**.
+You can tag fields with a field type named appropriately like _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_. But leave those field types undefined in the **Define Field Type** dialog. Such tagged fields will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**.
 
 ##### Example Usage
-The field labels listed above can be applied to the records in either the _Weather Stations_ or the _GSN-Flagged Weather Stations_ sample file types that accompany this plugin.
+The field labels listed below can be applied to the records in either the _Weather Stations_ or the _GSN-Flagged Weather Stations_ sample file types that accompany this plugin.
 ```
 ID
 SPACE : DEFAULT_STYLE
