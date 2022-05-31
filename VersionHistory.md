@@ -8,12 +8,18 @@
 
 3. With Notepad++ 8.4.2, plugins now have query support for Darkmode. By utilizing this support, the Darkmode render code in the _FWDataViz_ plugin has been significantly trimmed down. This has resulted in a smaller size of the plugin DLL for this version.
 
-#### Known Issue with the _CSVLint_ plugin
+### Known Issues
+#### 1. _CSVLint_ plugin
 Starting with Notepad++ v8.4.1, if you have both the _FWDataViz_ and _CSVLint_ plugins installed and then open a CSV file while the _FWDataViz_ side panel is open, Notepad++ will crash.
 
-This issue got introduced when the _CSVLint_ plugin made code changes to comply with the Scintilla Lexer upgrade of Notepad++ 8.4. (_FWDataViz_ was not affected by the Scintilla lexer upgrade since it uses Scintilla _**styles**_ instead of the Scintilla _**lexer**_). To resolve this, two issues ([#25](https://github.com/BdR76/CSVLint/issues/25) and [#26](https://github.com/BdR76/CSVLint/issues/26)) have been opened at the _CSVLint_ repository.
+This issue got introduced when the _CSVLint_ plugin made code changes to comply with the Scintilla Lexer upgrade of Notepad++ 8.4. (_FWDataViz_ was not affected by the Scintilla lexer upgrade since it uses Scintilla _**styles**_ instead of the Scintilla _**lexer**_). To resolve this, two issues ([#25](https://github.com/BdR76/CSVLint/issues/25) and [#26](https://github.com/BdR76/CSVLint/issues/26)) have been opened at the _CSVLint_ repository. A [fix for this issue](https://github.com/BdR76/CSVLint/pull/27) is also forthcoming.
 
 As a workaround, if you have the _CSVLint_ plugin installed, close the _FWDataViz_ side panel before opening any CSV files. Alternatively, use the _CSVQuery_ plugin which has no such issues.
+
+#### 2. Files with misleading extensions
+When fixed-width data files happen to have a specific language extension such as `.ini`, `.xml`, `.html`, `.css`, `.js`, `.java`, `.sql`, `.cpp`, `.py`, etc. in their filenames, there will be no visualization of such files from the _FWDataViz_ plugin. This is an issue that got introduced with the Scintilla Lexer upgrade in Notepad++ 8.4 release. See this [comment](https://community.notepad-plus-plus.org/post/77180).
+
+So, avoid having your fixed-width data files with misleading language extensions in their filenames.
 
 **Release:** [2.5.1.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.5.1.0)
 

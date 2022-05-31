@@ -24,6 +24,8 @@
 
 * [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md) to intuitively define and customize themes and colors for data visualization.
 
+* [Default Style Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md#default-style) for turning off visualization for specific fields like spaces or separators.
+
 * Easy sharing of customized Themes with [Extract Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md) and [Append Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md).
 
 * [Sample Data files](#sample-data-files) in the plugin package demonstrating:

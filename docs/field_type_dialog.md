@@ -32,17 +32,33 @@ These tagged fields will then be visualized using the distinctive styles defined
 You can tag fields with a field type named appropriately like _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_. But leave them undefined in the **Define Field Type** dialog. Such tagged fields will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**.
 
 ##### Example Usage
+The field labels listed above can be applied to the records in either the _Weather Stations_ or the _GSN-Flagged Weather Stations_ sample file types that accompany this plugin.
 ```
-Sale Date : NO_STYLING
-Customer ID
-Invoice Number
-Item Code
-Price:AMOUNT
-Quantity
-Total : Amount
-Payment Received Date: DEFAULT_STYLE
+ID
+SPACE : DEFAULT_STYLE
+LATITUDE
+SPACE : DEFAULT_STYLE
+LONGITUDE
+SPACE : NO_STYLING
+ELEVATION
+SPACE : DEFAULT_STYLE
+STATE
+SPACE : STYLE_DEFAULT
+NAME
+SPACE : DEFAULT_STYLE
+GSN FLAG
+SPACE : DEFAULT_STYLE
+HCN/CRN FLAG
+SPACE : DEFAULT_STYLE
+WMO ID
 ```
 
-In the example above, the _Sale Date_ and _Payment Received Date_ fields have been tagged with the `NO_STYLING` and `DEFAULT_STYLE` field types, respectively. If both these field types are left undefined, the _Sale Date_ and _Payment Received Date_ will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**.
+The same field specification as seen in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) dialog:
+
+![Default_Style_Field_Input](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/default_style_input.png)
+
+In this example, all the _SPACE_ fields have been tagged with _DEFAULT_STYLE_ or  _STYLE_DEFAULT_ or _NO_STYLING_. If these field tags are left undefined in the _Define Field Types_ dialog, all the spaces in the Weather Stations file will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**.
+
+![Default_Style_Field_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/default_style_output.png)
 
 See also: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) | [Data Extraction dialog](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md)
