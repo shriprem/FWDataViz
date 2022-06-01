@@ -71,7 +71,7 @@ bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey 
 
 HWND getCurrentScintilla();
 bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr);
-LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam);
+LRESULT nppMessage(UINT messageID, WPARAM wparam = 0, LPARAM lparam = 0);
 
 // Plugin Command Functions
 void ShowVisualizerPanel(bool show);

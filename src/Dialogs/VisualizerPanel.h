@@ -12,6 +12,7 @@
 #define FW_DEBUG_APPLY_LEXER FALSE
 #define FW_DEBUG_LEXER_COUNT FALSE
 #define FW_DEBUG_COPY_TRIM FALSE
+#define FW_DEBUG_DOC_INFO FALSE
 
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
@@ -54,12 +55,12 @@ public:
    void setFocusOnEditor();
 
    void loadListFileTypes();
-   bool getDocFileType(HWND hScintilla, string& fileType);
-   bool getDocFileType(PSCIFUNC_T sci_func, void* sci_ptr, string& fileType);
+   bool getDocFileType(string& fileType);
    void loadListThemes();
    void onBufferActivate();
    void renderCurrentPage();
    void visualizeFile(string fileType, bool ab_cachedFT, bool autoFT, bool syncFT);
+   void delDocInfo(intptr_t bufferID);
 
    void showJumpDialog();
    void jumpToField(const string fileType, const int recordIndex, const int fieldIdx);
@@ -74,25 +75,34 @@ public:
 #endif
 
 private:
-   HWND hFTList, hThemesLB, hFieldInfo;
+   HWND hFTList{}, hThemesLB{}, hFieldInfo{};
 
    // Field Info tracking
-   int caretRecordStartPos, caretRecordEndPos, caretRecordRegIndex, caretEolMarkerPos, caretFieldIndex;
+   int caretRecordStartPos{}, caretRecordEndPos{}, caretRecordRegIndex{}, caretEolMarkerPos{}, caretFieldIndex{};
    bool unlexed{}, utf8Config{}, leftAlign{}, themeEnabled{}, fieldEnabled{};
 
    // File Type data
    std::unordered_map<wstring, string> mapFileDescToType;
    std::unordered_map<string, wstring> mapFileTypeToDesc;
 
+   // Doc Info
+   struct DocInfo {
+      wstring fileName{};
+      string docType{};
+      string docTheme{};
+   };
+
+   vector<DocInfo> docInfoList{};
+
    // Styleset data
    struct ThemeInfo {
       wstring name{};
-      int styleCount;
-      int rangeStartIndex;
+      int styleCount{};
+      int rangeStartIndex{};
    };
 
-   vector<ThemeInfo> themeSet;
-   int loadedStyleCount;
+   vector<ThemeInfo> themeSet{};
+   int loadedStyleCount{};
 
    // Regex data
    string fwVizRegexed{};
@@ -102,10 +112,12 @@ private:
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
    bool detectFileType(HWND hScintilla, string& fileType);
-   bool getDocTheme(HWND hScintilla, wstring& theme);
-   bool getDocTheme(PSCIFUNC_T sci_func, void* sci_ptr, wstring& theme);
-   void setDocFileType(HWND hScintilla, string fileType);
-   void setDocTheme(HWND hScintilla, string fileType, string theme);
+   const wstring getCurrentFileName();
+   void setDocInfo(bool bDocType, string val);
+
+   bool getDocTheme(wstring& theme);
+   void setDocFileType(string fileType);
+   void setDocTheme(string theme, string fileType = "");
    void setADFTCheckbox();
    void setPanelMBCharState();
    void setPanelMBCharIndicator(string fileType);

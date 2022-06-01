@@ -233,8 +233,9 @@ void FieldTypeDialog::onFieldSelect() {
    int idxFT{ getCurrentFieldIndex() };
    if (idxFT == LB_ERR) return;
 
-   wchar_t label[MAX_PATH];
-   SendMessage(hFieldsLB, LB_GETTEXT, (WPARAM)idxFT, (LPARAM)label);
+   wstring label(MAX_PATH, '\0');
+   SendMessage(hFieldsLB, LB_GETTEXT, (WPARAM)idxFT, (LPARAM)label.c_str());
+   label = label.c_str();
 
    fieldDefLabel = label;
    fieldDefRegex = _configIO.getConfigWideChar("Validations", Utils::WideToNarrow(label), "", fieldDefConfigFile);
@@ -248,9 +249,9 @@ void FieldTypeDialog::enableFieldSelection() {
    EnableWindow(GetDlgItem(_hSelf, IDC_FIELD_TYPE_NEW_BTN), cleanStyleDefs);
    EnableWindow(GetDlgItem(_hSelf, IDC_FIELD_TYPE_CLONE_BTN), cleanStyleDefs);
 
-   wchar_t fieldLabel[MAX_PATH + 1];
-   GetDlgItemText(_hSelf, IDC_FIELD_TYPE_DESC_EDIT, fieldLabel, MAX_PATH + 1);
-   EnableWindow(GetDlgItem(_hSelf, IDC_FIELD_STYLE_DEF_SAVE_BTN), (wstring{ fieldLabel }.length() > 0));
+   wstring fieldLabel(MAX_PATH + 1, '\0');
+   GetDlgItemText(_hSelf, IDC_FIELD_TYPE_DESC_EDIT, fieldLabel.data(), MAX_PATH + 1);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FIELD_STYLE_DEF_SAVE_BTN), !wstring(fieldLabel.c_str()).empty());
 
    if (cleanStyleDefs) {
       SetDlgItemText(_hSelf, IDC_FIELD_STYLE_DEF_SAVE_BTN, FIELD_STYLE_DEF_SAVE_BTN);
@@ -346,7 +347,7 @@ void FieldTypeDialog::styleDefSave() {
 
    wchar_t fieldLabel[MAX_PATH + 1];
    GetDlgItemText(_hSelf, IDC_FIELD_TYPE_DESC_EDIT, fieldLabel, MAX_PATH + 1);
-   if (wstring{ fieldLabel }.length() < 1) return;
+   if (wstring{ fieldLabel }.empty()) return;
 
    wchar_t fieldRegex[MAX_PATH + 1];
    GetDlgItemText(_hSelf, IDC_FIELD_TYPE_REGEX_EDIT, fieldRegex, MAX_PATH + 1);

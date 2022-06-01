@@ -53,7 +53,7 @@ int ConfigIO::setVizConfig(const string& docFileType) {
    int sectionCount{};
    string sectionList{};
 
-   if (docFileType.length() < 1) {
+   if (docFileType.empty()) {
       resetVizConfig();
       return 0;
    }
@@ -80,21 +80,21 @@ void ConfigIO::resetVizConfig() {
    currentConfigFile = CONFIG_FILE_PATHS[CONFIG_VIZ];
 }
 
-wstring ConfigIO::getConfigFile(int cfType) {
-   if (cfType < 0 && cfType >= CONFIG_FILE_COUNT) return L"";
+wstring ConfigIO::getConfigFile(CF_TYPES cfType) {
+   if (cfType < 0 || cfType >= CONFIG_FILE_COUNT) return L"";
 
    return WCONFIG_FILE_PATHS[cfType];
 }
 
 string ConfigIO::getConfigStringA(const string& section, const string& key, const string& default, string file) {
    const int bufSize{ FW_LINE_MAX_LENGTH };
-   char ftBuf[bufSize];
+   string ftBuf(bufSize, '\0');
 
-   if (file.length() < 1) file = currentConfigFile;
+   if (file.empty()) file = currentConfigFile;
 
-   GetPrivateProfileStringA(section.c_str(), key.c_str(), default.c_str(), ftBuf, bufSize, file.c_str());
+   GetPrivateProfileStringA(section.c_str(), key.c_str(), default.c_str(), ftBuf.data(), bufSize, file.c_str());
 
-   return string{ ftBuf };
+   return string{ ftBuf.c_str()};
 }
 
 string ConfigIO::getConfigStringA(const wstring& section, const string& key, const string& default, wstring file) {
@@ -110,7 +110,7 @@ wstring ConfigIO::getConfigWideChar(const wstring& section, const string& key, c
 }
 
 void ConfigIO::setConfigStringA(const string& section, const string& key, const string& value, string file) {
-   if (file.length() < 1) file = currentConfigFile;
+   if (file.empty()) file = currentConfigFile;
 
    WritePrivateProfileStringA(section.c_str(), key.c_str(), value.c_str(), file.c_str());
 }
@@ -130,7 +130,7 @@ int ConfigIO::getConfigInt(const wstring& section, const string& key, const int&
 }
 
 wstring ConfigIO::getStyleValue(const wstring& theme, const string& styleName, wstring file) {
-   return getConfigWideChar(theme, styleName, "", (file.length() < 1) ? WCONFIG_FILE_PATHS[CONFIG_THEMES] : file);
+   return getConfigWideChar(theme, styleName, "", (file.empty()) ? WCONFIG_FILE_PATHS[CONFIG_THEMES] : file);
 }
 
 void ConfigIO::getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file) {
@@ -204,10 +204,10 @@ bool ConfigIO::getMultiByteLexing(string fileType) {
 
 int ConfigIO::getConfigAllSections(string& sections, string file) {
    const int bufSize{ FW_LINE_MAX_LENGTH };
-   char ftBuf[bufSize];
+   string ftBuf(bufSize, '\0');
 
    DWORD charCount{};
-   charCount = GetPrivateProfileStringA(NULL, "", "", ftBuf, bufSize, file.c_str());
+   charCount = GetPrivateProfileStringA(NULL, "", "", ftBuf.data(), bufSize, file.c_str());
    if (charCount < 1) return 0;
 
    int sectionCount{};
@@ -218,7 +218,7 @@ int ConfigIO::getConfigAllSections(string& sections, string file) {
       }
    }
 
-   sections = ftBuf;
+   sections = ftBuf.c_str();
    return sectionCount;
 }
 
@@ -242,10 +242,10 @@ int ConfigIO::getConfigAllSectionsList(vector<wstring>& sectionsList, wstring fi
 
 int ConfigIO::getConfigAllKeys(const string& section, string& keys, const string file) {
    const int bufSize{ FW_LINE_MAX_LENGTH };
-   char keyBuf[bufSize];
+   string keyBuf(bufSize, '\0');
 
    DWORD charCount{};
-   charCount = GetPrivateProfileStringA(section.c_str(), NULL, "", keyBuf, bufSize, file.c_str());
+   charCount = GetPrivateProfileStringA(section.c_str(), NULL, "", keyBuf.data(), bufSize, file.c_str());
    if (charCount < 1) return 0;
 
    int keyCount{};
@@ -256,7 +256,7 @@ int ConfigIO::getConfigAllKeys(const string& section, string& keys, const string
       }
    }
 
-   keys = keyBuf;
+   keys = keyBuf.c_str();
    return keyCount;
 }
 
@@ -284,7 +284,7 @@ int ConfigIO::getConfigValueList(vector<string>& valList, const string& section,
 }
 
 int ConfigIO::getThemesList(vector<wstring>& valList, wstring file) {
-   if (file.length() < 1) file = WCONFIG_FILE_PATHS[CONFIG_THEMES];
+   if (file.empty()) file = WCONFIG_FILE_PATHS[CONFIG_THEMES];
 
    return Tokenize(getConfigWideChar(L"Base", "Themes", "", file), valList);
 }
@@ -293,7 +293,7 @@ int ConfigIO::Tokenize(const string& text, vector<string>& results, const string
    std::size_t nStart{}, nEnd;
 
    results.clear();
-   if (text.length() < 1) return 0;
+   if (text.empty()) return 0;
 
    while ((nEnd = text.find(delim, nStart)) != string::npos) {
       if (nEnd > nStart)
@@ -312,7 +312,7 @@ int ConfigIO::Tokenize(const wstring& text, vector<wstring>& results, const wstr
    std::size_t nStart{}, nEnd;
 
    results.clear();
-   if (text.length() < 1) return 0;
+   if (text.empty()) return 0;
 
    while ((nEnd = text.find(delim, nStart)) != wstring::npos) {
       if (nEnd > nStart)
@@ -331,7 +331,7 @@ int ConfigIO::Tokenize(const string& text, vector<int>& results, const string& d
    vector<string> interims;
 
    results.clear();
-   if (text.length() < 1) return 0;
+   if (text.empty()) return 0;
 
    Tokenize(text, interims, delim);
 
@@ -347,13 +347,13 @@ void ConfigIO::ActivateNewLineTabs(wstring& str) {
 }
 
 void ConfigIO::deleteKey(const string& section, const string& key, string file) {
-   if (file.length() < 1) file = currentConfigFile;
+   if (file.empty()) file = currentConfigFile;
 
    WritePrivateProfileStringA(section.c_str(), key.c_str(), NULL, file.c_str());
 }
 
 void ConfigIO::deleteKey(const wstring& section, const wstring& key, wstring file) {
-   if (file.length() < 1) file = wCurrentConfigFile;
+   if (file.empty()) file = wCurrentConfigFile;
 
    WritePrivateProfileString(section.c_str(), key.c_str(), NULL, file.c_str());
 }
@@ -363,7 +363,7 @@ void ConfigIO::deleteSection(const string& section, string file) {
 }
 
 string ConfigIO::readConfigFile(wstring file) {
-   if (file.length() < 1) file = wCurrentConfigFile;
+   if (file.empty()) file = wCurrentConfigFile;
 
    using std::ios;
    if (std::ifstream ifs{ file, ios::binary | ios::ate }) {
@@ -470,8 +470,8 @@ bool ConfigIO::checkConfigFilesforUCS16() {
    return status;
 }
 
-bool ConfigIO::fixIfUTF16File(int cfType) {
-   if (cfType < 0 && cfType >= CONFIG_FILE_COUNT) return false;
+bool ConfigIO::fixIfUTF16File(CF_TYPES cfType) {
+   if (cfType < 0 || cfType >= CONFIG_FILE_COUNT) return false;
 
    return fixIfUTF16File(WCONFIG_FILE_PATHS[cfType]);
 }

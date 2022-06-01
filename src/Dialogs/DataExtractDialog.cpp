@@ -7,9 +7,11 @@ LRESULT CALLBACK procKeyNavigation(HWND hwnd, UINT messageId, WPARAM wParam, LPA
    switch (messageId) {
    case WM_KEYDOWN:
       if (_dataExtractDlg.processKey(hwnd, wParam)) return FALSE;
+      break;
 
    case WM_SYSKEYDOWN:
       if (_dataExtractDlg.processSysKey(hwnd, wParam)) return FALSE;
+      break;
    }
 
    return DefSubclassProc(hwnd, messageId, wParam, lParam);
@@ -428,7 +430,8 @@ void DataExtractDialog::addLineItem(int line) {
    if (isBlankLineItem(liBuffer.back()))
       liBuffer.erase(liBuffer.end() - 1);
 
-   liBuffer.insert(liBuffer.begin() + idx, LineItemInfo{});
+   LineItemInfo liEmpty{};
+   liBuffer.insert(liBuffer.begin() + idx, liEmpty);
    if (liBuffer.size() > MAX_BUFFER_LINES)
       liBuffer.resize(MAX_BUFFER_LINES);
 
@@ -582,7 +585,7 @@ void DataExtractDialog::extractData() {
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    string fileType{};
-   if (!_vizPanel.getDocFileType(sciFunc, sciPtr, fileType) || (initFileType != fileType)) {
+   if (!_vizPanel.getDocFileType(fileType) || (initFileType != fileType)) {
       MessageBox(_hSelf, DATA_EXTRACT_CHANGED_DOC, DATA_EXTRACT_DIALOG_TITLE, MB_OK | MB_ICONSTOP);
       return;
    }
@@ -592,13 +595,13 @@ void DataExtractDialog::extractData() {
 
    const size_t regexedCount{ recInfoList.size() };
 
-   char lineTextCStr[FW_LINE_MAX_LENGTH]{};
+   string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
    wstring extract{};
 
-   char fieldText[FW_LINE_MAX_LENGTH]{};
+   string fieldText(FW_LINE_MAX_LENGTH, '\0');
    Sci_TextRange sciTR{};
-   sciTR.lpstrText = fieldText;
+   sciTR.lpstrText = fieldText.data();
 
    size_t eolMarkerLen, eolMarkerPos, recStartLine{}, currentPos, startPos, endPos, recStartPos{};
    bool newRec{ TRUE };
@@ -615,10 +618,10 @@ void DataExtractDialog::extractData() {
          continue;
       }
 
-      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
+      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
-      string_view lineText{ lineTextCStr, endPos - startPos };
+      string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
 
       if (newRec) {
          recStartLine = currentLine;
@@ -626,7 +629,7 @@ void DataExtractDialog::extractData() {
          recStartText = lineText;
       }
 
-      if (newRec && lineText.length() == 0) {
+      if (newRec && lineText.empty()) {
          continue;
       }
 
@@ -683,7 +686,7 @@ void DataExtractDialog::extractData() {
             (recStartPos + pRI->fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
             sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
 
-            extract += validLIs[j].prefix + Utils::NarrowToWide(fieldText) + validLIs[j].suffix;
+            extract += validLIs[j].prefix + Utils::NarrowToWide(fieldText.c_str()) + validLIs[j].suffix;
             recMatch = TRUE;
          }
       }
@@ -717,7 +720,7 @@ int DataExtractDialog::loadTemplatesList() {
          (matching ? sectionList[i] : "") :
          (string{ matching ? "" : DATA_EXTRACT_TEMPLATE_OTHER } + sectionList[i]);
 
-      if (templateName.length() > 0)
+      if (!templateName.empty())
          SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)Utils::NarrowToWide(templateName).c_str());
    }
    return sectionCount;

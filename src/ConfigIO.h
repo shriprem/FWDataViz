@@ -23,10 +23,10 @@
 #define PREF_CLEARVIZ_PANEL   "ClearVizOnPanelClose"
 
 struct StyleInfo {
-   int backColor;
-   int foreColor;
-   int bold;
-   int italics;
+   int backColor{};
+   int foreColor{};
+   int bold{};
+   int italics{};
 };
 
 using std::vector;
@@ -38,15 +38,15 @@ public:
       CONFIG_THEMES,
       CONFIG_PREFS,
       CONFIG_EXTRACTS,
-      CONFIG_FIELD_TYPES,
-      CONFIG_FILE_COUNT
+      CONFIG_FIELD_TYPES
    };
+
 
    void init();
    int setVizConfig(const string& docFileType);
    void resetVizConfig();
    bool isCurrentVizConfigDefault() { return (wCurrentConfigFile == defaultConfigFile); }
-   wstring getConfigFile(int cfType);
+   wstring getConfigFile(CF_TYPES cfType);
 
    string getConfigStringA(const string& section, const string& key, const string& default = "", string file = "");
    string getConfigStringA(const wstring& section, const string& key, const string& default = "", wstring file = L"");
@@ -107,20 +107,21 @@ public:
    void flushConfigFile();
 
    bool checkConfigFilesforUCS16();
-   bool fixIfUTF16File(int cfType);
+   bool fixIfUTF16File(CF_TYPES cfType);
    bool fixIfUTF16File(wstring file);
    bool hasBOM(wstring file);
    void convertFromUTF16ToUTF8(wstring file);
 
 protected:
-   TCHAR pluginConfigDir[MAX_PATH];
-   TCHAR pluginConfigBackupDir[MAX_PATH];
-   TCHAR defaultConfigFile[MAX_PATH];
+   TCHAR pluginConfigDir[MAX_PATH]{};
+   TCHAR pluginConfigBackupDir[MAX_PATH]{};
+   TCHAR defaultConfigFile[MAX_PATH]{};
 
+   static constexpr int CONFIG_FILE_COUNT{ CONFIG_FIELD_TYPES + 1 };
    const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{
       L"Visualizer.ini", L"Themes.ini", L"Preferences.ini", L"Extracts.ini", L"FieldTypes.ini" };
-   wstring WCONFIG_FILE_PATHS[CONFIG_FILE_COUNT]{};
-   string CONFIG_FILE_PATHS[CONFIG_FILE_COUNT]{};
+   wstring WCONFIG_FILE_PATHS[CONFIG_FILE_COUNT];
+   string CONFIG_FILE_PATHS[CONFIG_FILE_COUNT];
 
    wstring wCurrentConfigFile{};
    string currentConfigFile{};

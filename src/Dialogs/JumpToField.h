@@ -17,8 +17,8 @@ public:
 
 private:
    string initFileType{};
-   int initRecordRegIndex;
-   HWND hFieldList, hCaretFlash;
+   int initRecordRegIndex{};
+   HWND hFieldList{}, hCaretFlash{};
 
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();

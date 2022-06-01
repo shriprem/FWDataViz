@@ -1034,14 +1034,14 @@ void ConfigureDialog::fieldEditsAccept() {
    RecordType* recInfo;
    if (!getCurrentRecInfo(recInfo)) return;
 
-   wchar_t fieldValues[FW_LINE_MAX_LENGTH + 1];
+   wstring fieldValues(FW_LINE_MAX_LENGTH + 1, '\0');
    wstring vals{};
 
    // Field Labels
-   GetWindowText(hFieldLabels, fieldValues, (FW_LINE_MAX_LENGTH + 1));
+   GetWindowText(hFieldLabels, fieldValues.data(), (FW_LINE_MAX_LENGTH + 1));
 
    // Replace any trailing spaces + newlines with commas
-   vals = regex_replace(fieldValues, wregex(L" *\r\n"), L",");
+   vals = regex_replace(wstring(fieldValues.c_str()), wregex(L" *\r\n"), L",");
 
    // Replace any commas + leading spaces with commas
    vals = regex_replace(vals, wregex(L", +([^,]*)"), L",$1");
@@ -1053,13 +1053,13 @@ void ConfigureDialog::fieldEditsAccept() {
    SetWindowText(hFieldLabels, regex_replace(vals, wregex(L","), L"\r\n").c_str());
 
    // Field Widths
-   GetWindowText(hFieldWidths, fieldValues, (FW_LINE_MAX_LENGTH + 1));
+   GetWindowText(hFieldWidths, fieldValues.data(), (FW_LINE_MAX_LENGTH + 1));
 
    // Replace any newlines with commas.
    // No processing needed for leading & trailing spaces since this is a numeric edit control
-   vals = regex_replace(fieldValues, wregex(L"\r\n"), L",");
+   vals = regex_replace(wstring(fieldValues.c_str()), wregex(L"\r\n"), L",");
 
-   recInfo->fieldWidths = vals;
+   recInfo->fieldWidths = vals.c_str();
 
    cleanConfigFile = FALSE;
    cleanFieldVals = TRUE;
@@ -1069,12 +1069,11 @@ void ConfigureDialog::fieldEditsAccept() {
 void ConfigureDialog::onRecStartEditChange() {
    wstring startText(MAX_PATH + 1, '\0');
    GetWindowText(hRecStart, startText.data(), MAX_PATH);
+   startText = startText.c_str();
 
    wstring startReg{ L"." };
-   if (startText.length() > 0)
-      startReg = L"^" + regex_replace(startText,
-         std::wregex(L"[" + REGEX_META_CHARS + L"]"),
-         L"\\$&");
+   if (!startText.empty())
+      startReg = L"^" + regex_replace(startText, std::wregex(L"[" + REGEX_META_CHARS + L"]"), L"\\$&");
 
    SetWindowText(hRecRegex, startReg.c_str());
 }
@@ -1082,7 +1081,7 @@ void ConfigureDialog::onRecStartEditChange() {
 void ConfigureDialog::onRecRegexEditChange() {
    wstring regexText(MAX_PATH + 1, '\0');
    GetWindowText(hRecRegex, regexText.data(), MAX_PATH);
-   SetWindowText(hRecStart, getOnlyStartsWith(regexText).c_str());
+   SetWindowText(hRecStart, getOnlyStartsWith(regexText.c_str()).c_str());
 }
 
 int ConfigureDialog::recEditAccept() {
@@ -1247,7 +1246,7 @@ int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
 
    for (int i{}; i < sectionCount; i++) {
       sectionLabel = _configIO.getConfigWideChar(sectionList[i], "FileLabel", "", Utils::WideToNarrow(sConfigFile));
-      if (sectionLabel.length() > 0) {
+      if (!sectionLabel.empty()) {
          if (!checkFTLimit(FALSE)) break;
 
          FileType newFile{ getNewFileType() };
@@ -1419,6 +1418,5 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
 }
 
 wstring ConfigureDialog::getOnlyStartsWith(wstring expr) {
-   return wstring{ (expr.length() > 0 &&
-      regex_match(expr, std::wregex(L"^\\^[^" + REGEX_META_CHARS + L"]+"))) ? expr.substr(1) : L"" };
+   return wstring{ (!expr.empty() && regex_match(expr, std::wregex(L"^\\^[^" + REGEX_META_CHARS + L"]+"))) ? expr.substr(1) : L"" };
 }
