@@ -27,7 +27,22 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_INFO_BUTTON:
+      {
+      #if FW_DEBUG_DOC_INFO
+         wstring docInfoStr{};
+
+         for (const DocInfo DI : docInfoList) {
+            docInfoStr = docInfoStr + L"File Path: " + DI.fileName +
+               L"\r\nFileType: " + Utils::NarrowToWide(DI.docType) +
+               L"\r\nTheme: " + Utils::NarrowToWide(DI.docTheme) +
+               L"\r\n==================================\r\n";
+         }
+
+         MessageBox(_hSelf, docInfoStr.c_str(), L"", MB_OK);
+      #else
          ShellExecute(NULL, L"open", VIZPANEL_INFO_README, NULL, NULL, SW_SHOW);
+      #endif // FW_DEBUG_DOC_INFO
+      }
          break;
 
       case IDC_VIZPANEL_FILE_SAMPLES_BTN:
@@ -388,16 +403,16 @@ void VisualizerPanel::syncListFileTypes() {
 
    string fileType;
 
-   getDocFileType(hScintilla, fileType);
+   getDocFileType(fileType);
    _configIO.setVizConfig(fileType);
 
-   if (fileType.length() < 1 && _configIO.getPreferenceBool(PREF_ADFT))
+   if (fileType.empty() && _configIO.getPreferenceBool(PREF_ADFT))
       detectFileType(hScintilla, fileType);
 
    loadListFileTypes();
-   enableThemeList(fileType.length() > 0);
+   enableThemeList(!fileType.empty());
 
-   if (fileType.length() < 1) {
+   if (fileType.empty()) {
       SendMessage(hFTList, CB_SETCURSEL, (WPARAM)0, NULL);
       return;
    }
@@ -407,15 +422,12 @@ void VisualizerPanel::syncListFileTypes() {
 }
 
 void VisualizerPanel::syncListThemes() {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return;
-
    wstring theme;
 
-   getDocTheme(hScintilla, theme);
+   getDocTheme(theme);
    loadListThemes();
 
-   if (theme.length() < 1) {
+   if (theme.empty()) {
       SendMessage(hThemesLB, CB_SETCURSEL, (WPARAM)-1, NULL);
       return;
    }
@@ -471,12 +483,13 @@ void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool auto
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
+
    if (ab_cachedFT) {
-      getDocFileType(hScintilla, fileType);
+      getDocFileType(fileType);
       _configIO.setVizConfig(fileType);
    }
 
-   if (fileType.length() < 1) {
+   if (fileType.empty()) {
       if (autoFT) {
          if (_configIO.getPreferenceBool(PREF_ADFT))
             detectFileType(hScintilla, fileType);
@@ -491,17 +504,21 @@ void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool auto
    if (IsWindowVisible(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND)))
       setPanelMBCharIndicator(fileType);
 
-   if (fileType.length() < 2) {
+   wstring theme{};
+   if (fileType.length() > 1)
+      getDocTheme(theme);
+   else
+   {
       syncListFileTypes();
       syncListThemes();
       return;
    }
 
    clearVisualize(FALSE);
-   setDocFileType(hScintilla, fileType);
+   setDocFileType(fileType);
    if (syncFT) syncListFileTypes();
 
-   setDocTheme(hScintilla, fileType, "");
+   setDocTheme(Utils::WideToNarrow(theme), theme.empty() ? fileType : "");
    syncListThemes();
 
    loadUsedThemes();
@@ -510,12 +527,22 @@ void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool auto
    setFocusOnEditor();
 }
 
-void VisualizerPanel::jumpToField(const string fileType, const int recordIndex, const int fieldIdx) {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return;
+void VisualizerPanel::delDocInfo(intptr_t bufferID) {
+   wstring filePath(MAX_PATH, '\0');
+   nppMessage(NPPM_GETFULLPATHFROMBUFFERID, bufferID, (LPARAM)filePath.c_str());
+   filePath = filePath.c_str();
 
+   for (size_t i{}; i < docInfoList.size(); i++) {
+      if (docInfoList[i].fileName == filePath) {
+         docInfoList.erase(docInfoList.begin() + i);
+         return;
+      }
+   }
+}
+
+void VisualizerPanel::jumpToField(const string fileType, const int recordIndex, const int fieldIdx) {
    string currFileType{};
-   if (!getDocFileType(hScintilla, currFileType) || (fileType != currFileType)) {
+   if (!getDocFileType(currFileType) || (fileType != currFileType)) {
       MessageBox(_hSelf, VIZ_PANEL_JUMP_CHANGED_DOC, VIZ_PANEL_JUMP_FIELD_TITLE, MB_OK | MB_ICONSTOP);
       return;
    }
@@ -556,7 +583,7 @@ void VisualizerPanel::fieldCopy() {
 
    string padText{};
    padText = Utils::WideToNarrow(_configIO.getPreference(leftAlign ? PREF_PASTE_RPAD : PREF_PASTE_LPAD));
-   if (padText.length() < 1) padText = " ";
+   if (padText.empty()) padText = " ";
 
    int padLen{ static_cast<int>(padText.length()) };
    int leftTrimLen{}, rightTrimLen{};
@@ -666,7 +693,7 @@ void VisualizerPanel::fieldPaste() {
       int gapLength{ fieldLength - clipLength };
 
       wstring padText{ _configIO.getPreference(leftAlign ? PREF_PASTE_RPAD : PREF_PASTE_LPAD) };
-      if (padText.length() < 1) padText = L" ";
+      if (padText.empty()) padText = L" ";
 
       wstring fillText{};
       while (static_cast<int>(fillText.length()) < gapLength) {
@@ -694,12 +721,15 @@ void VisualizerPanel::visualizeTheme() {
       return;
    }
 
-   setDocTheme(getCurrentScintilla(), "", Utils::WideToNarrow(theme));
+   setDocTheme(Utils::WideToNarrow(theme));
    loadUsedThemes();
    renderCurrentPage();
 }
 
 void VisualizerPanel::clearVisualize(bool sync) {
+   string docType{};
+   if (!getDocFileType(docType)) return;
+
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -707,8 +737,8 @@ void VisualizerPanel::clearVisualize(bool sync) {
    SendMessage(hScintilla, SCI_SETSTYLING,
       SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
 
-   setDocFileType(hScintilla, "");
-   setDocTheme(hScintilla, "", "");
+   setDocFileType("");
+   setDocTheme("");
    clearLexer();
 
    if (sync) {
@@ -781,18 +811,15 @@ int VisualizerPanel::loadTheme(const wstring theme) {
 }
 
 int VisualizerPanel::loadUsedThemes() {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return -1;
-
    loadedStyleCount = 0;
    themeSet.clear();
 
    string fileType;
-   if (!getDocFileType(hScintilla, fileType)) return 0;
+   if (!getDocFileType(fileType)) return 0;
    _configIO.setVizConfig(fileType);
 
    wstring fileTheme;
-   if (!getDocTheme(hScintilla, fileTheme)) return 0;
+   if (!getDocTheme(fileTheme)) return 0;
 
    loadedStyleCount += loadTheme(fileTheme);
 
@@ -829,7 +856,7 @@ int VisualizerPanel::loadLexer() {
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
    string fileType;
-   if (!getDocFileType(sciFunc, sciPtr, fileType)) {
+   if (!getDocFileType(fileType)) {
       clearLexer();
       return 0;
    }
@@ -969,10 +996,10 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    string fileType;
-   if (!getDocFileType(sciFunc, sciPtr, fileType)) return;
+   if (!getDocFileType(fileType)) return;
 
    wstring fileTheme;
-   if (!getDocTheme(sciFunc, sciPtr, fileTheme)) return;
+   if (!getDocTheme(fileTheme)) return;
 
    if (themeSet.size() < 1) return;
 
@@ -982,7 +1009,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
    // set shiftPerRec to an integer just less than half of base theme's styleCount
    shiftPerRec = (shiftPerRec < 5) ? 1 : ((shiftPerRec + 1) >> 1) - 1;
 
-   char lineTextCStr[FW_LINE_MAX_LENGTH]{};
+   string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
    size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{},
       currentPos, startPos, endPos, recStartPos{};
@@ -1010,10 +1037,10 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH)
          continue;
 
-      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr);
+      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
-      string_view lineText{ lineTextCStr, endPos - startPos };
+      string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
 
       if (newRec) {
          recStartLine = currentLine;
@@ -1021,7 +1048,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
          recStartText = lineText;
       }
 
-      if (newRec && lineText.length() == 0)
+      if (newRec && lineText.empty())
          continue;
 
       if (eolMarkerLen == 0) {
@@ -1209,7 +1236,7 @@ int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, co
    string currFileType{};
 
    if (fileType == "") {
-      if (!getDocFileType(hScintilla, currFileType)) return -1;
+      if (!getDocFileType(currFileType)) return -1;
    }
    else {
       currFileType = fileType;
@@ -1296,7 +1323,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 
    string fileType;
 
-   if (!getDocFileType(hScintilla, fileType)) return;
+   if (!getDocFileType(fileType)) return;
 
    wstring fieldInfoText{};
    int caretPos;
@@ -1429,11 +1456,8 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 }
 
 void VisualizerPanel::showJumpDialog() {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return;
-
    string fileType;
-   if (!getDocFileType(hScintilla, fileType)) return;
+   if (!getDocFileType(fileType)) return;
 
    RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
 
@@ -1457,39 +1481,18 @@ void VisualizerPanel::showJumpDialog() {
 }
 
 void VisualizerPanel::showExtractDialog() {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return;
-
    string fileType;
-   if (!getDocFileType(hScintilla, fileType)) return;
+   if (!getDocFileType(fileType)) return;
 
    _dataExtractDlg.doDialog((HINSTANCE)_gModule);
    _dataExtractDlg.initDialog(fileType, recInfoList);
-}
-
-bool VisualizerPanel::getDocFileType(HWND hScintilla, string& fileType) {
-   char fType[MAX_PATH]{};
-
-   SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
-   fileType = fType;
-
-   return (fileType.length() > 0);
-}
-
-bool VisualizerPanel::getDocFileType(PSCIFUNC_T sciFunc, void* sciPtr, string& fileType) {
-   char fType[MAX_PATH]{};
-
-   sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fType);
-   fileType = fType;
-
-   return (fileType.length() > 0);
 }
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
    if (!isVisible()) return FALSE;
    if (!_configIO.checkConfigFilesforUCS16()) return FALSE;
 
-   char lineTextCStr[FW_LINE_MAX_LENGTH]{};
+   string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    size_t startPos, endPos;
 
    vector<string> fileTypes;
@@ -1506,7 +1509,7 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
          if (line == 0) continue;
 
          string strRegex = _configIO.getConfigStringA(fType, "ADFT_Regex_" + string{ idx });
-         if (strRegex.length() == 0) continue;
+         if (strRegex.empty()) continue;
          if (Utils::isInvalidRegex(strRegex)) continue;
 
          int lineCount = static_cast<int>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
@@ -1517,10 +1520,10 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
          if (strRegex.substr(strRegex.length() - 1) != "$")
             strRegex += ".*";
 
-         SendMessage(hScintilla, SCI_GETLINE, (WPARAM)line, (LPARAM)lineTextCStr);
+         SendMessage(hScintilla, SCI_GETLINE, (WPARAM)line, (LPARAM)lineTextCStr.c_str());
          startPos = SendMessage(hScintilla, SCI_POSITIONFROMLINE, line, NULL);
          endPos = SendMessage(hScintilla, SCI_GETLINEENDPOSITION, line, NULL);
-         string_view lineText{ lineTextCStr, endPos - startPos };
+         string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
 
          if (regex_match(string{ lineText }, regex{ strRegex }))
             matched = TRUE;
@@ -1532,45 +1535,79 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
 
       if (matched) {
          fileType = fType;
-         setDocFileType(hScintilla, fileType);
-         setDocTheme(hScintilla, fileType, "");
+         setDocFileType(fileType);
+
+         wstring theme{};
+         if (!getDocTheme(theme)) setDocTheme("", fileType);
          break;
       }
    }
 
-   return (fileType.length() > 0);
+   return (!fileType.empty());
 }
 
-bool VisualizerPanel::getDocTheme(HWND hScintilla, wstring& theme) {
-   char fTheme[MAX_PATH]{};
-
-   SendMessage(hScintilla, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)fTheme);
-   theme = Utils::NarrowToWide(fTheme);
-
-   return (theme.length() > 0);
+const wstring VisualizerPanel::getCurrentFileName() {
+   wstring fileName(MAX_PATH, '\0');
+   nppMessage(NPPM_GETFULLCURRENTPATH, MAX_PATH, (LPARAM)fileName.c_str());
+   return wstring{ fileName.c_str() };
 }
 
-bool VisualizerPanel::getDocTheme(PSCIFUNC_T sciFunc, void* sciPtr, wstring& theme) {
-   char fTheme[MAX_PATH]{};
+void VisualizerPanel::setDocInfo(bool bDocType, string val) {
+   const wstring fileName{ getCurrentFileName() };
 
-   sciFunc(sciPtr, SCI_GETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)fTheme);
-   theme = Utils::NarrowToWide(fTheme);
+   for (DocInfo& DI : docInfoList) {
+      if (fileName == DI.fileName) {
+         if (bDocType) DI.docType = val;
+         if (!bDocType) DI.docTheme = val;
+         return;
+      }
+   }
 
-   return (theme.length() > 0);
+   DocInfo fi{fileName, (bDocType ? val : ""), (!bDocType ? val : "")};
+
+   docInfoList.emplace_back(fi);
 }
 
-void VisualizerPanel::setDocFileType(HWND hScintilla, string fileType) {
+bool VisualizerPanel::getDocFileType(string& fileType) {
+   const wstring fileName{ getCurrentFileName() };
+   fileType = "";
+
+   for (const DocInfo& DI : docInfoList) {
+      if (fileName == DI.fileName) {
+         fileType = DI.docType;
+         break;
+      }
+   }
+
+   return (!fileType.empty());
+}
+
+bool VisualizerPanel::getDocTheme(wstring& theme) {
+   const wstring fileName{ getCurrentFileName() };
+   theme = L"";
+
+   for (const DocInfo& DI : docInfoList) {
+      if (fileName == DI.fileName) {
+         theme = Utils::NarrowToWide(DI.docTheme);
+         break;
+      }
+   }
+
+   return (!theme.empty());
+}
+
+void VisualizerPanel::setDocFileType(string fileType) {
    if (!isVisible()) return;
 
-   enableThemeList(fileType.length() > 0);
-   SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_TYPE, (LPARAM)fileType.c_str());
+   enableThemeList(!fileType.empty());
+   setDocInfo(true, fileType);
 }
 
-void VisualizerPanel::setDocTheme(HWND hScintilla, string fileType, string theme) {
-   if (fileType.length() > 0)
+void VisualizerPanel::setDocTheme(string theme, string fileType) {
+   if (theme.empty() && (!fileType.empty()))
       theme = _configIO.getConfigStringA(fileType, "FileTheme");
 
-   SendMessage(hScintilla, SCI_SETPROPERTY, (WPARAM)FW_DOC_FILE_THEME, (LPARAM)theme.c_str());
+   setDocInfo(false, theme);
 }
 
 void VisualizerPanel::setADFTCheckbox() {

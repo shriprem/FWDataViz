@@ -45,7 +45,7 @@ void EximFileTypeDialog::localize() {
       extractMode ? FT_EXIM_EXTRACT_FT_TITLE : FT_EXIM_APPEND_FT_TITLE :
       extractMode ? FT_EXIM_EXTRACT_THEME_TITLE : FT_EXIM_APPEND_THEME_TITLE);
    SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_LABEL, vizMode ? FT_EXIM_EDIT_FT_LABEL : FT_EXIM_EDIT_THEME_LABEL);
-   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, NULL);
+   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, L"");
    SetDlgItemText(_hSelf, IDCLOSE, FT_EXIM_CLOSE_BTN);
 
    if (extractMode) {
@@ -152,7 +152,7 @@ void EximFileTypeDialog::saveExtractFile() {
 }
 
 wstring EximFileTypeDialog::getEditControlText() {
-   TCHAR sExtractData[FW_LINE_MAX_LENGTH];
-   GetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData, FW_LINE_MAX_LENGTH);
-   return wstring{ sExtractData };
+   wstring sExtractData(FW_LINE_MAX_LENGTH, '\0');
+   GetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, sExtractData.data(), FW_LINE_MAX_LENGTH);
+   return wstring{ sExtractData.c_str()};
 }

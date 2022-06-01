@@ -11,11 +11,11 @@ public:
    void refreshDarkMode();
 
 private:
-   bool loadingEdits, newFieldDef;
+   bool loadingEdits{}, newFieldDef{};
    string fieldDefConfigFile{}, fieldDefStyle;
    wstring fieldDefLabel, fieldDefRegex;
 
-   HWND hFieldsLB;
+   HWND hFieldsLB{};
 
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();

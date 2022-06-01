@@ -26,14 +26,14 @@ private:
    int currentLineItem{}, currentPage{};
    string extractsConfigFile{}, initFileType{};
    wstring initFileTypeLabel{};
-   const vector<RecordInfo>* pRecInfoList;
+   const vector<RecordInfo>* pRecInfoList{};
 
-   HWND hIndicator, hTemplatesList, hTemplateName;
+   HWND hIndicator{}, hTemplatesList{}, hTemplateName{};
 
    struct LineItemInfo {
       wstring prefix;
-      int recType;
-      int fieldType;
+      int recType{};
+      int fieldType{};
       wstring suffix;
    };
    vector<LineItemInfo> liBuffer{};

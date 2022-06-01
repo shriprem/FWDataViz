@@ -38,9 +38,9 @@ private:
    vector<ThemeType> vThemeTypes;
    wstring themeFile{};
    int swatchTopIndex{};
-   bool loadingEdits, cleanConfigFile, cleanThemeVals;
+   bool loadingEdits{}, cleanConfigFile{}, cleanThemeVals{};
 
-   HWND hThemesLB, hStylesLB;
+   HWND hThemesLB{}, hStylesLB{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();

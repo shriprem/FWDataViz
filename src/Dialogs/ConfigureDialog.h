@@ -29,8 +29,8 @@ public:
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
    int appendFileTypeConfigs(const wstring& sConfigFile);
 
-   HWND hFilesLB, hFileEOL, hFileThemes, hADFTLine[ADFT_MAX], hADFTRegex[ADFT_MAX],
-      hRecsLB, hRecStart, hRecRegex, hRecThemes, hFieldLabels, hFieldWidths;
+   HWND hFilesLB{}, hFileEOL{}, hFileThemes{}, hADFTLine[ADFT_MAX]{}, hADFTRegex[ADFT_MAX]{},
+      hRecsLB{}, hRecStart{}, hRecRegex{}, hRecThemes{}, hFieldLabels{}, hFieldWidths{};
 
 private:
    enum move_dir {
@@ -58,8 +58,8 @@ private:
 
    wstring configFile{};
    vector<FileType> vFileTypes;
-   bool loadingEdits, cleanConfigFile, cleanFileVals, cleanRecVals, cleanFieldVals;
-   HWND hToolTips[8];
+   bool loadingEdits{}, cleanConfigFile{}, cleanFileVals{}, cleanRecVals{}, cleanFieldVals{};
+   HWND hToolTips[8]{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();

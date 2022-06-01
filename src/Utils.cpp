@@ -51,7 +51,7 @@ bool changeFontStyle(HWND hDlg, int controlID, fontStyle style) {
 // ***************** PUBLIC *****************
 
 int Utils::StringtoInt(const string& str, int base) {
-   if (str.length() < 1) return 0;
+   if (str.empty()) return 0;
 
    try {
       return stoi(str, nullptr, base);
@@ -62,7 +62,7 @@ int Utils::StringtoInt(const string& str, int base) {
 }
 
 int Utils::StringtoInt(const wstring& str, int base) {
-   if (str.length() < 1) return 0;
+   if (str.empty()) return 0;
 
    try {
       return stoi(str, nullptr, base);
@@ -101,7 +101,7 @@ bool Utils::isInvalidRegex(const wstring& expr, HWND hWnd, const wstring& contex
    }
    catch (const std::regex_error& e) {
       MessageBox(hWnd,
-         (context + (context.length() > 0 ? L"\r\n" : L"") + NarrowToWide(e.what())).c_str(),
+         (context + ((!context.empty()) ? L"\r\n" : L"") + NarrowToWide(e.what())).c_str(),
          FWVIZ_DIALOG_REGEX_ERROR,
          MB_OK | MB_ICONERROR);
       return true;
@@ -136,7 +136,7 @@ wstring Utils::getSpecialFolder(int folderID) {
    TCHAR sFolderPath[MAX_PATH]{};
    const HRESULT ret = SHGetFolderPath(NULL, folderID, NULL, SHGFP_TYPE_CURRENT, sFolderPath);
 
-   return ((ret == S_OK) ? wstring{ sFolderPath } : NULL);
+   return ((ret == S_OK) ? wstring{ sFolderPath } : L"");
 }
 
 wstring Utils::getKnownFolderPath(REFKNOWNFOLDERID folderID) {
@@ -270,10 +270,10 @@ wstring Utils::getVersionInfo(LPCWSTR key) {
 
    GetModuleFileName(_gModule, sModuleFilePath, MAX_PATH);
    verSize = GetFileVersionInfoSize(sModuleFilePath, &verHandle);
-   if (verSize < 1) return NULL;
+   if (verSize < 1) return L"";
 
    string versionData(verSize, '\0');
-   if (!GetFileVersionInfo(sModuleFilePath, verHandle, verSize, versionData.data())) return NULL;
+   if (!GetFileVersionInfo(sModuleFilePath, NULL, verSize, versionData.data())) return L"";
    VerQueryValue(versionData.data(), L"\\VarFileInfo\\Translation", (VOID FAR* FAR*)& lpTranslate, &querySize);
 
    wstring verSubBlock(100, '\0');
@@ -293,8 +293,8 @@ void Utils::loadBitmap(HWND hDlg, int controlID, int resource) {
 
    if (hBitmap) {
       SendMessage(hwndCtrl, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hBitmap);
+      DeleteObject(hBitmap);
    }
-   DeleteObject(hBitmap);
 }
 
 void Utils::setFont(HWND hDlg, int controlID, wstring& name, int height, int weight, bool italic, bool underline) {

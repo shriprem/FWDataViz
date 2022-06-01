@@ -85,6 +85,10 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
             _vizPanel.renderCurrentPage();
          break;
 
+      case NPPN_FILEBEFORECLOSE:
+         _vizPanel.delDocInfo(static_cast<intptr_t>(notifyCode->nmhdr.idFrom));
+         break;
+
       case NPPN_SHUTDOWN:
          commandMenuCleanUp();
          break;
