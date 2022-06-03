@@ -59,6 +59,9 @@ The same field specification as seen in the [File Type Metadata Editor](https://
 
 In this example, all the _SPACE_ fields have been tagged with _DEFAULT_STYLE_ or  _STYLE_DEFAULT_ or _NO_STYLING_. If these field tags are left undefined in the _Define Field Types_ dialog, all the spaces in the Weather Stations file will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**.
 
-![Default_Style_Field_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/default_style_output.png)
+![Default_Style_Field_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/single_rec_weather_stations.png)
+
+For comparison, without the _DEFAULT_STYLE_ tagging of the _SPACE_ fields, the visualizer output would be:
+![Default_Style_Field_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/single_rec_weather_stations_colored.png)
 
 See also: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) | [Data Extraction dialog](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md)
