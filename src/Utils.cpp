@@ -282,7 +282,7 @@ wstring Utils::getVersionInfo(LPCWSTR key) {
 
    if (VerQueryValue(versionData.data(), verSubBlock.c_str(), (VOID FAR* FAR*)& lpBuffer, &querySize)
       && querySize)
-      sVersionInfo = wstring((LPCTSTR)lpBuffer);
+      sVersionInfo = wstring(reinterpret_cast<LPCTSTR>(lpBuffer));
 
    return sVersionInfo;
 }
