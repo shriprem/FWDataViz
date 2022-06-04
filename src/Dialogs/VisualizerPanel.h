@@ -131,7 +131,7 @@ private:
    int loadTheme(const wstring theme);
    int loadUsedThemes();
    int loadLexer();
-   void applyLexer(const size_t startLine, const size_t endLine);
+   void applyLexer(const size_t startLine, size_t endLine);
    void clearLexer();
    void visualizeTheme();
 

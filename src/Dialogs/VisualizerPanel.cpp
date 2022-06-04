@@ -987,7 +987,7 @@ int VisualizerPanel::loadLexer() {
    return recTypeCount;
 }
 
-void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
+void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
    if (unlexed && !isVisible()) return;
 
    PSCIFUNC_T sciFunc;
@@ -1005,6 +1005,10 @@ void VisualizerPanel::applyLexer(const size_t startLine, const size_t endLine) {
 
    int shiftPerRec{ themeSet[0].styleCount };
    if (shiftPerRec < 1) return;
+
+   size_t lineCount;
+   lineCount = static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL));
+   if (endLine > lineCount) endLine = lineCount;
 
    // set shiftPerRec to an integer just less than half of base theme's styleCount
    shiftPerRec = (shiftPerRec < 5) ? 1 : ((shiftPerRec + 1) >> 1) - 1;
@@ -1199,16 +1203,14 @@ void VisualizerPanel::renderCurrentPage() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   size_t lineCount, linesOnScreen, firstVisible, startLine, endLine;
+   size_t linesOnScreen, firstVisible, startLine, endLine;
 
-   lineCount = static_cast<size_t>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
    linesOnScreen = static_cast<size_t>(SendMessage(hScintilla, SCI_LINESONSCREEN, NULL, NULL));
    firstVisible = static_cast<size_t>(SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL));
    startLine = static_cast<size_t>(SendMessage(hScintilla, SCI_DOCLINEFROMVISIBLE, firstVisible, NULL));
    endLine = static_cast<size_t>(SendMessage(hScintilla, SCI_DOCLINEFROMVISIBLE, firstVisible + linesOnScreen, NULL));
-   if (endLine + 1 < lineCount) endLine++;
 
-   applyLexer(startLine, endLine);
+   applyLexer(startLine, endLine + 1);
    displayCaretFieldInfo(startLine, endLine);
 }
 
