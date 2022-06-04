@@ -261,7 +261,7 @@ wstring Utils::getVersionInfo(LPCWSTR key) {
    DWORD  verHandle{};
    DWORD  verSize{};
    UINT   querySize{};
-   LPBYTE lpBuffer{};
+   LPTSTR lpBuffer{};
 
    struct LANGANDCODEPAGE {
       WORD wLanguage;
@@ -282,7 +282,7 @@ wstring Utils::getVersionInfo(LPCWSTR key) {
 
    if (VerQueryValue(versionData.data(), verSubBlock.c_str(), (VOID FAR* FAR*)& lpBuffer, &querySize)
       && querySize)
-      sVersionInfo = wstring(reinterpret_cast<LPCTSTR>(lpBuffer));
+      sVersionInfo = wstring{ lpBuffer };
 
    return sVersionInfo;
 }
