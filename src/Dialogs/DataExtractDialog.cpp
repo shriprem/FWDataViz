@@ -381,6 +381,9 @@ void DataExtractDialog::initLineItemFieldList(int line) {
    HWND hFTList = GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line);
    resetDropDown(hFTList);
 
+   string fileType{};
+   if (!_vizPanel.getDocFileType(fileType) || (initFileType != fileType)) return;
+
    size_t RTIndex = SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_GETCURSEL, NULL, NULL);
    if (RTIndex == 0) return;
    RTIndex--;
