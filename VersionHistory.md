@@ -2,15 +2,15 @@
 
 ### Version 2.5.2.0
 
-1. Fixed: Manually set selections of _**File Type**_ and _**Visualizer Theme**_ are being lost when returning to the same document after briefly switching to a different document in Notepad++. This issue started in the _FWDataViz_ plugin with the Notepad++ 8.4 version. See: #61.
+1. Fixed: Manually set selections of _**File Type**_ and _**Visualizer Theme**_ are being lost when returning to the same document after briefly switching to a different document in Notepad++. This issue started in the _FWDataViz_ plugin with the Notepad++ 8.4 version. See issue: [#61](https://github.com/shriprem/FWDataViz/issues/61).
 
-2. Fixed: Crashing when scrolling beyond the last line. See: #58.
+2. Fixed: Crashing when scrolling beyond the last line. See issue: [#58](https://github.com/shriprem/FWDataViz/issues/58).
 
-3. Fixed: Crashing when clicking the Plus or Minus buttons on the filled line items after a Data Extraction. See #60.
+3. Fixed: Crashing when clicking the Plus or Minus buttons on the filled line items after a Data Extraction. See issue: [#60](https://github.com/shriprem/FWDataViz/issues/60).
 
 4. Including 3 new Visualizer Themes: **_Tango Light, Tango Dark, Tango Stripes_**. Shared by @trybowski.
 
-5. The *SPACE* & _BLANK_ fields in the Sample Data files have been tagged with _DEFAULT_STYLE_ to better illustrate the default styling feature that was added in _FWDataViz_ version 2.5.1.0.
+5. The *SPACE* & _BLANK_ fields in the Sample Data files have been tagged with _DEFAULT_STYLE_ to better illustrate the default styling feature that was added in _FWDataViz_ [version 2.5.1.0](https://github.com/shriprem/FWDataViz/releases/tag/v2.5.1.0).
 
 **Release:** [2.5.2.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.5.2.0)
 
@@ -28,7 +28,7 @@
 #### 1. _CSVLint_ plugin
 Starting with Notepad++ v8.4.1, if you have both the _FWDataViz_ and _CSVLint_ plugins installed and then open a CSV file while the _FWDataViz_ side panel is open, Notepad++ will crash.
 
-This issue got introduced when the _CSVLint_ plugin made code changes to comply with the Scintilla Lexer upgrade of Notepad++ 8.4. (_FWDataViz_ was not affected by the Scintilla lexer upgrade since it uses Scintilla _**styles**_ instead of the Scintilla _**lexer**_). To resolve this, two issues ([#25](https://github.com/BdR76/CSVLint/issues/25) and [#26](https://github.com/BdR76/CSVLint/issues/26)) have been opened at the _CSVLint_ repository. A [fix for this issue](https://github.com/BdR76/CSVLint/pull/27) is also forthcoming.
+This issue got introduced when the _CSVLint_ plugin made code changes to comply with the Scintilla Lexer upgrade of Notepad++ 8.4. (_FWDataViz_ was not affected by the Scintilla lexer upgrade since it uses Scintilla _**styles**_ instead of the Scintilla _**lexer**_). To resolve this, two issues ([#25](https://github.com/BdR76/CSVLint/issues/25) and [#26](https://github.com/BdR76/CSVLint/issues/26)) have been opened at the _CSVLint_ repository. The issue has been fixed in [CSVLint 0.4.5.2 release](https://github.com/BdR76/CSVLint/releases/tag/0.4.5.2).
 
 As a workaround, if you have the _CSVLint_ plugin installed, close the _FWDataViz_ side panel before opening any CSV files. Alternatively, use the _CSVQuery_ plugin which has no such issues.
 
