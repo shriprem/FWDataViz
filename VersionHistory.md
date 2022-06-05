@@ -1,5 +1,21 @@
 # Version History
 
+### Version 2.5.2.0
+
+1. Fixed: Manually set selections of _**File Type**_ and _**Visualizer Theme**_ are being lost when returning to the same document after briefly switching to a different document in Notepad++. This issue started in the _FWDataViz_ plugin with the Notepad++ 8.4 version. See: #61.
+
+2. Fixed: Crashing when scrolling beyond the last line. See: #58.
+
+3. Fixed: Crashing when clicking the Plus or Minus buttons on the filled line items after a Data Extraction. See #60.
+
+4. Including 3 new Visualizer Themes: **_Tango Light, Tango Dark, Tango Stripes_**. Shared by @trybowski.
+
+5. The *SPACE* & _BLANK_ fields in the Sample Data files have been tagged with _DEFAULT_STYLE_ to better illustrate the default styling feature that was added in _FWDataViz_ version 2.5.1.0.
+
+**Release:** [2.5.2.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.5.2.0)
+
+---
+
 ### Version 2.5.1.0
 
 1. Fields tagged with an undefined field type such as _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_ will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**. For more info, see: [Field Types - Default Style](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md#default-style).
