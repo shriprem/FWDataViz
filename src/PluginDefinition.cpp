@@ -159,7 +159,7 @@ void ShowVisualizerPanel(bool show) {
       if (!_vizPanel.isCreated()) {
          _vizPanel.create(&data);
 
-         data.uMask = DWS_DF_CONT_RIGHT;
+         data.uMask = DWS_DF_CONT_RIGHT | DWS_USEOWNDARKMODE;
          data.pszModuleName = _vizPanel.getPluginFileName();
          data.dlgID = MI_FWVIZ_PANEL;
          data.pszName = MENU_PANEL_NAME;
