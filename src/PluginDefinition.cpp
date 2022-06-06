@@ -159,10 +159,12 @@ void ShowVisualizerPanel(bool show) {
       if (!_vizPanel.isCreated()) {
          _vizPanel.create(&data);
 
-         data.uMask = DWS_DF_CONT_RIGHT | DWS_USEOWNDARKMODE;
+         data.uMask = DWS_DF_CONT_RIGHT | DWS_ICONTAB | DWS_USEOWNDARKMODE;
          data.pszModuleName = _vizPanel.getPluginFileName();
          data.dlgID = MI_FWVIZ_PANEL;
          data.pszName = MENU_PANEL_NAME;
+         data.hIconTab = (HICON)::LoadImage(_gModule,
+            MAKEINTRESOURCE(IDI_VIZ_TOOL_BTN_STD_FIELDS), IMAGE_ICON, 14, 14, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
 
          nppMessage(NPPM_DMMREGASDCKDLG, 0, (LPARAM)&data);
 

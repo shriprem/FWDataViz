@@ -222,6 +222,9 @@
     <Image Include="..\src\Resources\fields.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
+    <Image Include="..\src\Resources\fields_fluent.ico">
+      <Filter>Resources\Icons</Filter>
+    </Image>
     <Image Include="..\src\Resources\fields_dark.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
