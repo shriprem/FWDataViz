@@ -92,6 +92,9 @@ namespace NppDarkMode
    HBRUSH getHotBackgroundBrush();
    HBRUSH getErrorBackgroundBrush();
 
+   HBRUSH getEdgeBrush();
+   HBRUSH getHotEdgeBrush();
+
    HPEN getDarkerTextPen();
    HPEN getEdgePen();
    HPEN getHotEdgePen();
@@ -111,6 +114,8 @@ namespace NppDarkMode
 
    void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass = true, bool theme = true);
    void autoThemeChildControls(HWND hwndParent);
+
+   bool subclassTabUpDownControl(HWND hwnd);
 
    void setDarkTitleBar(HWND hwnd);
    void setDarkExplorerTheme(HWND hwnd);
