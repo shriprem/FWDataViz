@@ -67,6 +67,7 @@ namespace NppDarkMode
    void initDarkMode();
    void queryNPPDarkmode();      // sync options from NPP instance
    bool isEnabled();
+   bool isWindows11();
 
    COLORREF invertLightness(COLORREF c);
    COLORREF invertLightnessSofter(COLORREF c);
@@ -93,6 +94,7 @@ namespace NppDarkMode
 
    HPEN getDarkerTextPen();
    HPEN getEdgePen();
+   HPEN getHotEdgePen();
 
    // from DarkMode.h
    void allowDarkModeForApp(bool allow);

@@ -134,7 +134,7 @@ bool IsHighContrast()
 void SetTitleBarThemeColor(HWND hWnd, BOOL dark)
 {
 	if (g_buildNumber < 18362)
-		SetPropW(hWnd, L"UseImmersiveDarkModeColors", reinterpret_cast<HANDLE>(static_cast<INT_PTR>(dark)));
+		SetPropW(hWnd, L"UseImmersiveDarkModeColors", reinterpret_cast<HANDLE>(static_cast<intptr_t>(dark)));
 	else if (_SetWindowCompositionAttribute)
 	{
 		WINDOWCOMPOSITIONATTRIBDATA data = { WCA_USEDARKMODECOLORS, &dark, sizeof(dark) };
@@ -154,6 +154,26 @@ void RefreshTitleBarThemeColor(HWND hWnd)
 	}
 
 	SetTitleBarThemeColor(hWnd, dark);
+}
+
+bool IsColorSchemeChangeMessage(LPARAM lParam)
+{
+	bool is = false;
+	if (lParam && (0 == lstrcmpi(reinterpret_cast<LPCWCH>(lParam), L"ImmersiveColorSet")) && _RefreshImmersiveColorPolicyState)
+	{
+		_RefreshImmersiveColorPolicyState();
+		is = true;
+	}
+	if (_GetIsImmersiveColorUsingHighContrast)
+		_GetIsImmersiveColorUsingHighContrast(IHCM_REFRESH);
+	return is;
+}
+
+bool IsColorSchemeChangeMessage(UINT message, LPARAM lParam)
+{
+	if (message == WM_SETTINGCHANGE)
+		return IsColorSchemeChangeMessage(lParam);
+	return false;
 }
 
 void AllowDarkModeForApp(bool allow)
@@ -236,8 +256,13 @@ constexpr bool CheckBuildNumber(DWORD buildNumber)
 		buildNumber == 19042 || // 20H2
 		buildNumber == 19043 || // 21H1
 		buildNumber == 19044 || // 21H2
-		(buildNumber > 19044 && buildNumber < 22000) || // Windows 10 any version > 21H2
+		(buildNumber > 19044 && buildNumber < 22000) || // Windows 10 any version > 21H2 
 		buildNumber >= 22000);  // Windows 11 insider builds
+}
+
+bool IsWindows11() // or later OS version
+{
+	return (g_buildNumber >= 22000);
 }
 
 void InitDarkMode()

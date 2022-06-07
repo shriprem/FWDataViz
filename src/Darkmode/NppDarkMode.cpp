@@ -78,27 +78,31 @@ namespace NppDarkMode
    {
       HPEN darkerTextPen = nullptr;
       HPEN edgePen = nullptr;
+      HPEN hotEdgePen = nullptr;
 
       Pens(const Colors& colors)
          : darkerTextPen(::CreatePen(PS_SOLID, 1, colors.darkerText))
          , edgePen(::CreatePen(PS_SOLID, 1, colors.edge))
+         , hotEdgePen(::CreatePen(PS_SOLID, 1, colors.hotEdge))
       {}
 
       ~Pens()
       {
          ::DeleteObject(darkerTextPen);   darkerTextPen = nullptr;
-         ::DeleteObject(edgePen);      edgePen = nullptr;
+         ::DeleteObject(edgePen);         edgePen = nullptr;
+         ::DeleteObject(hotEdgePen);      hotEdgePen = nullptr;
       }
 
       void change(const Colors& colors)
       {
          ::DeleteObject(darkerTextPen);
          ::DeleteObject(edgePen);
+         ::DeleteObject(hotEdgePen);
 
          darkerTextPen = ::CreatePen(PS_SOLID, 1, colors.darkerText);
          edgePen = ::CreatePen(PS_SOLID, 1, colors.edge);
+         hotEdgePen = ::CreatePen(PS_SOLID, 1, colors.hotEdge);
       }
-
    };
 
    // black (default)
@@ -160,6 +164,11 @@ namespace NppDarkMode
    {
       return _isDarkModeEnabled;
    }
+
+   bool isWindows11() {
+      return IsWindows11();
+   }
+
 
    COLORREF invertLightness(COLORREF c)
    {
@@ -234,6 +243,7 @@ namespace NppDarkMode
 
    HPEN getDarkerTextPen()               { return tCurrent._pens.darkerTextPen; }
    HPEN getEdgePen()                     { return tCurrent._pens.edgePen; }
+   HPEN getHotEdgePen()                  { return tCurrent._pens.hotEdgePen; }
 
    // from DarkMode.h
    void allowDarkModeForApp(bool allow)
@@ -254,6 +264,15 @@ namespace NppDarkMode
    void enableDarkScrollBarForWindowAndChildren(HWND hwnd)
    {
       ::EnableDarkScrollBarForWindowAndChildren(hwnd);
+   }
+
+   inline void paintRoundFrameRect(HDC hdc, const RECT rect, const HPEN hpen, int width, int height)
+   {
+      auto holdBrush = ::SelectObject(hdc, ::GetStockObject(NULL_BRUSH));
+      auto holdPen = ::SelectObject(hdc, hpen);
+      ::RoundRect(hdc, rect.left, rect.top, rect.right, rect.bottom, width, height);
+      ::SelectObject(hdc, holdBrush);
+      ::SelectObject(hdc, holdPen);
    }
 
    struct ButtonData
@@ -821,9 +840,11 @@ namespace NppDarkMode
       WPARAM wParam,
       LPARAM lParam,
       UINT_PTR uIdSubclass,
-      DWORD_PTR /*dwRefData*/
+      DWORD_PTR dwRefData
    )
    {
+      auto hwndEdit = reinterpret_cast<HWND>(dwRefData);
+
       switch (uMsg)
       {
          case WM_PAINT:
@@ -839,7 +860,6 @@ namespace NppDarkMode
             PAINTSTRUCT ps;
             auto hdc = ::BeginPaint(hWnd, &ps);
 
-            auto holdPen = static_cast<HPEN>(::SelectObject(hdc, getEdgePen()));
             ::SelectObject(hdc, reinterpret_cast<HFONT>(::SendMessage(hWnd, WM_GETFONT, 0, 0)));
             ::SetBkColor(hdc, getBackgroundColor());
 
@@ -849,11 +869,14 @@ namespace NppDarkMode
             auto holdBrush = ::SelectObject(hdc, getDarkerBackgroundBrush());
 
             RECT arrowRc = {rc.right - Utils::scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
+            bool hasFocus{};
 
             // CBS_DROPDOWN text is handled by parent by WM_CTLCOLOREDIT
             auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
             if ((style & CBS_DROPDOWNLIST) == CBS_DROPDOWNLIST)
             {
+               hasFocus = ::GetFocus() == hWnd;
+
                RECT bkRc = rc;
                bkRc.left += 1;
                bkRc.top += 1;
@@ -878,6 +901,11 @@ namespace NppDarkMode
                   delete[]buffer;
                }
             }
+            else if ((style & CBS_DROPDOWN) == CBS_DROPDOWN && hwndEdit != NULL)
+            {
+               hasFocus = ::GetFocus() == hwndEdit;
+            }
+
 
             POINT ptCursor = { 0 };
             ::GetCursorPos(&ptCursor);
@@ -896,11 +924,17 @@ namespace NppDarkMode
                nullptr);
             ::SetBkColor(hdc, getBackgroundColor());
 
+            auto hSelectedPen = isHot || hasFocus ? getHotEdgePen() : getEdgePen();
+            auto holdPen = static_cast<HPEN>(::SelectObject(hdc, hSelectedPen));
+
             POINT edge[] = {
                {arrowRc.left - 1, arrowRc.top},
                {arrowRc.left - 1, arrowRc.bottom}
             };
             ::Polyline(hdc, edge, _countof(edge));
+
+            int roundCornerValue = isWindows11() ? Utils::scaleDPIX(4) : 0;
+            paintRoundFrameRect(hdc, rc, hSelectedPen, roundCornerValue, roundCornerValue);
 
             ::SelectObject(hdc, holdPen);
             ::SelectObject(hdc, holdBrush);
