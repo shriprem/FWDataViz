@@ -45,6 +45,7 @@ namespace NppDarkMode
       COLORREF linkText = 0;
       COLORREF edge = 0;
       COLORREF hotEdge = 0;
+      COLORREF disabledEdge = 0;
    };
 
 
@@ -85,6 +86,8 @@ namespace NppDarkMode
    COLORREF getLinkTextColor();
 
    COLORREF getEdgeColor();
+   COLORREF getHotEdgeColor();
+   COLORREF getDisabledEdgeColor();
 
    HBRUSH getBackgroundBrush();
    HBRUSH getDarkerBackgroundBrush();
@@ -94,10 +97,12 @@ namespace NppDarkMode
 
    HBRUSH getEdgeBrush();
    HBRUSH getHotEdgeBrush();
+   HBRUSH getDisabledEdgeBrush();
 
    HPEN getDarkerTextPen();
    HPEN getEdgePen();
    HPEN getHotEdgePen();
+   HPEN getDisabledEdgePen();
 
    // from DarkMode.h
    void allowDarkModeForApp(bool allow);

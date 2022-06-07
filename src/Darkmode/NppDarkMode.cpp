@@ -43,6 +43,7 @@ namespace NppDarkMode
 
       HBRUSH edgeBrush = nullptr;
       HBRUSH hotEdgeBrush = nullptr;
+      HBRUSH disabledEdgeBrush = nullptr;
 
       Brushes(const Colors& colors)
          : background(::CreateSolidBrush(colors.background))
@@ -53,6 +54,7 @@ namespace NppDarkMode
 
          , edgeBrush(::CreateSolidBrush(colors.edge))
          , hotEdgeBrush(::CreateSolidBrush(colors.hotEdge))
+         , disabledEdgeBrush(::CreateSolidBrush(colors.disabledEdge))
       {}
 
       ~Brushes()
@@ -65,6 +67,7 @@ namespace NppDarkMode
 
          ::DeleteObject(edgeBrush);          edgeBrush = nullptr;
          ::DeleteObject(hotEdgeBrush);       hotEdgeBrush = nullptr;
+         ::DeleteObject(disabledEdgeBrush);	disabledEdgeBrush = nullptr;
       }
 
       void change(const Colors& colors)
@@ -77,6 +80,7 @@ namespace NppDarkMode
 
          ::DeleteObject(edgeBrush);
          ::DeleteObject(hotEdgeBrush);
+         ::DeleteObject(disabledEdgeBrush);
 
          background = ::CreateSolidBrush(colors.background);
          softerBackground = ::CreateSolidBrush(colors.softerBackground);
@@ -86,6 +90,7 @@ namespace NppDarkMode
 
          edgeBrush = ::CreateSolidBrush(colors.edge);
          hotEdgeBrush = ::CreateSolidBrush(colors.hotEdge);
+         disabledEdgeBrush = ::CreateSolidBrush(colors.disabledEdge);
       }
    };
 
@@ -94,11 +99,13 @@ namespace NppDarkMode
       HPEN darkerTextPen = nullptr;
       HPEN edgePen = nullptr;
       HPEN hotEdgePen = nullptr;
+      HPEN disabledEdgePen = nullptr;
 
       Pens(const Colors& colors)
          : darkerTextPen(::CreatePen(PS_SOLID, 1, colors.darkerText))
          , edgePen(::CreatePen(PS_SOLID, 1, colors.edge))
          , hotEdgePen(::CreatePen(PS_SOLID, 1, colors.hotEdge))
+         , disabledEdgePen(::CreatePen(PS_SOLID, 1, colors.disabledEdge))
       {}
 
       ~Pens()
@@ -106,6 +113,7 @@ namespace NppDarkMode
          ::DeleteObject(darkerTextPen);   darkerTextPen = nullptr;
          ::DeleteObject(edgePen);         edgePen = nullptr;
          ::DeleteObject(hotEdgePen);      hotEdgePen = nullptr;
+         ::DeleteObject(disabledEdgePen);	disabledEdgePen = nullptr;
       }
 
       void change(const Colors& colors)
@@ -113,10 +121,12 @@ namespace NppDarkMode
          ::DeleteObject(darkerTextPen);
          ::DeleteObject(edgePen);
          ::DeleteObject(hotEdgePen);
+         ::DeleteObject(disabledEdgePen);
 
          darkerTextPen = ::CreatePen(PS_SOLID, 1, colors.darkerText);
          edgePen = ::CreatePen(PS_SOLID, 1, colors.edge);
          hotEdgePen = ::CreatePen(PS_SOLID, 1, colors.hotEdge);
+         disabledEdgePen = ::CreatePen(PS_SOLID, 1, colors.disabledEdge);
       }
    };
 
@@ -131,7 +141,9 @@ namespace NppDarkMode
       HEXRGB(0xC0C0C0), // darkerTextColor
       HEXRGB(0x808080), // disabledTextColor
       HEXRGB(0xFFFF00), // linkTextColor
-      HEXRGB(0x646464)  // edgeColor
+      HEXRGB(0x646464),  // edgeColor
+      HEXRGB(0x9B9B9B),	// hotEdgeColor
+      HEXRGB(0x484848)	// disabledEdgeColor
    };
 
    struct Theme
@@ -249,6 +261,8 @@ namespace NppDarkMode
    COLORREF getDisabledTextColor()       { return tCurrent._colors.disabledText; }
    COLORREF getLinkTextColor()           { return tCurrent._colors.linkText; }
    COLORREF getEdgeColor()               { return tCurrent._colors.edge; }
+   COLORREF getHotEdgeColor()            { return tCurrent._colors.hotEdge; }
+   COLORREF getDisabledEdgeColor()       { return tCurrent._colors.disabledEdge; }
 
    HBRUSH getBackgroundBrush()           { return tCurrent._brushes.background; }
    HBRUSH getSofterBackgroundBrush()     { return tCurrent._brushes.softerBackground; }
@@ -258,10 +272,12 @@ namespace NppDarkMode
 
    HBRUSH getEdgeBrush()                 { return tCurrent._brushes.edgeBrush; }
    HBRUSH getHotEdgeBrush()              { return tCurrent._brushes.hotEdgeBrush; }
+   HBRUSH getDisabledEdgeBrush()         { return tCurrent._brushes.disabledEdgeBrush; }
 
    HPEN getDarkerTextPen()               { return tCurrent._pens.darkerTextPen; }
    HPEN getEdgePen()                     { return tCurrent._pens.edgePen; }
    HPEN getHotEdgePen()                  { return tCurrent._pens.hotEdgePen; }
+   HPEN getDisabledEdgePen()             { return tCurrent._pens.disabledEdgePen; }
 
    // from DarkMode.h
    void allowDarkModeForApp(bool allow)
@@ -956,6 +972,7 @@ namespace NppDarkMode
             ScreenToClient(hWnd, &ptCursor);
 
             bool isHot = PtInRect(&rc, ptCursor);
+            bool isWindowEnabled = ::IsWindowEnabled(hWnd) == TRUE;
 
             ::SetTextColor(hdc, !isHot ? getTextColor() : getDarkerTextColor());
             ::SetBkColor(hdc, !isHot ? getHotBackgroundColor() : getBackgroundColor());
@@ -968,7 +985,8 @@ namespace NppDarkMode
                nullptr);
             ::SetBkColor(hdc, getBackgroundColor());
 
-            auto hSelectedPen = isHot || hasFocus ? getHotEdgePen() : getEdgePen();
+            auto hEnabledPen = (isHot || hasFocus) ? NppDarkMode::getHotEdgePen() : NppDarkMode::getEdgePen();
+            auto hSelectedPen = isWindowEnabled ? hEnabledPen : NppDarkMode::getDisabledEdgePen();
             auto holdPen = static_cast<HPEN>(::SelectObject(hdc, hSelectedPen));
 
             POINT edge[] = {
