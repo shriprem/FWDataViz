@@ -59,7 +59,7 @@ public:
    void loadListThemes();
    void onBufferActivate();
    void renderCurrentPage();
-   void visualizeFile(string fileType, bool ab_cachedFT, bool autoFT, bool syncFT);
+   void visualizeFile(string fileType, bool bCachedFT, bool bAutoFT, bool bSyncFT);
    void delDocInfo(intptr_t bufferID);
 
    void showJumpDialog();

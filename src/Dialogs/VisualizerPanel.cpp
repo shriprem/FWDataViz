@@ -482,20 +482,18 @@ void VisualizerPanel::enableThemeList(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
 }
 
-void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool autoFT, bool syncFT) {
-   if (!isVisible()) return;
-
+void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoFT, bool bSyncFT) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
 
-   if (ab_cachedFT) {
+   if (bCachedFT) {
       getDocFileType(fileType);
       _configIO.setVizConfig(fileType);
    }
 
    if (fileType.empty()) {
-      if (autoFT) {
+      if (bAutoFT) {
          if (_configIO.getPreferenceBool(PREF_ADFT))
             detectFileType(hScintilla, fileType);
       }
@@ -521,7 +519,7 @@ void VisualizerPanel::visualizeFile(string fileType, bool ab_cachedFT, bool auto
 
    clearVisualize(FALSE);
    setDocFileType(fileType);
-   if (syncFT) syncListFileTypes();
+   if (bSyncFT) syncListFileTypes();
 
    setDocTheme(Utils::WideToNarrow(theme), theme.empty() ? fileType : "");
    syncListThemes();
