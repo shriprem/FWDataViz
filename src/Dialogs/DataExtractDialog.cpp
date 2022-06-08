@@ -423,7 +423,7 @@ void DataExtractDialog::moveIndicators(int line, bool focusPrefix) {
 void DataExtractDialog::resetDropDown(HWND hList) {
    SendMessage(hList, CB_RESETCONTENT, NULL, NULL);
    SendMessage(hList, CB_ADDSTRING, NULL, (LPARAM)L"-");
-   SendMessage(hList, CB_SETCURSEL, (WPARAM)0, NULL);
+   Utils::setComboBoxSelection(hList, 0);
 }
 
 bool DataExtractDialog::isBlankLineItem(const LineItemInfo& lineItem) {
@@ -460,7 +460,7 @@ void DataExtractDialog::delLineItem(int line) {
 void DataExtractDialog::clearLineItem(int line) {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, L"");
    SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, L"");
-   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_SETCURSEL, (WPARAM)0, NULL);
+   Utils::setComboBoxSelection(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line), 0);
    resetDropDown(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line));
 }
 
@@ -483,9 +483,9 @@ void DataExtractDialog::getLineItem(int line, LineItemInfo& lineItem) {
 void DataExtractDialog::setLineItem(int line, LineItemInfo& lineItem) {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + line, lineItem.prefix.c_str());
    SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + line, lineItem.suffix.c_str());
-   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_SETCURSEL, lineItem.recType, NULL);
+   Utils::setComboBoxSelection(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line), lineItem.recType);
    initLineItemFieldList(line);
-   SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line, CB_SETCURSEL, lineItem.fieldType, NULL);
+   Utils::setComboBoxSelection(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_FIELD_01 + line), lineItem.fieldType);
 }
 
 void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
@@ -846,8 +846,8 @@ void DataExtractDialog::saveTemplate() {
 
    wstring lbName{ Utils::NarrowToWide(templateName) };
    if (SendMessage(hTemplatesList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)lbName.c_str()) == CB_ERR) {
-      LRESULT idx{ SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)lbName.c_str()) };
-      SendMessage(hTemplatesList, CB_SETCURSEL, (WPARAM)idx, NULL);
+      Utils::setComboBoxSelection(hTemplatesList,
+         static_cast<int>(SendMessage(hTemplatesList, CB_ADDSTRING, NULL, (LPARAM)lbName.c_str())));
    }
 
    loadTemplate();
@@ -858,7 +858,7 @@ void DataExtractDialog::newTemplate() {
    liBuffer.resize(LINES_PER_PAGE);
    loadPage(0);
 
-   SendMessage(hTemplatesList, CB_SETCURSEL, (WPARAM)0, NULL);
+   Utils::setComboBoxSelection(hTemplatesList, 0);
    SetWindowText(hTemplateName, L"");
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), FALSE);
    enableDeleteTemplate();

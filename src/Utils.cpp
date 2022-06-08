@@ -230,6 +230,11 @@ bool Utils::checkKeyHeldDown(int vKey) {
    return (GetKeyState(vKey) & 0x8000) > 0;
 }
 
+void Utils::setComboBoxSelection(HWND hList, int index) {
+   SendMessage(hList, CB_SETCURSEL, (WPARAM)index, 0);
+   InvalidateRect(hList, nullptr, FALSE);
+}
+
 bool Utils::getClipboardText(HWND hwnd, wstring& clipText) {
    bool bRet{ FALSE };
 

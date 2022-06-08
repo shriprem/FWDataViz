@@ -43,7 +43,7 @@ void JumpToField::initDialog(const string fileType, int recordIndex,
    }
 
    if (fieldLabels.size() > 0)
-      SendMessage(hFieldList, CB_SETCURSEL, fieldIndex < 0 ? 0 : fieldIndex, NULL);
+      Utils::setComboBoxSelection(hFieldList, fieldIndex < 0 ? 0 : fieldIndex);
 
    int flashSecs{ _configIO.getPreferenceInt(PREF_CARET_FLASH, 5) };
    SendMessage(hCaretFlash, TBM_SETPOS, TRUE, flashSecs);

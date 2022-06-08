@@ -877,7 +877,7 @@ namespace NppDarkMode
          case WM_CREATE:
          {
             auto hwndUpdown = reinterpret_cast<HWND>(lParam);
-            if (subclassTabUpDownControl(hwndUpdown))
+            if (subclassUpDownControl(hwndUpdown))
             {
                return 0;
             }
@@ -1072,106 +1072,106 @@ namespace NppDarkMode
 
       switch (uMsg)
       {
-         case WM_PAINT:
+      case WM_PAINT:
+      {
+         if (!isEnabled())
          {
-            if (!isEnabled())
-            {
-               break;
-            }
-
-            RECT rc{};
-            ::GetClientRect(hWnd, &rc);
-
-            PAINTSTRUCT ps;
-            auto hdc = ::BeginPaint(hWnd, &ps);
-
-            ::SelectObject(hdc, reinterpret_cast<HFONT>(::SendMessage(hWnd, WM_GETFONT, 0, 0)));
-            ::SetBkColor(hdc, getBackgroundColor());
-
-            auto holdBrush = ::SelectObject(hdc, getDarkerBackgroundBrush());
-
-            RECT rcArrow = {rc.right - Utils::scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
-            bool hasFocus{};
-
-            // CBS_DROPDOWN text is handled by parent by WM_CTLCOLOREDIT
-            auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
-            if ((style & CBS_DROPDOWNLIST) == CBS_DROPDOWNLIST)
-            {
-               hasFocus = ::GetFocus() == hWnd;
-
-               RECT rcTextBg = rc;
-               rcTextBg.left += 1;
-               rcTextBg.top += 1;
-               rcTextBg.right = rcArrow.left - 1;
-               rcTextBg.bottom -= 1;
-               ::FillRect(hdc, &rcTextBg, getBackgroundBrush()); // erase background on item change
-
-               auto index = static_cast<int>(::SendMessage(hWnd, CB_GETCURSEL, 0, 0));
-               if (index != CB_ERR)
-               {
-                  ::SetTextColor(hdc, getTextColor());
-                  ::SetBkColor(hdc, getBackgroundColor());
-                  auto bufferLen = static_cast<size_t>(::SendMessage(hWnd, CB_GETLBTEXTLEN, index, 0));
-                  TCHAR* buffer = new TCHAR[(bufferLen + 1)];
-                  ::SendMessage(hWnd, CB_GETLBTEXT, index, reinterpret_cast<LPARAM>(buffer));
-
-                  RECT rcText = rc;
-                  rcText.left += 4;
-                  rcText.right = rcArrow.left - 5;
-
-                  ::DrawText(hdc, buffer, -1, &rcText, DT_NOPREFIX | DT_LEFT | DT_VCENTER | DT_SINGLELINE);
-                  delete[]buffer;
-               }
-            }
-            else if ((style & CBS_DROPDOWN) == CBS_DROPDOWN && hwndEdit != NULL)
-            {
-               hasFocus = ::GetFocus() == hwndEdit;
-            }
-
-            POINT ptCursor{};
-            ::GetCursorPos(&ptCursor);
-            ScreenToClient(hWnd, &ptCursor);
-
-            bool isHot = PtInRect(&rc, ptCursor);
-            bool isWindowEnabled = ::IsWindowEnabled(hWnd) == TRUE;
-
-            auto colorEnabledText = isHot ? getTextColor() : getDarkerTextColor();
-            ::SetTextColor(hdc, isWindowEnabled ? colorEnabledText : getDisabledTextColor());
-            ::SetBkColor(hdc, isHot ? getHotBackgroundColor() : getBackgroundColor());
-            ::ExtTextOut(hdc,
-               rcArrow.left + (rcArrow.right - rcArrow.left) / 2 - Utils::scaleDPIX(4),
-               rcArrow.top + 3,
-               ETO_OPAQUE | ETO_CLIPPED,
-               &rcArrow, L"˅",
-               1,
-               nullptr);
-            ::SetBkColor(hdc, getBackgroundColor());
-
-            auto hEnabledPen = (isHot || hasFocus) ? getHotEdgePen() : getEdgePen();
-            auto hSelectedPen = isWindowEnabled ? hEnabledPen : getDisabledEdgePen();
-            auto holdPen = static_cast<HPEN>(::SelectObject(hdc, hSelectedPen));
-
-            POINT edge[] = {
-               {rcArrow.left - 1, rcArrow.top},
-               {rcArrow.left - 1, rcArrow.bottom}
-            };
-            ::Polyline(hdc, edge, _countof(edge));
-
-            int roundCornerValue = isWindows11() ? Utils::scaleDPIX(4) : 0;
-            paintRoundFrameRect(hdc, rc, hSelectedPen, roundCornerValue, roundCornerValue);
-
-            ::SelectObject(hdc, holdPen);
-            ::SelectObject(hdc, holdBrush);
-
-            ::EndPaint(hWnd, &ps);
-            return 0;
-         }
-
-         case WM_NCDESTROY:
-         {
-            ::RemoveWindowSubclass(hWnd, ComboBoxSubclass, uIdSubclass);
             break;
          }
+
+         RECT rc{};
+         ::GetClientRect(hWnd, &rc);
+
+         PAINTSTRUCT ps;
+         auto hdc = ::BeginPaint(hWnd, &ps);
+
+         ::SelectObject(hdc, reinterpret_cast<HFONT>(::SendMessage(hWnd, WM_GETFONT, 0, 0)));
+         ::SetBkColor(hdc, getBackgroundColor());
+
+         auto holdBrush = ::SelectObject(hdc, getDarkerBackgroundBrush());
+
+         RECT rcArrow = {rc.right - Utils::scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
+         bool hasFocus{};
+
+         // CBS_DROPDOWN text is handled by parent by WM_CTLCOLOREDIT
+         auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
+         if ((style & CBS_DROPDOWNLIST) == CBS_DROPDOWNLIST)
+         {
+            hasFocus = ::GetFocus() == hWnd;
+
+            RECT rcTextBg = rc;
+            rcTextBg.left += 1;
+            rcTextBg.top += 1;
+            rcTextBg.right = rcArrow.left - 1;
+            rcTextBg.bottom -= 1;
+            ::FillRect(hdc, &rcTextBg, getBackgroundBrush()); // erase background on item change
+
+            auto index = static_cast<int>(::SendMessage(hWnd, CB_GETCURSEL, 0, 0));
+            if (index != CB_ERR)
+            {
+               ::SetTextColor(hdc, getTextColor());
+               ::SetBkColor(hdc, getBackgroundColor());
+               auto bufferLen = static_cast<size_t>(::SendMessage(hWnd, CB_GETLBTEXTLEN, index, 0));
+               TCHAR* buffer = new TCHAR[(bufferLen + 1)];
+               ::SendMessage(hWnd, CB_GETLBTEXT, index, reinterpret_cast<LPARAM>(buffer));
+
+               RECT rcText = rc;
+               rcText.left += 4;
+               rcText.right = rcArrow.left - 5;
+
+               ::DrawText(hdc, buffer, -1, &rcText, DT_NOPREFIX | DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+               delete[]buffer;
+            }
+         }
+         else if ((style & CBS_DROPDOWN) == CBS_DROPDOWN && hwndEdit != NULL)
+         {
+            hasFocus = ::GetFocus() == hwndEdit;
+         }
+
+         POINT ptCursor{};
+         ::GetCursorPos(&ptCursor);
+         ScreenToClient(hWnd, &ptCursor);
+
+         bool isHot = PtInRect(&rc, ptCursor);
+         bool isWindowEnabled = ::IsWindowEnabled(hWnd) == TRUE;
+
+         auto colorEnabledText = isHot ? getTextColor() : getDarkerTextColor();
+         ::SetTextColor(hdc, isWindowEnabled ? colorEnabledText : getDisabledTextColor());
+         ::SetBkColor(hdc, isHot ? getHotBackgroundColor() : getBackgroundColor());
+         ::ExtTextOut(hdc,
+            rcArrow.left + (rcArrow.right - rcArrow.left) / 2 - Utils::scaleDPIX(4),
+            rcArrow.top + 3,
+            ETO_OPAQUE | ETO_CLIPPED,
+            &rcArrow, L"˅",
+            1,
+            nullptr);
+         ::SetBkColor(hdc, getBackgroundColor());
+
+         auto hEnabledPen = (isHot || hasFocus) ? getHotEdgePen() : getEdgePen();
+         auto hSelectedPen = isWindowEnabled ? hEnabledPen : getDisabledEdgePen();
+         auto holdPen = static_cast<HPEN>(::SelectObject(hdc, hSelectedPen));
+
+         POINT edge[] = {
+            {rcArrow.left - 1, rcArrow.top},
+            {rcArrow.left - 1, rcArrow.bottom}
+         };
+         ::Polyline(hdc, edge, _countof(edge));
+
+         int roundCornerValue = isWindows11() ? Utils::scaleDPIX(4) : 0;
+         paintRoundFrameRect(hdc, rc, hSelectedPen, roundCornerValue, roundCornerValue);
+
+         ::SelectObject(hdc, holdPen);
+         ::SelectObject(hdc, holdBrush);
+
+         ::EndPaint(hWnd, &ps);
+         return 0;
+      }
+
+      case WM_NCDESTROY:
+      {
+         ::RemoveWindowSubclass(hWnd, ComboBoxSubclass, uIdSubclass);
+         break;
+      }
       }
       return DefSubclassProc(hWnd, uMsg, wParam, lParam);
    }
@@ -1501,7 +1501,7 @@ namespace NppDarkMode
 
          if (wcscmp(className, UPDOWN_CLASS) == 0)
          {
-            subclassTabUpDownControl(hwnd);
+            subclassUpDownControl(hwnd);
             return TRUE;
          }
 
@@ -1696,7 +1696,7 @@ namespace NppDarkMode
 
    constexpr UINT_PTR g_tabUpDownSubclassID = 42;
 
-   LRESULT CALLBACK TabUpDownSubclass(
+   LRESULT CALLBACK UpDownSubclass(
       HWND hWnd,
       UINT uMsg,
       WPARAM wParam,
@@ -1858,7 +1858,7 @@ namespace NppDarkMode
 
       case WM_NCDESTROY:
       {
-         ::RemoveWindowSubclass(hWnd, TabUpDownSubclass, uIdSubclass);
+         ::RemoveWindowSubclass(hWnd, UpDownSubclass, uIdSubclass);
          delete pButtonData;
          break;
       }
@@ -1878,7 +1878,7 @@ namespace NppDarkMode
       return DefSubclassProc(hWnd, uMsg, wParam, lParam);
    }
 
-   bool subclassTabUpDownControl(HWND hwnd)
+   bool subclassUpDownControl(HWND hwnd)
    {
       constexpr size_t classNameLen = 16;
       TCHAR className[classNameLen]{};
@@ -1886,7 +1886,7 @@ namespace NppDarkMode
       if (wcscmp(className, UPDOWN_CLASS) == 0)
       {
          auto pButtonData = reinterpret_cast<DWORD_PTR>(new ButtonData());
-         SetWindowSubclass(hwnd, TabUpDownSubclass, g_tabUpDownSubclassID, pButtonData);
+         SetWindowSubclass(hwnd, UpDownSubclass, g_tabUpDownSubclassID, pButtonData);
          setDarkExplorerTheme(hwnd);
          return true;
       }

@@ -116,14 +116,14 @@ namespace NppDarkMode
    inline void paintRoundFrameRect(HDC hdc, const RECT rect, const HPEN hpen, int width = 0, int height = 0);
 
    void subclassButtonControl(HWND hwnd);
+   void subclassComboBoxControl(HWND hwnd);
    void subclassGroupboxControl(HWND hwnd);
    void subclassTabControl(HWND hwnd);
-   void subclassComboBoxControl(HWND hwnd);
+   bool subclassUpDownControl(HWND hwnd);
 
    void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass = true, bool theme = true);
    void autoThemeChildControls(HWND hwndParent);
 
-   bool subclassTabUpDownControl(HWND hwnd);
 
    void setDarkTitleBar(HWND hwnd);
    void setDarkExplorerTheme(HWND hwnd);

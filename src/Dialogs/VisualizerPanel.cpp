@@ -417,13 +417,8 @@ void VisualizerPanel::syncListFileTypes() {
    loadListFileTypes();
    enableThemeList(!fileType.empty());
 
-   if (fileType.empty()) {
-      SendMessage(hFTList, CB_SETCURSEL, (WPARAM)0, NULL);
-      return;
-   }
-
-   SendMessage(hFTList, CB_SETCURSEL, (WPARAM)
-      SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)mapFileTypeToDesc[fileType].c_str()), NULL);
+   Utils::setComboBoxSelection(hFTList, fileType.empty() ?
+      0 : static_cast<int>(SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)mapFileTypeToDesc[fileType].c_str())));
 }
 
 void VisualizerPanel::syncListThemes() {
@@ -432,13 +427,8 @@ void VisualizerPanel::syncListThemes() {
    getDocTheme(theme);
    loadListThemes();
 
-   if (theme.empty()) {
-      SendMessage(hThemesLB, CB_SETCURSEL, (WPARAM)-1, NULL);
-      return;
-   }
-
-   SendMessage(hThemesLB, CB_SETCURSEL, (WPARAM)
-      SendMessage(hThemesLB, CB_FINDSTRING, (WPARAM)-1, (LPARAM)theme.c_str()), NULL);
+   Utils::setComboBoxSelection(hThemesLB, theme.empty() ?
+      -1 : static_cast<int>(SendMessage(hThemesLB, CB_FINDSTRING, (WPARAM)-1, (LPARAM)theme.c_str())));
 }
 
 void VisualizerPanel::enableFieldControls(bool enable) {
@@ -457,9 +447,9 @@ void VisualizerPanel::enableFieldControls(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON), fieldEnabled);
 
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), fieldEnabled);
-   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), NULL, TRUE);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), nullptr, TRUE);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), fieldEnabled);
-   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), NULL, TRUE);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), nullptr, TRUE);
 
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
 
@@ -478,7 +468,7 @@ void VisualizerPanel::enableThemeList(bool enable) {
    if (!isVisible()) return;
 
    themeEnabled = enable;
-   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), NULL, TRUE);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), nullptr, TRUE);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_SELECT), enable);
 }
 

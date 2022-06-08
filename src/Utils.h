@@ -32,6 +32,7 @@ namespace Utils {
    bool checkBaseOS(winVer os);
    float getNPPVersion();
    bool checkKeyHeldDown(int vKey);
+   void setComboBoxSelection(HWND hList, int index);
    bool getClipboardText(HWND hwnd, wstring& clipText);
    wstring getVersionInfo(LPCWSTR key);
    void loadBitmap(HWND hDlg, int controlID, int resource);

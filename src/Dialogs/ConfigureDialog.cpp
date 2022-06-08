@@ -778,9 +778,8 @@ void ConfigureDialog::onFileTypeSelect() {
 
    loadingEdits = FALSE;
 
-   SendMessage(hFileThemes, CB_SETCURSEL, (WPARAM)
-      SendMessage(hFileThemes, CB_FINDSTRING, (WPARAM)-1,
-         (LPARAM)fileInfo->theme.c_str()), NULL);
+   Utils::setComboBoxSelection(hFileThemes, static_cast<int>(
+      SendMessage(hFileThemes, CB_FINDSTRING, (WPARAM)-1, (LPARAM)fileInfo->theme.c_str())));
 
    enableMoveFileButtons();
    fillRecTypes();
@@ -895,9 +894,8 @@ void ConfigureDialog::onRecTypeSelect() {
    if (recInfo->theme == L"")
       recInfo->theme = FWVIZ_DEF_REC_THEME_FROM_FT;
 
-   SendMessage(hRecThemes, CB_SETCURSEL, (WPARAM)
-      SendMessage(hRecThemes, CB_FINDSTRING, (WPARAM)-1,
-         (LPARAM)recInfo->theme.c_str()), NULL);
+   Utils::setComboBoxSelection(hRecThemes, static_cast<int>(
+      SendMessage(hRecThemes, CB_FINDSTRING, (WPARAM)-1, (LPARAM)recInfo->theme.c_str())));
 
    enableMoveRecButtons();
    fillFieldTypes();
