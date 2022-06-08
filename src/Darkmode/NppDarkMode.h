@@ -68,6 +68,7 @@ namespace NppDarkMode
    void initDarkMode();
    void queryNPPDarkmode();      // sync options from NPP instance
    bool isEnabled();
+   bool isExperimentalSupported();
    bool isWindows11();
 
    COLORREF invertLightness(COLORREF c);
@@ -112,6 +113,8 @@ namespace NppDarkMode
    // enhancements to DarkMode.h
    void enableDarkScrollBarForWindowAndChildren(HWND hwnd);
 
+   inline void paintRoundFrameRect(HDC hdc, const RECT rect, const HPEN hpen, int width = 0, int height = 0);
+
    void subclassButtonControl(HWND hwnd);
    void subclassGroupboxControl(HWND hwnd);
    void subclassTabControl(HWND hwnd);
@@ -129,7 +132,10 @@ namespace NppDarkMode
    void setDarkLineAbovePanelToolbar(HWND hwnd);
    void setDarkListView(HWND hwnd);
 
+   void disableVisualStyle(HWND hwnd, bool doDisable);
+   void calculateTreeViewStyle();
    void setTreeViewStyle(HWND hwnd);
+
    void setBorder(HWND hwnd, bool border = true);
    void initSysLink(HWND hCtl);
 
@@ -141,4 +147,5 @@ namespace NppDarkMode
 
    LRESULT onCtlColorIfEnabled(HDC hdc, bool bEnabled);
    LRESULT onCtlHiliteIfEnabled(HDC hdc, bool bEnabled);
+   INT_PTR onCtlColorListbox(WPARAM wParam, LPARAM lParam);
 }

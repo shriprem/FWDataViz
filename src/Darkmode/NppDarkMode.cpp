@@ -192,6 +192,11 @@ namespace NppDarkMode
       return _isDarkModeEnabled;
    }
 
+   bool isExperimentalSupported()
+   {
+      return g_darkModeSupported;
+   }
+
    bool isWindows11() {
       return IsWindows11();
    }
@@ -423,11 +428,13 @@ namespace NppDarkMode
    void paintButton(HWND hwnd, HDC hdc, ButtonData& buttonData)
    {
       DWORD nState = static_cast<DWORD>(SendMessage(hwnd, BM_GETSTATE, 0, 0));
-      DWORD nStyle = GetWindowLong(hwnd, GWL_STYLE);
-      DWORD nButtonStyle = nStyle & 0xF;
+      const auto nStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
+      const auto nButtonStyle = nStyle & BS_TYPEMASK;
 
       int iPartID = BP_CHECKBOX;
-      if (nButtonStyle == BS_CHECKBOX || nButtonStyle == BS_AUTOCHECKBOX || nButtonStyle == BS_AUTO3STATE)
+
+      // Plugin might use BS_3STATE and BS_AUTO3STATE button style
+      if (nButtonStyle == BS_CHECKBOX || nButtonStyle == BS_AUTOCHECKBOX || nButtonStyle == BS_3STATE || nButtonStyle == BS_AUTO3STATE)
       {
          iPartID = BP_CHECKBOX;
       }
@@ -580,15 +587,11 @@ namespace NppDarkMode
    void paintGroupbox(HWND hwnd, HDC hdc, ButtonData& buttonData)
    {
       DWORD nStyle = GetWindowLong(hwnd, GWL_STYLE);
+      bool isDisabled = (nStyle & WS_DISABLED) == WS_DISABLED;
       int iPartID = BP_GROUPBOX;
-      int iStateID = GBS_NORMAL;
+      int iStateID = isDisabled ? GBS_DISABLED : GBS_NORMAL;
 
-      if (nStyle & WS_DISABLED)
-      {
-         iStateID = GBS_DISABLED;
-      }
-
-      RECT rcClient = { 0 };
+      RECT rcClient{};
       GetClientRect(hwnd, &rcClient);
 
       RECT rcText = rcClient;
@@ -597,7 +600,7 @@ namespace NppDarkMode
       HFONT hFont = nullptr;
       HFONT hOldFont = nullptr;
       HFONT hCreatedFont = nullptr;
-      LOGFONT lf = { 0 };
+      LOGFONT lf = {};
       if (SUCCEEDED(GetThemeFont(buttonData.hTheme, hdc, iPartID, iStateID, TMT_FONT, &lf)))
       {
          hCreatedFont = CreateFontIndirect(&lf);
@@ -611,7 +614,7 @@ namespace NppDarkMode
 
       hOldFont = static_cast<HFONT>(::SelectObject(hdc, hFont));
 
-      WCHAR szText[256] = { 0 };
+      WCHAR szText[256] = { '\0' };
       GetWindowText(hwnd, szText, _countof(szText));
 
       auto style = static_cast<long>(::GetWindowLongPtr(hwnd, GWL_STYLE));
@@ -619,7 +622,7 @@ namespace NppDarkMode
 
       if (szText[0])
       {
-         SIZE textSize = { 0 };
+         SIZE textSize = {};
          GetTextExtentPoint32(hdc, szText, static_cast<int>(wcslen(szText)), &textSize);
 
          int centerPosX = isCenter ? ((rcClient.right - rcClient.left - textSize.cx) / 2) : 7;
@@ -633,7 +636,7 @@ namespace NppDarkMode
       }
       else
       {
-         SIZE textSize = { 0 };
+         SIZE textSize{};
          GetTextExtentPoint32(hdc, L"M", 1, &textSize);
          rcBackground.top += textSize.cy / 2;
       }
@@ -643,7 +646,8 @@ namespace NppDarkMode
       ExcludeClipRect(hdc, rcContent.left, rcContent.top, rcContent.right, rcContent.bottom);
 
       //DrawThemeParentBackground(hwnd, hdc, &rcClient);
-      DrawThemeBackground(buttonData.hTheme, hdc, BP_GROUPBOX, iStateID, &rcBackground, nullptr);
+      //DrawThemeBackground(buttonData.hTheme, hdc, BP_GROUPBOX, iStateID, &rcBackground, nullptr);
+      paintRoundFrameRect(hdc, rcBackground, getEdgePen());
 
       SelectClipRgn(hdc, nullptr);
 
@@ -653,7 +657,7 @@ namespace NppDarkMode
          rcText.left += 2;
 
          DTTOPTS dtto = { sizeof(DTTOPTS), DTT_TEXTCOLOR };
-         dtto.crText = getTextColor();
+         dtto.crText = isDisabled ? getDisabledTextColor() : getTextColor();
 
          DWORD textFlags = isCenter ? DT_CENTER : DT_LEFT;
 
@@ -777,7 +781,7 @@ namespace NppDarkMode
          HFONT hFont = reinterpret_cast<HFONT>(SendMessage(hWnd, WM_GETFONT, 0, 0));
          auto hOldFont = SelectObject(hdc, hFont);
 
-         POINT ptCursor = {};
+         POINT ptCursor{};
          ::GetCursorPos(&ptCursor);
          ScreenToClient(hWnd, &ptCursor);
 
@@ -786,11 +790,11 @@ namespace NppDarkMode
          int nSelTab = TabCtrl_GetCurSel(hWnd);
          for (int i = 0; i < nTabs; ++i)
          {
-            RECT rcItem = {};
+            RECT rcItem{};
             TabCtrl_GetItemRect(hWnd, i, &rcItem);
             RECT rcFrame = rcItem;
 
-            RECT rcIntersect = {};
+            RECT rcIntersect{};
             if (IntersectRect(&rcIntersect, &ps.rcPaint, &rcItem))
             {
                bool bHot = PtInRect(&rcItem, ptCursor);
@@ -813,8 +817,8 @@ namespace NppDarkMode
 
                SetBkMode(hdc, TRANSPARENT);
 
-               TCHAR label[MAX_PATH];
-               TCITEM tci = {};
+               TCHAR label[MAX_PATH]{};
+               TCITEM tci{};
                tci.mask = TCIF_TEXT;
                tci.pszText = label;
                tci.cchTextMax = MAX_PATH - 1;
@@ -892,6 +896,167 @@ namespace NppDarkMode
       SetWindowSubclass(hwnd, TabSubclass, g_tabSubclassID, 0);
    }
 
+   constexpr UINT_PTR g_customBorderSubclassID = 42;
+
+   LRESULT CALLBACK CustomBorderSubclass(
+      HWND hWnd,
+      UINT uMsg,
+      WPARAM wParam,
+      LPARAM lParam,
+      UINT_PTR uIdSubclass,
+      DWORD_PTR dwRefData
+   )
+   {
+      UNREFERENCED_PARAMETER(dwRefData);
+
+      static bool isHotStatic = false;
+
+      switch (uMsg)
+      {
+      case WM_NCPAINT:
+      {
+         if (!isEnabled())
+         {
+            break;
+         }
+
+         DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+         HDC hdc = ::GetWindowDC(hWnd);
+         RECT rcClient{};
+         ::GetClientRect(hWnd, &rcClient);
+         rcClient.right += (2 * ::GetSystemMetrics(SM_CXEDGE));
+
+         auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
+         bool hasVerScrollbar = (style & WS_VSCROLL) == WS_VSCROLL;
+         if (hasVerScrollbar)
+         {
+            rcClient.right += ::GetSystemMetrics(SM_CXVSCROLL);
+         }
+
+         rcClient.bottom += (2 * ::GetSystemMetrics(SM_CYEDGE));
+
+         bool hasHorScrollbar = (style & WS_HSCROLL) == WS_HSCROLL;
+         if (hasHorScrollbar)
+         {
+            rcClient.bottom += ::GetSystemMetrics(SM_CXHSCROLL);
+         }
+
+         HPEN hPen = ::CreatePen(PS_SOLID, 1, getBackgroundColor());
+         RECT rcInner = rcClient;
+         ::InflateRect(&rcInner, -1, -1);
+         paintRoundFrameRect(hdc, rcInner, hPen);
+         ::DeleteObject(hPen);
+
+         bool hasFocus = ::GetFocus() == hWnd;
+
+         POINT ptCursor{};
+         ::GetCursorPos(&ptCursor);
+         ::ScreenToClient(hWnd, &ptCursor);
+
+         bool isHot = ::PtInRect(&rcClient, ptCursor);
+
+         bool isWindowEnabled = ::IsWindowEnabled(hWnd) == TRUE;
+         HPEN hEnabledPen = ((isHotStatic && isHot) || hasFocus ? getHotEdgePen() : getEdgePen());
+
+         paintRoundFrameRect(hdc, rcClient, isWindowEnabled ? hEnabledPen : getDisabledEdgePen());
+
+         ::ReleaseDC(hWnd, hdc);
+
+         return 0;
+      }
+      break;
+
+      case WM_NCCALCSIZE:
+      {
+         if (!isEnabled())
+         {
+            break;
+         }
+
+         auto lpRect = reinterpret_cast<LPRECT>(lParam);
+         ::InflateRect(lpRect, -(::GetSystemMetrics(SM_CXEDGE)), -(::GetSystemMetrics(SM_CYEDGE)));
+
+         auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
+         bool hasVerScrollbar = (style & WS_VSCROLL) == WS_VSCROLL;
+         if (hasVerScrollbar)
+         {
+            lpRect->right -= ::GetSystemMetrics(SM_CXVSCROLL);
+         }
+
+         bool hasHorScrollbar = (style & WS_HSCROLL) == WS_HSCROLL;
+         if (hasHorScrollbar)
+         {
+            lpRect->bottom -= ::GetSystemMetrics(SM_CXHSCROLL);
+         }
+
+         return 0;
+      }
+      break;
+
+      case WM_MOUSEMOVE:
+      {
+         if (!isEnabled())
+         {
+            break;
+         }
+
+         if (::GetFocus() == hWnd)
+         {
+            break;
+         }
+
+         TRACKMOUSEEVENT tme{};
+         tme.cbSize = sizeof(TRACKMOUSEEVENT);
+         tme.dwFlags = TME_LEAVE;
+         tme.hwndTrack = hWnd;
+         tme.dwHoverTime = HOVER_DEFAULT;
+         TrackMouseEvent(&tme);
+
+         if (!isHotStatic)
+         {
+            isHotStatic = true;
+            ::SetWindowPos(hWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+         }
+      }
+      break;
+
+      case WM_MOUSELEAVE:
+      {
+         if (!isEnabled())
+         {
+            break;
+         }
+
+         if (isHotStatic)
+         {
+            isHotStatic = false;
+            ::SetWindowPos(hWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+         }
+
+         TRACKMOUSEEVENT tme{};
+         tme.cbSize = sizeof(TRACKMOUSEEVENT);
+         tme.dwFlags = TME_LEAVE | TME_CANCEL;
+         tme.hwndTrack = hWnd;
+         tme.dwHoverTime = HOVER_DEFAULT;
+         TrackMouseEvent(&tme);
+      }
+      break;
+
+      case WM_NCDESTROY:
+      {
+         RemoveWindowSubclass(hWnd, CustomBorderSubclass, uIdSubclass);
+      }
+      break;
+      }
+      return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+   }
+
+   void subclassCustomBorderForListBoxAndEditControls(HWND hwnd)
+   {
+      SetWindowSubclass(hwnd, CustomBorderSubclass, g_customBorderSubclassID, 0);
+   }
+
    constexpr UINT_PTR g_comboBoxSubclassID = 42;
 
    LRESULT CALLBACK ComboBoxSubclass(
@@ -914,7 +1079,7 @@ namespace NppDarkMode
                break;
             }
 
-            RECT rc = { 0 };
+            RECT rc{};
             ::GetClientRect(hWnd, &rc);
 
             PAINTSTRUCT ps;
@@ -923,12 +1088,9 @@ namespace NppDarkMode
             ::SelectObject(hdc, reinterpret_cast<HFONT>(::SendMessage(hWnd, WM_GETFONT, 0, 0)));
             ::SetBkColor(hdc, getBackgroundColor());
 
-            ::SelectObject(hdc, ::GetStockObject(NULL_BRUSH)); // to avoid text flicker, use only border
-            ::Rectangle(hdc, 0, 0, rc.right, rc.bottom);
-
             auto holdBrush = ::SelectObject(hdc, getDarkerBackgroundBrush());
 
-            RECT arrowRc = {rc.right - Utils::scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
+            RECT rcArrow = {rc.right - Utils::scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
             bool hasFocus{};
 
             // CBS_DROPDOWN text is handled by parent by WM_CTLCOLOREDIT
@@ -937,27 +1099,27 @@ namespace NppDarkMode
             {
                hasFocus = ::GetFocus() == hWnd;
 
-               RECT bkRc = rc;
-               bkRc.left += 1;
-               bkRc.top += 1;
-               bkRc.right = arrowRc.left - 1;
-               bkRc.bottom -= 1;
-               ::FillRect(hdc, &bkRc, getSofterBackgroundBrush()); // erase background on item change
+               RECT rcTextBg = rc;
+               rcTextBg.left += 1;
+               rcTextBg.top += 1;
+               rcTextBg.right = rcArrow.left - 1;
+               rcTextBg.bottom -= 1;
+               ::FillRect(hdc, &rcTextBg, getBackgroundBrush()); // erase background on item change
 
                auto index = static_cast<int>(::SendMessage(hWnd, CB_GETCURSEL, 0, 0));
                if (index != CB_ERR)
                {
                   ::SetTextColor(hdc, getTextColor());
-                  ::SetBkColor(hdc, getSofterBackgroundColor());
+                  ::SetBkColor(hdc, getBackgroundColor());
                   auto bufferLen = static_cast<size_t>(::SendMessage(hWnd, CB_GETLBTEXTLEN, index, 0));
                   TCHAR* buffer = new TCHAR[(bufferLen + 1)];
                   ::SendMessage(hWnd, CB_GETLBTEXT, index, reinterpret_cast<LPARAM>(buffer));
 
-                  RECT textRc = rc;
-                  textRc.left += 4;
-                  textRc.right = arrowRc.left - 5;
+                  RECT rcText = rc;
+                  rcText.left += 4;
+                  rcText.right = rcArrow.left - 5;
 
-                  ::DrawText(hdc, buffer, -1, &textRc, DT_NOPREFIX | DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+                  ::DrawText(hdc, buffer, -1, &rcText, DT_NOPREFIX | DT_LEFT | DT_VCENTER | DT_SINGLELINE);
                   delete[]buffer;
                }
             }
@@ -966,32 +1128,32 @@ namespace NppDarkMode
                hasFocus = ::GetFocus() == hwndEdit;
             }
 
-
-            POINT ptCursor = { 0 };
+            POINT ptCursor{};
             ::GetCursorPos(&ptCursor);
             ScreenToClient(hWnd, &ptCursor);
 
             bool isHot = PtInRect(&rc, ptCursor);
             bool isWindowEnabled = ::IsWindowEnabled(hWnd) == TRUE;
 
-            ::SetTextColor(hdc, !isHot ? getTextColor() : getDarkerTextColor());
-            ::SetBkColor(hdc, !isHot ? getHotBackgroundColor() : getBackgroundColor());
+            auto colorEnabledText = isHot ? getTextColor() : getDarkerTextColor();
+            ::SetTextColor(hdc, isWindowEnabled ? colorEnabledText : getDisabledTextColor());
+            ::SetBkColor(hdc, isHot ? getHotBackgroundColor() : getBackgroundColor());
             ::ExtTextOut(hdc,
-               arrowRc.left + (arrowRc.right - arrowRc.left) / 2 - Utils::scaleDPIX(4),
-               arrowRc.top + 3,
+               rcArrow.left + (rcArrow.right - rcArrow.left) / 2 - Utils::scaleDPIX(4),
+               rcArrow.top + 3,
                ETO_OPAQUE | ETO_CLIPPED,
-               &arrowRc, L"˅", // Choose from: [V v ˅ ▼ ▾ ▽ ▿]
+               &rcArrow, L"˅",
                1,
                nullptr);
             ::SetBkColor(hdc, getBackgroundColor());
 
-            auto hEnabledPen = (isHot || hasFocus) ? NppDarkMode::getHotEdgePen() : NppDarkMode::getEdgePen();
-            auto hSelectedPen = isWindowEnabled ? hEnabledPen : NppDarkMode::getDisabledEdgePen();
+            auto hEnabledPen = (isHot || hasFocus) ? getHotEdgePen() : getEdgePen();
+            auto hSelectedPen = isWindowEnabled ? hEnabledPen : getDisabledEdgePen();
             auto holdPen = static_cast<HPEN>(::SelectObject(hdc, hSelectedPen));
 
             POINT edge[] = {
-               {arrowRc.left - 1, arrowRc.top},
-               {arrowRc.left - 1, arrowRc.bottom}
+               {rcArrow.left - 1, rcArrow.top},
+               {rcArrow.left - 1, rcArrow.bottom}
             };
             ::Polyline(hdc, edge, _countof(edge));
 
@@ -1016,7 +1178,78 @@ namespace NppDarkMode
 
    void subclassComboBoxControl(HWND hwnd)
    {
-      SetWindowSubclass(hwnd, ComboBoxSubclass, g_comboBoxSubclassID, 0);
+      DWORD_PTR hwndEditData = 0;
+      auto style = ::GetWindowLongPtr(hwnd, GWL_STYLE);
+      if ((style & CBS_DROPDOWN) == CBS_DROPDOWN)
+      {
+         POINT pt = { 5, 5 };
+         hwndEditData = reinterpret_cast<DWORD_PTR>(::ChildWindowFromPoint(hwnd, pt));
+      }
+      SetWindowSubclass(hwnd, ComboBoxSubclass, g_comboBoxSubclassID, hwndEditData);
+   }
+
+   constexpr UINT_PTR g_listViewSubclassID = 42;
+
+   LRESULT CALLBACK ListViewSubclass(
+      HWND hWnd,
+      UINT uMsg,
+      WPARAM wParam,
+      LPARAM lParam,
+      UINT_PTR uIdSubclass,
+      DWORD_PTR dwRefData
+   )
+   {
+      UNREFERENCED_PARAMETER(dwRefData);
+
+      switch (uMsg)
+      {
+      case WM_NCDESTROY:
+      {
+         ::RemoveWindowSubclass(hWnd, ListViewSubclass, uIdSubclass);
+         break;
+      }
+
+      case WM_NOTIFY:
+      {
+         switch (reinterpret_cast<LPNMHDR>(lParam)->code)
+         {
+         case NM_CUSTOMDRAW:
+         {
+            auto lpnmcd = reinterpret_cast<LPNMCUSTOMDRAW>(lParam);
+            switch (lpnmcd->dwDrawStage)
+            {
+            case CDDS_PREPAINT:
+            {
+               if (isExperimentalSupported() && isEnabled())
+               {
+                  return CDRF_NOTIFYITEMDRAW;
+               }
+               return CDRF_DODEFAULT;
+            }
+
+            case CDDS_ITEMPREPAINT:
+            {
+               SetTextColor(lpnmcd->hdc, getDarkerTextColor());
+
+               return CDRF_NEWFONT;
+            }
+
+            default:
+               return CDRF_DODEFAULT;
+            }
+         }
+         break;
+         }
+         break;
+      }
+      break;
+      }
+      return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+   }
+
+   void subclassListViewControl(HWND hwnd)
+   {
+      SetWindowSubclass(hwnd, ListViewSubclass, g_listViewSubclassID, 0);
    }
 
    void autoSubclassAndThemeChildControls(HWND hwndParent, bool subclass, bool theme)
@@ -1039,7 +1272,7 @@ namespace NppDarkMode
       EnumChildWindows(hwndParent, [](HWND hwnd, LPARAM lParam) WINAPI_LAMBDA{
          auto& p = *reinterpret_cast<Params*>(lParam);
          const size_t classNameLen = 16;
-         TCHAR className[classNameLen] = { 0 };
+         TCHAR className[classNameLen] {};
          GetClassName(hwnd, className, classNameLen);
 
          if (wcscmp(className, WC_COMBOBOX) == 0)
@@ -1073,6 +1306,43 @@ namespace NppDarkMode
                SetWindowTheme(hwnd, p.themeClassName, nullptr);
             }
 
+            auto style = ::GetWindowLongPtr(hwnd, GWL_STYLE);
+            bool isComboBox = (style & LBS_COMBOBOX) == LBS_COMBOBOX;
+            auto exStyle = ::GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+            bool hasClientEdge = (exStyle & WS_EX_CLIENTEDGE) == WS_EX_CLIENTEDGE;
+
+            if (p.subclass && !isComboBox && hasClientEdge)
+            {
+               subclassCustomBorderForListBoxAndEditControls(hwnd);
+            }
+
+#ifndef __MINGW64__ // mingw build for 64 bit has issue with GetWindowSubclass, it is undefined
+
+            bool changed = false;
+            if (::GetWindowSubclass(hwnd, CustomBorderSubclass, g_customBorderSubclassID, nullptr) == TRUE)
+            {
+               if (isEnabled())
+               {
+                  if (hasClientEdge)
+                  {
+                     ::SetWindowLongPtr(hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_CLIENTEDGE);
+                     changed = true;
+                  }
+               }
+               else if (!hasClientEdge)
+               {
+                  ::SetWindowLongPtr(hwnd, GWL_EXSTYLE, exStyle | WS_EX_CLIENTEDGE);
+                  changed = true;
+               }
+            }
+
+            if (changed)
+            {
+               ::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+            }
+
+#endif // !__MINGW64__
+
             return TRUE;
          }
 
@@ -1086,48 +1356,337 @@ namespace NppDarkMode
                SetWindowTheme(hwnd, p.themeClassName, nullptr);
             }
 
+            auto exStyle = ::GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+            bool hasClientEdge = (exStyle & WS_EX_CLIENTEDGE) == WS_EX_CLIENTEDGE;
+            if (p.subclass && hasClientEdge)
+            {
+               subclassCustomBorderForListBoxAndEditControls(hwnd);
+            }
+
+#ifndef __MINGW64__ // mingw build for 64 bit has issue with GetWindowSubclass, it is undefined
+
+            bool changed = false;
+            if (::GetWindowSubclass(hwnd, CustomBorderSubclass, g_customBorderSubclassID, nullptr) == TRUE)
+            {
+               if (isEnabled())
+               {
+                  if (hasClientEdge)
+                  {
+                     ::SetWindowLongPtr(hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_CLIENTEDGE);
+                     changed = true;
+                  }
+               }
+               else if (!hasClientEdge)
+               {
+                  ::SetWindowLongPtr(hwnd, GWL_EXSTYLE, exStyle | WS_EX_CLIENTEDGE);
+                  changed = true;
+               }
+            }
+
+            if (changed)
+            {
+               ::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+            }
+
+#endif // !__MINGW64__
+
             return TRUE;
          }
 
          if (wcscmp(className, WC_BUTTON) == 0)
          {
-            auto nButtonStyle = ::GetWindowLongPtr(hwnd, GWL_STYLE) & 0xF;
-            switch (nButtonStyle)
+            auto nButtonStyle = ::GetWindowLongPtr(hwnd, GWL_STYLE);
+            switch (nButtonStyle & BS_TYPEMASK)
             {
                case BS_CHECKBOX:
                case BS_AUTOCHECKBOX:
+               case BS_3STATE:
                case BS_AUTO3STATE:
                case BS_RADIOBUTTON:
                case BS_AUTORADIOBUTTON:
+               {
+                  auto nButtonAllStyles = ::GetWindowLongPtr(hwnd, GWL_STYLE);
+                  if ((nButtonAllStyles & BS_PUSHLIKE) == BS_PUSHLIKE)
+                  {
+                     if (p.theme)
+                     {
+                        SetWindowTheme(hwnd, p.themeClassName, nullptr);
+                     }
+                     break;
+                  }
                   if (p.subclass)
                   {
                      subclassButtonControl(hwnd);
                   }
                   break;
+               }
                case BS_GROUPBOX:
+               {
                   if (p.subclass)
                   {
                      subclassGroupboxControl(hwnd);
                   }
                   break;
+               }
                case BS_DEFPUSHBUTTON:
                case BS_PUSHBUTTON:
+               {
                   if (p.theme)
                   {
                      SetWindowTheme(hwnd, p.themeClassName, nullptr);
                   }
                   break;
+               }
             }
+            return TRUE;
+         }
+
+         if (wcscmp(className, TOOLBARCLASSNAME) == 0)
+         {
+            setDarkLineAbovePanelToolbar(hwnd);
+            setDarkTooltips(hwnd, ToolTipsType::toolbar);
+
+            return TRUE;
+         }
+
+         if (wcscmp(className, WC_LISTVIEW) == 0)
+         {
+            setDarkListView(hwnd);
+            setDarkTooltips(hwnd, ToolTipsType::listview);
+
+            int fgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, 0, 0)) };
+            int bgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, 0, 0)) };
+
+            ListView_SetTextColor(hwnd, fgColor);
+            ListView_SetTextBkColor(hwnd, bgColor);
+            ListView_SetBkColor(hwnd, bgColor);
+
+            if (p.subclass)
+            {
+               auto exStyle = ListView_GetExtendedListViewStyle(hwnd);
+               ListView_SetExtendedListViewStyle(hwnd, exStyle | LVS_EX_DOUBLEBUFFER);
+               subclassListViewControl(hwnd);
+            }
+
+            return TRUE;
+         }
+
+         if (wcscmp(className, WC_TREEVIEW) == 0)
+         {
+            int fgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, 0, 0)) };
+            int bgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, 0, 0)) };
+
+            TreeView_SetTextColor(hwnd, fgColor);
+            TreeView_SetBkColor(hwnd, bgColor);
+
+            calculateTreeViewStyle();
+            setTreeViewStyle(hwnd);
+
+            setDarkTooltips(hwnd, ToolTipsType::treeview);
+
+            return TRUE;
+         }
+
+         // Plugin might use rich edit control version 2.0 and later
+         if (wcscmp(className, L"RichEdit20W") == 0 || wcscmp(className, L"RICHEDIT50W") == 0)
+         {
+            if (p.theme)
+            {
+               //dark scrollbar for rich edit control
+               SetWindowTheme(hwnd, p.themeClassName, nullptr);
+            }
+
             return TRUE;
          }
 
          if (wcscmp(className, UPDOWN_CLASS) == 0)
          {
             subclassTabUpDownControl(hwnd);
+            return TRUE;
          }
 
          return TRUE;
       }, reinterpret_cast<LPARAM>(&p));
+   }
+
+   LRESULT darkToolBarNotifyCustomDraw(LPARAM lParam)
+   {
+      auto nmtbcd = reinterpret_cast<LPNMTBCUSTOMDRAW>(lParam);
+      static int roundCornerValue = 0;
+
+      switch (nmtbcd->nmcd.dwDrawStage)
+      {
+      case CDDS_PREPAINT:
+      {
+         if (isEnabled())
+         {
+            roundCornerValue = isWindows11() ? Utils::scaleDPIX(5) : 0;
+
+            ::FillRect(nmtbcd->nmcd.hdc, &nmtbcd->nmcd.rc, getDarkerBackgroundBrush());
+            return CDRF_NOTIFYITEMDRAW;
+         }
+         return CDRF_DODEFAULT;
+      }
+
+      case CDDS_ITEMPREPAINT:
+      {
+         nmtbcd->hbrLines = getEdgeBrush();
+         nmtbcd->clrText = getTextColor();
+         nmtbcd->clrTextHighlight = getTextColor();
+         nmtbcd->clrBtnFace = getBackgroundColor();
+         nmtbcd->clrBtnHighlight = getSofterBackgroundColor();
+         nmtbcd->clrHighlightHotTrack = getHotBackgroundColor();
+         nmtbcd->nStringBkMode = TRANSPARENT;
+         nmtbcd->nHLStringBkMode = TRANSPARENT;
+
+         if ((nmtbcd->nmcd.uItemState & CDIS_CHECKED) == CDIS_CHECKED)
+         {
+            auto holdBrush = ::SelectObject(nmtbcd->nmcd.hdc, getSofterBackgroundBrush());
+            auto holdPen = ::SelectObject(nmtbcd->nmcd.hdc, getEdgePen());
+            ::RoundRect(nmtbcd->nmcd.hdc, nmtbcd->nmcd.rc.left, nmtbcd->nmcd.rc.top, nmtbcd->nmcd.rc.right, nmtbcd->nmcd.rc.bottom, roundCornerValue, roundCornerValue);
+            ::SelectObject(nmtbcd->nmcd.hdc, holdBrush);
+            ::SelectObject(nmtbcd->nmcd.hdc, holdPen);
+
+            nmtbcd->nmcd.uItemState &= ~CDIS_CHECKED;
+         }
+
+         return TBCDRF_HILITEHOTTRACK | TBCDRF_USECDCOLORS | CDRF_NOTIFYPOSTPAINT;
+      }
+
+      case CDDS_ITEMPOSTPAINT:
+      {
+         bool isDropDown = false;
+
+         auto exStyle = ::SendMessage(nmtbcd->nmcd.hdr.hwndFrom, TB_GETEXTENDEDSTYLE, 0, 0);
+         if ((exStyle & TBSTYLE_EX_DRAWDDARROWS) == TBSTYLE_EX_DRAWDDARROWS)
+         {
+            TBBUTTONINFO tbButtonInfo{};
+            tbButtonInfo.cbSize = sizeof(TBBUTTONINFO);
+            tbButtonInfo.dwMask = TBIF_STYLE;
+            ::SendMessage(nmtbcd->nmcd.hdr.hwndFrom, TB_GETBUTTONINFO, nmtbcd->nmcd.dwItemSpec, reinterpret_cast<LPARAM>(&tbButtonInfo));
+
+            isDropDown = (tbButtonInfo.fsStyle & BTNS_DROPDOWN) == BTNS_DROPDOWN;
+         }
+
+         if (!isDropDown && (nmtbcd->nmcd.uItemState & CDIS_HOT) == CDIS_HOT)
+         {
+            paintRoundFrameRect(nmtbcd->nmcd.hdc, nmtbcd->nmcd.rc, getHotEdgePen(), roundCornerValue, roundCornerValue);
+         }
+
+         return CDRF_DODEFAULT;
+      }
+
+      default:
+         return CDRF_DODEFAULT;
+      }
+   }
+
+   LRESULT darkListViewNotifyCustomDraw(LPARAM lParam)
+   {
+      auto lplvcd = reinterpret_cast<LPNMLVCUSTOMDRAW>(lParam);
+
+      switch (lplvcd->nmcd.dwDrawStage)
+      {
+      case CDDS_PREPAINT:
+      {
+         return CDRF_NOTIFYITEMDRAW;
+      }
+
+      case CDDS_ITEMPREPAINT:
+      {
+         auto isSelected = ListView_GetItemState(lplvcd->nmcd.hdr.hwndFrom, lplvcd->nmcd.dwItemSpec, LVIS_SELECTED) == LVIS_SELECTED;
+
+         if (isEnabled())
+         {
+            if (isSelected)
+            {
+               lplvcd->clrText = getTextColor();
+               lplvcd->clrTextBk = getSofterBackgroundColor();
+
+               ::FillRect(lplvcd->nmcd.hdc, &lplvcd->nmcd.rc, getSofterBackgroundBrush());
+            }
+            else if ((lplvcd->nmcd.uItemState & CDIS_HOT) == CDIS_HOT)
+            {
+               lplvcd->clrText = getTextColor();
+               lplvcd->clrTextBk = getHotBackgroundColor();
+
+               ::FillRect(lplvcd->nmcd.hdc, &lplvcd->nmcd.rc, getHotBackgroundBrush());
+            }
+         }
+
+         if (isSelected)
+         {
+            ::DrawFocusRect(lplvcd->nmcd.hdc, &lplvcd->nmcd.rc);
+         }
+
+         return CDRF_NEWFONT;
+      }
+
+      default:
+         return CDRF_DODEFAULT;
+      }
+   }
+
+   LRESULT darkTreeViewNotifyCustomDraw(LPARAM lParam)
+   {
+      auto lptvcd = reinterpret_cast<LPNMTVCUSTOMDRAW>(lParam);
+
+      switch (lptvcd->nmcd.dwDrawStage)
+      {
+      case CDDS_PREPAINT:
+      {
+         if (isEnabled())
+         {
+            return CDRF_NOTIFYITEMDRAW;
+         }
+         return CDRF_DODEFAULT;
+      }
+
+      case CDDS_ITEMPREPAINT:
+      {
+         if ((lptvcd->nmcd.uItemState & CDIS_SELECTED) == CDIS_SELECTED)
+         {
+            lptvcd->clrText = getTextColor();
+            lptvcd->clrTextBk = getSofterBackgroundColor();
+            ::FillRect(lptvcd->nmcd.hdc, &lptvcd->nmcd.rc, getSofterBackgroundBrush());
+
+            return CDRF_NEWFONT | CDRF_NOTIFYPOSTPAINT;
+         }
+
+         if ((lptvcd->nmcd.uItemState & CDIS_HOT) == CDIS_HOT)
+         {
+            lptvcd->clrText = getTextColor();
+            lptvcd->clrTextBk = getHotBackgroundColor();
+            ::FillRect(lptvcd->nmcd.hdc, &lptvcd->nmcd.rc, getHotBackgroundBrush());
+
+            return CDRF_NEWFONT | CDRF_NOTIFYPOSTPAINT;
+         }
+
+         return CDRF_DODEFAULT;
+      }
+
+      case CDDS_ITEMPOSTPAINT:
+      {
+         RECT rcFrame = lptvcd->nmcd.rc;
+         rcFrame.left -= 1;
+         rcFrame.right += 1;
+
+         if ((lptvcd->nmcd.uItemState & CDIS_HOT) == CDIS_HOT)
+         {
+            paintRoundFrameRect(lptvcd->nmcd.hdc, rcFrame, getHotEdgePen(), 0, 0);
+         }
+         else if ((lptvcd->nmcd.uItemState & CDIS_SELECTED) == CDIS_SELECTED)
+         {
+            paintRoundFrameRect(lptvcd->nmcd.hdc, rcFrame, getEdgePen(), 0, 0);
+         }
+
+         return CDRF_DODEFAULT;
+
+      }
+
+      default:
+         return CDRF_DODEFAULT;
+      }
    }
 
    void autoThemeChildControls(HWND hwndParent)
@@ -1202,6 +1761,7 @@ namespace NppDarkMode
 
          bool isHotUp = ::PtInRect(&rcArrowUp, ptCursor);
          bool isHotDown = ::PtInRect(&rcArrowDown, ptCursor);
+         if (isHotDown) isHotUp = false;
 
          ::SetBkMode(hdc, TRANSPARENT);
 
@@ -1209,7 +1769,7 @@ namespace NppDarkMode
          {
             if ((style & UDS_HORZ) == UDS_HORZ) {
                ::DrawThemeBackground(pButtonData->hTheme, hdc, BP_PUSHBUTTON, isHotUp ? PBS_HOT : PBS_NORMAL, &rcArrowUp, nullptr);
-               ::DrawThemeBackground(pButtonData->hTheme, hdc, BP_PUSHBUTTON, isHotUp ? PBS_HOT : PBS_NORMAL, &rcArrowUp, nullptr);
+               ::DrawThemeBackground(pButtonData->hTheme, hdc, BP_PUSHBUTTON, isHotDown ? PBS_HOT : PBS_NORMAL, &rcArrowDown, nullptr);
             }
             else {
                int roundCornerValue = isWindows11() ? Utils::scaleDPIX(4) : 0;
@@ -1256,12 +1816,11 @@ namespace NppDarkMode
          }
          else {
             auto mPosX = Utils::scaleDPIX(4);
-            auto mPosY = Utils::scaleDPIY(2);
 
             ::SetTextColor(hdc, isHotUp ? getTextColor() : getDarkerTextColor());
             ::ExtTextOut(hdc,
                rcArrowUp.left + mPosX,
-               rcArrowUp.bottom + lf.lfHeight - mPosY,
+               rcArrowUp.top,
                ETO_CLIPPED,
                &rcArrowUp, L"˄",
                1,
@@ -1270,7 +1829,7 @@ namespace NppDarkMode
             ::SetTextColor(hdc, isHotDown ? getTextColor() : getDarkerTextColor());
             ::ExtTextOut(hdc,
                rcArrowDown.left + mPosX,
-               rcArrowDown.top - mPosY,
+               rcArrowDown.top - Utils::scaleDPIX(2),
                ETO_CLIPPED,
                &rcArrowDown, L"˅",
                1,
@@ -1389,7 +1948,7 @@ namespace NppDarkMode
 
    void setDarkLineAbovePanelToolbar(HWND hwnd)
    {
-      COLORSCHEME scheme;
+      COLORSCHEME scheme{};
       scheme.dwSize = sizeof(COLORSCHEME);
 
       if (isEnabled())
@@ -1408,14 +1967,56 @@ namespace NppDarkMode
 
    void setDarkListView(HWND hwnd)
    {
-      bool useDark = isEnabled();
+      if (isExperimentalSupported())
+      {
+         bool useDark = isEnabled();
 
-      HWND hHeader = ListView_GetHeader(hwnd);
-      allowDarkModeForWindow(hHeader, useDark);
-      SetWindowTheme(hHeader, useDark ? L"ItemsView" : nullptr, nullptr);
+         HWND hHeader = ListView_GetHeader(hwnd);
+         allowDarkModeForWindow(hHeader, useDark);
+         SetWindowTheme(hHeader, useDark ? L"ItemsView" : nullptr, nullptr);
 
-      allowDarkModeForWindow(hwnd, useDark);
-      SetWindowTheme(hwnd, L"Explorer", nullptr);
+         allowDarkModeForWindow(hwnd, useDark);
+         SetWindowTheme(hwnd, L"Explorer", nullptr);
+      }
+   }
+
+   void disableVisualStyle(HWND hwnd, bool doDisable)
+   {
+      if (doDisable)
+      {
+         SetWindowTheme(hwnd, L"", L"");
+      }
+      else
+      {
+         SetWindowTheme(hwnd, nullptr, nullptr);
+      }
+   }
+
+   // range to determine when it should be better to use classic style
+   constexpr double middleGrayRange = 2.0;
+
+   void calculateTreeViewStyle()
+   {
+      COLORREF bgColor{};// = NppParameters::getInstance().getCurrentDefaultBgColor();
+
+      if (treeViewBg != bgColor || lighnessTreeView == 50.0)
+      {
+         lighnessTreeView = calculatePerceivedLighness(bgColor);
+         treeViewBg = bgColor;
+      }
+
+      if (lighnessTreeView < (50.0 - middleGrayRange))
+      {
+         treeViewStyle = TreeViewStyle::dark;
+      }
+      else if (lighnessTreeView > (50.0 + middleGrayRange))
+      {
+         treeViewStyle = TreeViewStyle::light;
+      }
+      else
+      {
+         treeViewStyle = TreeViewStyle::classic;
+      }
    }
 
    void setTreeViewStyle(HWND hwnd)
@@ -1561,5 +2162,19 @@ namespace NppDarkMode
          SetTextColor(hdc, GetSysColor(bEnabled ? COLOR_HIGHLIGHT : COLOR_GRAYTEXT));
          return FALSE;
       }
+   }
+
+   INT_PTR onCtlColorListbox(WPARAM wParam, LPARAM lParam)
+   {
+      auto hdc = reinterpret_cast<HDC>(wParam);
+      auto hwnd = reinterpret_cast<HWND>(lParam);
+
+      auto style = ::GetWindowLongPtr(hwnd, GWL_STYLE);
+      bool isComboBox = (style & LBS_COMBOBOX) == LBS_COMBOBOX;
+      if (!isComboBox && ::IsWindowEnabled(hwnd))
+      {
+         return static_cast<INT_PTR>(onCtlColorSofter(hdc));
+      }
+      return static_cast<INT_PTR>(onCtlColor(hdc));
    }
 }

@@ -186,7 +186,6 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
@@ -211,6 +210,12 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          if (NPPDM_IsEnabled()) {
             return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
          }
+      }
+      break;
+
+   case WM_CTLCOLORLISTBOX:
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorListbox(wParam, lParam);
       }
       break;
 

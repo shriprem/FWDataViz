@@ -177,7 +177,7 @@ void ConfigureDialog::refreshDarkMode() {
       _fieldTypeDlg.refreshDarkMode();
 }
 
-INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
+INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
    case WM_COMMAND:
       switch LOWORD(wParam) {
@@ -440,7 +440,6 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORLISTBOX:
    case WM_CTLCOLORSTATIC:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
@@ -450,6 +449,12 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
    case WM_CTLCOLOREDIT:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLORLISTBOX:
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorListbox(wParam, lParam);
       }
       break;
 

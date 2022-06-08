@@ -30,7 +30,7 @@ void PreferencesDialog::refreshDarkMode() {
    redraw();
 }
 
-INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM /*lParam*/) {
+INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
    case WM_COMMAND:
       switch LOWORD(wParam) {
@@ -59,10 +59,15 @@ INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM /*lPa
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORLISTBOX:
    case WM_CTLCOLORSTATIC:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLORLISTBOX:
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorListbox(wParam, lParam);
       }
       break;
 

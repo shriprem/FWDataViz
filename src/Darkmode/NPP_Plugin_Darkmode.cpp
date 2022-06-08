@@ -52,3 +52,7 @@ LRESULT NPPDM_OnCtlColorIfEnabled(HDC hdc, bool isEnabled) {
 LRESULT NPPDM_OnCtlHiliteIfEnabled(HDC hdc, bool isEnabled) {
    return NppDarkMode::onCtlHiliteIfEnabled(hdc, isEnabled);
 }
+
+INT_PTR NPPDM_OnCtlColorListbox(WPARAM wParam, LPARAM lParam) {
+   return NppDarkMode::onCtlColorListbox(wParam, lParam);
+}

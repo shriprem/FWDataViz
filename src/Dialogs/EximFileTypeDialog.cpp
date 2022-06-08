@@ -57,7 +57,7 @@ void EximFileTypeDialog::localize() {
    }
 }
 
-INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM) {
+INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
    case WM_COMMAND:
       switch LOWORD(wParam) {
@@ -92,7 +92,6 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORLISTBOX:
    case WM_CTLCOLORSTATIC:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
@@ -102,6 +101,12 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
    case WM_CTLCOLOREDIT:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLORLISTBOX:
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorListbox(wParam, lParam);
       }
       break;
 

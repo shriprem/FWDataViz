@@ -141,7 +141,6 @@ INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
@@ -150,6 +149,12 @@ INT_PTR FieldTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
    case WM_CTLCOLOREDIT:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorSofter(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+
+   case WM_CTLCOLORLISTBOX:
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorListbox(wParam, lParam);
       }
       break;
 
