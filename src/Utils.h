@@ -19,8 +19,6 @@ namespace Utils {
    bool isInvalidRegex(const wstring& expr, HWND hWnd, const wstring& context);
 
    COLORREF intToRGB(int color);
-   int scaleDPIX(int x);
-   int scaleDPIY(int y);
    wstring getSpecialFolder(int folderID);
    wstring getKnownFolderPath(REFKNOWNFOLDERID folderID);
 

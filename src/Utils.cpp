@@ -102,7 +102,7 @@ bool Utils::isInvalidRegex(const wstring& expr, HWND hWnd, const wstring& contex
    catch (const std::regex_error& e) {
       MessageBox(hWnd,
          (context + ((!context.empty()) ? L"\r\n" : L"") + NarrowToWide(e.what())).c_str(),
-         FWVIZ_DIALOG_REGEX_ERROR,
+         UTILS_REGEX_ERROR,
          MB_OK | MB_ICONERROR);
       return true;
    }
@@ -112,24 +112,6 @@ bool Utils::isInvalidRegex(const wstring& expr, HWND hWnd, const wstring& contex
 
 COLORREF Utils::intToRGB(int color) {
    return RGB(GetRValue(color), GetGValue(color), GetBValue(color));
-}
-
-int Utils::scaleDPIX(int x) {
-   HDC hdc = GetDC(NULL);
-   if (!hdc) return 0;
-
-   int scaleX{ MulDiv(x, GetDeviceCaps(hdc, LOGPIXELSX), 96) };
-   ReleaseDC(NULL, hdc);
-   return scaleX;
-}
-
-int Utils::scaleDPIY(int y) {
-   HDC hdc = GetDC(NULL);
-   if (!hdc) return 0;
-
-   int scaleY{ MulDiv(y, GetDeviceCaps(hdc, LOGPIXELSY), 96) };
-   ReleaseDC(NULL, hdc);
-   return scaleY;
 }
 
 wstring Utils::getSpecialFolder(int folderID) {

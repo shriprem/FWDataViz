@@ -31,6 +31,8 @@
 #define WINAPI_LAMBDA
 #endif
 
+extern HWND nppHandle;
+
 namespace NppDarkMode
 {
    struct Brushes
@@ -166,6 +168,32 @@ namespace NppDarkMode
       }
    };
 
+   COLORREF intToRGB(int color) {
+      return RGB(GetRValue(color), GetGValue(color), GetBValue(color));
+   }
+
+   int scaleDPIX(int x) {
+      HDC hdc = GetDC(NULL);
+      if (!hdc) return 0;
+
+      int scaleX{ MulDiv(x, GetDeviceCaps(hdc, LOGPIXELSX), 96) };
+      ReleaseDC(NULL, hdc);
+      return scaleX;
+   }
+
+   int scaleDPIY(int y) {
+      HDC hdc = GetDC(NULL);
+      if (!hdc) return 0;
+
+      int scaleY{ MulDiv(y, GetDeviceCaps(hdc, LOGPIXELSY), 96) };
+      ReleaseDC(NULL, hdc);
+      return scaleY;
+   }
+
+   int nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
+      return static_cast<int>(SendMessage(nppHandle, messageID, wparam, lparam));
+   }
+
    Theme tCurrent(darkColors);
 
    static boolean _isDarkModeEnabled;
@@ -232,7 +260,7 @@ namespace NppDarkMode
 
    TreeViewStyle treeViewStyle = TreeViewStyle::classic;
 
-   COLORREF treeViewBg = Utils::intToRGB(static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL)));
+   COLORREF treeViewBg = intToRGB(static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL)));
    double lighnessTreeView = 50.0;
 
    // adapted from https://stackoverflow.com/a/56678483
@@ -826,12 +854,12 @@ namespace NppDarkMode
                ::SendMessage(hWnd, TCM_GETITEM, i, reinterpret_cast<LPARAM>(&tci));
 
                RECT rcText = rcItem;
-               rcText.left += Utils::scaleDPIX(5);
-               rcText.right -= Utils::scaleDPIX(3);
+               rcText.left += scaleDPIX(5);
+               rcText.right -= scaleDPIX(3);
 
                if (isSelectedTab)
                {
-                  rcText.bottom -= Utils::scaleDPIY(4);
+                  rcText.bottom -= scaleDPIY(4);
                   ::InflateRect(&rcFrame, 0, 1);
                }
                if (i != nTabs - 1)
@@ -1090,7 +1118,7 @@ namespace NppDarkMode
 
          auto holdBrush = ::SelectObject(hdc, getDarkerBackgroundBrush());
 
-         RECT rcArrow = {rc.right - Utils::scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
+         RECT rcArrow = {rc.right - scaleDPIX(17), rc.top + 1, rc.right - 1, rc.bottom - 1};
          bool hasFocus{};
 
          // CBS_DROPDOWN text is handled by parent by WM_CTLCOLOREDIT
@@ -1139,7 +1167,7 @@ namespace NppDarkMode
          ::SetTextColor(hdc, isWindowEnabled ? colorEnabledText : getDisabledTextColor());
          ::SetBkColor(hdc, isHot ? getHotBackgroundColor() : getBackgroundColor());
          ::ExtTextOut(hdc,
-            rcArrow.left + (rcArrow.right - rcArrow.left) / 2 - Utils::scaleDPIX(4),
+            rcArrow.left + (rcArrow.right - rcArrow.left) / 2 - scaleDPIX(4),
             rcArrow.top + 3,
             ETO_OPAQUE | ETO_CLIPPED,
             &rcArrow, L"˅",
@@ -1157,7 +1185,7 @@ namespace NppDarkMode
          };
          ::Polyline(hdc, edge, _countof(edge));
 
-         int roundCornerValue = isWindows11() ? Utils::scaleDPIX(4) : 0;
+         int roundCornerValue = isWindows11() ? scaleDPIX(4) : 0;
          paintRoundFrameRect(hdc, rc, hSelectedPen, roundCornerValue, roundCornerValue);
 
          ::SelectObject(hdc, holdPen);
@@ -1520,7 +1548,7 @@ namespace NppDarkMode
       {
          if (isEnabled())
          {
-            roundCornerValue = isWindows11() ? Utils::scaleDPIX(5) : 0;
+            roundCornerValue = isWindows11() ? scaleDPIX(5) : 0;
 
             ::FillRect(nmtbcd->nmcd.hdc, &nmtbcd->nmcd.rc, getDarkerBackgroundBrush());
             return CDRF_NOTIFYITEMDRAW;
@@ -1772,7 +1800,7 @@ namespace NppDarkMode
                ::DrawThemeBackground(pButtonData->hTheme, hdc, BP_PUSHBUTTON, isHotDown ? PBS_HOT : PBS_NORMAL, &rcArrowDown, nullptr);
             }
             else {
-               int roundCornerValue = isWindows11() ? Utils::scaleDPIX(4) : 0;
+               int roundCornerValue = isWindows11() ? scaleDPIX(4) : 0;
                holdPen = static_cast<HPEN>(::SelectObject(hdc, getEdgePen()));
 
                paintRoundFrameRect(hdc, rcArrowUp, getEdgePen(), roundCornerValue, roundCornerValue);
@@ -1788,13 +1816,13 @@ namespace NppDarkMode
          LOGFONT lf{};
          auto font = reinterpret_cast<HFONT>(SendMessage(hWnd, WM_GETFONT, 0, 0));
          ::GetObject(font, sizeof(lf), &lf);
-         lf.lfHeight = (Utils::scaleDPIY(16) - 5) * -1;
+         lf.lfHeight = (scaleDPIY(16) - 5) * -1;
          lf.lfWeight = 900;
          auto holdFont = static_cast<HFONT>(::SelectObject(hdc, CreateFontIndirect(&lf)));
 
          if ((style & UDS_HORZ) == UDS_HORZ) {
-            auto mPosX = ((rcArrowUp.right - rcArrowUp.left - Utils::scaleDPIX(7) + 1) / 2);
-            auto mPosY = ((rcArrowUp.bottom - rcArrowUp.top + lf.lfHeight - Utils::scaleDPIY(1) - 3) / 2);
+            auto mPosX = ((rcArrowUp.right - rcArrowUp.left - scaleDPIX(7) + 1) / 2);
+            auto mPosY = ((rcArrowUp.bottom - rcArrowUp.top + lf.lfHeight - scaleDPIY(1) - 3) / 2);
 
             ::SetTextColor(hdc, isHotUp ? getTextColor() : getDarkerTextColor());
             ::ExtTextOut(hdc,
@@ -1807,7 +1835,7 @@ namespace NppDarkMode
 
             ::SetTextColor(hdc, isHotDown ? getTextColor() : getDarkerTextColor());
             ::ExtTextOut(hdc,
-               rcArrowDown.left + mPosX - Utils::scaleDPIX(2) + 3,
+               rcArrowDown.left + mPosX - scaleDPIX(2) + 3,
                rcArrowDown.top + mPosY,
                ETO_CLIPPED,
                &rcArrowDown, L">",
@@ -1815,12 +1843,13 @@ namespace NppDarkMode
                nullptr);
          }
          else {
-            auto mPosX = Utils::scaleDPIX(4);
+            auto mPosX = scaleDPIX(4);
+            auto mPosY = scaleDPIX(2);
 
             ::SetTextColor(hdc, isHotUp ? getTextColor() : getDarkerTextColor());
             ::ExtTextOut(hdc,
                rcArrowUp.left + mPosX,
-               rcArrowUp.top,
+               rcArrowUp.top - mPosY,
                ETO_CLIPPED,
                &rcArrowUp, L"˄",
                1,
@@ -1829,7 +1858,7 @@ namespace NppDarkMode
             ::SetTextColor(hdc, isHotDown ? getTextColor() : getDarkerTextColor());
             ::ExtTextOut(hdc,
                rcArrowDown.left + mPosX,
-               rcArrowDown.top - Utils::scaleDPIX(2),
+               rcArrowDown.top - mPosY,
                ETO_CLIPPED,
                &rcArrowDown, L"˅",
                1,
