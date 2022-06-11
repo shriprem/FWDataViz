@@ -970,12 +970,6 @@ namespace NppDarkMode
             rcClient.bottom += ::GetSystemMetrics(SM_CYHSCROLL);
          }
 
-         HPEN hPen = ::CreatePen(PS_SOLID, 1, getBackgroundColor());
-         RECT rcInner = rcClient;
-         ::InflateRect(&rcInner, -1, -1);
-         paintRoundFrameRect(hdc, rcInner, hPen);
-         ::DeleteObject(hPen);
-
          bool hasFocus = ::GetFocus() == hWnd;
 
          POINT ptCursor{};
@@ -997,13 +991,11 @@ namespace NppDarkMode
 
       case WM_NCCALCSIZE:
       {
-         if (!isEnabled())
+         if (isEnabled())
          {
-            break;
+            auto lpRect = reinterpret_cast<LPRECT>(lParam);
+            ::InflateRect(lpRect, -(::GetSystemMetrics(SM_CXEDGE)), -(::GetSystemMetrics(SM_CYEDGE)));
          }
-
-         auto lpRect = reinterpret_cast<LPRECT>(lParam);
-         ::InflateRect(lpRect, -(::GetSystemMetrics(SM_CXEDGE)), -(::GetSystemMetrics(SM_CYEDGE)));
       }
       break;
 
