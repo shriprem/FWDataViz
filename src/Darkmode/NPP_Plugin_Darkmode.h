@@ -17,7 +17,8 @@
 extern "C" NPP_PLUGIN_DARKMODE_API void NPPDM_InitDarkMode(const HWND _nppHandle);
 extern "C" NPP_PLUGIN_DARKMODE_API void NPPDM_QueryNPPDarkmode();
 extern "C" NPP_PLUGIN_DARKMODE_API bool NPPDM_IsEnabled();
-extern "C" NPP_PLUGIN_DARKMODE_API void NPPDM_AutoSubclassAndThemeChildControls(HWND hwndParent, bool subclass = true, bool theme = true);
+extern "C" NPP_PLUGIN_DARKMODE_API void NPPDM_AutoSubclassAndThemeChildControls(HWND hwndParent);
+extern "C" NPP_PLUGIN_DARKMODE_API void NPPDM_AutoThemeChildControls(HWND hwndParent);
 extern "C" NPP_PLUGIN_DARKMODE_API void NPPDM_SetDarkTitleBar(HWND hwnd);
 extern "C" NPP_PLUGIN_DARKMODE_API void NPPDM_InitSysLink(HWND hCtl);
 extern "C" NPP_PLUGIN_DARKMODE_API LRESULT NPPDM_OnCtlColor(HDC hdc);
@@ -34,7 +35,8 @@ extern "C" NPP_PLUGIN_DARKMODE_API INT_PTR NPPDM_OnCtlColorListbox(WPARAM wParam
 void NPPDM_InitDarkMode(const HWND _nppHandle);
 void NPPDM_QueryNPPDarkmode();
 bool NPPDM_IsEnabled();
-void NPPDM_AutoSubclassAndThemeChildControls(HWND hwndParent, bool subclass = true, bool theme = true);
+void NPPDM_AutoSubclassAndThemeChildControls(HWND hwndParent);
+void NPPDM_AutoThemeChildControls(HWND hwndParent);
 void NPPDM_SetDarkTitleBar(HWND hwnd);
 void NPPDM_InitSysLink(HWND hCtl);
 LRESULT NPPDM_OnCtlColor(HDC hdc);

@@ -167,7 +167,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 }
 
 void ConfigureDialog::refreshDarkMode() {
-   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   NPPDM_AutoThemeChildControls(_hSelf);
    redraw();
 
    if (_eximDlg.isCreated())
@@ -346,10 +346,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             break;
 
          case EN_VSCROLL:
-            if (GetFocus() == hFieldLabels) {
-               syncFieldEditScrolling(hFieldLabels, hFieldWidths);
-            }
+            syncFieldEditScrolling(hFieldLabels, hFieldWidths);
+            break;
          }
+
          break;
 
       case IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT:
@@ -366,10 +366,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             break;
 
          case EN_VSCROLL:
-            if (GetFocus() == hFieldWidths) {
-               syncFieldEditScrolling(hFieldWidths, hFieldLabels);
-            }
+            syncFieldEditScrolling(hFieldWidths, hFieldLabels);
+            break;
          }
+
          break;
 
       case IDC_FWVIZ_DEF_FIELD_ACCEPT_BTN:

@@ -967,7 +967,7 @@ namespace NppDarkMode
          bool hasHorScrollbar = (style & WS_HSCROLL) == WS_HSCROLL;
          if (hasHorScrollbar)
          {
-            rcClient.bottom += ::GetSystemMetrics(SM_CXHSCROLL);
+            rcClient.bottom += ::GetSystemMetrics(SM_CYHSCROLL);
          }
 
          HPEN hPen = ::CreatePen(PS_SOLID, 1, getBackgroundColor());
@@ -1004,21 +1004,6 @@ namespace NppDarkMode
 
          auto lpRect = reinterpret_cast<LPRECT>(lParam);
          ::InflateRect(lpRect, -(::GetSystemMetrics(SM_CXEDGE)), -(::GetSystemMetrics(SM_CYEDGE)));
-
-         auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
-         bool hasVerScrollbar = (style & WS_VSCROLL) == WS_VSCROLL;
-         if (hasVerScrollbar)
-         {
-            lpRect->right -= ::GetSystemMetrics(SM_CXVSCROLL);
-         }
-
-         bool hasHorScrollbar = (style & WS_HSCROLL) == WS_HSCROLL;
-         if (hasHorScrollbar)
-         {
-            lpRect->bottom -= ::GetSystemMetrics(SM_CXHSCROLL);
-         }
-
-         return 0;
       }
       break;
 

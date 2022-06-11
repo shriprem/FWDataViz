@@ -16,8 +16,12 @@ bool NPPDM_IsEnabled() {
    return NppDarkMode::isEnabled();
 }
 
-void NPPDM_AutoSubclassAndThemeChildControls(HWND hwndParent, bool subclass, bool theme) {
-   NppDarkMode::autoSubclassAndThemeChildControls(hwndParent, subclass, theme);
+void NPPDM_AutoSubclassAndThemeChildControls(HWND hwndParent) {
+   NppDarkMode::autoSubclassAndThemeChildControls(hwndParent);
+}
+
+void NPPDM_AutoThemeChildControls(HWND hwndParent) {
+   NppDarkMode::autoThemeChildControls(hwndParent);
 }
 
 void NPPDM_SetDarkTitleBar(HWND hwnd) {

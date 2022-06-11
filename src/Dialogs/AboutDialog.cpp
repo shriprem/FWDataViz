@@ -13,7 +13,7 @@ void AboutDialog::doDialog(HINSTANCE hInst) {
 }
 
 void AboutDialog::refreshDarkMode() {
-   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   NPPDM_AutoThemeChildControls(_hSelf);
    redraw();
 }
 

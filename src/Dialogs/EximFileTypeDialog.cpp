@@ -32,7 +32,7 @@ void EximFileTypeDialog::initDialog(bool bExtract, bool bViz) {
 }
 
 void EximFileTypeDialog::refreshDarkMode() {
-   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   NPPDM_AutoThemeChildControls(_hSelf);
    redraw();
 }
 

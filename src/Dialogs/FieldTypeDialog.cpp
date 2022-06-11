@@ -24,7 +24,7 @@ void FieldTypeDialog::doDialog(HINSTANCE hInst) {
 }
 
 void FieldTypeDialog::refreshDarkMode() {
-   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   NPPDM_AutoThemeChildControls(_hSelf);
    redraw();
 }
 

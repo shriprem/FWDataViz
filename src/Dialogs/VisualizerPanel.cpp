@@ -336,7 +336,7 @@ void VisualizerPanel::display(bool toShow) {
 }
 
 void VisualizerPanel::refreshDarkMode() {
-   NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
+   NPPDM_AutoThemeChildControls(_hSelf);
    redraw();
 
    if (_prefsDlg.isCreated())
