@@ -4,9 +4,6 @@
 
 1. Enhanced Darkmode support.
 
-If you have been updating the _FwDataViz_ plugin via Notepad++'s **Plugins Admin** screen, please see the changes listed under the interim versions of 2.5.1.0 and 2.5.2.0 as well.
-
-
 **Release:** [2.5.3.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.5.3.0)
 
 ---
