@@ -1,6 +1,17 @@
-# Version History
+## Version History
 
-### Version 2.5.2.0
+### Version 2.5.3.0 [June 11, 2022]
+
+1. Enhanced Darkmode support.
+
+If you have been updating the _FwDataViz_ plugin via Notepad++'s **Plugins Admin** screen, please see the changes listed under the interim versions of 2.5.1.0 and 2.5.2.0 as well.
+
+
+**Release:** [2.5.3.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.5.3.0)
+
+---
+
+### Version 2.5.2.0 [June 4, 2022]
 
 1. Fixed: Manually set selections of _**File Type**_ and _**Visualizer Theme**_ are being lost when returning to the same document after briefly switching to a different document in Notepad++. This issue started in the _FWDataViz_ plugin with the Notepad++ 8.4 version. See issue: [#61](https://github.com/shriprem/FWDataViz/issues/61).
 
@@ -16,7 +27,7 @@
 
 ---
 
-### Version 2.5.1.0
+### Version 2.5.1.0 [May 29, 2022]
 
 1. Fields tagged with an undefined field type such as _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_ will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**. For more info, see: [Field Types - Default Style](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md#default-style).
 
@@ -41,7 +52,7 @@ So, avoid having your fixed-width data files with misleading language extensions
 
 ---
 
-### Version 2.5.0.0
+### Version 2.5.0.0 [May 7, 2022]
 
 1. Dynamic change of Dark mode tones: When dark mode settings are changed in the Preferences dialog of Notepad++ (version 8.4.1 or higher), they will be immediately reflected in the _FwDataViz_ plugin user interfaces -- without requiring a restart of Notepad++.
 
@@ -56,7 +67,7 @@ So, avoid having your fixed-width data files with misleading language extensions
 
 ---
 
-### Version 2.4.0.2
+### Version 2.4.0.2 [February 4, 2022]
 **Background:** With its v8.3 release, the Notepad++ *x64* binary will support opening 2GB+ files. However, this change causes compability issue with many *x64* plugins, [and they will need to be recompiled with a modified C++ header file](https://community.notepad-plus-plus.org/topic/22471/recompile-your-x64-plugins-with-new-header).
 
 The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue specifically when trying to extract data in the [Data Extraction dialog](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md). With the suggested recompile of the _FWDataViz_ plugin with the modified C++ header file, the v2.4.0.2 release fixes this issue.
@@ -65,14 +76,14 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ---
 
-### Version 2.4.0.1
+### Version 2.4.0.1 [December 17, 2021]
 1. Updated `NPP_Plugin_Darkmode.dll` to [version 1.1.0.0](https://github.com/shriprem/NPP_Plugin_Darkmode/releases/tag/v1.1.0.0). This fixes darkmode rendering issue in Windows 11.
 
 **Release:** [2.4.0.1 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.4.0.1)
 
 ---
 
-### Version 2.4.0.0
+### Version 2.4.0.0 [December 2, 2021]
 
 1. [Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md) for distinguishing fields sharing the same traits.
 
@@ -92,7 +103,7 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ---
 
-### Version 2.3.0.0
+### Version 2.3.0.0 [November 11, 2021]
 #### Enhancements
 1. [Field Copy](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-copy) and [Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-paste) with smart left or right alignment and padding or trimming.
 
@@ -106,7 +117,7 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ---
 
-### Version 2.2.0.0
+### Version 2.2.0.0 [October 19, 2021]
 #### Enhancements
 1. Visualize files with [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md).
 
@@ -127,7 +138,7 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ---
 
-### Version 2.1.2.1
+### Version 2.1.2.1 [September 3, 2021]
 1. **Enhancement:** Cursor will be briefly set to block mode to highlight its position in text when using [Jump to Field](https://github.com/shriprem/FWDataViz#jump-to-field-popup).
 
 2. **Fixed:** The Cursor Position Data was refreshing only when the page was scrolled. This regression got introduced in version 2.1.0.0.
@@ -136,7 +147,7 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ---
 
-### Version 2.1.1.1
+### Version 2.1.1.1 [August 31, 2021]
 1. **Fixed:** If the ADFT option had been enabled, the plugin was clearing out the NPP's lexing (color scheme) of standard file types (such as .xml, .cpp, .js, etc.). The workaround was to close the FWDataViz panel, and restart NPP. Not anymore with this release.
 
 2. **Minor Change:** After the File Types or Themes Configuration were edited and saved, a backup file was created using the [MoveFile](https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefile) Windows API  to move the *Visualizer.ini* or *Themes.ini* into the *Backup* folder, and the changes were saved to a new file to replace the original config file. With this release, the backup is created instead by using the [CopyFile](https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfile) Windows API. This will allow the usage of hardlinks, if needed for some users, to these config files.
@@ -145,7 +156,7 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ---
 
-### Version 2.1.1.0
+### Version 2.1.1.0 [August 29, 2021]
 1. **Change:** Themes configuration file extension has been changed from *.dat* to *.ini*. During the initial load, the plugin will rename *Themes.dat* file to *Themes.ini*, if and only if the latter is not already existing in the plugin config folder. See the feature request [issue](https://github.com/shriprem/FWDataViz/issues/27).
 
 2. **Change:** In Darkmode, the dropdown arrow for comboboxes has been changed from [U+02C5 (MODIFIER LETTER DOWN ARROWHEAD)](https://www.fileformat.info/info/unicode/char/02C5/index.htm) to [U+25BF (WHITE DOWN-POINTING SMALL TRIANGLE)](https://www.fileformat.info/info/unicode/char/25bf/index.htm).
@@ -158,7 +169,7 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ---
 
-### Version 2.1.0.0
+### Version 2.1.0.0 [August 23, 2021]
 1. **Enhancement:** FWDataViz is now able to visualize even when wordwrap is enabled for a document. Hence the "Turnoff Wordwrap" button on the panel became redundant, and so has been removed.
 2. **Fixed:** FWDataviz was not visualizing all lines in view when block(s) of lines were folded or hidden (the latter, via NPP menu: *View » Hide Lines*). See: [issue #25](https://github.com/shriprem/FWDataViz/issues/25).
 
@@ -166,7 +177,7 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ---
 
-### Version 2.0.0.0
+### Version 2.0.0.0 [August 18, 2021]
 #### Enhancements:
 1. Darkmode rendering enabled for the plugin panel and dialog boxes.
 2. Toolbar icons in filled and unfilled modes.
@@ -182,23 +193,23 @@ See: [Sample screenshots of the plugin UI in dark mode](https://github.com/shrip
 
 ---
 
-### Version 1.4.2.0
+### Version 1.4.2.0 [July 13, 2021]
 #### Enhancements:
 1. Page mode added to [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) dialog. The dialog now supports up to 30 line items, 10 line items per page across 3 pages.
 ---
-### Version 1.4.0.1
+### Version 1.4.0.1 [July 9, 2021]
 #### Enhancements:
 1. [Easy Keyboard Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md) in the Data Extraction dialog.
 
 ---
 
-### Version 1.4.0.0
+### Version 1.4.0.0 [July 6, 2021]
 #### Enhancements:
 1. [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) feature to extract a handful data fields into an easily readable, quick report.
 
 ---
 
-### Version 1.0.3.1
+### Version 1.0.3.1 [June 18, 2021]
 #### Enhancements:
 1. Light & Dark mode Fluent UI toolbar icons added for the plugin.
 2. Including ARM64 build. (_Please note that I am unable to test the ARM64 build since I don't have an ARM64 device, and it is being provided AS IS._)
@@ -212,20 +223,26 @@ Due to the current NPP API limitation, this minor release for FWDataViz is only 
 
 ---
 
-### Version 1.0.3.0
+### Version 1.0.3.0 [April 15, 2021]
 #### Enhancements:
 1. [Record Type Themes](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md)
 
 ---
 
-### Version 1.0.2.0
+### Version 1.0.2.0 [April 7, 2021]
 #### Enhancements:
 1. [Automatic Detection of File Types](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md)
 
 ---
 
-### Version 1.0.1.0
+### Version 1.0.1.0 [March 10, 2021]
 #### Enhancements:
 1. *Cursor Position Data* display will shrink or grow to the dock panel width.
 2. Long text in *Cursor Position Data* display will scroll horizontally instead of wrapping to the next line.
 3. Added *Record Length [Current/Defined]* line in *Cursor Position Data* display.
+
+---
+
+### Version 1.0.0.0 [January 13, 2021]
+
+Initial Release
