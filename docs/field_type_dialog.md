@@ -4,7 +4,7 @@
 
 _Field Types_ are useful for distinguishing fields sharing the same traits, and occurring more than once within the same or multiple _Record Types_ and _File Types_.
 
-In the above clip, field types have been defined for `AMOUNT` and `DATE`. These field types can then be tagged to multiple _Field Labels_ in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) by specifying a colon between the field label and the field type.
+In the clip above, field types have been defined for `AMOUNT` and `DATE`. These field types can then be tagged to multiple _Field Labels_ in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) by specifying a colon between the field label and the field type.
 * _Field Type_ value is not case sensitive.
 * Space(s) around the colon separator are optional.
 
@@ -31,8 +31,10 @@ These tagged fields will then be visualized using the distinctive styles defined
 ### Default Style
 You can tag fields with a field type named appropriately like _NO_STYLING_ or _DEFAULT_STYLE_ or _STYLE_DEFAULT_. But leave those field types undefined in the **Define Field Type** dialog. Such tagged fields will be rendered with the default background and foreground colors of the currently **Selected Theme** in Notepad++'s **Style Configurator**.
 
-##### Example Usage
-The field labels listed below can be applied to the records in either the _Weather Stations_ or the _GSN-Flagged Weather Stations_ sample file types that accompany this plugin.
+##### Example Usages
+The **_Default Style_** field labels have been applied to records in the following sample file types that accompany this plugin: _Weather Stations List, ICD-10 Diagnosis Codes, ICD-10 Order Codes, ICD-10 Procedure Codes, GSN-Flagged Weather Stations, Multiple GSN Daily Weather, ICD-10 Billable-Flagged Order Codes, Multi-Line GSN Daily Weather_.
+
+The extract below is from the _Weather Stations List_ sample file type.
 ```
 ID
 SPACE : DEFAULT_STYLE

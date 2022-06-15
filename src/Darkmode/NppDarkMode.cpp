@@ -970,17 +970,15 @@ namespace NppDarkMode
             rcClient.bottom += ::GetSystemMetrics(SM_CYHSCROLL);
          }
 
-         bool hasFocus = ::GetFocus() == hWnd;
-
          POINT ptCursor{};
          ::GetCursorPos(&ptCursor);
          ::ScreenToClient(hWnd, &ptCursor);
 
          bool isHot = ::PtInRect(&rcClient, ptCursor);
-
+         bool hasFocus = ::GetFocus() == hWnd;
          bool isWindowEnabled = ::IsWindowEnabled(hWnd) == TRUE;
-         HPEN hEnabledPen = ((isHotStatic && isHot) || hasFocus ? getHotEdgePen() : getEdgePen());
 
+         HPEN hEnabledPen = ((isHotStatic && isHot) || hasFocus ? getHotEdgePen() : getEdgePen());
          paintRoundFrameRect(hdc, rcClient, isWindowEnabled ? hEnabledPen : getDisabledEdgePen());
 
          ::ReleaseDC(hWnd, hdc);
