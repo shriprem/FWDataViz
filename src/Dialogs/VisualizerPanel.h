@@ -13,6 +13,7 @@
 #define FW_DEBUG_LEXER_COUNT FALSE
 #define FW_DEBUG_COPY_TRIM FALSE
 #define FW_DEBUG_DOC_INFO FALSE
+#define FW_DEBUG_FOLD_INFO FALSE
 
 #define FW_DOC_FILE_TYPE "FWVisualizerType"
 #define FW_DOC_FILE_THEME "FWVisualizerTheme"
@@ -90,6 +91,8 @@ private:
       wstring fileName{};
       string docType{};
       string docTheme{};
+      string foldStructType{};
+      bool folded{};
    };
 
    vector<DocInfo> docInfoList{};
@@ -116,8 +119,12 @@ private:
    void setDocInfo(bool bDocType, string val);
 
    bool getDocTheme(wstring& theme);
+   string getDocFoldStructType();
+   bool getDocFolded();
    void setDocFileType(string fileType);
    void setDocTheme(string theme, string fileType = "");
+   void setDocFoldStructType(string foldStructType);
+   void setDocFolded(bool bFolding);
    void setADFTCheckbox();
    void setPanelMBCharState();
    void setPanelMBCharIndicator(string fileType);
@@ -142,6 +149,17 @@ private:
    void moveToFieldEdge(const string fileType, const int fieldIdx, bool jumpTo, bool rightEdge, bool hilite);
    void setFieldAlign(bool left);
    void popupSamplesMenu();
+
+   string detectFoldStructType(string fileType);
+   void applyFolding();
+   void removeFolding();
+   void enableFoldableControls(bool bFoldable);
+   void enableFoldedControls(bool bFolded);
+   void toggleFolding();
+   int foldLevelFromPopup(bool bFold);
+   void expandFoldLevel(bool bExpand, int level);
+   void foldLevelMenu();
+   void unfoldLevelMenu();
 
    static DWORD WINAPI threadPositionHighlighter(void*);
 };

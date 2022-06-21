@@ -970,15 +970,17 @@ namespace NppDarkMode
             rcClient.bottom += ::GetSystemMetrics(SM_CYHSCROLL);
          }
 
+         bool hasFocus = ::GetFocus() == hWnd;
+
          POINT ptCursor{};
          ::GetCursorPos(&ptCursor);
          ::ScreenToClient(hWnd, &ptCursor);
 
          bool isHot = ::PtInRect(&rcClient, ptCursor);
-         bool hasFocus = ::GetFocus() == hWnd;
-         bool isWindowEnabled = ::IsWindowEnabled(hWnd) == TRUE;
 
+         bool isWindowEnabled = ::IsWindowEnabled(hWnd) == TRUE;
          HPEN hEnabledPen = ((isHotStatic && isHot) || hasFocus ? getHotEdgePen() : getEdgePen());
+
          paintRoundFrameRect(hdc, rcClient, isWindowEnabled ? hEnabledPen : getDisabledEdgePen());
 
          ::ReleaseDC(hWnd, hdc);
@@ -1770,17 +1772,11 @@ namespace NppDarkMode
 
          if (hasTheme)
          {
-            if ((style & UDS_HORZ) == UDS_HORZ) {
-               ::DrawThemeBackground(pButtonData->hTheme, hdc, BP_PUSHBUTTON, isHotUp ? PBS_HOT : PBS_NORMAL, &rcArrowUp, nullptr);
-               ::DrawThemeBackground(pButtonData->hTheme, hdc, BP_PUSHBUTTON, isHotDown ? PBS_HOT : PBS_NORMAL, &rcArrowDown, nullptr);
-            }
-            else {
-               int roundCornerValue = isWindows11() ? scaleDPIX(4) : 0;
-               holdPen = static_cast<HPEN>(::SelectObject(hdc, getEdgePen()));
+            int roundCornerValue = isWindows11() ? scaleDPIX(4) : 0;
+            holdPen = static_cast<HPEN>(::SelectObject(hdc, getEdgePen()));
 
-               paintRoundFrameRect(hdc, rcArrowUp, getEdgePen(), roundCornerValue, roundCornerValue);
-               paintRoundFrameRect(hdc, rcArrowDown, getEdgePen(), roundCornerValue, roundCornerValue);
-            }
+            paintRoundFrameRect(hdc, rcArrowUp, getEdgePen(), roundCornerValue, roundCornerValue);
+            paintRoundFrameRect(hdc, rcArrowDown, getEdgePen(), roundCornerValue, roundCornerValue);
          }
          else
          {
@@ -1819,12 +1815,11 @@ namespace NppDarkMode
          }
          else {
             auto mPosX = scaleDPIX(4);
-            auto mPosY = scaleDPIX(2);
 
             ::SetTextColor(hdc, isHotUp ? getTextColor() : getDarkerTextColor());
             ::ExtTextOut(hdc,
                rcArrowUp.left + mPosX,
-               rcArrowUp.top - mPosY,
+               rcArrowUp.top + scaleDPIX(2),
                ETO_CLIPPED,
                &rcArrowUp, L"˄",
                1,
@@ -1833,7 +1828,7 @@ namespace NppDarkMode
             ::SetTextColor(hdc, isHotDown ? getTextColor() : getDarkerTextColor());
             ::ExtTextOut(hdc,
                rcArrowDown.left + mPosX,
-               rcArrowDown.top - mPosY,
+               rcArrowDown.top,
                ETO_CLIPPED,
                &rcArrowDown, L"˅",
                1,

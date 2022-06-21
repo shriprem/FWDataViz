@@ -28,7 +28,7 @@ void SubmenuManager::listSampleFiles() {
    HMENU hWhich;
    TCHAR sampleFile[MAX_PATH];
 
-   for (size_t i{}; i < itemCount; i++) {
+   for (size_t i{}; i < itemCount; ++i) {
       switch (gSampleFiles[i].sample_type)
       {
          case SINGLE_REC:
@@ -87,7 +87,7 @@ HMENU SubmenuManager::getPluginSubMenu() {
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
    int menuItemCount = GetMenuItemCount(hPluginMenu);
 
-   for (int i{}; i < menuItemCount; i++) {
+   for (int i{}; i < menuItemCount; ++i) {
       TCHAR pluginItemText[MAX_PATH];
       int pluginItemLen{};
 

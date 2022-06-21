@@ -67,8 +67,8 @@ In this example, all the _SPACE_ fields have been tagged with _DEFAULT_STYLE_ or
 #### With Notepad++ in _DarkModeDefault_ theme
 ![Default_Style_Field_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/single_rec_weather_stations_darkmode.png)
 
-#### With Notepad++ in Default theme but with no _DEFAULT_STYLE_ tagging of _SPACE_ fields
-For comparison, without the _DEFAULT_STYLE_ tagging of the _SPACE_ fields, the spaces will render in random colors
+#### With Notepad++ in _Default_ theme but with no _DEFAULT_STYLE_ tagging of _SPACE_ fields
+For comparison, without the _DEFAULT_STYLE_ tagging of the _SPACE_ fields, the spaces will render in random colors.
 ![Default_Style_Field_Output](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/single_rec_weather_stations_colored.png)
 
 See also: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) | [Data Extraction dialog](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md)

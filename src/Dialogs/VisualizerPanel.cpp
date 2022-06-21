@@ -104,18 +104,22 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
       case IDC_VIZPANEL_FIELD_LEFT_BUTTON:
          fieldLeft();
+         setFocusOnEditor();
          break;
 
       case IDC_VIZPANEL_FIELD_RIGHT_BUTTON:
          fieldRight();
+         setFocusOnEditor();
          break;
 
       case IDC_VIZPANEL_FIELD_COPY_BUTTON:
          fieldCopy();
+         setFocusOnEditor();
          break;
 
       case IDC_VIZPANEL_FIELD_PASTE_BUTTON:
          fieldPaste();
+         setFocusOnEditor();
          break;
 
       case IDC_VIZPANEL_PASTE_LEFT_LABEL:
@@ -152,6 +156,35 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          if (_configIO.fixIfUTF16File(_configIO.CONFIG_EXTRACTS))
             showExtractDialog();
          break;
+
+      case IDC_VIZPANEL_FOLDING_APPLY_BTN:
+         if (_configIO.fixIfUTF16File(_configIO.CONFIG_FOLDSTRUCTS))
+            applyFolding();
+         setFocusOnEditor();
+         break;
+
+      case IDC_VIZPANEL_FOLDING_REMOVE_BTN:
+         removeFolding();
+         setFocusOnEditor();
+         break;
+
+      case IDC_VIZPANEL_FOLDING_DEFINE_BTN:
+         MessageBox(_hSelf, L"This feature will be available in an upcoming release.", L"Folding Structure Definition", MB_OK);
+         break;
+
+      case IDC_VIZPANEL_FOLDING_FOLD_BTN:
+         foldLevelMenu();
+         break;
+
+      case IDC_VIZPANEL_FOLDING_TOGGLE_BTN:
+         toggleFolding();
+         setFocusOnEditor();
+         break;
+
+      case IDC_VIZPANEL_FOLDING_UNFOLD_BTN:
+         unfoldLevelMenu();
+         break;
+
       }
 
       break;
@@ -476,7 +509,6 @@ void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoF
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-
    if (bCachedFT) {
       getDocFileType(fileType);
       _configIO.setVizConfig(fileType);
@@ -517,6 +549,14 @@ void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoF
    loadUsedThemes();
    loadLexer();
    renderCurrentPage();
+
+   string foldStructType{ detectFoldStructType(fileType) };
+   if (!foldStructType.empty()) {
+      if (_configIO.getFoldStructValueA(foldStructType, "FoldLevelAuto") == "Y")
+         applyFolding();
+   }
+   enableFoldableControls(!foldStructType.empty());
+
    setFocusOnEditor();
 }
 
@@ -525,7 +565,7 @@ void VisualizerPanel::delDocInfo(intptr_t bufferID) {
    nppMessage(NPPM_GETFULLPATHFROMBUFFERID, bufferID, (LPARAM)filePath.c_str());
    filePath = filePath.c_str();
 
-   for (size_t i{}; i < docInfoList.size(); i++) {
+   for (size_t i{}; i < docInfoList.size(); ++i) {
       if (docInfoList[i].fileName == filePath) {
          docInfoList.erase(docInfoList.begin() + i);
          return;
@@ -600,12 +640,12 @@ void VisualizerPanel::fieldCopy() {
       while (lastPadLen > 0) {
          bool matchFailed{ FALSE };
 
-         for (int i{}; i < lastPadLen; i++) {
+         for (int i{}; i < lastPadLen; ++i) {
             matchingPos = matchStart + i;
             if (colText.at(matchingPos) != padText.at(i)) {
                matchFailed = TRUE;
-               lastPadLen--;
-               matchStart++;
+               --lastPadLen;
+               ++matchStart;
                break;
             }
          }
@@ -635,9 +675,9 @@ void VisualizerPanel::fieldCopy() {
       // trim LPADs for right align
       bool keepTrimming{ TRUE };
       while (keepTrimming && (leftTrimLen < fieldLen)) {
-         for (int i{}; i < padLen; i++) {
+         for (int i{}; i < padLen; ++i) {
             if (colText.at(leftTrimLen) == padText.at(i)) {
-               leftTrimLen++;
+               ++leftTrimLen;
             }
             else {
                keepTrimming = FALSE;
@@ -768,10 +808,10 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)styleInfo.foreColor);
    sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)styleInfo.bold);
    sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)styleInfo.italics);
-   styleIndex++;
+   ++styleIndex;
 
    char bufKey[8];
-   for (int i{}; i < styleCount; i++) {
+   for (int i{}; i < styleCount; ++i) {
       snprintf(bufKey, 8, "BFBI_%02i", i);
       _configIO.getFullStyle(theme, bufKey, styleInfo);
 
@@ -779,14 +819,14 @@ int VisualizerPanel::loadTheme(const wstring theme) {
       sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)styleInfo.foreColor);
       sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)styleInfo.bold);
       sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)styleInfo.italics);
-      styleIndex++;
+      ++styleIndex;
    }
 
 #if FW_DEBUG_SET_STYLES
    wstring dbgMessage;
    int back, fore, bold, italics;
 
-   for (int i{ styleIndex - styleCount }; i < styleIndex; i++) {
+   for (int i{ styleIndex - styleCount }; i < styleIndex; ++i) {
       back = sciFunc(sciPtr, SCI_STYLEGETBACK, (WPARAM)i, NULL);
       fore = sciFunc(sciPtr, SCI_STYLEGETFORE, (WPARAM)i, NULL);
       bold = sciFunc(sciPtr, SCI_STYLEGETBOLD, (WPARAM)i, NULL);
@@ -820,13 +860,13 @@ int VisualizerPanel::loadUsedThemes() {
    vector<string> recTypesList;
    int recTypeCount{ _configIO.getConfigValueList(recTypesList, fileType, "RecordTypes") };
 
-   for (int i{}; i < recTypeCount; i++) {
+   for (int i{}; i < recTypeCount; ++i) {
       wstring recTheme{};
       recTheme = _configIO.getConfigWideChar(fileType, (recTypesList[i] + "_Theme"));
       if (recTheme == L"") continue;
 
       bool loaded{ FALSE };
-      for (size_t j{}; j < themeSet.size(); j++) {
+      for (size_t j{}; j < themeSet.size(); ++j) {
          if (recTheme == themeSet[j].name) {
             loaded = TRUE;
             break;
@@ -873,7 +913,7 @@ int VisualizerPanel::loadLexer() {
 
    recInfoList.resize(recTypeCount);
 
-   for (int i{}; i < recTypeCount; i++) {
+   for (int i{}; i < recTypeCount; ++i) {
       string& recType = recTypes[i];
       RecordInfo& RT = recInfoList[i];
 
@@ -894,7 +934,7 @@ int VisualizerPanel::loadLexer() {
       RT.fieldStarts.clear();
       RT.fieldStarts.resize(fieldCount);
 
-      for (int fnum{}, startPos{}; fnum < fieldCount; fnum++) {
+      for (int fnum{}, startPos{}; fnum < fieldCount; ++fnum) {
          RT.fieldStarts[fnum] = startPos;
          startPos += RT.fieldWidths[fnum];
       }
@@ -908,7 +948,7 @@ int VisualizerPanel::loadLexer() {
       RT.fieldStyles.clear();
       RT.fieldStyles.resize(fieldCount);
 
-      for (int fnum{}; fnum < fieldCount; fnum++) {
+      for (int fnum{}; fnum < fieldCount; ++fnum) {
          wstring& field{ RT.fieldLabels[fnum] };
          RT.fieldStyles[fnum] = -1;
 
@@ -925,7 +965,7 @@ int VisualizerPanel::loadLexer() {
 
             // If this styleInfo is already loaded, just map to that styleInfo slot
             bool styleMatched{ FALSE };
-            for (size_t k{}; k < loadedStyles.size(); k++) {
+            for (size_t k{}; k < loadedStyles.size(); ++k) {
                if (styleText == loadedStyles[k].style) {
                   RT.fieldStyles[fnum] = loadedStyles[k].index;
                   styleMatched = TRUE;
@@ -946,7 +986,7 @@ int VisualizerPanel::loadLexer() {
 
             RT.fieldStyles[fnum] = styleIndex;
             loadedStyles.emplace_back(loadedStyle{ styleIndex, styleText });
-            styleIndex--;
+            --styleIndex;
          }
       }
    }
@@ -957,7 +997,7 @@ int VisualizerPanel::loadLexer() {
 #if FW_DEBUG_LOAD_REGEX
    int fieldCount;
 
-   for (int i{}; i < recTypeCount; i++) {
+   for (int i{}; i < recTypeCount; ++i) {
       wstring dbgMessage;
       wstring& recType = recTypes[i];
       RecordInfo& RT = recInfoList[i];
@@ -969,7 +1009,7 @@ int VisualizerPanel::loadLexer() {
 
       fieldCount = static_cast<int>(RT.fieldWidths.size());
 
-      for (int j{}; j < fieldCount; j++) {
+      for (int j{}; j < fieldCount; ++j) {
          dbgMessage += L" (" + to_wstring(RT.fieldStarts[j]) + L", " + to_wstring(RT.fieldWidths[j]) + L"),";
       }
 
@@ -1008,8 +1048,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
-   size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{},
-      currentPos, startPos, endPos, recStartPos{};
+   size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{}, currentPos, startPos, endPos, recStartPos{};
 
    const size_t regexedCount{ recInfoList.size() };
    bool newRec{ TRUE };
@@ -1030,7 +1069,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
    ++lexCount;
 #endif
 
-   for (auto currentLine{ startLine }; currentLine < endLine; currentLine++) {
+   for (auto currentLine{ startLine }; currentLine < endLine; ++currentLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH)
          continue;
 
@@ -1082,7 +1121,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
             break;
          }
 
-         regexIndex++;
+         ++regexIndex;
          colorOffset += shiftPerRec;
       }
 
@@ -1095,7 +1134,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
       size_t themeIndex{};
 
       if ((recTheme != L"") && (recTheme != fileTheme)) {
-         for (size_t i{ 0 }; i < themeSet.size(); i++) {
+         for (size_t i{ 0 }; i < themeSet.size(); ++i) {
             if (recTheme == themeSet[i].name) {
                themeIndex = i;
                colorOffset = 0;
@@ -1115,7 +1154,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
       dbgMessage = L"FieldWidths[" + to_wstring(regexIndex) + L"] = " +
          to_wstring(fieldCount) + L"\n";
 
-      for (int i{}; i < static_cast<int>(fieldCount); i++) {
+      for (int i{}; i < static_cast<int>(fieldCount); ++i) {
          dbgMessage += L" (" + to_wstring(dbgPos) + L", " +
             to_wstring(recFieldWidths[i]) + L", " + to_wstring(eolMarkerPos - eolMarkerLen) + L"), ";
          dbgPos += recFieldWidths[i];
@@ -1129,7 +1168,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
 
       if (byteCols) {
          int unstyledLen{};
-         for (size_t i{}; i < fieldCount; i++) {
+         for (size_t i{}; i < fieldCount; ++i) {
             sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
             unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
             currentPos += recFieldWidths[i];
@@ -1157,7 +1196,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
       }
       else {
          size_t nextPos{};
-         for (size_t i{}; i < fieldCount; i++) {
+         for (size_t i{}; i < fieldCount; ++i) {
             sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
             nextPos = static_cast<int>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
                (WPARAM)currentPos, (LPARAM)recFieldWidths[i]));
@@ -1367,7 +1406,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       fieldCount = static_cast<int>(FLD.fieldStarts.size());
       fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
 
-      for (int i{}; i < fieldCount; i++) {
+      for (int i{}; i < fieldCount; ++i) {
          cumulativeWidth += FLD.fieldWidths[i];
          if (caretColumn >= FLD.fieldStarts[i] && caretColumn < cumulativeWidth) {
             matchedField = i;
@@ -1462,7 +1501,7 @@ void VisualizerPanel::showJumpDialog() {
    vector<wstring> fieldLabels;
    fieldLabels.resize(fieldCount);
 
-   for (int i{}; i < fieldCount; i++) {
+   for (int i{}; i < fieldCount; ++i) {
       if (fieldLabelCount == 0 || i >= fieldLabelCount) {
          fieldLabels[i] = CUR_POS_DATA_FIELD_NUM + to_wstring(i + 1);
       }
@@ -1496,7 +1535,7 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
    for (string fType : fileTypes) {
       bool matched{ FALSE };
 
-      for (int i{}; i < ADFT_MAX; i++) {
+      for (int i{}; i < ADFT_MAX; ++i) {
          char idx[5];
          snprintf(idx, 5, "%02d", i + 1);
 
@@ -1591,6 +1630,34 @@ bool VisualizerPanel::getDocTheme(wstring& theme) {
    return (!theme.empty());
 }
 
+string VisualizerPanel::getDocFoldStructType() {
+   const wstring fileName{ getCurrentFileName() };
+   string foldStructType{};
+
+   for (const DocInfo& DI : docInfoList) {
+      if (fileName == DI.fileName) {
+         foldStructType = DI.foldStructType;
+         break;
+      }
+   }
+
+   return foldStructType;
+}
+
+bool VisualizerPanel::getDocFolded() {
+   const wstring fileName{ getCurrentFileName() };
+   bool bFolding{};
+
+   for (const DocInfo& DI : docInfoList) {
+      if (fileName == DI.fileName) {
+         bFolding = DI.folded;
+         break;
+      }
+   }
+
+   return bFolding;
+}
+
 void VisualizerPanel::setDocFileType(string fileType) {
    if (!isVisible()) return;
 
@@ -1603,6 +1670,28 @@ void VisualizerPanel::setDocTheme(string theme, string fileType) {
       theme = _configIO.getConfigStringA(fileType, "FileTheme");
 
    setDocInfo(false, theme);
+}
+
+void VisualizerPanel::setDocFoldStructType(string foldStructType) {
+   const wstring fileName{ getCurrentFileName() };
+
+   for (DocInfo& DI : docInfoList) {
+      if (fileName == DI.fileName) {
+         DI.foldStructType = foldStructType;
+         return;
+      }
+   }
+}
+
+void VisualizerPanel::setDocFolded(bool bFolding) {
+   const wstring fileName{ getCurrentFileName() };
+
+   for (DocInfo& DI : docInfoList) {
+      if (fileName == DI.fileName) {
+         DI.folded = bFolding;
+         return;
+      }
+   }
 }
 
 void VisualizerPanel::setADFTCheckbox() {
@@ -1635,7 +1724,11 @@ void VisualizerPanel::setPanelMBCharIndicator(string fileType) {
 
 void VisualizerPanel::onBufferActivate() {
    unlexed = TRUE;
+   enableFoldableControls(FALSE);
+
    if (isVisible()) visualizeFile("", TRUE, TRUE, TRUE);
+
+   enableFoldedControls(getDocFolded());
 }
 
 void VisualizerPanel::setFocusOnEditor() {
@@ -1667,10 +1760,288 @@ void VisualizerPanel::popupSamplesMenu() {
    // 'i' is used only as a loopcounter.
    int itemCount = GetMenuItemCount(hPopupMenu);
 
-   for (int i{}; i < itemCount; i++) {
+   for (int i{}; i < itemCount; ++i) {
       RemoveMenu(hPopupMenu, 0, MF_BYPOSITION);
    }
    DestroyMenu(hPopupMenu);
+}
+
+string VisualizerPanel::detectFoldStructType(string fileType) {
+   if (fileType.empty()) return "";
+
+   int foldStructCount{ _configIO.getFoldStructCount() };
+   string fsType(6, '\0');
+
+   for (int i{}; i < foldStructCount; ++i) {
+      snprintf(fsType.data(), 6, "FS%03d", i + 1);
+      if (_configIO.getFoldStructValueA(fsType, "FileType") == fileType) {
+         setDocFoldStructType(fsType);
+         return fsType;
+      }
+   }
+   return "";
+}
+
+void VisualizerPanel::applyFolding() {
+   string fileType{};
+   getDocFileType(fileType);
+
+   if (fileType.empty()) return;
+
+   PSCIFUNC_T sciFunc;
+   void* sciPtr;
+
+   wstring foldStructType{ Utils::NarrowToWide(getDocFoldStructType()) };
+   if (foldStructType.empty()) return;
+
+   vector<FoldingInfo> foldingInfoList{};
+   _configIO.getFoldStructFoldingInfo(foldStructType, foldingInfoList);
+
+   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
+
+   const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
+   if (lineCount < 1) return;
+
+   const size_t regexedCount{ recInfoList.size() };
+
+   string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
+   string recStartText{}, eolMarker{};
+
+   size_t eolMarkerLen, eolMarkerPos, recStartLine{}, startPos, endPos, recStartPos{};
+   bool newRec{ TRUE };
+
+   vector<FoldingInfo> foldStack{ {} };
+   int currentLevel{ 0 };
+   bool bFoldExists{};
+
+   eolMarker = _configIO.getConfigStringA(fileType, "RecordTerminator");
+   eolMarkerLen = eolMarker.length();
+
+#if FW_DEBUG_FOLD_INFO
+   wstring info{ L"Line\tRec. Type\tLevel\n" };
+#endif // FW_DEBUG_FOLD_INFO
+
+   const size_t endLine{ lineCount };
+   for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
+      if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
+         continue;
+      }
+
+      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr.c_str());
+      startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
+      endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
+      string_view lineText{ lineTextCStr.c_str(), endPos - startPos };
+
+      if (newRec) {
+         recStartLine = currentLine;
+         recStartPos = startPos;
+         recStartText = lineText;
+      }
+
+      if (newRec && lineText.empty()) {
+         continue;
+      }
+
+      if (eolMarkerLen == 0) {
+         newRec = TRUE;
+         eolMarkerPos = endPos;
+      }
+      else if (lineText.length() > eolMarkerLen &&
+         (lineText.substr(lineText.length() - eolMarkerLen) == eolMarker)) {
+         newRec = TRUE;
+         eolMarkerPos = endPos - eolMarkerLen;
+      }
+      else if (currentLine < endLine) {
+         newRec = FALSE;
+         continue;
+      }
+      else {
+         eolMarkerPos = endPos;
+      }
+
+      size_t regexIndex{};
+
+      while (regexIndex < regexedCount) {
+         if (regex_match(recStartText, recInfoList[regexIndex].regExpr)) break;
+         ++regexIndex;
+      }
+
+      if (regexIndex >= regexedCount) {
+         sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE | currentLevel);
+         continue;
+      }
+
+      FoldingInfo* pLevelFI{ &foldStack.back() };
+      wchar_t recTypeCode[7];
+      swprintf(recTypeCode, 7, L"REC%03d", static_cast<int>(regexIndex + 1));
+
+      bool bFoldLevelRec{};
+      FoldingInfo* pLineFI{};
+
+      for (size_t j{}; j < foldingInfoList.size(); ++j) {
+         pLineFI = &foldingInfoList[j];
+
+         if (static_cast<int>(regexIndex + 1) == pLineFI->recTypeIndex) {
+            bFoldLevelRec = TRUE;
+            break;
+         }
+      }
+
+      if (bFoldLevelRec) {
+         while (currentLevel > 0 &&
+            (pLevelFI->priority > pLineFI->priority ||
+               (pLevelFI->priority == pLineFI->priority && !pLevelFI->recursive) ||
+               (!pLevelFI->endRecords.empty() && pLevelFI->endRecords.find(recTypeCode) != string::npos))) {
+            foldStack.pop_back();
+            pLevelFI = &foldStack.back();
+            --currentLevel;
+         }
+
+#if FW_DEBUG_FOLD_INFO
+         sciFunc(sciPtr, SCI_SETLINEINDENTATION, currentLine, (currentLevel * 2));
+         if (currentLine < 63)
+            info += to_wstring(currentLine + 1) + L"\t" + recTypeCode + L"\t" + to_wstring(currentLevel + 1) + L"\n";
+#endif // FW_DEBUG_FOLD_INFO
+
+         sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELHEADERFLAG | SC_FOLDLEVELBASE | currentLevel);
+         foldStack.emplace_back(*pLineFI);
+         ++currentLevel;
+         bFoldExists = true;
+      }
+      else {
+         if (currentLevel > 0 &&
+            !pLevelFI->endRecords.empty() &&
+            pLevelFI->endRecords.find(recTypeCode) != string::npos) {
+            foldStack.pop_back();
+            pLevelFI = &foldStack.back();
+            --currentLevel;
+         }
+
+#if FW_DEBUG_FOLD_INFO
+         sciFunc(sciPtr, SCI_SETLINEINDENTATION, currentLine, (currentLevel * 2));
+         if (currentLine < 63)
+            info += to_wstring(currentLine + 1) + L"\t" + recTypeCode + L"\t" + to_wstring(currentLevel + 1) + L"\n";
+#endif // FW_DEBUG_FOLD_INFO
+
+         sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE | currentLevel);
+      }
+   }
+
+   enableFoldedControls(bFoldExists);
+   setDocFolded(bFoldExists);
+
+#if FW_DEBUG_FOLD_INFO
+   MessageBox(_hSelf, info.c_str(), L"Fold Levels Info", MB_OK);
+#endif // FW_DEBUG_FOLD_INFO
+}
+
+void VisualizerPanel::removeFolding() {
+   PSCIFUNC_T sciFunc;
+   void* sciPtr;
+
+   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
+
+   const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
+   if (lineCount < 1) return;
+
+   const size_t endLine{ lineCount };
+   for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
+      sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE);
+   }
+
+   enableFoldedControls(FALSE);
+   setDocFolded(FALSE);
+}
+
+void VisualizerPanel::enableFoldableControls(bool bFoldable) {
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_APPLY_BTN), bFoldable);
+}
+
+void VisualizerPanel::enableFoldedControls(bool bFolded) {
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_REMOVE_BTN), bFolded);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_FOLD_BTN), bFolded);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_TOGGLE_BTN), bFolded);
+   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_UNFOLD_BTN), bFolded);
+
+   if (bFolded) {
+      HWND hScintilla{ getCurrentScintilla() };
+      if (!hScintilla) return;
+
+      SendMessage(hScintilla, SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
+      SendMessage(hScintilla, SCI_SETMARGINWIDTHN, 2, SendMessage(hScintilla, SCI_GETMARGINWIDTHN, 1, 0));
+      SendMessage(hScintilla, SCI_SETFOLDFLAGS, SC_FOLDFLAG_LINEBEFORE_CONTRACTED | SC_FOLDFLAG_LINEAFTER_CONTRACTED, NULL);
+   }
+}
+
+void VisualizerPanel::toggleFolding() {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   size_t currentLine, headerLine;
+
+   currentLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION, SendMessage(hScintilla, SCI_GETCURRENTPOS, 0, 0), 0);
+
+   if (SendMessage(hScintilla, SCI_GETFOLDLEVEL, currentLine, 0) & SC_FOLDLEVELHEADERFLAG)
+      headerLine = currentLine;
+   else {
+      headerLine = SendMessage(hScintilla, SCI_GETFOLDPARENT, currentLine, 0);
+      if (headerLine == -1) return;
+   }
+
+   SendMessage(hScintilla, SCI_TOGGLEFOLD, headerLine, 0);
+   renderCurrentPage();
+}
+
+int VisualizerPanel::foldLevelFromPopup(bool bFold) {
+   constexpr int itemCount{ 8 };
+
+   HMENU hPopupMenu = CreatePopupMenu();
+
+   for (int i{}; i < itemCount; ++i) {
+      AppendMenu(hPopupMenu, MF_STRING, i, (L"Level " + to_wstring(i + 1)).c_str());
+   }
+
+   RECT rc;
+   GetWindowRect(GetDlgItem(_hSelf, bFold ? IDC_VIZPANEL_FOLDING_FOLD_BTN : IDC_VIZPANEL_FOLDING_UNFOLD_BTN), &rc);
+
+   int level = TrackPopupMenu(hPopupMenu,
+      (bFold ? TPM_LEFTALIGN : TPM_RIGHTALIGN) | TPM_TOPALIGN | TPM_LEFTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY,
+      (bFold ? rc.left : rc.right), rc.bottom, 0, _hSelf, NULL);
+
+   for (int i{}; i < itemCount; ++i) {
+      RemoveMenu(hPopupMenu, 0, MF_BYPOSITION);
+   }
+   DestroyMenu(hPopupMenu);
+
+   return level;
+}
+
+void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   size_t lineCount{ static_cast<size_t>(SendMessage(hScintilla, SCI_GETLINECOUNT, 0, 0)) };
+
+   for (size_t line = 0; line < lineCount; ++line) {
+      int level{ static_cast<int>(SendMessage(hScintilla, SCI_GETFOLDLEVEL, line, 0)) };
+      if (!(level & SC_FOLDLEVELHEADERFLAG)) continue;
+
+      level -= SC_FOLDLEVELBASE;
+      if (foldLevel != (level & SC_FOLDLEVELNUMBERMASK)) continue;
+
+      if (static_cast<bool>(SendMessage(hScintilla, SCI_GETFOLDEXPANDED, line, 0)) != bExpand)
+         SendMessage(hScintilla, SCI_TOGGLEFOLD, line, 0);
+   }
+
+   renderCurrentPage();
+}
+
+void VisualizerPanel::foldLevelMenu() {
+   expandFoldLevel(FALSE, foldLevelFromPopup(TRUE));
+}
+
+void VisualizerPanel::unfoldLevelMenu() {
+   expandFoldLevel(TRUE, foldLevelFromPopup(FALSE));
 }
 
 DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {
