@@ -101,7 +101,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    hFieldLabels = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_LABELS_EDIT);
    hFieldWidths = GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FIELD_WIDTHS_EDIT);
 
-   for (int i{}, id{ IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01 }; i < ADFT_MAX; i++) {
+   for (int i{}, id{ IDC_FWVIZ_DEF_ADFT_LINE_EDIT_01 }; i < ADFT_MAX; ++i) {
       hADFTLine[i] = GetDlgItem(_hSelf, id++);
       hADFTRegex[i] = GetDlgItem(_hSelf, id++);
    }
@@ -549,7 +549,7 @@ int ConfigureDialog::loadConfigInfo() {
    vFileTypes.clear();
    vFileTypes.resize(fileTypeCount);
 
-   for (int i{}; i < fileTypeCount; i++) {
+   for (int i{}; i < fileTypeCount; ++i) {
       loadFileTypeInfo(i, fileTypeList[i], configFile);
    }
 
@@ -566,7 +566,7 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const string& fileType, const 
    FT.multiByte = (_configIO.getConfigStringA(fileType, "MultiByteChars", "N") == "Y");
 
    // Load ADFT data
-   for (int i{}; i < ADFT_MAX; i++) {
+   for (int i{}; i < ADFT_MAX; ++i) {
       char idx[5];
       snprintf(idx, 5, "%02d", i + 1);
 
@@ -581,7 +581,7 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const string& fileType, const 
    FT.vRecTypes.clear();
    FT.vRecTypes.resize(recTypeCount);
 
-   for (int j{}; j < recTypeCount; j++) {
+   for (int j{}; j < recTypeCount; ++j) {
       string& recType = recTypesList[j];
       RecordType& RT = FT.vRecTypes[j];
 
@@ -679,7 +679,7 @@ int ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode
    Utils::ToUpper(fileTypeCode);
 
    // ADFT Info
-   for (int i{}; i < ADFT_MAX; i++) {
+   for (int i{}; i < ADFT_MAX; ++i) {
       if (Utils::isInvalidRegex(FT.regExprs[i], _hSelf,
          wstring(FWVIZ_DEF_FILE_DESC_LABEL) + L" " + FT.label + new_line +
          FWVIZ_DEF_ADFT_GROUP_LABEL + L" - " + FWVIZ_DEF_ADFT_LINE_LABEL + L" " + to_wstring(i + 1)))
@@ -698,7 +698,7 @@ int ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode
    // Rec Info
    recTypeCount = (FT.vRecTypes.size() > 999) ? 999 : FT.vRecTypes.size();
 
-   for (size_t j{}; j < recTypeCount; j++) {
+   for (size_t j{}; j < recTypeCount; ++j) {
       RecordType& RT = FT.vRecTypes[j];
 
       if (Utils::isInvalidRegex(RT.marker, _hSelf,
@@ -769,7 +769,7 @@ void ConfigureDialog::onFileTypeSelect() {
 
    CheckDlgButton(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX, fileInfo->multiByte ? BST_CHECKED : BST_UNCHECKED);
 
-   for (int i{}; i < ADFT_MAX; i++) {
+   for (int i{}; i < ADFT_MAX; ++i) {
       wstring lineNum{ (fileInfo->lineNums[i] == 0) ? L"" : to_wstring(fileInfo->lineNums[i]) };
 
       SetWindowText(hADFTLine[i], lineNum.c_str());
@@ -1216,7 +1216,7 @@ int ConfigureDialog::fileEditAccept() {
    wchar_t lineNum[MAX_PATH + 1];
    wchar_t regExpr[MAX_PATH + 1];
 
-   for (int i{}; i < ADFT_MAX; i++) {
+   for (int i{}; i < ADFT_MAX; ++i) {
       GetWindowText(hADFTLine[i], lineNum, MAX_PATH);
       fileInfo.lineNums[i] = Utils::StringtoInt(lineNum);
 
@@ -1247,7 +1247,7 @@ int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
 
    sectionCount = _configIO.getConfigAllSectionsList(sectionList, Utils::WideToNarrow(sConfigFile));
 
-   for (int i{}; i < sectionCount; i++) {
+   for (int i{}; i < sectionCount; ++i) {
       sectionLabel = _configIO.getConfigWideChar(sectionList[i], "FileLabel", "", Utils::WideToNarrow(sConfigFile));
       if (!sectionLabel.empty()) {
          if (!checkFTLimit(FALSE)) break;
@@ -1257,7 +1257,7 @@ int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
          vFileTypes.push_back(newFile);
          loadFileTypeInfo(static_cast<int>(vFileTypes.size() - 1), sectionList[i], sConfigFile);
          SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
-         validCount++;
+         ++validCount;
       }
    }
 
@@ -1303,7 +1303,7 @@ void ConfigureDialog::fileEditClone() {
    NF.multiByte = FT.multiByte;
 
    // ADFT Info
-   for (int i{}; i < ADFT_MAX; i++) {
+   for (int i{}; i < ADFT_MAX; ++i) {
       NF.lineNums[i] = FT.lineNums[i];
       NF.regExprs[i] = FT.regExprs[i];
    }
@@ -1312,7 +1312,7 @@ void ConfigureDialog::fileEditClone() {
    size_t recCount = FT.vRecTypes.size();
    NF.vRecTypes.resize(recCount);
 
-   for (size_t i{}; i < recCount; i++) {
+   for (size_t i{}; i < recCount; ++i) {
       NF.vRecTypes[i].label = FT.vRecTypes[i].label;
       NF.vRecTypes[i].marker = FT.vRecTypes[i].marker;
       NF.vRecTypes[i].fieldLabels = FT.vRecTypes[i].fieldLabels;
@@ -1386,7 +1386,7 @@ void ConfigureDialog::saveConfigInfo() {
 
    fileTypeCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
 
-   for (size_t i{}; i < fileTypeCount; i++) {
+   for (size_t i{}; i < fileTypeCount; ++i) {
       if (getFileTypeConfig(i, TRUE, ftCode, ftConfig) < 0) return;
       fileTypes += (i == 0 ? L"" : L",") + ftCode;
       fileData += ftConfig + L"\r\n";

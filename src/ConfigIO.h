@@ -29,6 +29,13 @@ struct StyleInfo {
    int italics{};
 };
 
+struct FoldingInfo {
+   int recTypeIndex;
+   int priority{ 0 };
+   bool recursive{ FALSE };
+   wstring endRecords{};
+};
+
 using std::vector;
 
 class ConfigIO {
@@ -38,7 +45,8 @@ public:
       CONFIG_THEMES,
       CONFIG_PREFS,
       CONFIG_EXTRACTS,
-      CONFIG_FIELD_TYPES
+      CONFIG_FIELD_TYPES,
+      CONFIG_FOLDSTRUCTS,
    };
 
 
@@ -63,6 +71,11 @@ public:
    void getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file = L"");
    string getFieldStyleText(const wstring& fieldName);
    void parseFieldStyle(const string& styleText, StyleInfo& style);
+
+   int getFoldStructCount();
+   string getFoldStructValueA(string foldStructType, string key);
+   string getFoldStructValue(wstring foldStructType, string key);
+   void getFoldStructFoldingInfo(wstring foldStructType, vector<FoldingInfo>& foldInfoList);
 
    wstring getPreference(const string key, const string default = "");
    void setPreference(const string key, const wstring value);
@@ -116,14 +129,16 @@ protected:
    TCHAR pluginConfigDir[MAX_PATH]{};
    TCHAR pluginConfigBackupDir[MAX_PATH]{};
    TCHAR defaultConfigFile[MAX_PATH]{};
+   TCHAR defaultThemeFile[MAX_PATH]{};
+   TCHAR defaultFoldStructFile[MAX_PATH]{};
 
-   static constexpr int CONFIG_FILE_COUNT{ CONFIG_FIELD_TYPES + 1 };
+   static constexpr int CONFIG_FILE_COUNT{ CONFIG_FOLDSTRUCTS + 1 };
    const wstring CONFIG_FILES[CONFIG_FILE_COUNT]{
-      L"Visualizer.ini", L"Themes.ini", L"Preferences.ini", L"Extracts.ini", L"FieldTypes.ini" };
+      L"Visualizer.ini", L"Themes.ini", L"Preferences.ini", L"Extracts.ini", L"FieldTypes.ini", L"FoldStructs.ini"};
    wstring WCONFIG_FILE_PATHS[CONFIG_FILE_COUNT];
    string CONFIG_FILE_PATHS[CONFIG_FILE_COUNT];
 
-   wstring wCurrentConfigFile{};
-   string currentConfigFile{};
+   wstring wCurrentConfigFile{}, wCurrentThemeFile{}, wCurrentFoldStructFile{};
+   string currentConfigFile{}, currentThemeFile{}, currentFoldStructFile{};
 };
 

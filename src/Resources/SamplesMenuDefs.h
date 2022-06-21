@@ -51,7 +51,7 @@ const SampleFileInfo gSampleFiles[] =
    },
    {
       MULTI_REC,
-      "[Dummy Data] Ŧ Treasury IPAC (ANSI) File",
+      "[Demo Data] Ŧ Treasury IPAC (ANSI) File",
       L"IPAC_ANSI.txt",
       "FT010_TREASURY_IPAC_FILE"
    },
@@ -75,7 +75,7 @@ const SampleFileInfo gSampleFiles[] =
    },
    {
       MULTI_LINE,
-      "[Dummy Data] Ŧ Multi-Line Multi-Byte ĪƤĂĊ File",
+      "[Demo Data] Ŧ Multi-Line Multi-Byte ĪƤĂĊ File",
       L"IPAC_Unicode.txt",
       "FT011_MULTI-LINE_MULTI-BYTE_FILE"
    },

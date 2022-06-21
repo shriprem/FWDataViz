@@ -57,7 +57,7 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    SendMessage(hTemplateName, EM_LIMITTEXT, (WPARAM)MAX_TEMPLATE_NAME, NULL);
    SetWindowSubclass(hTemplateName, procTemplateName, NULL, NULL);
 
-   for (int i{}; i < LINES_PER_PAGE; i++) {
+   for (int i{}; i < LINES_PER_PAGE; ++i) {
       SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i), procKeyNavigation, NULL, NULL);
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
 
@@ -103,7 +103,7 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
 
 void DataExtractDialog::initDialog(const string fileType, const vector<RecordInfo>& recInfoList) {
    initFileType = fileType;
-   pRecInfoList = &recInfoList;
+   cRecInfoList = recInfoList;
 
    initFileTypeLabel = _configIO.getConfigWideChar(initFileType, "FileLabel");
    extractsConfigFile = Utils::WideToNarrow(_configIO.getConfigFile(_configIO.CONFIG_EXTRACTS));
@@ -369,14 +369,14 @@ void DataExtractDialog::localize() {
 }
 
 void DataExtractDialog::initRecTypeLists() {
-   const vector<RecordInfo> recInfoList{ *pRecInfoList };
+   const vector<RecordInfo> recInfoList{ cRecInfoList };
 
-   for (int i{}; i < LINES_PER_PAGE; i++) {
+   for (int i{}; i < LINES_PER_PAGE; ++i) {
       // Load Record Type Dropdown lists
       HWND hRecList = GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + i);
       resetDropDown(hRecList);
 
-      for (size_t j{}; j < recInfoList.size(); j++) {
+      for (size_t j{}; j < recInfoList.size(); ++j) {
          SendMessage(hRecList, CB_ADDSTRING, NULL, (LPARAM)recInfoList[j].label.c_str());
       }
    }
@@ -391,12 +391,12 @@ void DataExtractDialog::initLineItemFieldList(int line) {
 
    size_t RTIndex = SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + line, CB_GETCURSEL, NULL, NULL);
    if (RTIndex == 0) return;
-   RTIndex--;
+   --RTIndex;
 
-   const vector<RecordInfo> recInfoList{ *pRecInfoList };
+   const vector<RecordInfo> recInfoList{ cRecInfoList };
    size_t FTCount{ recInfoList[RTIndex].fieldLabels.size() };
 
-   for (size_t i{}; i < FTCount; i++) {
+   for (size_t i{}; i < FTCount; ++i) {
       SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)recInfoList[RTIndex].fieldLabels[i].c_str());
    }
 }
@@ -519,11 +519,11 @@ void DataExtractDialog::swapLineItems(int lineFrom, int lineTo) {
 
       if (lineTo < 0) {
          line = LINES_PER_PAGE - 1;
-         page--;
+         --page;
       }
       else if (lineTo >= LINES_PER_PAGE) {
          line = 0;
-         page++;
+         ++page;
       }
    }
 
@@ -544,11 +544,11 @@ void DataExtractDialog::gotoLine(int ctrlID, int lineTo) {
 
       if (lineTo < 0) {
          line = LINES_PER_PAGE - 1;
-         page--;
+         --page;
       }
       else if (lineTo >= LINES_PER_PAGE) {
          line = 0;
-         page++;
+         ++page;
       }
 
       loadPage(page);
@@ -561,7 +561,7 @@ size_t DataExtractDialog::getValidLineItems(vector<LineItemInfo>& validLIs, bool
    readPage();
    validLIs.clear();
 
-   for (size_t i{}; i < liBuffer.size(); i++) {
+   for (size_t i{}; i < liBuffer.size(); ++i) {
       LineItemInfo lineInfo{ liBuffer[i] };
 
       if (isBlankLineItem(lineInfo)) continue;
@@ -583,7 +583,7 @@ size_t DataExtractDialog::getValidLineItems(vector<LineItemInfo>& validLIs, bool
 }
 
 void DataExtractDialog::extractData() {
-   const vector<RecordInfo> recInfoList{ *pRecInfoList };
+   const vector<RecordInfo> recInfoList{ cRecInfoList };
    vector<LineItemInfo> validLIs{};
 
    PSCIFUNC_T sciFunc;
@@ -605,15 +605,15 @@ void DataExtractDialog::extractData() {
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
+   size_t eolMarkerLen, eolMarkerPos, recStartLine{}, startPos, endPos, recStartPos{};
+   bool newRec{ TRUE };
+
+   bool recMatch{};
    wstring extract{};
 
    string fieldText(FW_LINE_MAX_LENGTH, '\0');
    Sci_TextRange sciTR{};
    sciTR.lpstrText = fieldText.data();
-
-   size_t eolMarkerLen, eolMarkerPos, recStartLine{}, currentPos, startPos, endPos, recStartPos{};
-   bool newRec{ TRUE };
-   bool recMatch{};
 
    eolMarker = _configIO.getConfigStringA(fileType, "RecordTerminator");
    eolMarkerLen = eolMarker.length();
@@ -621,7 +621,7 @@ void DataExtractDialog::extractData() {
    bool byteCols{ !_configIO.getMultiByteLexing(fileType) };
 
    const size_t endLine{ lineCount };
-   for (size_t currentLine{}; currentLine < endLine; currentLine++) {
+   for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
          continue;
       }
@@ -658,40 +658,38 @@ void DataExtractDialog::extractData() {
          eolMarkerPos = endPos;
       }
 
-      currentPos = recStartPos;
-
       size_t regexIndex{};
 
       while (regexIndex < regexedCount) {
          if (regex_match(recStartText, recInfoList[regexIndex].regExpr)) break;
-         regexIndex++;
+         ++regexIndex;
       }
 
       if (regexIndex >= regexedCount) continue;
 
       recMatch = FALSE;
 
-      for (size_t j{}; j < validLIs.size(); j++) {
-         const LineItemInfo& LI = validLIs[j];
-         const RecordInfo* pRI = &recInfoList[LI.recType];
+      for (size_t j{}; j < validLIs.size(); ++j) {
+         const LineItemInfo& LI{ validLIs[j] };
+         const RecordInfo RI{ recInfoList[LI.recType] };
          if (static_cast<int>(regexIndex) != LI.recType) continue;
 
          if (byteCols) {
-            sciTR.chrg.cpMin = static_cast<long>(recStartPos + pRI->fieldStarts[LI.fieldType]);
-            sciTR.chrg.cpMax = sciTR.chrg.cpMin + pRI->fieldWidths[LI.fieldType];
+            sciTR.chrg.cpMin = static_cast<long>(recStartPos + RI.fieldStarts[LI.fieldType]);
+            sciTR.chrg.cpMax = sciTR.chrg.cpMin + RI.fieldWidths[LI.fieldType];
          }
          else {
             sciTR.chrg.cpMin = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
-               (WPARAM)recStartPos, (LPARAM)pRI->fieldStarts[LI.fieldType]));
+               (WPARAM)recStartPos, (LPARAM)RI.fieldStarts[LI.fieldType]));
             sciTR.chrg.cpMax = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
-               (WPARAM)sciTR.chrg.cpMin, (LPARAM)pRI->fieldWidths[LI.fieldType]));
+               (WPARAM)sciTR.chrg.cpMin, (LPARAM)RI.fieldWidths[LI.fieldType]));
          }
 
          if (sciTR.chrg.cpMax > static_cast<long>(eolMarkerPos) || sciTR.chrg.cpMax == 0)
             sciTR.chrg.cpMax = static_cast<long>(eolMarkerPos);
 
          if (sciTR.chrg.cpMin < static_cast<long>(eolMarkerPos) &&
-            (recStartPos + pRI->fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
+            (recStartPos + RI.fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
             sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
 
             extract += validLIs[j].prefix + Utils::NarrowToWide(fieldText.c_str()) + validLIs[j].suffix;
@@ -718,7 +716,7 @@ int DataExtractDialog::loadTemplatesList() {
 
    sectionCount = _configIO.getConfigAllSectionsList(sectionList, extractsConfigFile);
 
-   for (int i{}; i < sectionCount; i++) {
+   for (int i{}; i < sectionCount; ++i) {
       string templateName{};
       bool matching{};
 
@@ -757,9 +755,9 @@ void DataExtractDialog::loadTemplate() {
    liBuffer.clear();
    liBuffer.resize(static_cast<size_t>(getPageCount(loadCount)) * 10);
 
-   const vector<RecordInfo> recInfoList{ *pRecInfoList };
+   const vector<RecordInfo> recInfoList{ cRecInfoList };
 
-   for (int i{}; i < loadCount; i++) {
+   for (int i{}; i < loadCount; ++i) {
       LineItemInfo& LI{ liBuffer[i] };
 
       char tNum[4];
@@ -831,7 +829,7 @@ void DataExtractDialog::saveTemplate() {
    _configIO.setConfigMultiByte(templateName, "FileLabel", initFileTypeLabel, extractsConfigFile);
    _configIO.setConfigStringA(templateName, "LineItemCount", to_string(validLIs.size()), extractsConfigFile);
 
-   for (size_t i{}; i < validLIs.size(); i++) {
+   for (size_t i{}; i < validLIs.size(); ++i) {
       LineItemInfo& LI = validLIs[i];
 
       char tNum[4];
@@ -895,7 +893,7 @@ void DataExtractDialog::loadPage(int pageNum) {
    currentPage = pageNum;
    enablePageButtons();
 
-   for (int i{}; i < LINES_PER_PAGE; i++) {
+   for (int i{}; i < LINES_PER_PAGE; ++i) {
       setLineItem(i, liBuffer[seq]);
       SetDlgItemText(_hSelf, IDC_DAT_EXT_ITEM_SEQ_01 + i, to_wstring(++seq).c_str());
    }
@@ -909,7 +907,7 @@ void DataExtractDialog::readPage() {
    if (liBuffer.size() < (seq + LINES_PER_PAGE))
       liBuffer.resize(seq + LINES_PER_PAGE);
 
-   for (int i{}; i < LINES_PER_PAGE; i++) {
+   for (int i{}; i < LINES_PER_PAGE; ++i) {
       getLineItem(i, liBuffer[seq + i]);
    }
 }

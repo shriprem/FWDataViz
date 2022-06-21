@@ -81,7 +81,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode) {
          break;
 
       case SCN_UPDATEUI:
-         if (notifyCode->updated & 0xF)
+         if (notifyCode->updated & (SC_UPDATE_CONTENT | SC_UPDATE_SELECTION | SC_UPDATE_V_SCROLL))
             _vizPanel.renderCurrentPage();
          break;
 

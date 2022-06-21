@@ -33,7 +33,7 @@ void ConfigIO::init() {
       MoveFile(sThemeDatFile, sConfigFile);
 
    // If config files are missing, copy them from the plugins folder
-   for (int i{}; i < CONFIG_FILE_COUNT; i++) {
+   for (int i{}; i < CONFIG_FILE_COUNT; ++i) {
       PathCombine(sConfigFile, pluginConfigDir, CONFIG_FILES[i].c_str());
       WCONFIG_FILE_PATHS[i] = wstring{ sConfigFile };
       CONFIG_FILE_PATHS[i] = Utils::WideToNarrow(sConfigFile);
@@ -47,6 +47,8 @@ void ConfigIO::init() {
    // initialize instance variables
    resetVizConfig();
    PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_VIZ]).c_str());
+   PathCombine(defaultThemeFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_THEMES]).c_str());
+   PathCombine(defaultFoldStructFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_FOLDSTRUCTS]).c_str());
 }
 
 int ConfigIO::setVizConfig(const string& docFileType) {
@@ -59,15 +61,22 @@ int ConfigIO::setVizConfig(const string& docFileType) {
    }
 
    sectionCount = getConfigAllSections(sectionList, CONFIG_FILE_PATHS[CONFIG_VIZ]);
-   if (sectionCount > 0 && sectionList.find(docFileType) != std::string::npos) {
+   if (sectionCount > 0 && sectionList.find(docFileType) != string::npos) {
       resetVizConfig();
       return 1;
    }
 
    sectionCount = getConfigAllSections(sectionList, Utils::WideToNarrow(defaultConfigFile));
-   if (sectionCount > 0 && sectionList.find(docFileType) != std::string::npos) {
+   if (sectionCount > 0 && sectionList.find(docFileType) != string::npos) {
       wCurrentConfigFile = wstring{ defaultConfigFile };
       currentConfigFile = Utils::WideToNarrow(defaultConfigFile);
+
+      wCurrentThemeFile = wstring{ defaultThemeFile };
+      currentThemeFile = Utils::WideToNarrow(defaultThemeFile);
+
+      wCurrentFoldStructFile = wstring{ defaultFoldStructFile };
+      currentFoldStructFile = Utils::WideToNarrow(defaultFoldStructFile);
+
       return 2;
    }
 
@@ -78,6 +87,12 @@ int ConfigIO::setVizConfig(const string& docFileType) {
 void ConfigIO::resetVizConfig() {
    wCurrentConfigFile = WCONFIG_FILE_PATHS[CONFIG_VIZ];
    currentConfigFile = CONFIG_FILE_PATHS[CONFIG_VIZ];
+
+   wCurrentThemeFile = WCONFIG_FILE_PATHS[CONFIG_THEMES];
+   currentThemeFile = CONFIG_FILE_PATHS[CONFIG_THEMES];
+
+   wCurrentFoldStructFile = WCONFIG_FILE_PATHS[CONFIG_FOLDSTRUCTS];
+   currentFoldStructFile = CONFIG_FILE_PATHS[CONFIG_FOLDSTRUCTS];
 }
 
 wstring ConfigIO::getConfigFile(CF_TYPES cfType) {
@@ -130,7 +145,7 @@ int ConfigIO::getConfigInt(const wstring& section, const string& key, const int&
 }
 
 wstring ConfigIO::getStyleValue(const wstring& theme, const string& styleName, wstring file) {
-   return getConfigWideChar(theme, styleName, "", (file.empty()) ? WCONFIG_FILE_PATHS[CONFIG_THEMES] : file);
+   return getConfigWideChar(theme, styleName, "", (file.empty()) ? wCurrentThemeFile : file);
 }
 
 void ConfigIO::getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file) {
@@ -161,6 +176,40 @@ void ConfigIO::parseFieldStyle(const string& styleText, StyleInfo& style) {
    style.foreColor = Utils::StringtoInt(styleText.substr(7, 6), 16);
    style.bold = Utils::StringtoInt(styleText.substr(14, 1));
    style.italics = Utils::StringtoInt(styleText.substr(15, 1));
+}
+
+int ConfigIO::getFoldStructCount() {
+   return Utils::StringtoInt(getConfigStringA(L"Base", "FoldStructCount", "0", wCurrentFoldStructFile));
+}
+
+string ConfigIO::getFoldStructValueA(string foldStructType, string key) {
+   return getConfigStringA(foldStructType, key, "", Utils::WideToNarrow(wCurrentFoldStructFile));
+}
+
+string ConfigIO::getFoldStructValue(wstring foldStructType, string key) {
+   return getConfigStringA(foldStructType, key, "", wCurrentFoldStructFile);
+}
+
+void ConfigIO::getFoldStructFoldingInfo(wstring foldStructType, vector<FoldingInfo>& foldInfoList) {
+   foldInfoList.clear();
+
+   string headerRecs{ getFoldStructValue(foldStructType, "HeaderRecords") };
+   vector<string> headerRecList{};
+   Tokenize(headerRecs, headerRecList);
+
+   int headerCount{ static_cast<int>(headerRecList.size()) };
+   for (int i{}; i < headerCount; ++i) {
+      int recTypeIndex{ Utils::StringtoInt(headerRecList[i].substr(3))};
+
+      FoldingInfo foldRecInfo
+      {
+         recTypeIndex,
+         getConfigInt(foldStructType, headerRecList[i] + "_Priority", 0, wCurrentFoldStructFile),
+         (getConfigStringA(foldStructType, headerRecList[i] + "_Recursive", "N", wCurrentFoldStructFile) == "Y"),
+         getConfigWideChar(foldStructType, headerRecList[i] + "_EndRecords", "", wCurrentFoldStructFile)
+      };
+      foldInfoList.emplace_back(foldRecInfo);
+   }
 }
 
 wstring ConfigIO::getPreference(const string key, const string default) {
@@ -211,10 +260,10 @@ int ConfigIO::getConfigAllSections(string& sections, string file) {
    if (charCount < 1) return 0;
 
    int sectionCount{};
-   for (unsigned int i{}; i < charCount; i++) {
+   for (unsigned int i{}; i < charCount; ++i) {
       if (ftBuf[i] == 0) {
          ftBuf[i] = ',';
-         sectionCount++;
+         ++sectionCount;
       }
    }
 
@@ -249,10 +298,10 @@ int ConfigIO::getConfigAllKeys(const string& section, string& keys, const string
    if (charCount < 1) return 0;
 
    int keyCount{};
-   for (unsigned int i{}; i < charCount; i++) {
+   for (unsigned int i{}; i < charCount; ++i) {
       if (keyBuf[i] == 0) {
          keyBuf[i] = ',';
-         keyCount++;
+         ++keyCount;
       }
    }
 
@@ -284,7 +333,7 @@ int ConfigIO::getConfigValueList(vector<string>& valList, const string& section,
 }
 
 int ConfigIO::getThemesList(vector<wstring>& valList, wstring file) {
-   if (file.empty()) file = WCONFIG_FILE_PATHS[CONFIG_THEMES];
+   if (file.empty()) file = wCurrentThemeFile;
 
    return Tokenize(getConfigWideChar(L"Base", "Themes", "", file), valList);
 }
@@ -465,6 +514,9 @@ bool ConfigIO::checkConfigFilesforUCS16() {
       status = false;
 
    if (!fixIfUTF16File(WCONFIG_FILE_PATHS[CONFIG_THEMES]))
+      status = false;
+
+   if (!fixIfUTF16File(WCONFIG_FILE_PATHS[CONFIG_FOLDSTRUCTS]))
       status = false;
 
    return status;

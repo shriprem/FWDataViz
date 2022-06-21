@@ -346,7 +346,7 @@ int ThemeDialog::loadConfigInfo() {
    vThemeTypes.clear();
    vThemeTypes.resize(themesCount);
 
-   for (int i{}; i < themesCount; i++) {
+   for (int i{}; i < themesCount; ++i) {
       wstring& themeType = themesList[i];
       loadThemeInfo(i, themeType, themeFile);
    }
@@ -368,7 +368,7 @@ int ThemeDialog::loadThemeInfo(int vIndex, const wstring& themeType, const wstri
    TT.vStyleInfo.clear();
    TT.vStyleInfo.resize(styleCount);
 
-   for (int i{}; i < styleCount; i++) {
+   for (int i{}; i < styleCount; ++i) {
       snprintf(buf, 8, "BFBI_%02i", i);
       _configIO.getFullStyle(themeType, buf, TT.vStyleInfo[i], sThemeFile);
    }
@@ -446,7 +446,7 @@ void ThemeDialog::getThemeConfig(size_t idxTh, bool cr_lf, wstring& themeLabel, 
       L"Count=" + to_wstring(styleCount) + new_line +
       L"EOL=" + getStyleConfig(0, TT.eolStyle).substr(8) + new_line;
 
-   for (size_t j{}; j < styleCount; j++) {
+   for (size_t j{}; j < styleCount; ++j) {
       ttConfig += getStyleConfig(static_cast<int>(j), TT.vStyleInfo[j]) + new_line;
    }
 }
@@ -568,7 +568,7 @@ void ThemeDialog::fillStyles() {
 
    SendMessage(hStylesLB, LB_RESETCONTENT, NULL, NULL);
 
-   for (int i{}; i < styleCount; i++) {
+   for (int i{}; i < styleCount; ++i) {
       swprintf(styleLabel, 10, L"Style #%02i", i);
       SendMessage(hStylesLB, LB_ADDSTRING, NULL, (LPARAM)styleLabel);
    }
@@ -757,7 +757,7 @@ void ThemeDialog::initPreviewSwatch(int idxStart, int idxEnd) {
    swatchTopIndex = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
    int styleCount = static_cast<int>(TT.vStyleInfo.size());
 
-   for (int i{ idxStart }; i <= idxEnd; i++) {
+   for (int i{ idxStart }; i <= idxEnd; ++i) {
       ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_BACK_00 + i), (i + swatchTopIndex <= styleCount));
       Utils::setFontRegular(_hSelf, IDC_THEME_SWATCH_BACK_00 + i);
 
@@ -881,7 +881,7 @@ int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
 
    sectionCount = _configIO.getConfigAllSectionsList(sectionList, sThemeFile);
 
-   for (int i{}; i < sectionCount; i++) {
+   for (int i{}; i < sectionCount; ++i) {
       if (_configIO.getConfigInt(sectionList[i], "Count", 0, sThemeFile) > 0) {
          if (!checkThemeLimit(FALSE)) break;
 
@@ -890,7 +890,7 @@ int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
          vThemeTypes.push_back(newTheme);
          loadThemeInfo(static_cast<int>(vThemeTypes.size() - 1), sectionList[i], sThemeFile);
          SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)sectionList[i].c_str());
-         validCount++;
+         ++validCount;
       }
    }
 
@@ -935,7 +935,7 @@ void ThemeDialog::themeEditClone() {
    size_t recCount = TT.vStyleInfo.size();
    NT.vStyleInfo.resize(recCount);
 
-   for (size_t i{}; i < recCount; i++) {
+   for (size_t i{}; i < recCount; ++i) {
       NT.vStyleInfo[i].backColor = TT.vStyleInfo[i].backColor;
       NT.vStyleInfo[i].foreColor = TT.vStyleInfo[i].foreColor;
       NT.vStyleInfo[i].bold = TT.vStyleInfo[i].bold;
@@ -999,7 +999,7 @@ void ThemeDialog::saveConfigInfo() {
 
    themeCount = (vThemeTypes.size() > 999) ? 999 : vThemeTypes.size();
 
-   for (size_t i{}; i < themeCount; i++) {
+   for (size_t i{}; i < themeCount; ++i) {
       getThemeConfig(i, TRUE, ttCode, ttConfig);
       themes += (i == 0 ? L"" : L",") + ttCode;
       fileData += ttConfig + L"\r\n";

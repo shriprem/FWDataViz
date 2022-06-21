@@ -226,7 +226,7 @@ void FieldTypeDialog::fillFields() {
       return;
    }
 
-   for (int i{}; i < keyCount; i++) {
+   for (int i{}; i < keyCount; ++i) {
       SendMessage(hFieldsLB, LB_ADDSTRING, NULL, (LPARAM)keyList[i].c_str());
    }
 
