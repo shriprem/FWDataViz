@@ -81,6 +81,7 @@ private:
    // Field Info tracking
    int caretRecordStartPos{}, caretRecordEndPos{}, caretRecordRegIndex{}, caretEolMarkerPos{}, caretFieldIndex{};
    bool unlexed{}, utf8Config{}, leftAlign{}, themeEnabled{}, fieldEnabled{};
+   string calltipText{}; // Needed for the PostMessage call
 
    // File Type data
    std::unordered_map<wstring, string> mapFileDescToType;
