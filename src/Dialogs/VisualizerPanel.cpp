@@ -2027,6 +2027,8 @@ int VisualizerPanel::foldLevelFromPopup(bool bFold) {
    constexpr int itemCount{ 8 };
 
    HMENU hPopupMenu = CreatePopupMenu();
+   AppendMenu(hPopupMenu, MF_STRING, MAXBYTE, L"All Levels");
+   AppendMenu(hPopupMenu, MF_SEPARATOR, NULL, NULL);
 
    for (int i{}; i < itemCount; ++i) {
       AppendMenu(hPopupMenu, MF_STRING, i, (L"Level " + to_wstring(i + 1)).c_str());
@@ -2048,6 +2050,8 @@ int VisualizerPanel::foldLevelFromPopup(bool bFold) {
 }
 
 void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {
+   if (!foldLevel) return;
+
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -2058,7 +2062,7 @@ void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {
       if (!(level & SC_FOLDLEVELHEADERFLAG)) continue;
 
       level -= SC_FOLDLEVELBASE;
-      if (foldLevel != (level & SC_FOLDLEVELNUMBERMASK)) continue;
+      if (foldLevel < MAXBYTE && foldLevel != (level & SC_FOLDLEVELNUMBERMASK)) continue;
 
       if (static_cast<bool>(SendMessage(hScintilla, SCI_GETFOLDEXPANDED, line, 0)) != bExpand)
          SendMessage(hScintilla, SCI_TOGGLEFOLD, line, 0);
