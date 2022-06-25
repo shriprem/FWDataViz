@@ -2045,14 +2045,14 @@ int VisualizerPanel::foldLevelFromPopup(bool bFold) {
    AppendMenu(hPopupMenu, MF_STRING, MAXBYTE, L"All Levels");
    AppendMenu(hPopupMenu, MF_SEPARATOR, NULL, NULL);
 
-   for (int i{}; i < itemCount; ++i) {
-      AppendMenu(hPopupMenu, MF_STRING, i, (L"Level " + to_wstring(i + 1)).c_str());
+   for (int i{1}; i <= itemCount; ++i) {
+      AppendMenu(hPopupMenu, MF_STRING, i, (L"Level " + to_wstring(i)).c_str());
    }
 
    RECT rc;
    GetWindowRect(GetDlgItem(_hSelf, bFold ? IDC_VIZPANEL_FOLDING_FOLD_BTN : IDC_VIZPANEL_FOLDING_UNFOLD_BTN), &rc);
 
-   int level = TrackPopupMenu(hPopupMenu,
+   int option = TrackPopupMenu(hPopupMenu,
       (bFold ? TPM_LEFTALIGN : TPM_RIGHTALIGN) | TPM_TOPALIGN | TPM_LEFTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY,
       (bFold ? rc.left : rc.right), rc.bottom, 0, _hSelf, NULL);
 
@@ -2061,7 +2061,7 @@ int VisualizerPanel::foldLevelFromPopup(bool bFold) {
    }
    DestroyMenu(hPopupMenu);
 
-   return level;
+   return (option == MAXBYTE ? MAXBYTE : option - 1);
 }
 
 void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {

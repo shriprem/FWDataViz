@@ -104,22 +104,6 @@
     <Image Include="..\src\Resources\fields_fluent.ico" />
     <Image Include="..\src\Resources\fields_dark.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\src\Resources\Default Ini Files\default_Preferences.ini" />
-    <None Include="..\src\Resources\Default Ini Files\default_Themes.ini" />
-    <None Include="..\src\Resources\Default Ini Files\default_Visualizer.ini" />
-    <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\src\Resources\Sample Data Files\ghcnd-stations.txt" />
-    <Text Include="..\src\Resources\Sample Data Files\icd10cm_codes_2021.txt" />
-    <Text Include="..\src\Resources\Sample Data Files\icd10cm_order_2021.txt" />
-    <Text Include="..\src\Resources\Sample Data Files\icd10pcs_codes_2021.txt" />
-    <Text Include="..\src\Resources\Sample Data Files\IPAC_ANSI.txt" />
-    <Text Include="..\src\Resources\Sample Data Files\IPAC_Unicode.txt" />
-    <Text Include="..\src\Resources\Sample Data Files\MultiGSN.txt" />
-    <Text Include="..\src\Resources\Sample Data Files\MultiLineGSN.txt" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9D04DBD5-E12E-44E0-A683-6F43F21D533B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
