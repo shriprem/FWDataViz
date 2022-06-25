@@ -181,12 +181,6 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{dd30c9f9-fbbb-4bac-9914-ffbff288d148}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources\Sample Data Files">
-      <UniqueIdentifier>{7228c43a-d7b8-47a5-ad20-d9ecc6fcb699}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Default Config Files">
-      <UniqueIdentifier>{4a1adc1a-c6ba-46d8-955d-7d51864e12ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources\Bitmaps">
       <UniqueIdentifier>{067827ee-8c8c-483b-9a48-3986e0244ea1}</UniqueIdentifier>
     </Filter>
@@ -246,45 +240,5 @@
     <Image Include="..\src\Resources\page_prev.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\src\Resources\Sample Data Files\AYM00089664.dly">
-      <Filter>Resources\Sample Data Files</Filter>
-    </None>
-    <None Include="..\src\Resources\Default Ini Files\default_Preferences.ini">
-      <Filter>Resources\Default Config Files</Filter>
-    </None>
-    <None Include="..\src\Resources\Default Ini Files\default_Visualizer.ini">
-      <Filter>Resources\Default Config Files</Filter>
-    </None>
-    <None Include="..\src\Resources\Default Ini Files\default_Themes.ini">
-      <Filter>Resources\Default Config Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\src\Resources\Sample Data Files\ghcnd-stations.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
-    <Text Include="..\src\Resources\Sample Data Files\icd10cm_codes_2021.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
-    <Text Include="..\src\Resources\Sample Data Files\icd10cm_order_2021.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
-    <Text Include="..\src\Resources\Sample Data Files\icd10pcs_codes_2021.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
-    <Text Include="..\src\Resources\Sample Data Files\MultiGSN.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
-    <Text Include="..\src\Resources\Sample Data Files\MultiLineGSN.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
-    <Text Include="..\src\Resources\Sample Data Files\IPAC_ANSI.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
-    <Text Include="..\src\Resources\Sample Data Files\IPAC_Unicode.txt">
-      <Filter>Resources\Sample Data Files</Filter>
-    </Text>
   </ItemGroup>
 </Project>
