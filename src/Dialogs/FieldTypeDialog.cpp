@@ -194,8 +194,8 @@ int FieldTypeDialog::getCurrentFieldIndex() {
 }
 
 string FieldTypeDialog::getNewStyle() {
-   int backColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL)) };
-   int foreColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL)) };
+   int backColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR)) };
+   int foreColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR)) };
 
    char styleDef[17];
    snprintf(styleDef, 17, "%06X %06X 00", backColor, foreColor);
