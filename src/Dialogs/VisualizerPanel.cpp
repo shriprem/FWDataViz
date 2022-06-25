@@ -1506,8 +1506,19 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    SetWindowText(hFieldInfo, fieldInfoText.c_str());
    enableFieldControls(TRUE);
 
-   if (_configIO.getPreferenceBool(PREF_SHOW_CALLTIP, FALSE))
-      PostMessage(hScintilla, SCI_CALLTIPSHOW, caretPos, (LPARAM)(Utils::WideToNarrow(fieldInfoText)).c_str());
+   if (_configIO.getPreferenceBool(PREF_SHOW_CALLTIP, FALSE)) {
+      int foldLevel{ static_cast<int>(SendMessage(hScintilla, SCI_GETFOLDLEVEL, caretLine, 0)) };
+
+      if (foldLevel > 0) {
+         int level{ (foldLevel - SC_FOLDLEVELBASE) & SC_FOLDLEVELNUMBERMASK };
+         fieldInfoText += L"\n" + wstring(25, '-') +
+            ((foldLevel & SC_FOLDLEVELHEADERFLAG) ?
+               L"\n  Fold Header: " + to_wstring(level + 1) :
+               L"\n   Fold Level: " + to_wstring(level));
+      }
+      calltipText = Utils::WideToNarrow(fieldInfoText);
+      PostMessage(hScintilla, SCI_CALLTIPSHOW, caretPos, (LPARAM)calltipText.c_str());
+   }
 }
 
 void VisualizerPanel::showJumpDialog() {
@@ -1922,10 +1933,13 @@ void VisualizerPanel::applyFolding() {
          while (currentLevel > 0 &&
             (pLevelFI->priority > pLineFI->priority ||
                (pLevelFI->priority == pLineFI->priority && !pLevelFI->recursive) ||
-               (!pLevelFI->endRecords.empty() && pLevelFI->endRecords.find(recTypeCode) != string::npos))) {
+               (!pLevelFI->endRecords.empty() && pLevelFI->endRecords.find(recTypeCode) != string::npos)))
+         {
             foldStack.pop_back();
             pLevelFI = &foldStack.back();
             --currentLevel;
+
+            if (pLevelFI->recursive && pLevelFI->priority <= pLineFI->priority) break;
          }
 
 #if FW_DEBUG_FOLD_INFO
@@ -1945,8 +1959,10 @@ void VisualizerPanel::applyFolding() {
             pLevelFI->endRecords.find(recTypeCode) != string::npos) {
             foldStack.pop_back();
             pLevelFI = &foldStack.back();
-            --currentLevel;
+            sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE | currentLevel--);
          }
+         else
+            sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE | currentLevel);
 
 #if FW_DEBUG_FOLD_INFO
          sciFunc(sciPtr, SCI_SETLINEINDENTATION, currentLine, (currentLevel * 2));
@@ -1954,7 +1970,6 @@ void VisualizerPanel::applyFolding() {
             info += to_wstring(currentLine + 1) + L"\t" + recTypeCode + L"\t" + to_wstring(currentLevel + 1) + L"\n";
 #endif // FW_DEBUG_FOLD_INFO
 
-         sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE | currentLevel);
       }
    }
 
@@ -2024,7 +2039,7 @@ void VisualizerPanel::toggleFolding() {
 }
 
 int VisualizerPanel::foldLevelFromPopup(bool bFold) {
-   constexpr int itemCount{ 8 };
+   constexpr int itemCount{ 10 };
 
    HMENU hPopupMenu = CreatePopupMenu();
    AppendMenu(hPopupMenu, MF_STRING, MAXBYTE, L"All Levels");
@@ -2050,7 +2065,7 @@ int VisualizerPanel::foldLevelFromPopup(bool bFold) {
 }
 
 void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {
-   if (!foldLevel) return;
+   if (foldLevel < 0) return;
 
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
