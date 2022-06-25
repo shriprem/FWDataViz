@@ -190,7 +190,7 @@ namespace NppDarkMode
       return scaleY;
    }
 
-   int nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
+   int nppMessage(UINT messageID, WPARAM wparam = 0, LPARAM lparam = 0) {
       return static_cast<int>(SendMessage(nppHandle, messageID, wparam, lparam));
    }
 
@@ -200,7 +200,7 @@ namespace NppDarkMode
 
    void queryNPPDarkmode()
    {
-      _isDarkModeEnabled = static_cast<boolean>(nppMessage(NPPM_ISDARKMODEENABLED, 0, 0));
+      _isDarkModeEnabled = static_cast<boolean>(nppMessage(NPPM_ISDARKMODEENABLED));
 
       Colors customColors{};
       nppMessage(NPPM_GETDARKMODECOLORS, sizeof(customColors), reinterpret_cast<LPARAM>(&customColors));
@@ -260,7 +260,7 @@ namespace NppDarkMode
 
    TreeViewStyle treeViewStyle = TreeViewStyle::classic;
 
-   COLORREF treeViewBg = intToRGB(static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL)));
+   COLORREF treeViewBg = intToRGB(static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR)));
    double lighnessTreeView = 50.0;
 
    // adapted from https://stackoverflow.com/a/56678483
@@ -1459,8 +1459,8 @@ namespace NppDarkMode
             setDarkListView(hwnd);
             setDarkTooltips(hwnd, ToolTipsType::listview);
 
-            int fgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, 0, 0)) };
-            int bgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, 0, 0)) };
+            int fgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR)) };
+            int bgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR)) };
 
             ListView_SetTextColor(hwnd, fgColor);
             ListView_SetTextBkColor(hwnd, bgColor);
@@ -1478,8 +1478,8 @@ namespace NppDarkMode
 
          if (wcscmp(className, WC_TREEVIEW) == 0)
          {
-            int fgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, 0, 0)) };
-            int bgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, 0, 0)) };
+            int fgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR)) };
+            int bgColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR)) };
 
             TreeView_SetTextColor(hwnd, fgColor);
             TreeView_SetBkColor(hwnd, bgColor);

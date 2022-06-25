@@ -62,7 +62,7 @@ void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
    PathCombine(sampleFile, pluginSamplesDir, gSampleFiles[cmdID].file_name.c_str());
    if (!PathFileExists(sampleFile)) return;
 
-   nppMessage(NPPM_DOOPEN, NULL, (LPARAM)sampleFile);
+   nppMessage(NPPM_DOOPEN, 0, (LPARAM)sampleFile);
    ShowVisualizerPanel(TRUE);
 
    _vizPanel.visualizeFile(gSampleFiles[cmdID].file_type, FALSE, FALSE, TRUE);
@@ -84,7 +84,7 @@ void SubmenuManager::initSamplesPopup(HMENU hPopup) {
 
 
 HMENU SubmenuManager::getPluginSubMenu() {
-   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
+   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE);
    int menuItemCount = GetMenuItemCount(hPluginMenu);
 
    for (int i{}; i < menuItemCount; ++i) {

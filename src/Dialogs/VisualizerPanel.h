@@ -128,6 +128,8 @@ private:
    void setADFTCheckbox();
    void setPanelMBCharState();
    void setPanelMBCharIndicator(string fileType);
+   void setDefaultBackground();
+   void setShowCalltip();
 
    void enableThemeList(bool enable);
    void syncListFileTypes();

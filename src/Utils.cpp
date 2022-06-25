@@ -199,11 +199,11 @@ void Utils::showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text) {
 }
 
 bool Utils::checkBaseOS(winVer os) {
-   return (nppMessage(NPPM_GETWINDOWSVERSION, NULL, NULL) >= os);
+   return (nppMessage(NPPM_GETWINDOWSVERSION) >= os);
 }
 
 float Utils::getNPPVersion() {
-   long versionNum{ static_cast<long>(nppMessage(NPPM_GETNPPVERSION, 0, 0)) };
+   long versionNum{ static_cast<long>(nppMessage(NPPM_GETNPPVERSION, TRUE)) };
 
    return std::stof(to_wstring(HIWORD(versionNum)) + L"." + to_wstring(LOWORD(versionNum)));
 }

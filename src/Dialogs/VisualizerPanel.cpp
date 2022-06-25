@@ -93,6 +93,14 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          setPanelMBCharState();
          break;
 
+      case IDC_VIZPANEL_DEFAULT_BACKGROUND:
+         setDefaultBackground();
+         break;
+
+      case IDC_VIZPANEL_SHOW_CALLTIP:
+         setShowCalltip();
+         break;
+
       case IDC_VIZPANEL_FIELD_COPY_TRIM:
          _configIO.setPreferenceBool(PREF_COPY_TRIM,
             IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM) == BST_CHECKED);
@@ -324,6 +332,8 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_PREFERENCES_BTN, VIZ_PANEL_PREFERENCES);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, VIZ_PANEL_AUTO_DETECT_FT);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, VIZ_PANEL_MCBS_OVERRIDE);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_DEFAULT_BACKGROUND, VIZPANEL_DEFAULT_BACKGROUND);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_SHOW_CALLTIP, VIZPANEL_SHOW_CALLTIP);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM, VIZ_PANEL_FIELD_COPY_TRIM);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FIELD_LABEL, VIZ_PANEL_FIELD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_JUMP_FIELD_BTN, VIZ_PANEL_JUMP_FIELD_BTN);
@@ -355,6 +365,12 @@ void VisualizerPanel::display(bool toShow) {
       _configIO.getPreferenceBool(PREF_ADFT) ? BST_CHECKED : BST_UNCHECKED);
 
    initMBCharsCheckbox();
+
+   CheckDlgButton(_hSelf, IDC_VIZPANEL_DEFAULT_BACKGROUND,
+      _configIO.getPreferenceBool(PREF_DEF_BACKGROUND, FALSE) ? BST_CHECKED : BST_UNCHECKED);
+
+   CheckDlgButton(_hSelf, IDC_VIZPANEL_SHOW_CALLTIP,
+      _configIO.getPreferenceBool(PREF_SHOW_CALLTIP, FALSE) ? BST_CHECKED : BST_UNCHECKED);
 
    CheckDlgButton(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM,
       _configIO.getPreferenceBool(PREF_COPY_TRIM, FALSE) ? BST_CHECKED : BST_UNCHECKED);
@@ -484,7 +500,7 @@ void VisualizerPanel::enableFieldControls(bool enable) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), fieldEnabled);
    InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), nullptr, TRUE);
 
-   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE, 0, 0);
+   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE);
 
    UINT recMenu{ static_cast<UINT>(MF_BYCOMMAND | (recEnabled ? MF_ENABLED : MF_DISABLED)) };
    EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_JUMP]._cmdID, recMenu);
@@ -786,6 +802,8 @@ int VisualizerPanel::loadTheme(const wstring theme) {
 
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
+   bool useDefaultBackColor{ _configIO.getPreferenceBool(PREF_DEF_BACKGROUND, FALSE) };
+   int defaultBackColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR)) };
    int styleCount{ Utils::StringtoInt(_configIO.getStyleValue(theme, "Count")) };
 
    // Do not load more than FW_STYLE_THEMES_MAX_ITEMS styles (including EOL styleInfo)
@@ -804,7 +822,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    StyleInfo styleInfo{};
 
    _configIO.getFullStyle(theme, "EOL", styleInfo);
-   sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)styleInfo.backColor);
+   sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)(useDefaultBackColor ? defaultBackColor : styleInfo.backColor));
    sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)styleInfo.foreColor);
    sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)styleInfo.bold);
    sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)styleInfo.italics);
@@ -815,7 +833,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
       snprintf(bufKey, 8, "BFBI_%02i", i);
       _configIO.getFullStyle(theme, bufKey, styleInfo);
 
-      sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)styleInfo.backColor);
+      sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)(useDefaultBackColor ? defaultBackColor : styleInfo.backColor));
       sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)styleInfo.foreColor);
       sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)styleInfo.bold);
       sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)styleInfo.italics);
@@ -1487,6 +1505,9 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 
    SetWindowText(hFieldInfo, fieldInfoText.c_str());
    enableFieldControls(TRUE);
+
+   if (_configIO.getPreferenceBool(PREF_SHOW_CALLTIP, FALSE))
+      PostMessage(hScintilla, SCI_CALLTIPSHOW, caretPos, (LPARAM)(Utils::WideToNarrow(fieldInfoText)).c_str());
 }
 
 void VisualizerPanel::showJumpDialog() {
@@ -1722,6 +1743,16 @@ void VisualizerPanel::setPanelMBCharIndicator(string fileType) {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, indicator.c_str());
 }
 
+void VisualizerPanel::setDefaultBackground() {
+   _configIO.setPreferenceBool(PREF_DEF_BACKGROUND, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_DEFAULT_BACKGROUND) == BST_CHECKED));
+   visualizeFile("", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
+}
+
+void VisualizerPanel::setShowCalltip() {
+   _configIO.setPreferenceBool(PREF_SHOW_CALLTIP, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_SHOW_CALLTIP) == BST_CHECKED));
+   visualizeFile("", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
+}
+
 void VisualizerPanel::onBufferActivate() {
    unlexed = TRUE;
    enableFoldableControls(FALSE);
@@ -1753,7 +1784,7 @@ void VisualizerPanel::popupSamplesMenu() {
    int cmd = TrackPopupMenu(hPopupMenu, TPM_RIGHTALIGN | TPM_TOPALIGN | TPM_LEFTBUTTON | TPM_RETURNCMD,
       rc.right, rc.bottom, 0, _hSelf, NULL);
 
-   if (cmd) nppMessage(NPPM_MENUCOMMAND, NULL, cmd);
+   if (cmd) nppMessage(NPPM_MENUCOMMAND, 0, cmd);
 
    // Calling RemoveMenu is needed since the appended items are being referenced from the NPP Main menu.
    // In RemoveMenu, zero is used as the position since items shift down with each remove call.

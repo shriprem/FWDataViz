@@ -467,8 +467,8 @@ bool ThemeDialog::getCurrentStyleInfo(StyleInfo*& recInfo) {
 StyleInfo ThemeDialog::getNewStyle() {
    StyleInfo newStyle{};
 
-   newStyle.backColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR, NULL, NULL));
-   newStyle.foreColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR, NULL, NULL));
+   newStyle.backColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR));
+   newStyle.foreColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR));
    newStyle.bold = 0;
    newStyle.italics = 0;
 

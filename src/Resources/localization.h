@@ -25,6 +25,8 @@
 #define VIZ_PANEL_PREFERENCES       L"Prefere&nces"
 #define VIZ_PANEL_AUTO_DETECT_FT    L"Auto-detect File Type"
 #define VIZ_PANEL_MCBS_OVERRIDE     L"Multi-Byte Chars"
+#define VIZPANEL_DEFAULT_BACKGROUND L"Default Background"
+#define VIZPANEL_SHOW_CALLTIP       L"Show Calltip"
 #define VIZ_PANEL_FIELD_COPY_TRIM   L"Trim Field Copy"
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
 #define VIZ_PANEL_JUMP_FIELD_BTN    L"&Jump to Field"
