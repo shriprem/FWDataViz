@@ -23,6 +23,8 @@
 #define PREF_PASTE_RPAD       "PasteFieldRPAD"
 #define PREF_CLEARVIZ_AUTO    "ClearVizWithAutoDetect"
 #define PREF_CLEARVIZ_PANEL   "ClearVizOnPanelClose"
+#define PREF_FOLDLINE_COLOR   "FoldLineColor"
+#define PREF_FOLDLINE_ALPHA   "FoldLineAlpha"
 
 struct StyleInfo {
    int backColor{};

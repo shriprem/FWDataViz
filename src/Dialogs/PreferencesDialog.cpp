@@ -19,6 +19,10 @@ void PreferencesDialog::doDialog(HINSTANCE hInst) {
    Utils::addTooltip(_hSelf, IDC_PREF_CLEARVIZ_PANEL, NULL, PREF_CLEARVIZ_PANEL_TIP, PREF_TIP_LONG, TRUE);
    Utils::addTooltip(_hSelf, IDC_PREF_MBCHARS_STATE, NULL, PREF_MBCHARS_STATE_TIP, PREF_TIP_LONG, TRUE);
 
+   displayFoldLineColor();
+   int foldLineAlpha{ _configIO.getPreferenceInt(PREF_FOLDLINE_ALPHA, MAXBYTE) };
+   SendMessage(GetDlgItem(_hSelf, IDC_PREF_FOLD_LINE_ALPHA_SLIDER), TBM_SETPOS, TRUE, foldLineAlpha);
+
    if (_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
@@ -28,6 +32,7 @@ void PreferencesDialog::doDialog(HINSTANCE hInst) {
 void PreferencesDialog::refreshDarkMode() {
    NPPDM_AutoThemeChildControls(_hSelf);
    redraw();
+   SendMessage(GetDlgItem(_hSelf, IDC_PREF_FOLD_LINE_ALPHA_SLIDER), TBM_SETRANGEMIN, FALSE, 0);
 }
 
 INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -47,6 +52,10 @@ INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
          _vizPanel.initMBCharsCheckbox();
          break;
 
+      case IDC_PREF_FOLD_LINE_COLOR:
+         chooseColor();
+         break;
+
       case IDCANCEL:
       case IDCLOSE:
          display(FALSE);
@@ -54,16 +63,30 @@ INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
       }
       break;
 
+   case WM_HSCROLL:
+      if (lParam == (LPARAM)GetDlgItem(_hSelf, IDC_PREF_FOLD_LINE_ALPHA_SLIDER)) setFoldLineAlpha();
+      break;
+
    case WM_INITDIALOG:
       NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       break;
 
    case WM_CTLCOLORDLG:
-   case WM_CTLCOLORSTATIC:
       if (NPPDM_IsEnabled()) {
          return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
       }
       break;
+
+   case WM_CTLCOLORSTATIC:
+   {
+      INT_PTR ptr = colorStaticControl(wParam, lParam);
+      if (ptr != NULL) return ptr;
+
+      if (NPPDM_IsEnabled()) {
+         return NPPDM_OnCtlColorDarker(reinterpret_cast<HDC>(wParam));
+      }
+      break;
+   }
 
    case WM_CTLCOLORLISTBOX:
       if (NPPDM_IsEnabled()) {
@@ -95,4 +118,69 @@ void PreferencesDialog::setCheckbox(int nIDButton, const string& preference) {
    bool checked{ IsDlgButtonChecked(_hSelf, nIDButton) == BST_CHECKED };
 
    _configIO.setPreferenceBool(preference, checked);
+}
+
+void PreferencesDialog::chooseColor() {
+   COLORREF customColors[16];
+
+   CHOOSECOLOR cc;
+   ZeroMemory(&cc, sizeof(cc));
+
+   cc.lStructSize = sizeof(cc);
+   cc.hwndOwner = _hSelf;
+   cc.rgbResult = getPreferenceFoldLineColor();
+   cc.lpCustColors = (LPDWORD)customColors;
+   cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+   if (!ChooseColor(&cc)) return;
+
+   setPreferenceFoldLineColor(cc.rgbResult);
+   displayFoldLineColor();
+}
+
+COLORREF PreferencesDialog::getPreferenceFoldLineColor() {
+   return Utils::intToRGB(Utils::StringtoInt(_configIO.getPreference(PREF_FOLDLINE_COLOR, "0"), 16));
+}
+
+void PreferencesDialog::setPreferenceFoldLineColor(COLORREF rgbColor) {
+   wchar_t hexColor[10];
+   swprintf(hexColor, 7, L"%06X", static_cast<int>(rgbColor));
+   _configIO.setPreference(PREF_FOLDLINE_COLOR, hexColor);
+}
+
+void PreferencesDialog::displayFoldLineColor() {
+   Utils::setFontRegular(_hSelf, IDC_PREF_FOLD_LINE_COLOR);
+   applyFoldLineColorAlpha();
+}
+
+INT_PTR PreferencesDialog::colorStaticControl(WPARAM wParam, LPARAM lParam) {
+   HDC hdc = (HDC)wParam;
+   DWORD ctrlID = GetDlgCtrlID((HWND)lParam);
+   COLORREF rgbColor{ getPreferenceFoldLineColor() };
+
+   if (hbr != NULL) DeleteObject(hbr);
+
+
+   if (ctrlID == IDC_PREF_FOLD_LINE_COLOR) {
+      SetBkColor(hdc, rgbColor);
+      hbr = CreateSolidBrush(rgbColor);
+      return (INT_PTR)hbr;
+   }
+
+   return NULL;
+}
+
+void PreferencesDialog::setFoldLineAlpha() {
+   _configIO.setPreferenceInt(PREF_FOLDLINE_ALPHA,
+      static_cast<int>(SendMessage(GetDlgItem(_hSelf, IDC_PREF_FOLD_LINE_ALPHA_SLIDER), TBM_GETPOS, 0, 0)));
+   applyFoldLineColorAlpha();
+}
+
+void PreferencesDialog::applyFoldLineColorAlpha() {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   int foldColorAlpha{ static_cast<int>(getPreferenceFoldLineColor()) };
+   foldColorAlpha |= _configIO.getPreferenceInt(PREF_FOLDLINE_ALPHA, MAXBYTE) << 24;
+   SendMessage(hScintilla, SCI_SETELEMENTCOLOUR, SC_ELEMENT_FOLD_LINE, foldColorAlpha);
 }

@@ -47,6 +47,7 @@ public:
    };
 
    VisualizerPanel() :DockingDlgInterface(IDD_VISUALIZER_DOCKPANEL) {};
+   ~VisualizerPanel() { if (hbr != NULL) DeleteObject(hbr); };
 
    void initPanel();
    virtual void display(bool toShow = TRUE);
@@ -77,6 +78,7 @@ public:
 
 private:
    HWND hFTList{}, hThemesLB{}, hFieldInfo{};
+   HBRUSH hbr{};
 
    // Field Info tracking
    int caretRecordStartPos{}, caretRecordEndPos{}, caretRecordRegIndex{}, caretEolMarkerPos{}, caretFieldIndex{};
