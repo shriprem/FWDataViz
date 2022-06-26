@@ -243,6 +243,12 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case IDC_VIZPANEL_THEME_LABEL:
          return NPPDM_OnCtlColorIfEnabled(reinterpret_cast<HDC>(wParam), themeEnabled);
 
+      case IDC_VIZPANEL_PASTE_LEFT_LABEL:
+      case IDC_VIZPANEL_PASTE_RIGHT_LABEL:
+      case IDC_VIZPANEL_PASTE_RPAD_LABEL:
+      case IDC_VIZPANEL_PASTE_LPAD_LABEL:
+         return NPPDM_OnCtlColorIfEnabled(reinterpret_cast<HDC>(wParam), fieldEnabled);
+
       case IDC_VIZPANEL_PASTE_RPAD_INDIC:
       case IDC_VIZPANEL_PASTE_LPAD_INDIC:
          return NPPDM_OnCtlHiliteIfEnabled(reinterpret_cast<HDC>(wParam), fieldEnabled);
@@ -282,6 +288,8 @@ void VisualizerPanel::initPanel() {
 
    utf8Config = _configIO.checkConfigFilesforUCS16();
    if (!utf8Config) return;
+
+   PreferencesDialog::applyFoldLineColorAlpha();
 
    setFont(_hSelf, IDC_VIZPANEL_FIELD_LABEL, fontName, fontHeight, FW_BOLD, FALSE, TRUE);
    setFont(_hSelf, IDC_VIZPANEL_FIELD_INFO, fontName, fontHeight);
@@ -387,6 +395,7 @@ void VisualizerPanel::display(bool toShow) {
 void VisualizerPanel::refreshDarkMode() {
    NPPDM_AutoThemeChildControls(_hSelf);
    redraw();
+   SendMessage(GetDlgItem(_hSelf, IDC_PREF_FOLD_LINE_ALPHA_SLIDER), TBM_SETRANGEMIN, FALSE, 0);
 
    if (_prefsDlg.isCreated())
       _prefsDlg.refreshDarkMode();
@@ -494,11 +503,15 @@ void VisualizerPanel::enableFieldControls(bool enable) {
    fieldEnabled = recEnabled && (caretFieldIndex >= 0);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON), fieldEnabled);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON), fieldEnabled);
-
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_FIELD), fieldEnabled);
-   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), nullptr, TRUE);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_FIELD), fieldEnabled);
+
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_INDIC), nullptr, TRUE);
    InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), nullptr, TRUE);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LEFT_LABEL), nullptr, TRUE);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RIGHT_LABEL), nullptr, TRUE);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_LABEL), nullptr, TRUE);
+   InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL), nullptr, TRUE);
 
    HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE);
 
@@ -2005,9 +2018,9 @@ void VisualizerPanel::enableFoldableControls(bool bFoldable) {
 
 void VisualizerPanel::enableFoldedControls(bool bFolded) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_REMOVE_BTN), bFolded);
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_FOLD_BTN), bFolded);
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_TOGGLE_BTN), bFolded);
-   EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_UNFOLD_BTN), bFolded);
+   //EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_FOLD_BTN), bFolded);
+   //EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_TOGGLE_BTN), bFolded);
+   //EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_UNFOLD_BTN), bFolded);
 
    if (bFolded) {
       HWND hScintilla{ getCurrentScintilla() };
