@@ -1,5 +1,28 @@
 ## Version History
 
+### Version 2.6.0.0 [June 27`+`, 2022]
+
+#### Major Enhancements
+1. Foldable Record Blocks.
+2. [_Side Panel_] **Default Background** checkbox option to suppress the background colors specified in theme styles.
+3. [_Side Panel_] **Show Calltip** checkbox option to display inline **Cursor Position Data**.
+
+#### Minor Enhancements
+1. [_Side Panel_] **Fold** and **Unfold** buttons for: _All Levels_ and _Level 1_ to _Level 10_. These buttons are functional with any file (fixed-width or not) opened in Notepad++.
+2. [_Side Panel_] **Toggle Line** button to toggle between folded and unfolded states on the current line. This button is functional with any file (fixed-width or not) opened in Notepad++.
+3. [_Preferences Dialog_] Specify color and transparency for the horizontal demarcator lines drawn above and below the fold header text-line when the block it encloses is in collapsed state. This preference setting is applied globally for all files open in Notepad++.
+
+#### Pending
+1. An editor GUI to define and modify record block structures for fixed-width file types (that have been defined either via the _File Type Metadata Editor_ or directly in `Visualizer.ini` file). This editor will be implemented in due course for the next general release of _FwDataViz_.
+
+#### Known Issues
+1. If you use Notepad++ menu options to fold levels, the text in the view page may end up partially colorized. However, if you move the caret (i.e., keyboard cursor) to a different position, the page will be fully colorized again. You can avoid this by using the **Fold** and **Unfold** buttons on the _FWDataViz_ side panel.
+2. If you edit the data file, you may also need to click on the **Apply** button on the _FWDataViz_ side panel to rescan the file and rebuild the new folding structure. No workaround for this, since any file edits may require a full file scan which will not be optimal if done automatically for each bit of file edit.
+
+**Release:** _Coming soon!_
+
+---
+
 ### Version 2.5.3.0 [June 11, 2022]
 
 1. Enhanced Darkmode support.
