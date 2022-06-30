@@ -1945,7 +1945,7 @@ void VisualizerPanel::applyFolding() {
       if (bFoldLevelRec) {
          while (currentLevel > 0 &&
             (pLevelFI->priority > pLineFI->priority ||
-               (pLevelFI->priority == pLineFI->priority && !pLevelFI->recursive) ||
+               (pLevelFI->priority == pLineFI->priority && !pLineFI->recursive) ||
                (!pLevelFI->endRecords.empty() && pLevelFI->endRecords.find(recTypeCode) != string::npos)))
          {
             foldStack.pop_back();

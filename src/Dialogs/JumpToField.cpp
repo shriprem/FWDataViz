@@ -29,8 +29,7 @@ void JumpToField::refreshDarkMode() {
    SendMessage(hCaretFlash, TBM_SETRANGEMIN, FALSE, 1);
 }
 
-void JumpToField::initDialog(const string fileType, int recordIndex,
-   int fieldIndex, const vector<wstring>& fieldLabels) {
+void JumpToField::initDialog(const string fileType, int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels) {
    initFileType = fileType;
    initRecordRegIndex = recordIndex;
 
@@ -38,8 +37,12 @@ void JumpToField::initDialog(const string fileType, int recordIndex,
 
    SendMessage(hFieldList, CB_RESETCONTENT, NULL, NULL);
 
-   for (const wstring label : fieldLabels) {
-      SendMessage(hFieldList, CB_ADDSTRING, NULL, (LPARAM)label.c_str());
+   wchar_t seqNo[5];
+   int fieldCount{ static_cast<int>(fieldLabels.size()) };
+
+   for (int i{}; i < fieldCount; ++i) {
+      swprintf(seqNo, 5, L"%02d. ", (i + 1));
+      SendMessage(hFieldList, CB_ADDSTRING, NULL, (LPARAM)(seqNo + fieldLabels[i]).c_str());
    }
 
    if (fieldLabels.size() > 0)
