@@ -167,7 +167,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
 
       case IDC_VIZPANEL_FOLDING_APPLY_BTN:
          if (_configIO.fixIfUTF16File(_configIO.CONFIG_FOLDSTRUCTS))
-            applyFolding();
+            applyFolding("");
          setFocusOnEditor();
          break;
 
@@ -579,11 +579,18 @@ void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoF
    loadLexer();
    renderCurrentPage();
 
-   string foldStructType{ detectFoldStructType(fileType) };
+   bool foldApply{};
+   string foldStructType{ getDocFoldStructType() };
+
    if (!foldStructType.empty()) {
-      if (_configIO.getFoldStructValueA(foldStructType, "FoldLevelAuto") == "Y")
-         applyFolding();
+      foldApply = getDocFolded();
    }
+   else {
+      foldStructType = detectFoldStructType(fileType);
+      foldApply = (!foldStructType.empty() && (_configIO.getFoldStructValueA(foldStructType, "FoldLevelAuto") == "Y"));
+   }
+
+   if (foldApply) applyFolding(foldStructType);
    enableFoldableControls(!foldStructType.empty());
 
    setFocusOnEditor();
@@ -1837,7 +1844,7 @@ string VisualizerPanel::detectFoldStructType(string fileType) {
    return "";
 }
 
-void VisualizerPanel::applyFolding() {
+void VisualizerPanel::applyFolding(string foldStructType) {
    string fileType{};
    getDocFileType(fileType);
 
@@ -1846,11 +1853,12 @@ void VisualizerPanel::applyFolding() {
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
-   wstring foldStructType{ Utils::NarrowToWide(getDocFoldStructType()) };
+   if (foldStructType.empty())
+      foldStructType = getDocFoldStructType();
    if (foldStructType.empty()) return;
 
    vector<FoldingInfo> foldingInfoList{};
-   _configIO.getFoldStructFoldingInfo(foldStructType, foldingInfoList);
+   _configIO.getFoldStructFoldingInfo(Utils::NarrowToWide(foldStructType), foldingInfoList);
 
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
@@ -2017,18 +2025,27 @@ void VisualizerPanel::enableFoldableControls(bool bFoldable) {
 }
 
 void VisualizerPanel::enableFoldedControls(bool bFolded) {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   SendMessage(hScintilla, SCI_SETMARGINWIDTHN, FOLDER_MARGIN, bFolded ? Utils::scaleDPIX(14) : 0);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_REMOVE_BTN), bFolded);
-   //EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_FOLD_BTN), bFolded);
-   //EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_TOGGLE_BTN), bFolded);
-   //EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_UNFOLD_BTN), bFolded);
 
    if (bFolded) {
-      HWND hScintilla{ getCurrentScintilla() };
-      if (!hScintilla) return;
-
-      SendMessage(hScintilla, SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
-      SendMessage(hScintilla, SCI_SETMARGINWIDTHN, 2, SendMessage(hScintilla, SCI_GETMARGINWIDTHN, 1, 0));
+      SendMessage(hScintilla, SCI_SETMARGINTYPEN, FOLDER_MARGIN, SC_MARGIN_SYMBOL);
+      SendMessage(hScintilla, SCI_SETMARGINMASKN, FOLDER_MARGIN, SC_MASK_FOLDERS);
+      SendMessage(hScintilla, SCI_SETMARGINSENSITIVEN, FOLDER_MARGIN, TRUE);
       SendMessage(hScintilla, SCI_SETFOLDFLAGS, SC_FOLDFLAG_LINEBEFORE_CONTRACTED | SC_FOLDFLAG_LINEAFTER_CONTRACTED, NULL);
+
+      if (static_cast<int>(SendMessage(hScintilla, SCI_MARKERSYMBOLDEFINED, SC_MARKNUM_FOLDER, 0)) < 0) {
+         SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS);
+         SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS);
+         SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);
+         SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER);
+         SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER);
+         SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED);
+         SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED);
+      }
    }
 }
 

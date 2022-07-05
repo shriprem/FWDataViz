@@ -40,4 +40,7 @@ namespace Utils {
    bool setFontBold(HWND hDlg, int controlID);
    bool setFontItalic(HWND hDlg, int controlID);
    bool setFontUnderline(HWND hDlg, int controlID);
+
+   int scaleDPIX(int x);
+   int scaleDPIY(int y);
 }

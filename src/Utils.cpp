@@ -318,3 +318,22 @@ bool Utils::setFontItalic(HWND hDlg, int controlID) {
 bool Utils::setFontUnderline(HWND hDlg, int controlID) {
    return changeFontStyle(hDlg, controlID, FS_UNDERLINE);
 }
+
+int Utils::scaleDPIX(int x) {
+   HDC hdc = GetDC(NULL);
+   if (!hdc) return 0;
+
+   int scaleX{ MulDiv(x, GetDeviceCaps(hdc, LOGPIXELSX), 96) };
+   ReleaseDC(NULL, hdc);
+   return scaleX;
+}
+
+int Utils::scaleDPIY(int y) {
+   HDC hdc = GetDC(NULL);
+   if (!hdc) return 0;
+
+   int scaleY{ MulDiv(y, GetDeviceCaps(hdc, LOGPIXELSY), 96) };
+   ReleaseDC(NULL, hdc);
+   return scaleY;
+}
+

@@ -24,6 +24,7 @@ constexpr int FW_STYLE_FIELDS_MIN_INDEX{ FW_STYLE_THEMES_START_INDEX + 36 };
 constexpr int FW_TIP_LONG{ 30 };
 constexpr int FW_TIP_MEDIUM{ 20 };
 constexpr int FW_TIP_SHORT{ 10 };
+constexpr int FOLDER_MARGIN{ 2 };
 
 static bool idemPotentKey{ FALSE };
 
@@ -156,7 +157,7 @@ private:
    void popupSamplesMenu();
 
    string detectFoldStructType(string fileType);
-   void applyFolding();
+   void applyFolding(string foldStructType);
    void removeFolding();
    void enableFoldableControls(bool bFoldable);
    void enableFoldedControls(bool bFolded);
