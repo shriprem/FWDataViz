@@ -2037,7 +2037,7 @@ void VisualizerPanel::enableFoldedControls(bool bFolded) {
       SendMessage(hScintilla, SCI_SETMARGINWIDTHN, FOLDER_MARGIN, Utils::scaleDPIX(14));
       SendMessage(hScintilla, SCI_SETFOLDFLAGS, SC_FOLDFLAG_LINEBEFORE_CONTRACTED | SC_FOLDFLAG_LINEAFTER_CONTRACTED, NULL);
 
-      if (static_cast<int>(SendMessage(hScintilla, SCI_MARKERSYMBOLDEFINED, SC_MARKNUM_FOLDER, 0)) < 0) {
+      if (static_cast<int>(SendMessage(hScintilla, SCI_MARKERSYMBOLDEFINED, SC_MARKNUM_FOLDEROPEN, 0)) < SC_MARK_ARROWDOWN) {
          SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS);
          SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS);
          SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);

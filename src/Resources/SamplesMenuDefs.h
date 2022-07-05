@@ -51,7 +51,7 @@ const SampleFileInfo gSampleFiles[] =
    },
    {
       MULTI_REC,
-      "[Demo Data] Ŧ Treasury IPAC (ANSI) File",
+      "[Demo Data - Foldable] Ŧ Treasury IPAC (ANSI) File",
       L"IPAC_ANSI.txt",
       "FT010_TREASURY_IPAC_FILE"
    },
@@ -69,13 +69,13 @@ const SampleFileInfo gSampleFiles[] =
    },
    {
       MULTI_REC,
-      "[Real Data] ☣ ICD-10 Billable-Flagged Order Codes",
+      "[Real Data - Foldable] ☣ ICD-10 Billable-Flagged Order Codes",
       L"icd10cm_order_2021.txt",
       "FT008_ICD-10_BILLABLE-FLAGGED_ORDER_CODES"
    },
    {
       MULTI_REC,
-      "[Demo Data] § Ouroboros Fold Levels",
+      "[Demo Data - Foldable] § Ouroboros Fold Levels",
       L"Ouroboros.txt",
       "FT012_OUROBOROS_FOLD_LEVELS"
    },
