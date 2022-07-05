@@ -2025,16 +2025,16 @@ void VisualizerPanel::enableFoldableControls(bool bFoldable) {
 }
 
 void VisualizerPanel::enableFoldedControls(bool bFolded) {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return;
-
-   SendMessage(hScintilla, SCI_SETMARGINWIDTHN, FOLDER_MARGIN, bFolded ? Utils::scaleDPIX(14) : 0);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_REMOVE_BTN), bFolded);
 
    if (bFolded) {
+      HWND hScintilla{ getCurrentScintilla() };
+      if (!hScintilla) return;
+
       SendMessage(hScintilla, SCI_SETMARGINTYPEN, FOLDER_MARGIN, SC_MARGIN_SYMBOL);
       SendMessage(hScintilla, SCI_SETMARGINMASKN, FOLDER_MARGIN, SC_MASK_FOLDERS);
       SendMessage(hScintilla, SCI_SETMARGINSENSITIVEN, FOLDER_MARGIN, TRUE);
+      SendMessage(hScintilla, SCI_SETMARGINWIDTHN, FOLDER_MARGIN, Utils::scaleDPIX(14));
       SendMessage(hScintilla, SCI_SETFOLDFLAGS, SC_FOLDFLAG_LINEBEFORE_CONTRACTED | SC_FOLDFLAG_LINEAFTER_CONTRACTED, NULL);
 
       if (static_cast<int>(SendMessage(hScintilla, SCI_MARKERSYMBOLDEFINED, SC_MARKNUM_FOLDER, 0)) < 0) {
