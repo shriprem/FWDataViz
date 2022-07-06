@@ -38,11 +38,12 @@ void JumpToField::initDialog(const string fileType, int recordIndex, int fieldIn
    SendMessage(hFieldList, CB_RESETCONTENT, NULL, NULL);
 
    wchar_t seqNo[5];
+   bool showSeqNo{ (_configIO.getPreferenceBool(PREF_JUMP_FIELD_SEQ, FALSE)) };
    int fieldCount{ static_cast<int>(fieldLabels.size()) };
 
    for (int i{}; i < fieldCount; ++i) {
       swprintf(seqNo, 5, L"%02d. ", (i + 1));
-      SendMessage(hFieldList, CB_ADDSTRING, NULL, (LPARAM)(seqNo + fieldLabels[i]).c_str());
+      SendMessage(hFieldList, CB_ADDSTRING, NULL, (LPARAM)((showSeqNo ? seqNo : L"") + fieldLabels[i]).c_str());
    }
 
    if (fieldLabels.size() > 0)

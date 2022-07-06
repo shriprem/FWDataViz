@@ -1776,7 +1776,7 @@ void VisualizerPanel::setPanelMBCharIndicator(string fileType) {
 
 void VisualizerPanel::setDefaultBackground() {
    _configIO.setPreferenceBool(PREF_DEF_BACKGROUND, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_DEFAULT_BACKGROUND) == BST_CHECKED));
-   visualizeFile("", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
+   visualizeFile("", TRUE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
 }
 
 void VisualizerPanel::setShowCalltip() {

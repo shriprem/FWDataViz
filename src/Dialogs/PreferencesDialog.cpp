@@ -14,6 +14,7 @@ void PreferencesDialog::doDialog(HINSTANCE hInst) {
    initCheckbox(IDC_PREF_CLEARVIZ_AUTO, PREF_CLEARVIZ_AUTO, FALSE);
    initCheckbox(IDC_PREF_CLEARVIZ_PANEL, PREF_CLEARVIZ_PANEL, FALSE);
    initCheckbox(IDC_PREF_MBCHARS_STATE, PREF_MBCHARS_SHOW, FALSE);
+   initCheckbox(IDC_PREF_JUMP_FIELD_SEQ_NUM, PREF_JUMP_FIELD_SEQ, FALSE);
 
    Utils::addTooltip(_hSelf, IDC_PREF_CLEARVIZ_AUTO, NULL, PREF_CLEARVIZ_AUTO_TIP, PREF_TIP_LONG, TRUE);
    Utils::addTooltip(_hSelf, IDC_PREF_CLEARVIZ_PANEL, NULL, PREF_CLEARVIZ_PANEL_TIP, PREF_TIP_LONG, TRUE);
@@ -50,6 +51,10 @@ INT_PTR PreferencesDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
       case IDC_PREF_MBCHARS_STATE:
          setCheckbox(IDC_PREF_MBCHARS_STATE, PREF_MBCHARS_SHOW);
          _vizPanel.initMBCharsCheckbox();
+         break;
+
+      case IDC_PREF_JUMP_FIELD_SEQ_NUM:
+         setCheckbox(IDC_PREF_JUMP_FIELD_SEQ_NUM, PREF_JUMP_FIELD_SEQ);
          break;
 
       case IDC_PREF_FOLD_LINE_COLOR:
@@ -107,6 +112,7 @@ void PreferencesDialog::localize() {
    SetDlgItemText(_hSelf, IDC_PREF_CLEARVIZ_AUTO, PREFERENCES_CLEARVIZ_AUTO);
    SetDlgItemText(_hSelf, IDC_PREF_CLEARVIZ_PANEL, PREFERENCES_CLEARVIZ_PANEL);
    SetDlgItemText(_hSelf, IDC_PREF_MBCHARS_STATE, PREFERENCES_MBCHARS_STATE);
+   SetDlgItemText(_hSelf, IDC_PREF_JUMP_FIELD_SEQ_NUM, PREFERENCES_JUMP_FIELD_SEQ);
    SetDlgItemText(_hSelf, IDCLOSE, PREFERENCES_CLOSE_BTN);
 }
 

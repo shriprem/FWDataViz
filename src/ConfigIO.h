@@ -16,6 +16,7 @@
 #define PREF_CARET_FLASH      "CaretFlashSeconds"
 #define PREF_MBCHARS_SHOW     "ShowMBCharsOnPanel"
 #define PREF_MBCHARS_STATE    "PanelMBCharState"
+#define PREF_JUMP_FIELD_SEQ   "ShowJumpFieldSeqNo"
 #define PREF_DEF_BACKGROUND   "DefaultBackground"
 #define PREF_SHOW_CALLTIP     "ShowCalltip"
 #define PREF_COPY_TRIM        "CopyFieldTrim"

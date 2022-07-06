@@ -292,9 +292,10 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "Preferences"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         """Clear"" button click unchecks Auto-detect File Type",IDC_PREF_CLEARVIZ_AUTO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,15,183,10
-    CONTROL         "Closing plugin panel clears visualization",IDC_PREF_CLEARVIZ_PANEL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,40,183,10
-    CONTROL         "Show Multi-byte checkbox in plugin panel",IDC_PREF_MBCHARS_STATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,65,183,10
+    CONTROL         """Clear"" button click unchecks Auto-detect File Type",IDC_PREF_CLEARVIZ_AUTO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,10,183,10
+    CONTROL         "Closing plugin panel clears visualization",IDC_PREF_CLEARVIZ_PANEL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,30,183,10
+    CONTROL         "Show Multi-byte checkbox in plugin panel",IDC_PREF_MBCHARS_STATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,50,183,10
+    CONTROL         "Show sequence numbers in Jump To Field list",IDC_PREF_JUMP_FIELD_SEQ_NUM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,70,183,10
     GROUPBOX        "Fold Line Color && Alpha",IDC_PREF_FOLD_LINE_GROUP_BOX,12,90,182,54
     LTEXT           "",IDC_PREF_FOLD_LINE_COLOR,92,103,20,20,SS_NOPREFIX | SS_NOTIFY | SS_SUNKEN,WS_EX_DLGMODALFRAME
     LTEXT           "Transparent",IDC_PREF_FOLD_LINE_TRANSPARENT,22,115,40,11
