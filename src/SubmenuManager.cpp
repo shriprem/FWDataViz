@@ -65,6 +65,7 @@ void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
    nppMessage(NPPM_DOOPEN, 0, (LPARAM)sampleFile);
    ShowVisualizerPanel(TRUE);
 
+   _configIO.defaultVizConfig();
    _vizPanel.visualizeFile(gSampleFiles[cmdID].file_type, FALSE, FALSE, TRUE);
 }
 

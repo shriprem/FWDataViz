@@ -53,6 +53,9 @@
 #define VIZ_PANEL_JUMP_CHANGED_DOC  L"The currently active document is of a different File Type.\r\n\r\nUnable to jump to the specified field."
 #define VIZ_PANEL_JUMP_CHANGED_REC  L"Caret has moved to a different Record Type.\r\n\r\nUnable to jump to the specified field."
 #define VIZ_PANEL_DARKMODE_CHANGED  L"Please restart Notepad++ to refresh the FWDataViz plugin panel and dialogs with the changed Darkmode settings."
+#define VIZ_PANEL_FILE_INFO_TITLE   L"Active INI Files"
+#define VIZ_PANEL_FILE_INFO_TIP     L"\nNOTE: Click the button to refresh the files list"
+
 
 #define CUR_POS_DATA_BLANK_LINE     L"<Blank Line>"
 #define CUR_POS_DATA_UNKOWN_REC     L"<Unknown Record Type>"

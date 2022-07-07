@@ -54,12 +54,13 @@ public:
       CONFIG_FOLDSTRUCTS,
    };
 
-
    void init();
    int setVizConfig(const string& docFileType);
-   void resetVizConfig();
+   void userVizConfig();
+   void defaultVizConfig();
    bool isCurrentVizConfigDefault() { return (wCurrentConfigFile == defaultConfigFile); }
    wstring getConfigFile(CF_TYPES cfType);
+   wstring getActiveConfigFile(CF_TYPES cfType);
 
    string getConfigStringA(const string& section, const string& key, const string& default = "", string file = "");
    string getConfigStringA(const wstring& section, const string& key, const string& default = "", wstring file = L"");
@@ -142,7 +143,7 @@ protected:
    string CONFIG_FILE_PATHS[CONFIG_FILE_COUNT];
 
    wstring wCurrentConfigFile{}, wCurrentThemeFile{}, wCurrentFoldStructFile{};
-   string currentConfigFile{}, currentThemeFile{}, currentFoldStructFile{};
+   string currentConfigFile{};
 
    enum ENC_TYPE {
       UTF8,

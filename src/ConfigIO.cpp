@@ -45,7 +45,7 @@ void ConfigIO::init() {
    }
 
    // initialize instance variables
-   resetVizConfig();
+   userVizConfig();
    PathCombine(defaultConfigFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_VIZ]).c_str());
    PathCombine(defaultThemeFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_THEMES]).c_str());
    PathCombine(defaultFoldStructFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[CONFIG_FOLDSTRUCTS]).c_str());
@@ -56,49 +56,59 @@ int ConfigIO::setVizConfig(const string& docFileType) {
    string sectionList{};
 
    if (docFileType.empty()) {
-      resetVizConfig();
+      userVizConfig();
       return 0;
    }
 
    sectionCount = getConfigAllSections(sectionList, CONFIG_FILE_PATHS[CONFIG_VIZ]);
    if (sectionCount > 0 && sectionList.find(docFileType) != string::npos) {
-      resetVizConfig();
+      userVizConfig();
       return 1;
    }
 
    sectionCount = getConfigAllSections(sectionList, Utils::WideToNarrow(defaultConfigFile));
    if (sectionCount > 0 && sectionList.find(docFileType) != string::npos) {
-      wCurrentConfigFile = wstring{ defaultConfigFile };
-      currentConfigFile = Utils::WideToNarrow(defaultConfigFile);
-
-      wCurrentThemeFile = wstring{ defaultThemeFile };
-      currentThemeFile = Utils::WideToNarrow(defaultThemeFile);
-
-      wCurrentFoldStructFile = wstring{ defaultFoldStructFile };
-      currentFoldStructFile = Utils::WideToNarrow(defaultFoldStructFile);
-
+      defaultVizConfig();
       return 2;
    }
 
-   resetVizConfig();
+   userVizConfig();
    return -1;
 }
 
-void ConfigIO::resetVizConfig() {
+void ConfigIO::userVizConfig() {
    wCurrentConfigFile = WCONFIG_FILE_PATHS[CONFIG_VIZ];
    currentConfigFile = CONFIG_FILE_PATHS[CONFIG_VIZ];
 
    wCurrentThemeFile = WCONFIG_FILE_PATHS[CONFIG_THEMES];
-   currentThemeFile = CONFIG_FILE_PATHS[CONFIG_THEMES];
-
    wCurrentFoldStructFile = WCONFIG_FILE_PATHS[CONFIG_FOLDSTRUCTS];
-   currentFoldStructFile = CONFIG_FILE_PATHS[CONFIG_FOLDSTRUCTS];
+}
+
+void ConfigIO::defaultVizConfig() {
+   wCurrentConfigFile = wstring{ defaultConfigFile };
+   currentConfigFile = Utils::WideToNarrow(defaultConfigFile);
+
+   wCurrentThemeFile = wstring{ defaultThemeFile };
+   wCurrentFoldStructFile = wstring{ defaultFoldStructFile };
 }
 
 wstring ConfigIO::getConfigFile(CF_TYPES cfType) {
    if (cfType < 0 || cfType >= CONFIG_FILE_COUNT) return L"";
 
    return WCONFIG_FILE_PATHS[cfType];
+}
+
+wstring ConfigIO::getActiveConfigFile(CF_TYPES cfType) {
+   switch (cfType) {
+   case CONFIG_VIZ:
+      return wCurrentConfigFile;
+   case CONFIG_THEMES:
+      return wCurrentThemeFile;
+   case CONFIG_FOLDSTRUCTS:
+      return wCurrentFoldStructFile;
+   default:
+      return WCONFIG_FILE_PATHS[cfType];
+   }
 }
 
 string ConfigIO::getConfigStringA(const string& section, const string& key, const string& default, string file) {

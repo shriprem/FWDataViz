@@ -78,7 +78,7 @@ public:
 #endif
 
 private:
-   HWND hFTList{}, hThemesLB{}, hFieldInfo{};
+   HWND hFTList{}, hThemesLB{}, hFieldInfo{}, hTipIniFiles{};
    HBRUSH hbr{};
 
    // Field Info tracking
@@ -151,14 +151,14 @@ private:
 
    void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
    void clearCaretFieldInfo();
-   void resizeCaretFieldInfo(int width);
+   void onPanelResize(LPARAM lParam);
    int getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback, int& leftPos, int& rightPos);
    void moveToFieldEdge(const string fileType, const int fieldIdx, bool jumpTo, bool rightEdge, bool hilite);
    void setFieldAlign(bool left);
    void popupSamplesMenu();
 
    string detectFoldStructType(string fileType);
-   void applyFolding(string foldStructType);
+   void applyFolding(string fsType);
    void removeFolding();
    void enableFoldableControls(bool bFoldable);
    void enableFoldedControls(bool bFolded);

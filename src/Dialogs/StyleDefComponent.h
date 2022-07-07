@@ -10,11 +10,11 @@ public:
    ~StyleDefComponent();
 
 protected:
-   bool cleanStyleDefs, styleDefColor;
+   bool cleanStyleDefs{}, styleDefColor{};
 
    HWND _hDialog{};
    HBRUSH hbr{};
-   COLORREF styleBack{}, styleFore{}, customColors[16];
+   COLORREF styleBack{}, styleFore{}, customColors[16]{};
 
    void initComponent(HWND hDlg);
    void localize();

@@ -172,6 +172,15 @@ HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage,
    return hwndTip;
 }
 
+void Utils::updateTooltip(HWND hDlg, int controlID, HWND hTip, LPWSTR pMessage) {
+   TOOLINFO toolInfo{};
+   toolInfo.cbSize = sizeof(toolInfo);
+   toolInfo.hwnd = hDlg;
+   toolInfo.uId = (UINT_PTR)GetDlgItem(hDlg, controlID);
+   toolInfo.lpszText = pMessage;
+   SendMessage(hTip, TTM_UPDATETIPTEXT, 0, (LPARAM)&toolInfo);
+}
+
 void Utils::addToolbarIcon(int menuIndex, int std, int fluent, int dark) {
    toolbarIconsWithDarkMode tbIcon{};
 

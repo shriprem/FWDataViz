@@ -193,6 +193,17 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          unfoldLevelMenu();
          break;
 
+      case IDC_VIZPANEL_FILE_INFO_BUTTON:
+      {
+         wstring fileList = _configIO.getActiveConfigFile(_configIO.CONFIG_VIZ) + L"\n" +
+            _configIO.getActiveConfigFile(_configIO.CONFIG_THEMES) + L"\n" +
+            _configIO.getActiveConfigFile(_configIO.CONFIG_FOLDSTRUCTS) + L"\n" +
+            wstring(80, '-') + VIZ_PANEL_FILE_INFO_TIP;
+
+         Utils::updateTooltip(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON, hTipIniFiles, fileList.data());
+         break;
+      }
+
       }
 
       break;
@@ -219,7 +230,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
    }
 
    case WM_SIZE:
-      resizeCaretFieldInfo(LOWORD(lParam));
+      onPanelResize(lParam);
       break;
 
    case WM_INITDIALOG:
@@ -325,6 +336,8 @@ void VisualizerPanel::initPanel() {
    addTooltip(_hSelf, IDC_VIZPANEL_PASTE_RIGHT_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FW_TIP_LONG, TRUE);
    addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FW_TIP_LONG, TRUE);
    addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FW_TIP_LONG, TRUE);
+
+   hTipIniFiles = addTooltip(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON, VIZ_PANEL_FILE_INFO_TITLE, VIZ_PANEL_FILE_INFO_TIP, FW_TIP_MEDIUM, TRUE);
 
    setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
 
@@ -561,8 +574,7 @@ void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoF
    wstring theme{};
    if (fileType.length() > 1)
       getDocTheme(theme);
-   else
-   {
+   else {
       syncListFileTypes();
       syncListThemes();
       return;
@@ -579,20 +591,12 @@ void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoF
    loadLexer();
    renderCurrentPage();
 
-   bool foldApply{};
-   string foldStructType{ getDocFoldStructType() };
+   string fsType{ detectFoldStructType(fileType) };
 
-   if (!foldStructType.empty()) {
-      foldApply = getDocFolded();
-   }
-   else {
-      foldStructType = detectFoldStructType(fileType);
-      foldApply = (!foldStructType.empty() && (_configIO.getFoldStructValueA(foldStructType, "FoldLevelAuto") == "Y"));
-   }
+   if (!fsType.empty() && (_configIO.getFoldStructValueA(fsType, "FoldLevelAuto") == "Y"))
+      applyFolding(fsType);
 
-   if (foldApply) applyFolding(foldStructType);
-   enableFoldableControls(!foldStructType.empty());
-
+   enableFoldableControls(!fsType.empty());
    setFocusOnEditor();
 }
 
@@ -1290,7 +1294,7 @@ void VisualizerPanel::clearCaretFieldInfo() {
    SetWindowText(hFieldInfo, L"");
 }
 
-void VisualizerPanel::resizeCaretFieldInfo(int width) {
+void VisualizerPanel::onPanelResize(LPARAM lParam) {
    RECT rcInfo;
    GetWindowRect(hFieldInfo, &rcInfo);
 
@@ -1298,7 +1302,16 @@ void VisualizerPanel::resizeCaretFieldInfo(int width) {
    POINT pt{ rcInfo.left, rcInfo.top };
    ScreenToClient(_hSelf, &pt);
 
-   MoveWindow(hFieldInfo, pt.x, pt.y, (width - pt.x - 3), (rcInfo.bottom - rcInfo.top), TRUE);
+   MoveWindow(hFieldInfo, pt.x, pt.y, (LOWORD(lParam) - pt.x - 3), (rcInfo.bottom - rcInfo.top), TRUE);
+
+   HWND hIniBtn{GetDlgItem(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON)};
+   RECT rcIniBtn;
+   GetWindowRect(hIniBtn, &rcIniBtn);
+
+   int iniBtnWidth{rcIniBtn.right - rcIniBtn.left};
+   int iniBtnHeight{rcIniBtn.bottom - rcIniBtn.top};
+
+   MoveWindow(hIniBtn, (LOWORD(lParam) - iniBtnWidth - 3), (HIWORD(lParam) - iniBtnHeight - 3), iniBtnWidth, iniBtnHeight, TRUE);
 }
 
 int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback,
@@ -1687,16 +1700,11 @@ bool VisualizerPanel::getDocTheme(wstring& theme) {
 
 string VisualizerPanel::getDocFoldStructType() {
    const wstring fileName{ getCurrentFileName() };
-   string foldStructType{};
 
    for (const DocInfo& DI : docInfoList) {
-      if (fileName == DI.fileName) {
-         foldStructType = DI.foldStructType;
-         break;
-      }
+      if (fileName == DI.fileName) return DI.foldStructType;
    }
-
-   return foldStructType;
+   return "";
 }
 
 bool VisualizerPanel::getDocFolded() {
@@ -1758,7 +1766,7 @@ void VisualizerPanel::setADFTCheckbox() {
 
 void VisualizerPanel::setPanelMBCharState() {
    _configIO.setPanelMBCharState(IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE));
-   visualizeFile("", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
+   visualizeFile("", TRUE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
 }
 
 void VisualizerPanel::setPanelMBCharIndicator(string fileType) {
@@ -1784,7 +1792,7 @@ void VisualizerPanel::setDefaultBackground() {
 
 void VisualizerPanel::setShowCalltip() {
    _configIO.setPreferenceBool(PREF_SHOW_CALLTIP, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_SHOW_CALLTIP) == BST_CHECKED));
-   visualizeFile("", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
+   visualizeFile("", TRUE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
 }
 
 void VisualizerPanel::initCalltipStyle() {
@@ -1851,7 +1859,7 @@ string VisualizerPanel::detectFoldStructType(string fileType) {
       snprintf(fsType.data(), 6, "FS%03d", i + 1);
       if (_configIO.getFoldStructValueA(fsType, "FileType") == fileType) {
          setDocFoldStructType(fsType);
-         return fsType;
+         return fsType.c_str();
       }
    }
    return "";
