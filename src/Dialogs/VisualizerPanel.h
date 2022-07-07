@@ -134,6 +134,7 @@ private:
    void setPanelMBCharIndicator(string fileType);
    void setDefaultBackground();
    void setShowCalltip();
+   void initCalltipStyle();
 
    void enableThemeList(bool enable);
    void syncListFileTypes();

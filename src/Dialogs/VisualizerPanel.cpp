@@ -884,6 +884,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
 int VisualizerPanel::loadUsedThemes() {
    loadedStyleCount = 0;
    themeSet.clear();
+   initCalltipStyle();
 
    string fileType;
    if (!getDocFileType(fileType)) return 0;
@@ -1531,12 +1532,14 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
 
       if (foldLevel > 0) {
          int level{ (foldLevel - SC_FOLDLEVELBASE) & SC_FOLDLEVELNUMBERMASK };
-         fieldInfoText += L"\n" + wstring(25, '-') +
+         fieldInfoText += L"\n" + wstring(40, '-') +
             ((foldLevel & SC_FOLDLEVELHEADERFLAG) ?
                L"\n  Fold Header: " + to_wstring(level + 1) :
                L"\n   Fold Level: " + to_wstring(level));
       }
       calltipText = Utils::WideToNarrow(fieldInfoText);
+
+      SendMessage(hScintilla, SCI_CALLTIPUSESTYLE, 3, 0);
       PostMessage(hScintilla, SCI_CALLTIPSHOW, caretPos, (LPARAM)calltipText.c_str());
    }
 }
@@ -1782,6 +1785,16 @@ void VisualizerPanel::setDefaultBackground() {
 void VisualizerPanel::setShowCalltip() {
    _configIO.setPreferenceBool(PREF_SHOW_CALLTIP, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_SHOW_CALLTIP) == BST_CHECKED));
    visualizeFile("", FALSE, (IsDlgButtonChecked(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT) == BST_CHECKED), TRUE);
+}
+
+void VisualizerPanel::initCalltipStyle() {
+   HWND hScintilla{ getCurrentScintilla() };
+   if (!hScintilla) return;
+
+   SendMessage(hScintilla, SCI_STYLESETFONT, STYLE_CALLTIP, (LPARAM)"Consolas");
+   SendMessage(hScintilla, SCI_STYLESETWEIGHT, STYLE_CALLTIP, 550);
+   SendMessage(hScintilla, SCI_STYLESETFORE, STYLE_CALLTIP, RGB(175, 95, 63));
+   SendMessage(hScintilla, SCI_STYLESETBACK, STYLE_CALLTIP, RGB(255, 255, 255));
 }
 
 void VisualizerPanel::onBufferActivate() {
