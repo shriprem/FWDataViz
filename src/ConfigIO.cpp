@@ -507,69 +507,95 @@ void ConfigIO::viewBackupFolder() {
    ShellExecute(NULL, L"open", pluginConfigBackupDir, NULL, NULL, SW_SHOWNORMAL);
 }
 
-bool ConfigIO::checkConfigFilesforUCS16() {
+bool ConfigIO::checkConfigFilesforUTF8() {
    bool status{ true };
 
-   if (!fixIfUTF16File(WCONFIG_FILE_PATHS[CONFIG_VIZ]))
+   if (!fixIfNotUTF8File(WCONFIG_FILE_PATHS[CONFIG_VIZ]))
       status = false;
 
-   if (!fixIfUTF16File(WCONFIG_FILE_PATHS[CONFIG_THEMES]))
+   if (!fixIfNotUTF8File(WCONFIG_FILE_PATHS[CONFIG_THEMES]))
       status = false;
 
-   if (!fixIfUTF16File(WCONFIG_FILE_PATHS[CONFIG_FOLDSTRUCTS]))
+   if (!fixIfNotUTF8File(WCONFIG_FILE_PATHS[CONFIG_FOLDSTRUCTS]))
       status = false;
 
    return status;
 }
 
-bool ConfigIO::fixIfUTF16File(CF_TYPES cfType) {
+bool ConfigIO::fixIfNotUTF8File(CF_TYPES cfType) {
    if (cfType < 0 || cfType >= CONFIG_FILE_COUNT) return false;
 
-   return fixIfUTF16File(WCONFIG_FILE_PATHS[cfType]);
+   return fixIfNotUTF8File(WCONFIG_FILE_PATHS[cfType]);
 }
 
-bool ConfigIO::fixIfUTF16File(wstring file) {
-   if (!hasBOM(file)) return true;
-
-   convertFromUTF16ToUTF8(file);
-
-   return hasBOM(file);
-}
-
-bool ConfigIO::hasBOM(wstring file) {
+ConfigIO::ENC_TYPE ConfigIO::getBOM(wstring file) {
    using std::ios;
 
    if (std::wifstream fs{ file, ios::binary }) {
-      unsigned short bom[2]{};
+      unsigned short bom[3]{};
       bom[0] = fs.get();
       bom[1] = fs.get();
+      bom[2] = fs.get();
+      fs.close();
 
-      return (bom[0] == 0xFF && bom[1] == 0xFE) || (bom[0] == 0xFE && bom[1] == 0xFF);
+      if (bom[0] == 0xFF && bom[1] == 0xFE)
+         return UCS16_LE;
+      else if (bom[0] == 0xFE && bom[1] == 0xFF)
+         return UCS16_BE;
+      else if (bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)
+         return UTF8_BOM;
    }
 
-   return true;
+   return UTF8;
 }
 
-void ConfigIO::convertFromUTF16ToUTF8(wstring file) {
+bool ConfigIO::fixIfNotUTF8File(wstring file) {
    using std::ios;
+
+   ENC_TYPE encoding{ getBOM(file) };
+   if (encoding == UTF8) return true;
 
    backupConfigFile(file);
 
-   if (std::wifstream wifs{ file, ios::binary | ios::ate }) {
-      wifs.imbue(std::locale(wifs.getloc(),
-         new std::codecvt_utf16<wchar_t, 0x10FFFF, std::consume_header>));
+   switch (encoding)
+   {
+   case UTF8_BOM:
+      if (std::ifstream ifs{ file, ios::binary | ios::ate }) {
+         int size = static_cast<int>(ifs.tellg()) - 3;
+         string str(size, '\0');
+         ifs.seekg(3);
+         ifs.read(str.data(), size);
+         ifs.close();
 
-      int size = static_cast<int>(wifs.tellg());
-      wstring wstr(size, '\0');
-      wifs.seekg(0);
-      wifs.read(wstr.data(), size);
+         string mbData{ str.c_str() };
 
-      string mbData{ Utils::WideToNarrow(wstr).c_str() };
-
-      if (std::ofstream ofs{ file, ios::out | ios::binary | ios::trunc }) {
-         ofs.write(mbData.c_str(), mbData.length());
+         if (std::ofstream ofs{ file, ios::out | ios::binary | ios::trunc}) {
+            ofs.write(mbData.c_str(), mbData.length());
+         }
       }
+      break;
+
+   case UCS16_BE:
+   case UCS16_LE:
+      if (std::wifstream wifs{ file, ios::binary | ios::ate }) {
+         wifs.imbue(std::locale(wifs.getloc(), new std::codecvt_utf16<wchar_t, 0x10FFFF, std::consume_header>));
+
+         int size = static_cast<int>(wifs.tellg());
+         wstring wstr(size, '\0');
+         wifs.seekg(0);
+         wifs.read(wstr.data(), size);
+         wifs.close();
+
+         string mbData{ Utils::WideToNarrow(wstr).c_str() };
+
+         if (std::ofstream ofs{ file, ios::out | ios::binary | ios::trunc }) {
+            ofs.write(mbData.c_str(), mbData.length());
+         }
+      }
+      break;
    }
+
+   return (getBOM(file) == UTF8);
 }
 
 void ConfigIO::flushConfigFile() {

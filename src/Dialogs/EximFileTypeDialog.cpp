@@ -141,7 +141,7 @@ void EximFileTypeDialog::loadExtractFile() {
    wstring sExtractFile{};
 
    if (_configIO.queryConfigFileName(_hSelf, TRUE, FALSE, sExtractFile)) {
-      if (_configIO.fixIfUTF16File(sExtractFile)) {
+      if (_configIO.fixIfNotUTF8File(sExtractFile)) {
          string sExtractData{ _configIO.readConfigFile(sExtractFile) };
          SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, Utils::NarrowToWide(sExtractData).c_str());
       }

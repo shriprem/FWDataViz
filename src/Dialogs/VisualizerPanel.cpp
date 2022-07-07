@@ -50,7 +50,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_FILETYPE_CONFIG:
-         if (_configIO.fixIfUTF16File(_configIO.CONFIG_VIZ))
+         if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_VIZ))
             ShowConfigDialog();
          break;
 
@@ -63,7 +63,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_THEME_CONFIG:
-         if (_configIO.fixIfUTF16File(_configIO.CONFIG_THEMES))
+         if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_THEMES))
             ShowThemeDialog();
          break;
 
@@ -161,12 +161,12 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       }
 
       case IDC_VIZPANEL_EXTRACT_DATA_BTN:
-         if (_configIO.fixIfUTF16File(_configIO.CONFIG_EXTRACTS))
+         if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_EXTRACTS))
             showExtractDialog();
          break;
 
       case IDC_VIZPANEL_FOLDING_APPLY_BTN:
-         if (_configIO.fixIfUTF16File(_configIO.CONFIG_FOLDSTRUCTS))
+         if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_FOLDSTRUCTS))
             applyFolding("");
          setFocusOnEditor();
          break;
@@ -286,7 +286,7 @@ void VisualizerPanel::initPanel() {
    using Utils::loadBitmap;
    using Utils::setFont;
 
-   utf8Config = _configIO.checkConfigFilesforUCS16();
+   utf8Config = _configIO.checkConfigFilesforUTF8();
    if (!utf8Config) return;
 
    PreferencesDialog::applyFoldLineColorAlpha();
@@ -1576,7 +1576,7 @@ void VisualizerPanel::showExtractDialog() {
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
    if (!isVisible()) return FALSE;
-   if (!_configIO.checkConfigFilesforUCS16()) return FALSE;
+   if (!_configIO.checkConfigFilesforUTF8()) return FALSE;
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    size_t startPos, endPos;

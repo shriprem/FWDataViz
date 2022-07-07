@@ -124,11 +124,9 @@ public:
    void viewBackupFolder();
    void flushConfigFile();
 
-   bool checkConfigFilesforUCS16();
-   bool fixIfUTF16File(CF_TYPES cfType);
-   bool fixIfUTF16File(wstring file);
-   bool hasBOM(wstring file);
-   void convertFromUTF16ToUTF8(wstring file);
+   bool checkConfigFilesforUTF8();
+   bool fixIfNotUTF8File(CF_TYPES cfType);
+   bool fixIfNotUTF8File(wstring file);
 
 protected:
    TCHAR pluginConfigDir[MAX_PATH]{};
@@ -145,5 +143,14 @@ protected:
 
    wstring wCurrentConfigFile{}, wCurrentThemeFile{}, wCurrentFoldStructFile{};
    string currentConfigFile{}, currentThemeFile{}, currentFoldStructFile{};
+
+   enum ENC_TYPE {
+      UTF8,
+      UTF8_BOM,
+      UCS16_LE,
+      UCS16_BE
+   };
+
+   ENC_TYPE getBOM(wstring file);
 };
 

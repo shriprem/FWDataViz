@@ -211,7 +211,7 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
             wstring backupThemeFile;
 
             if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupThemeFile)) {
-               if (_configIO.fixIfUTF16File(backupThemeFile)) {
+               if (_configIO.fixIfNotUTF8File(backupThemeFile)) {
                   themeFile = backupThemeFile;
                   loadConfigInfo();
                   fillThemes();

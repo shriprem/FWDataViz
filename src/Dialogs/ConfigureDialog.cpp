@@ -410,7 +410,7 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
             wstring backupConfigFile;
 
             if (_configIO.queryConfigFileName(_hSelf, TRUE, TRUE, backupConfigFile)) {
-               if (_configIO.fixIfUTF16File(backupConfigFile)) {
+               if (_configIO.fixIfNotUTF8File(backupConfigFile)) {
                   configFile = backupConfigFile;
                   loadConfigInfo();
                   fillFileTypes();
