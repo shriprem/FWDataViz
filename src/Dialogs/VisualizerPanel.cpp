@@ -1709,16 +1709,11 @@ string VisualizerPanel::getDocFoldStructType() {
 
 bool VisualizerPanel::getDocFolded() {
    const wstring fileName{ getCurrentFileName() };
-   bool bFolding{};
 
    for (const DocInfo& DI : docInfoList) {
-      if (fileName == DI.fileName) {
-         bFolding = DI.folded;
-         break;
-      }
+      if (fileName == DI.fileName) return DI.folded;
    }
-
-   return bFolding;
+   return false;
 }
 
 void VisualizerPanel::setDocFileType(string fileType) {
@@ -1866,9 +1861,10 @@ string VisualizerPanel::detectFoldStructType(string fileType) {
 }
 
 void VisualizerPanel::applyFolding(string foldStructType) {
+   if (getDocFolded()) return;
+
    string fileType{};
    getDocFileType(fileType);
-
    if (fileType.empty()) return;
 
    PSCIFUNC_T sciFunc;
@@ -1985,8 +1981,8 @@ void VisualizerPanel::applyFolding(string foldStructType) {
          }
 
 #if FW_DEBUG_FOLD_INFO
-         sciFunc(sciPtr, SCI_SETLINEINDENTATION, currentLine, (currentLevel * 2));
-         if (currentLine < 63)
+         //sciFunc(sciPtr, SCI_SETLINEINDENTATION, currentLine, (currentLevel * 2));
+         if (currentLine < 50)
             info += to_wstring(currentLine + 1) + L"\t" + recTypeCode + L"\t" + to_wstring(currentLevel + 1) + L"\n";
 #endif // FW_DEBUG_FOLD_INFO
 
@@ -2007,8 +2003,8 @@ void VisualizerPanel::applyFolding(string foldStructType) {
             sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE | currentLevel);
 
 #if FW_DEBUG_FOLD_INFO
-         sciFunc(sciPtr, SCI_SETLINEINDENTATION, currentLine, (currentLevel * 2));
-         if (currentLine < 63)
+         //sciFunc(sciPtr, SCI_SETLINEINDENTATION, currentLine, (currentLevel * 2));
+         if (currentLine < 50)
             info += to_wstring(currentLine + 1) + L"\t" + recTypeCode + L"\t" + to_wstring(currentLevel + 1) + L"\n";
 #endif // FW_DEBUG_FOLD_INFO
 
@@ -2019,11 +2015,15 @@ void VisualizerPanel::applyFolding(string foldStructType) {
    setDocFolded(bFoldExists);
 
 #if FW_DEBUG_FOLD_INFO
-   MessageBox(_hSelf, info.c_str(), L"Fold Levels Info", MB_OK);
+   MessageBox(_hSelf, (_configIO.getActiveConfigFile(_configIO.CONFIG_FOLDSTRUCTS) + L"\n\n" + info).c_str(),
+      L"Fold Levels Info", MB_OK);
 #endif // FW_DEBUG_FOLD_INFO
 }
 
 void VisualizerPanel::removeFolding() {
+   // First, unfold all levels
+   expandFoldLevel(TRUE, MAXBYTE);
+
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
