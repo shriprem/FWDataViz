@@ -166,8 +166,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_FOLDING_APPLY_BTN:
-         if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_FOLDSTRUCTS))
+         if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_FOLDSTRUCTS)) {
+            setDocFolded(FALSE);
             applyFolding("");
+         }
          setFocusOnEditor();
          break;
 
@@ -1860,7 +1862,7 @@ string VisualizerPanel::detectFoldStructType(string fileType) {
    return "";
 }
 
-void VisualizerPanel::applyFolding(string foldStructType) {
+void VisualizerPanel::applyFolding(string fsType) {
    if (getDocFolded()) return;
 
    string fileType{};
@@ -1870,17 +1872,14 @@ void VisualizerPanel::applyFolding(string foldStructType) {
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
-   if (foldStructType.empty())
-      foldStructType = getDocFoldStructType();
-   if (foldStructType.empty()) return;
+   if (fsType.empty())
+      fsType = getDocFoldStructType();
+   if (fsType.empty()) return;
 
    vector<FoldingInfo> foldingInfoList{};
-   _configIO.getFoldStructFoldingInfo(Utils::NarrowToWide(foldStructType), foldingInfoList);
+   _configIO.getFoldStructFoldingInfo(Utils::NarrowToWide(fsType), foldingInfoList);
 
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
-
-   const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
-   if (lineCount < 1) return;
 
    const size_t regexedCount{ recInfoList.size() };
 
@@ -1901,7 +1900,10 @@ void VisualizerPanel::applyFolding(string foldStructType) {
    wstring info{ L"Line\tRec. Type\tLevel\n" };
 #endif // FW_DEBUG_FOLD_INFO
 
+   SetCursor(LoadCursor(NULL, IDC_WAIT));
+   const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
    const size_t endLine{ lineCount };
+
    for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
          continue;
@@ -2011,6 +2013,7 @@ void VisualizerPanel::applyFolding(string foldStructType) {
       }
    }
 
+   SetCursor(LoadCursor(NULL, IDC_ARROW));
    enableFoldedControls(bFoldExists);
    setDocFolded(bFoldExists);
 
@@ -2029,14 +2032,15 @@ void VisualizerPanel::removeFolding() {
 
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
+   SetCursor(LoadCursor(NULL, IDC_WAIT));
    const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
-   if (lineCount < 1) return;
 
    const size_t endLine{ lineCount };
    for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
       sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE);
    }
 
+   SetCursor(LoadCursor(NULL, IDC_ARROW));
    enableFoldedControls(FALSE);
    setDocFolded(FALSE);
 }
@@ -2046,6 +2050,7 @@ void VisualizerPanel::enableFoldableControls(bool bFoldable) {
 }
 
 void VisualizerPanel::enableFoldedControls(bool bFolded) {
+   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_APPLY_BTN), bFolded ? L"Re-Apply" : L"Apply");
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_REMOVE_BTN), bFolded);
 
    if (bFolded) {
@@ -2121,6 +2126,7 @@ void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
+   SetCursor(LoadCursor(NULL, IDC_WAIT));
    size_t lineCount{ static_cast<size_t>(SendMessage(hScintilla, SCI_GETLINECOUNT, 0, 0)) };
 
    for (size_t line = 0; line < lineCount; ++line) {
@@ -2134,6 +2140,7 @@ void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {
          SendMessage(hScintilla, SCI_TOGGLEFOLD, line, 0);
    }
 
+   SetCursor(LoadCursor(NULL, IDC_ARROW));
    renderCurrentPage();
 }
 
