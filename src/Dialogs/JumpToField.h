@@ -19,11 +19,14 @@ private:
    string initFileType{};
    int initRecordRegIndex{};
    HWND hFieldList{}, hCaretFlash{};
+   vector<wstring> cFieldLabels{};
 
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
+   void loadJumpList(int fieldIndex = -1);
+   void onJumpSeqNumPref();
    void onJumpBtnClick();
 
    int getTbarPosition();
-   void syncTbarToText(int optVal = FALSE);
+   void setTbarPosition(int val, bool savePref);
 };

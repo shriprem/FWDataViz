@@ -226,7 +226,6 @@
 #define PREFERENCES_CLEARVIZ_AUTO   L"\"Clear\" button click unchecks Auto-detect File Type"
 #define PREFERENCES_CLEARVIZ_PANEL  L"Closing plugin panel clears visualization"
 #define PREFERENCES_MBCHARS_STATE   L"Show Multi-byte checkbox in plugin panel"
-#define PREFERENCES_JUMP_FIELD_SEQ  L"Show sequence numbers in Jump To Field list"
 #define PREFERENCES_CLOSE_BTN       L"&Close"
 #define PREF_CLEARVIZ_AUTO_TIP      L"● When this box is unchecked, clicking the \"Clear\" button will redo the auto-file detection, followed by document visualization.\r\n\r\n● When this box is checked, clicking the \"Clear\" button will also uncheck the \"Auto-detect File Type\" checkbox, and also clear the document visualization."
 #define PREF_CLEARVIZ_PANEL_TIP      L"● Leave this box unchecked if you are only closing the plugin panel for more document viewing area but wish to retain the document visualization.\r\n\r\n● When this box is checked, closing the plugin panel will also clear the document visualization."
@@ -236,9 +235,10 @@
 // Jump Field Dialog
 #define JUMP_FIELD_DIALOG_TITLE     L"Jump to Field"
 #define JUMP_FIELD_SELECT_LABEL     L"&Select Field:"
+#define JUMP_FIELD_PREF_SEQ_NUM     L"Show sequence numbers in the Select Field list"
+#define JUMP_LABEL_CARET_FLASH      L"Cursor Flash duration (in seconds)"
 #define JUMP_FIELD_GO_BTN           L"&Jump"
 #define JUMP_FIELD_CLOSE_BTN        L"&Cancel"
-#define JUMP_LABEL_CARET_FLASH      L"Cursor Flash duration (in seconds)"
 #define JUMP_TIP_CARET_FLASH        L"When the cursor is set at its default width of '1', it can be hard to spot the cursor at its new position. To aid quick spotting, the cursor is briefly set to block mode at the destination position.\r\n\r\nSpecify the number of seconds to have the cursor flashing in block mode at the destination position."
 
 
