@@ -51,5 +51,6 @@ This sample file is named after the icon of [a serpent eating its own tail](http
 * Record type 5 (marker `TF`) is _non-recursive_ and terminates record types 1, 2, 3 & 4.
 
 To gain better sense of the folding structure in this file, turn on the `Show Calltip` option on the side panel, and then click on lines 1 through 10. The last line in the calltip will indicate the fold level for the current line.
+
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_ouroboros_file.png)
 

@@ -19,7 +19,15 @@
 1. If you use Notepad++ menu options to fold levels, the text in the view page may end up partially colorized. However, if you move the caret (i.e., keyboard cursor) to a different position, the page will be fully colorized again. You can avoid this by using the **Fold** and **Unfold** buttons on the _FWDataViz_ side panel.
 2. If you edit the data file, you may also need to click on the **Apply** button on the _FWDataViz_ side panel to rescan the file and rebuild the new folding structure. No workaround for this, since any file edits may require a full file scan which will not be optimal if done automatically for each bit of file edit.
 
-**Release:** _Coming soon!_
+#### Manual Upgrade
+Download the zip file matching your Notepad++ version bitness. Copy these 4 files that are new/changed:
+| File | Status | Install Location |
+|---|---|---|
+| `FWDataViz.dll` | _Changed_ | `<Notepad++_executable_folder>/plugins/FWDataViz/` |
+| `default_FoldStructs.ini` | _New_ | `<Notepad++_executable_folder>/plugins/FWDataViz/` |
+| `default_Visualizer.ini` | _Changed_ | `<Notepad++_executable_folder>/plugins/FWDataViz/` |
+| `Samples/Ouroboros.txt` | _New_ |  `<Notepad++_executable_folder>/plugins/FWDataViz/Samples/` |
+
 
 ---
 
