@@ -1,6 +1,6 @@
 ## Version History
 
-### Version 2.6.0.0 [June 27`+`, 2022]
+### Version 2.6.0.0 Pre-Release [July 11, 2022]
 
 #### Major Enhancements
 1. Foldable Record Blocks.

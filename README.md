@@ -3,7 +3,7 @@
 ![GitHub](https://img.shields.io/github/license/shriprem/FWDataViz) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/shriprem/FWDataViz) ![GitHub all releases](https://img.shields.io/github/downloads/shriprem/FWDataViz/total)
 
 ## Fixed Width Data Visualizer plugin for Notepad++
-[Current Version: 2.5.3.0](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
+[Current Version: 2.6.0.0 Pre-Release](https://github.com/shriprem/FWDataViz/blob/master/VersionHistory.md)
 
 ![FWDataViz](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_weather_stations.png)
 
@@ -12,6 +12,8 @@
 * [Displays record, field and byte information at cursor position.](#fixed-width-data-visualizer-panel)
 
 * [Quick Field Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md) to [Jump](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md#jump-to-field) to any field of the current record or [Hop](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md#hop-field) to the left or right edge of the current field or adjacent fields.
+
+* [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md) for fixed-width data files with hierarchical data.
 
 * [Field Copy](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-copy) and [Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-paste) with smart left or right alignment and padding or trimming.
 
@@ -42,32 +44,34 @@
 
 ---
 
-## User Interface
-
-### Fixed-Width Data Visualizer Panel
+## Plugin Panel
 ![Plugin_Panel](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/plugin_panel.png)
 
 * Click on the _View Sample Files_ icon: ![View Sample Files](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_samples.bmp), and choose from the menu options to view various [sample files](#sample-data-files).
 
-* Click the _Preferences_ button to specify [preferences](#preferences-dialog).
+* Click on the _File Type Metadata Editor_ icon: ![File Type Metadata Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_config.bmp), to view, modify or create your custom File Type definitions. For more information, see: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md).
 
-* Click on the _File Type Metadata Editor_ icon: ![File Type Metadata Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/file_config.bmp), to view, modify or create your custom File Type definitions. For more information, see: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md)
+* Click on the _Visualizer Theme Editor_ icon: ![Visualizer Theme Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/color_config.bmp), to view, modify or create your custom Visualizer Theme definitions. For more information, see: [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md).
 
-* Click on the _Visualizer Theme Editor_ icon: ![Visualizer Theme Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/color_config.bmp), to view, modify or create your custom Visualizer Theme definitions. For more information, see: [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md)
+* Click the _Preferences_ button to specify preferences for the plugin. For more information, see: [Preferences](https://github.com/shriprem/FWDataViz/blob/master/docs/preferences_dialog.md)
 
-* Check the _Auto-detect File Type_ box to automatically visualize files with matching file type from the defined list. For more information on this feature, see: [Auto-Detect File Type Configuration](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md)
+* Check the _Auto-detect File Type_ box to automatically visualize files with matching file type from the defined list. For more information, see: [Auto-Detect File Type Configuration](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md).
 
-* Check the _Trim Field Copy_ box to automatically ignore the left or right padding characters when copying a field. For more information on this feature, see: [Field Copy](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-copy)
+* To get the _Multi-Byte Chars_ become visible on the plugin panel, see: [Preferences](https://github.com/shriprem/FWDataViz/blob/master/docs/preferences_dialog.md). Since this is a **_3-state_** checkbox, please review the documentation for it at: [Multi-byte Character Data Visualization](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md#quick-override-from-panel).
 
-* For more information on the _Jump to Field_ and left & right hop buttons, see: [Quick Field Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md)
+* Check the _Default Background_ box to render the fixed-width fields with just the text colors while suppressing the background colors of the theme styles.
 
-* For more information on _Field Copy_ and _Field Paste_ buttons, see: [Field Copy and Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md)
+* Check the _Show Calltip_ box to display the _Cursor Position Data_ in a calltip within the editor, right below the current cursor position. This option will be useful during presentations and other situations when there is a need to avoid an additional glance towards the side panel to view the same _Cursor Position Data_.
 
-* For more information on the _Data Extraction_ button, see: [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md)
+* Check the _Trim Field Copy_ box to automatically ignore the left or right padding characters when copying a field. For more information, see: [Field Copy](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-copy).
 
-### Preferences dialog
+* For more information on the _Jump to Field_ and left & right hop buttons, see: [Quick Field Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md).
 
-![Prefereces_dialog](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/preferences_dialog.png)
+* For more information on _Field Copy_ and _Field Paste_ buttons, see: [Field Copy and Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md).
+
+* For more information on the _Data Extraction_ button, see: [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md).
+
+* For more information on the buttons in the _Folding_ section, see: [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md).
 
 
 ---
@@ -93,7 +97,9 @@ __Treasury IPAC File__
 _(real format, but with fake data)_
 ![Multi_Rec](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_ipac_file.png)
 
-In the above clip, the _Transaction Header_ records are being visualized with a different theme. For more information on this, see: [Record Type Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md)
+In this sample clip:
+* The records are being displayed in foldable blocks. For more information on this, see: [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md).
+* The _Transaction Header_ records are being visualized with a different theme. For more information on this, see: [Record Type Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md).
 
 ### Multi-Line Record-type Fixed-width Data Files
 Files with data records that span multiple lines. End of record is indicated by a marker. For example: _<END_REC>_
