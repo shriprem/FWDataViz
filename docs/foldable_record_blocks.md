@@ -3,7 +3,7 @@
 ## Table of Content
 1. [Concept](#Concept)
 2. [Scheme](#Scheme)
-3. [Definition (_INI File_)](#Definition-(_INI-File_))
+3. [Definition (_INI File_)](#Definition-INI-File)
 4. [Sample Files with Folding](#Sample-Files-with-Folding)
 
 ## Concept
@@ -34,7 +34,7 @@ In a file with _Foldable Record Blocks_:
 ---
 
 ## Scheme
-A **_Foldable Record Scheme_** can be associated with a single Fixed-width File Type as defined in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md).
+A **_Foldable Record Scheme_** can be associated with a single _Fixed-width File Type_ as defined in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md).
 
 With that associated _File Type_ as the reference basis, you will then need to specify:
 1. **_Header Records_**: The _Record Types_ that will serve as block headers i.e., _folding nodes_.
@@ -68,23 +68,23 @@ The definition schemes for record blocks will reside in the new `FoldStructs.ini
 
 * `FileLabel`: This value must _optionally_ match the corresponding `FileLabel` value in the `Visualizer.ini` file.
 
-* `FoldLevelAuto`: This value can be either `Y` or `N`. This will specify whether, after a file loads in the Notepad++ editor, the plugin must automatically try to do a full file scan and apply the specified folding structure for the matching _File Type_. Recommend setting this to `N` for _File Types_ with likely large data files, when this process can take a long time.
+* `FoldLevelAuto`: This value can be either `Y` or `N`. This will specify whether, after a file loads in the Notepad++ editor, the plugin should automatically try to do a full file scan and apply the specified folding structure for the matching _File Type_. Recommend setting this to `N` for _File Types_ with likely large data files, when this process can take a long time.
 
-* `HeaderRecords`: An comma-separated list of _Record Types_. (see **_Header Records_** under: [Schema](#schema)). The _Record Types_ in the list must exactly match the corresponding _Record Types_ of associated the _File Type_ in the `Visualizer.ini` file.
+* `HeaderRecords`: A comma-separated list of _Record Types_. (see **_Header Records_** under: [Scheme](#scheme)). The _Record Types_ in the list must exactly match the corresponding _Record Types_ of associated the _File Type_ in the `Visualizer.ini` file.
 
-* `RECnnn_Priority`: A numeric value (see **_Block Priority_** under: [Schema](#schema)).
+* `RECnnn_Priority`: A numeric value (see **_Block Priority_** under: [Scheme](#scheme)).
 
   Recommend using values in increments of  10, so that blocks that need to be added at a later time can be specified with intermediate values. For example, the outermost record block can have a priority of _10_, the next record block that may be enclosed within it can have a priority of _20_, and so on.
 
-* `RECnnn_Recursive`: This value can be either `Y` or `N` (see **_Block Recursiveness_** under: [Schema](#schema)). For most data files, this value will be `N`.
+* `RECnnn_Recursive`: This value can be either `Y` or `N` (see **_Block Recursiveness_** under: [Scheme](#scheme)). For most data files, this value will be `N`.
 
 
-* `RECnnn_EndRecords`: An _optional_, comma-separated list of _Record Types_ (see **_Block Termination_** under: [Schema](#schema)). The _Record Types_ in the list must exactly match the corresponding _Record Types_ of associated the _File Type_ in the `Visualizer.ini` file.
+* `RECnnn_EndRecords`: An _optional_, comma-separated list of _Record Types_ (see **_Block Termination_** under: [Scheme](#scheme)). The _Record Types_ in the list must exactly match the corresponding _Record Types_ of associated the _File Type_ in the `Visualizer.ini` file.
 
 ---
 
 ## Sample Files with Folding
-Viewing the sample files, and then reviewing their definitions in `FoldStructs.ini` file will help clarify the _Foldable Record Blocks_ concept and usage.
+Viewing the sample files, and then reviewing their definitions in the `FoldStructs.ini` file will help clarify the _Foldable Record Blocks_ concept and usage.
 
 ### 1. ICD-10 Billable-Flagged Order Codes [_Basic Level Folding_]
 This file has the most basic record block folding with just two record types, and only one level of folding.
@@ -92,20 +92,20 @@ This file has the most basic record block folding with just two record types, an
 
 
 ### 2. Treasury IPAC (ANSI) File [_Intermediate Level Folding_]
-This file has three levels of hierarchical folding. Yet the structure is not complex since there is no recursive nesting.
+This file has three levels of hierarchical folding. Yet the structure is not too complex since there is no recursive nesting.
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_ipac_file.png)
 
 
 ### 3. Ouroboros Fold Levels [_Advanced Level Folding_]
-This sample file is named after the icon of [a serpent eating its own tail](https://en.wikipedia.org/wiki/Ouroboros). This contrived sample file has been included to showcase the full possibilities with the record block folding feature of _FWDataViz_.
+This sample file is named after the icon of [a serpent eating its own tail](https://en.wikipedia.org/wiki/Ouroboros). This contrived sample file has been included to showcase the full possibilities with the _Foldable Record Block_ feature of _FWDataViz_.
 
-* The `P3` record type has 20 fields, each 3 characters wide. `P3` record type is _recursive_, and is terminated by the `Q4` record type.
+* The `P3` record type has 20 fields, each 3-characters wide. `P3` record type is _recursive_, and is terminated by the `Q4` record type.
 
-* The `Q4` record type has 15 fields, each 4 characters wide. `Q4` record type is _recursive_, and is terminated by the `R5` record type.
+* The `Q4` record type has 15 fields, each 4-characters wide. `Q4` record type is _recursive_, and is terminated by the `R5` record type.
 
-* The `R5` record type has 12 fields, each 5 characters wide. `R5` record type is _recursive_, and is terminated by the `S6` record type.
+* The `R5` record type has 12 fields, each 5-characters wide. `R5` record type is _recursive_, and is terminated by the `S6` record type.
 
-* The `S6` record type has 10 fields, each 6 characters wide. `S6` record type is _recursive_, and is terminated by the `P3` record type.
+* The `S6` record type has 10 fields, each 6-characters wide. `S6` record type is _recursive_, and is terminated by the `P3` record type.
 
 * The `TF` record type 5 is _non-recursive_. The `TF` record type terminates all other record types: `P3`, `Q4`, `R5` & `S6`.
 
