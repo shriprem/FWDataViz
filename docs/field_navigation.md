@@ -5,7 +5,9 @@
 
 Useful for navigating between fields on long records with dozens of fields.
 
-In the _Jump to Field_ popup, the _Cursor Flash duration (in seconds)_ slider is to optionally specify how long the cursor should blink in block mode after it has jumped to the new field.
+#### Optional Settings
+1. **_Show sequence numbers in the Select Field list_:** Check this box if you prefer sequence numbers as prefixes to field names in the _Select Fields_ dropdown list.
+2. **_Cursor Flash duration (in seconds)_:** Use this slider to specify how long the cursor should blink in block mode after it has jumped to the new field.
 
 
 ### Hop Field

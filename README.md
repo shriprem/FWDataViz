@@ -53,7 +53,7 @@
 
 * Click on the _Visualizer Theme Editor_ icon: ![Visualizer Theme Editor](https://raw.githubusercontent.com/shriprem/FWDataViz/master/src/Resources/color_config.bmp), to view, modify or create your custom Visualizer Theme definitions. For more information, see: [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md).
 
-* Click the _Preferences_ button to specify preferences for the plugin. For more information, see: [Preferences](https://github.com/shriprem/FWDataViz/blob/master/docs/preferences_dialog.md)
+* Click the _Preferences_ button to specify preferences for the plugin. For more information, see: [Preferences](https://github.com/shriprem/FWDataViz/blob/master/docs/preferences_dialog.md).
 
 * Check the _Auto-detect File Type_ box to automatically visualize files with matching file type from the defined list. For more information, see: [Auto-Detect File Type Configuration](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md).
 

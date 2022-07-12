@@ -4,13 +4,14 @@
 
 #### Major Enhancements
 1. Foldable Record Blocks.
-2. [_Side Panel_] **Default Background** checkbox option to suppress the background colors specified in theme styles.
+2. [_Plugin Panel_] **Default Background** checkbox option to suppress the background colors specified in theme styles.
 3. [_Side Panel_] **Show Calltip** checkbox option to display inline **Cursor Position Data**.
 
 #### Minor Enhancements
-1. [_Side Panel_] **Fold** and **Unfold** buttons for: _All Levels_ and _Level 1_ to _Level 10_. These buttons are functional with any file (fixed-width or not) opened in Notepad++.
-2. [_Side Panel_] **Toggle Line** button to toggle between folded and unfolded states on the current line. This button is functional with any file (fixed-width or not) opened in Notepad++.
-3. [_Preferences Dialog_] Specify color and transparency for the horizontal demarcator lines drawn above and below the fold header text-line when the block it encloses is in collapsed state. This preference setting is applied globally for all files open in Notepad++.
+1. [_Plugin Panel_] **Fold** and **Unfold** buttons for: _All Levels_ and _Level 1_ to _Level 10_. These buttons are functional with any file (fixed-width or not) opened in Notepad++.
+2. [_Plugin Panel_] **Toggle Line** button to toggle between folded and unfolded states on the current line. This button is functional with any file (fixed-width or not) opened in Notepad++.
+3. [_Jump to Field popup_] Checkbox option to prefix sequence numbers to field names in the _Select Fields_ dropdown list.
+4. [_Preferences Dialog_] Specify color and transparency for the horizontal demarcator lines drawn above and below the fold header text-line when the block it encloses is in collapsed state. This preference setting is applied globally for all files open in Notepad++.
 
 #### Pending
 1. An editor GUI to define and modify record block structures for fixed-width file types (that have been defined either via the _File Type Metadata Editor_ or directly in `Visualizer.ini` file). This editor will be implemented in due course for the next general release of _FwDataViz_.
