@@ -167,6 +167,7 @@ private:
    void expandFoldLevel(bool bExpand, int level);
    void foldLevelMenu();
    void unfoldLevelMenu();
+   void showFoldStructDialog();
 
    static DWORD WINAPI threadPositionHighlighter(void*);
 };

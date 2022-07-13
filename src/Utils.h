@@ -44,4 +44,5 @@ namespace Utils {
 
    int scaleDPIX(int x);
    int scaleDPIY(int y);
+   int getTextPixelWidth(HWND hDlg, const wstring& text);
 }

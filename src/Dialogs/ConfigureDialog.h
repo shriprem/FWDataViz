@@ -59,7 +59,6 @@ private:
    wstring configFile{};
    vector<FileType> vFileTypes;
    bool loadingEdits{}, cleanConfigFile{}, cleanFileVals{}, cleanRecVals{}, cleanFieldVals{};
-   HWND hToolTips[8]{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();

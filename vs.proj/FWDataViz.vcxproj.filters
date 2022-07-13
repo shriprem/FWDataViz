@@ -58,6 +58,9 @@
     <ClCompile Include="..\src\Darkmode\NppDarkMode.cpp">
       <Filter>Darkmode</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Dialogs\FoldStructDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -155,6 +158,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Resources\control_ids.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Dialogs\FoldStructDialog.h">
+      <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
