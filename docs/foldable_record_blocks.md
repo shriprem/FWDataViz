@@ -92,16 +92,21 @@ Viewing the sample files, and then reviewing their definitions in the `FoldStruc
 
 ### 1. ICD-10 Billable-Flagged Order Codes [_Basic Level Folding_]
 This file has the most basic record block folding with just two record types, and only one level of folding.
+
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_orders_file.png)
+
 
 
 ### 2. Treasury IPAC (ANSI) File [_Intermediate Level Folding_]
 This file has three levels of hierarchical folding. Yet the structure is not too complex since there is no recursive nesting.
+
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_ipac_file.png)
 
 
 ### 3. Ouroboros Fold Levels [_Advanced Level Folding_]
 This sample file is named after the icon of [a serpent eating its own tail](https://en.wikipedia.org/wiki/Ouroboros). This contrived sample file has been included to showcase the full possibilities with the _Foldable Record Block_ feature of _FWDataViz_.
+
+![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_ouroboros_file.png)
 
 * The `P3` record type has 20 fields, each 3-characters wide. `P3` record type is _recursive_, and is terminated by the `Q4` record type.
 
@@ -115,4 +120,8 @@ This sample file is named after the icon of [a serpent eating its own tail](http
 
 To gain better sense of the recursive and nested folding structure in this file, turn on the _Show Calltip_ option on the plugin panel, and then click through lines 1 to 10. The last line within the calltip will indicate the fold level of the current line.
 
-![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_ouroboros_file.png)
+To illustrate the nesting of fold levels in this file, the levels are indented in the clip below.
+
+![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_ouroboros_indented.png)
+
+
