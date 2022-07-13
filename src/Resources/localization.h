@@ -30,13 +30,22 @@
 #define VIZ_PANEL_FIELD_COPY_TRIM   L"Trim Field Copy"
 #define VIZ_PANEL_FIELD_LABEL       L"Cursor Position Data"
 #define VIZ_PANEL_JUMP_FIELD_BTN    L"&Jump to Field"
-#define VIZ_PANEL_EXTRACT_DATA_BTN  L"&Data Extraction"
 #define VIZ_PANEL_FIELD_COPY_BTN    L"Field &Copy"
 #define VIZ_PANEL_FIELD_PASTE_BTN   L"Field &Paste"
 #define VIZ_PANEL_PASTE_LEFT_LABEL  L"Left-aligned"
 #define VIZ_PANEL_PASTE_RIGHT_LABEL L"Right-aligned"
 #define VIZ_PANEL_PASTE_RPAD_LABEL  L"&RPAD:"
 #define VIZ_PANEL_PASTE_LPAD_LABEL  L":&LPAD"
+#define VIZ_PANEL_EXTRACT_DATA_BTN  L"&Data Extraction"
+#define VIZPANEL_FOLD_GROUP_BOX     L"Folding"
+#define VIZPANEL_FOLD_APPLY_BTN     L"Apply"
+#define VIZPANEL_FOLD_REAPPLY_BTN   L"Re-Apply"
+#define VIZPANEL_FOLD_REMOVE_BTN    L"Remove"
+#define VIZPANEL_FOLD_DEFINE_BTN    L"Define…"
+#define VIZPANEL_FOLD_FOLD_BTN      L"Fold »"
+#define VIZPANEL_FOLD_TOGGLE_BTN    L"Toggle Line"
+#define VIZPANEL_FOLD_UNFOLD_BTN    L"Unfold »"
+
 #define VIZ_PANEL_INFO_TIP          L"View Readme Online"
 #define VIZ_PANEL_FILE_SAMPLES_TIP  L"View Sample Files"
 #define VIZ_PANEL_FILE_CONFIG_TIP   L"Open File Type Metadata Editor"
@@ -81,7 +90,7 @@
 
 
 // Configuration Dialog
-#define FWVIZ_DIALOG_TITLE          L"File Type Metadata Editor"
+#define FWVIZ_DEF_DIALOG_TITLE      L"File Type Metadata Editor"
 #define FWVIZ_DEF_FILE_GROUP_BOX    L"File Type"
 #define FWVIZ_DEF_FILE_MOVE_DOWN    L"Move down the selected File Type"
 #define FWVIZ_DEF_FILE_MOVE_UP      L"Move up the selected File Type"
@@ -196,7 +205,38 @@
 #define THEME_SAVE_BKUP_CONFIG_DLG  L"Save Backup Themes File"
 
 
-// Define File Type Dialog
+// Fold Structures Editor Dialog
+#define FOLD_STRUCT_DIALOG_TITLE    L"Fold Structures Editor"
+#define FOLD_DEF_FILE_GROUP_BOX     L"Fold Structures"
+#define FOLD_DEF_FILE_TYPE_LABEL    L"Fold Structure - File Type:"
+#define FOLD_DEF_AUTO_FOLD_APPLY    L"Automatically apply Fold Structure \t\ton matching files"
+#define FOLD_DEF_FILE_ACCEPT_BTN    L"Accept"
+#define FOLD_DEF_FILE_NEW_BTN       L"New"
+#define FOLD_DEF_FILE_CLONE_BTN     L"Clone"
+#define FOLD_DEF_FILE_DEL_BTN       L"Delete"
+#define FOLD_DEF_HDR_REC_GROUP_BOX  L"Fold Structure - Blocks"
+#define FOLD_DEF_HDR_REC_TYPE_LABEL L"Fold Block - Header Record Type:"
+#define FOLD_DEF_HDR_PRIORITY_LABEL L"Fold Block Priority: "
+#define FOLD_DEF_HDR_REC_RECURSIVE  L"Recursive Fold Block"
+#define FOLD_DEF_HDR_REC_ACCEPT_BTN L"Accept"
+#define FOLD_DEF_HDR_REC_NEW_BTN    L"New"
+#define FOLD_DEF_HDR_REC_CLONE_BTN  L"Clone"
+#define FOLD_DEF_HDR_REC_DEL_BTN    L"Delete"
+#define FOLD_IMPLICIT_TRMNTRS_GROUP L"Fold Block - Implicit Terminators"
+#define FOLD_EXPLICIT_TRMNTRS_GROUP L"Fold Block - Explicit Terminators"
+#define FOLD_EXPLICIT_ENDREC_LABEL  L"Explicit Terminator - Record Type:"
+#define FOLD_EXPLICIT_ENDREC_ACCEPT L"Accept"
+#define FOLD_EXPLICIT_ENDREC_NEW    L"New"
+#define FOLD_EXPLICIT_ENDREC_DEL    L"Delete"
+#define FOLD_DEF_SAVE_BTN           L"&Save as Primary Fold Structs"
+#define FOLD_DEF_RESET_BTN          L"&Reload Primary Fold Structs"
+#define FOLD_DEF_BACKUP_LOAD_BTN    L"&Load Backup Fold Structs"
+#define FOLD_DEF_BACKUP_VIEW_BTN    L"&View Backup Folder"
+#define FOLD_DEF_EXTRACT_BTN        L"E&xtract Selected Fold Structure"
+#define FOLD_DEF_APPEND_BTN         L"&Append New Fold Structure"
+
+
+// Define Field Type Dialog
 #define FIELD_TYPE_DEF_DLG_TITLE    L"Define Field Types"
 #define FIELD_TYPE_GROUP_BOX        L"Field &Types"
 #define FIELD_TYPE_NEW_BTN          L"&New"
@@ -276,6 +316,7 @@
 
 // Info Button Links
 #define VIZPANEL_INFO_README        L"https://github.com/shriprem/FWDataViz/blob/master/README.md"
+#define VIZPANEL_FOLD_INFO_README   L"https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md"
 #define FWVIZ_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md"
 #define FWVIZ_DEF_MCBS_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md"
 #define FWVIZ_DEF_ADFT_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md"

@@ -3,6 +3,7 @@
 //#include "FieldTypeDialog.h"
 #include "JumpToField.h"
 #include "DataExtractDialog.h"
+#include "FoldStructDialog.h"
 #include <WindowsX.h>
 
 extern HINSTANCE _gModule;
@@ -13,6 +14,7 @@ extern FuncItem pluginMenuItems[MI_COUNT];
 PreferencesDialog _prefsDlg;
 JumpToField _jumpDlg;
 DataExtractDialog _dataExtractDlg;
+FoldStructDialog _foldStructDlg;
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
@@ -165,6 +167,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             showExtractDialog();
          break;
 
+      case IDC_VIZPANEL_FOLD_INFO_BUTTON:
+         ShellExecute(NULL, L"open", VIZPANEL_FOLD_INFO_README, NULL, NULL, SW_SHOW);
+         break;
+
       case IDC_VIZPANEL_FOLDING_APPLY_BTN:
          if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_FOLDSTRUCTS)) {
             setDocFolded(FALSE);
@@ -179,7 +185,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_FOLDING_DEFINE_BTN:
-         MessageBox(_hSelf, L"This feature will be available in an upcoming release.", L"Folding Structure Definition", MB_OK);
+         showFoldStructDialog();
          break;
 
       case IDC_VIZPANEL_FOLDING_FOLD_BTN:
@@ -339,6 +345,9 @@ void VisualizerPanel::initPanel() {
    addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FW_TIP_LONG, TRUE);
    addTooltip(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC, NULL, VIZ_PANEL_FIELD_LPAD_TIP, FW_TIP_LONG, TRUE);
 
+   loadBitmap(_hSelf, IDC_VIZPANEL_FOLD_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   addTooltip(_hSelf, IDC_VIZPANEL_FOLD_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+
    hTipIniFiles = addTooltip(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON, VIZ_PANEL_FILE_INFO_TITLE, VIZ_PANEL_FILE_INFO_TIP, FW_TIP_MEDIUM, TRUE);
 
    setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
@@ -347,7 +356,7 @@ void VisualizerPanel::initPanel() {
 }
 
 void VisualizerPanel::localize() {
-   SetWindowText(_hSelf, FWVIZ_DIALOG_TITLE);
+   SetWindowText(_hSelf, MENU_PANEL_NAME);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_FILETYPE_LABEL, VIZ_PANEL_FILETYPE_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_THEME_LABEL, VIZ_PANEL_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_CLEAR_BTN, VIZ_PANEL_CLEAR_BUTTON);
@@ -367,6 +376,13 @@ void VisualizerPanel::localize() {
    SetDlgItemText(_hSelf, IDC_VIZPANEL_PASTE_RIGHT_LABEL, VIZ_PANEL_PASTE_RIGHT_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_PASTE_RPAD_LABEL, VIZ_PANEL_PASTE_RPAD_LABEL);
    SetDlgItemText(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL, VIZ_PANEL_PASTE_LPAD_LABEL);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FOLDING_GROUP_BOX, VIZPANEL_FOLD_GROUP_BOX);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FOLDING_APPLY_BTN, VIZPANEL_FOLD_APPLY_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FOLDING_REMOVE_BTN, VIZPANEL_FOLD_REMOVE_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FOLDING_DEFINE_BTN, VIZPANEL_FOLD_DEFINE_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FOLDING_FOLD_BTN, VIZPANEL_FOLD_FOLD_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FOLDING_TOGGLE_BTN, VIZPANEL_FOLD_TOGGLE_BTN);
+   SetDlgItemText(_hSelf, IDC_VIZPANEL_FOLDING_UNFOLD_BTN, VIZPANEL_FOLD_UNFOLD_BTN);
 }
 
 void VisualizerPanel::display(bool toShow) {
@@ -420,6 +436,9 @@ void VisualizerPanel::refreshDarkMode() {
 
    if (_dataExtractDlg.isCreated())
       _dataExtractDlg.refreshDarkMode();
+
+   if (_foldStructDlg.isCreated())
+      _foldStructDlg.refreshDarkMode();
 }
 
 void VisualizerPanel::initMBCharsCheckbox() {
@@ -2050,7 +2069,7 @@ void VisualizerPanel::enableFoldableControls(bool bFoldable) {
 }
 
 void VisualizerPanel::enableFoldedControls(bool bFolded) {
-   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_APPLY_BTN), bFolded ? L"Re-Apply" : L"Apply");
+   SetWindowText(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_APPLY_BTN), bFolded ? VIZPANEL_FOLD_REAPPLY_BTN : VIZPANEL_FOLD_APPLY_BTN);
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_REMOVE_BTN), bFolded);
 
    if (bFolded) {
@@ -2150,6 +2169,10 @@ void VisualizerPanel::foldLevelMenu() {
 
 void VisualizerPanel::unfoldLevelMenu() {
    expandFoldLevel(TRUE, foldLevelFromPopup(FALSE));
+}
+
+void VisualizerPanel::showFoldStructDialog() {
+   _foldStructDlg.doDialog((HINSTANCE)_gModule);
 }
 
 DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {

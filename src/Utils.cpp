@@ -346,3 +346,16 @@ int Utils::scaleDPIY(int y) {
    return scaleY;
 }
 
+int Utils::getTextPixelWidth(HWND hDlg, const wstring& text) {
+   SIZE textSize{};
+
+   HDC hDC{ GetDC(hDlg) };
+
+   SelectObject(hDC, (HFONT)SendMessage(hDlg, WM_GETFONT, 0, 0));
+   GetTextExtentPoint32(hDC, text.c_str(), static_cast<int>(text.length()), &textSize);
+
+   ReleaseDC(hDlg, hDC);
+
+   return textSize.cx;
+}
+
