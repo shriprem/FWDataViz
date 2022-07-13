@@ -1,5 +1,9 @@
 # Foldable Record Blocks
 
+![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_orders_file.png)
+
+**ICD-10 Billable-Flagged Order Codes Sample File, with folding applied.**
+
 ## Table of Content
 1. [Concept](#Concept)
 2. [Scheme](#Scheme)
@@ -70,7 +74,7 @@ The definition schemes for record blocks will reside in the new `FoldStructs.ini
 
 * `FoldLevelAuto`: This value can be either `Y` or `N`. This will specify whether, after a file loads in the Notepad++ editor, the plugin should automatically try to do a full file scan and apply the specified folding structure for the matching _File Type_. Recommend setting this to `N` for _File Types_ with likely large data files, when this process can take a long time.
 
-* `HeaderRecords`: A comma-separated list of _Record Types_. (see **_Header Records_** under: [Scheme](#scheme)). The _Record Types_ in the list must exactly match the corresponding _Record Types_ of associated the _File Type_ in the `Visualizer.ini` file.
+* `HeaderRecords`: A comma-separated list of _Record Types_ (see **_Header Records_** under: [Scheme](#scheme)). The _Record Types_ in the list must exactly match the corresponding _Record Types_ of associated the _File Type_ in the `Visualizer.ini` file.
 
 * `RECnnn_Priority`: A numeric value (see **_Block Priority_** under: [Scheme](#scheme)).
 

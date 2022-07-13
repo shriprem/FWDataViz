@@ -1,6 +1,6 @@
 ## Version History
 
-### Version 2.6.0.0 Pre-Release [July 11, 2022]
+### Version 2.6.0.0 [July 11, 2022]
 
 #### Major Enhancements
 1. Foldable Record Blocks.
@@ -29,6 +29,8 @@ Download the zip file matching your Notepad++ version bitness. Copy these 4 file
 | `default_Visualizer.ini` | _Changed_ | `<Notepad++_executable_folder>/plugins/FWDataViz/` |
 | `Samples/Ouroboros.txt` | _New_ |  `<Notepad++_executable_folder>/plugins/FWDataViz/Samples/` |
 
+
+**Release:** [2.6.0.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.0.0)
 
 ---
 
