@@ -348,7 +348,6 @@ int Utils::scaleDPIY(int y) {
 
 int Utils::getTextPixelWidth(HWND hDlg, const wstring& text) {
    SIZE textSize{};
-
    HDC hDC{ GetDC(hDlg) };
 
    SelectObject(hDC, (HFONT)SendMessage(hDlg, WM_GETFONT, 0, 0));
