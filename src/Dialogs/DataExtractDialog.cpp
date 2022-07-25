@@ -369,15 +369,13 @@ void DataExtractDialog::localize() {
 }
 
 void DataExtractDialog::initRecTypeLists() {
-   const vector<RecordInfo> recInfoList{ cRecInfoList };
-
    for (int i{}; i < LINES_PER_PAGE; ++i) {
       // Load Record Type Dropdown lists
       HWND hRecList = GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + i);
       resetDropDown(hRecList);
 
-      for (size_t j{}; j < recInfoList.size(); ++j) {
-         SendMessage(hRecList, CB_ADDSTRING, NULL, (LPARAM)recInfoList[j].label.c_str());
+      for (size_t j{}; j < cRecInfoList.size(); ++j) {
+         SendMessage(hRecList, CB_ADDSTRING, NULL, (LPARAM)cRecInfoList[j].label.c_str());
       }
    }
 }
@@ -393,11 +391,10 @@ void DataExtractDialog::initLineItemFieldList(int line) {
    if (RTIndex == 0) return;
    --RTIndex;
 
-   const vector<RecordInfo> recInfoList{ cRecInfoList };
-   size_t FTCount{ recInfoList[RTIndex].fieldLabels.size() };
+   size_t FTCount{ cRecInfoList[RTIndex].fieldLabels.size() };
 
    for (size_t i{}; i < FTCount; ++i) {
-      SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)recInfoList[RTIndex].fieldLabels[i].c_str());
+      SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)cRecInfoList[RTIndex].fieldLabels[i].c_str());
    }
 }
 
@@ -583,7 +580,6 @@ size_t DataExtractDialog::getValidLineItems(vector<LineItemInfo>& validLIs, bool
 }
 
 void DataExtractDialog::extractData() {
-   const vector<RecordInfo> recInfoList{ cRecInfoList };
    vector<LineItemInfo> validLIs{};
 
    PSCIFUNC_T sciFunc;
@@ -601,7 +597,7 @@ void DataExtractDialog::extractData() {
    const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
    if (lineCount < 1) return;
 
-   const size_t regexedCount{ recInfoList.size() };
+   const size_t regexedCount{ cRecInfoList.size() };
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
@@ -661,7 +657,7 @@ void DataExtractDialog::extractData() {
       size_t regexIndex{};
 
       while (regexIndex < regexedCount) {
-         if (regex_match(recStartText, recInfoList[regexIndex].regExpr)) break;
+         if (regex_match(recStartText, cRecInfoList[regexIndex].regExpr)) break;
          ++regexIndex;
       }
 
@@ -671,7 +667,7 @@ void DataExtractDialog::extractData() {
 
       for (size_t j{}; j < validLIs.size(); ++j) {
          const LineItemInfo& LI{ validLIs[j] };
-         const RecordInfo RI{ recInfoList[LI.recType] };
+         const RecordInfo RI{ cRecInfoList[LI.recType] };
          if (static_cast<int>(regexIndex) != LI.recType) continue;
 
          if (byteCols) {
@@ -755,8 +751,6 @@ void DataExtractDialog::loadTemplate() {
    liBuffer.clear();
    liBuffer.resize(static_cast<size_t>(getPageCount(loadCount)) * 10);
 
-   const vector<RecordInfo> recInfoList{ cRecInfoList };
-
    for (int i{}; i < loadCount; ++i) {
       LineItemInfo& LI{ liBuffer[i] };
 
@@ -768,11 +762,11 @@ void DataExtractDialog::loadTemplate() {
       LI.suffix = _configIO.getConfigWideChar(templateName, (numSuffix + "Suffix").c_str(), "", extractsConfigFile);
 
       LI.recType = _configIO.getConfigInt(templateName, (numSuffix + "Record").c_str(), 0, extractsConfigFile);
-      if (LI.recType > static_cast<int>(recInfoList.size())) LI.recType = -1;
+      if (LI.recType > static_cast<int>(cRecInfoList.size())) LI.recType = -1;
 
       if (LI.recType >= 0) {
          LI.fieldType = _configIO.getConfigInt(templateName, (numSuffix + "Field").c_str(), 0, extractsConfigFile);
-         if (LI.fieldType > static_cast<int>(recInfoList[LI.recType].fieldLabels.size())) LI.fieldType = -1;
+         if (LI.fieldType > static_cast<int>(cRecInfoList[LI.recType].fieldLabels.size())) LI.fieldType = -1;
       }
 
       LI.recType++;
