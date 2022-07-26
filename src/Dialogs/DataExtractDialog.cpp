@@ -103,7 +103,7 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
 
 void DataExtractDialog::initDialog(const string fileType, const vector<RecordInfo>& recInfoList) {
    initFileType = fileType;
-   cRecInfoList = recInfoList;
+   pRecInfoList = &recInfoList;
 
    initFileTypeLabel = _configIO.getConfigWideChar(initFileType, "FileLabel");
    extractsConfigFile = Utils::WideToNarrow(_configIO.getConfigFile(_configIO.CONFIG_EXTRACTS));
@@ -369,6 +369,8 @@ void DataExtractDialog::localize() {
 }
 
 void DataExtractDialog::initRecTypeLists() {
+   const vector<RecordInfo>& cRecInfoList{ *pRecInfoList };
+
    for (int i{}; i < LINES_PER_PAGE; ++i) {
       // Load Record Type Dropdown lists
       HWND hRecList = GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_RECORD_01 + i);
@@ -391,6 +393,7 @@ void DataExtractDialog::initLineItemFieldList(int line) {
    if (RTIndex == 0) return;
    --RTIndex;
 
+   const vector<RecordInfo>& cRecInfoList{ *pRecInfoList };
    size_t FTCount{ cRecInfoList[RTIndex].fieldLabels.size() };
 
    for (size_t i{}; i < FTCount; ++i) {
@@ -597,6 +600,7 @@ void DataExtractDialog::extractData() {
    const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
    if (lineCount < 1) return;
 
+   const vector<RecordInfo>& cRecInfoList{ *pRecInfoList };
    const size_t regexedCount{ cRecInfoList.size() };
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
@@ -667,7 +671,7 @@ void DataExtractDialog::extractData() {
 
       for (size_t j{}; j < validLIs.size(); ++j) {
          const LineItemInfo& LI{ validLIs[j] };
-         const RecordInfo RI{ cRecInfoList[LI.recType] };
+         const RecordInfo& RI{ cRecInfoList[LI.recType] };
          if (static_cast<int>(regexIndex) != LI.recType) continue;
 
          if (byteCols) {
@@ -695,7 +699,6 @@ void DataExtractDialog::extractData() {
 
       if (recMatch) extract += L"\n";
    }
-
 
    nppMessage(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
    sciFunc(sciPtr, SCI_SETTEXT, NULL, (LPARAM)(Utils::WideToNarrow(extract)).c_str());
@@ -750,6 +753,8 @@ void DataExtractDialog::loadTemplate() {
 
    liBuffer.clear();
    liBuffer.resize(static_cast<size_t>(getPageCount(loadCount)) * 10);
+
+   const vector<RecordInfo>& cRecInfoList{ *pRecInfoList };
 
    for (int i{}; i < loadCount; ++i) {
       LineItemInfo& LI{ liBuffer[i] };

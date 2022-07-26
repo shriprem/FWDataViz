@@ -26,7 +26,7 @@ private:
    int currentLineItem{}, currentPage{};
    string extractsConfigFile{}, initFileType{};
    wstring initFileTypeLabel{};
-   vector<RecordInfo> cRecInfoList{};
+   const vector<RecordInfo>* pRecInfoList{};
 
    HWND hIndicator{}, hTemplatesList{}, hTemplateName{};
 

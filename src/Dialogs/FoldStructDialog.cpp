@@ -13,6 +13,17 @@ void FoldStructDialog::doDialog(HINSTANCE hInst) {
       create(IDD_FOLD_STRUCT_DEFINER_DIALOG);
    }
 
+   hFoldFileStructs = GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_LIST_BOX);
+   hFoldFileType = GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_TYPE_LIST);
+   hAutoFold = GetDlgItem(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY);
+   hHdrRecs = GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_LIST_BOX);
+   hHdrRecType = GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_TYPE_LIST);
+   hHdrPriority = GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_EDIT);
+   hHdrRecursive = GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE);
+   hImplicitRecs = GetDlgItem(_hSelf, IDC_FOLD_IMPLICIT_TRMNTRS_LIST);
+   hExplicitRecs = GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_TRMNTRS_LIST);
+   hExplicitRecType = GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_LIST);
+
    Utils::loadBitmap(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
@@ -38,6 +49,13 @@ void FoldStructDialog::doDialog(HINSTANCE hInst) {
    SetWindowPos(hPriorityEdit, NULL, rcLabel.left + textWidth, rcEdit.top, NULL, NULL, SWP_NOSIZE | SWP_NOZORDER);
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
+   SetFocus(_hSelf);
+}
+
+void FoldStructDialog::initDialog(const unordered_map<wstring, string>& mFDtoT, const unordered_map<string, wstring>& mFTtoD) {
+   cMapFileDescToType = mFDtoT;
+   cMapFileTypeToDesc = mFTtoD;
+
    fillFileTypes();
 }
 

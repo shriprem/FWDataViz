@@ -87,8 +87,8 @@ private:
    string calltipText{}; // Needed for the PostMessage call
 
    // File Type data
-   std::unordered_map<wstring, string> mapFileDescToType;
-   std::unordered_map<string, wstring> mapFileTypeToDesc;
+   std::unordered_map<wstring, string> mapFileDescToType{};
+   std::unordered_map<string, wstring> mapFileTypeToDesc{};
 
    // Doc Info
    struct DocInfo {

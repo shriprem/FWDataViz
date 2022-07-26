@@ -34,7 +34,7 @@ void JumpToField::refreshDarkMode() {
 void JumpToField::initDialog(const string fileType, int recordIndex, int fieldIndex, const vector<wstring>& fieldLabels) {
    initFileType = fileType;
    initRecordRegIndex = recordIndex;
-   cFieldLabels = fieldLabels;
+   pFieldLabels = &fieldLabels;
 
    hFieldList = GetDlgItem(_hSelf, IDC_JUMP_FIELD_LIST);
    loadJumpList(fieldIndex);
@@ -122,6 +122,8 @@ void JumpToField::loadJumpList(int fieldIndex) {
 
    wchar_t seqNo[5];
    bool showSeqNo{ (_configIO.getPreferenceBool(PREF_JUMP_FIELD_SEQ, FALSE)) };
+
+   const vector<wstring>& cFieldLabels{ *pFieldLabels };
    int fieldCount{ static_cast<int>(cFieldLabels.size()) };
 
    for (int i{}; i < fieldCount; ++i) {

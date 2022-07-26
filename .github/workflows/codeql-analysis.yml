@@ -55,7 +55,7 @@ jobs:
 
     - name: MSBuild of plugin dll
       working-directory: vs.proj
-      run: msbuild FWDataViz.vcxproj /m /p:configuration="Debug" /p:platform="x64" /p:PlatformToolset="v142"
+      run: msbuild FWDataViz.vcxproj /m /p:configuration="Debug" /p:platform="x64" /p:PlatformToolset="v143"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2

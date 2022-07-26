@@ -29,10 +29,12 @@ public:
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
    int appendFileTypeConfigs(const wstring& sConfigFile);
 
-   HWND hFilesLB{}, hFileEOL{}, hFileThemes{}, hADFTLine[ADFT_MAX]{}, hADFTRegex[ADFT_MAX]{},
-      hRecsLB{}, hRecStart{}, hRecRegex{}, hRecThemes{}, hFieldLabels{}, hFieldWidths{};
+   HWND hFieldLabels{}, hFieldWidths{};
 
 private:
+   HWND hFilesLB{}, hFileEOL{}, hFileThemes{}, hADFTLine[ADFT_MAX]{}, hADFTRegex[ADFT_MAX]{},
+      hRecsLB{}, hRecStart{}, hRecRegex{}, hRecThemes{};
+
    enum move_dir {
       MOVE_DOWN = 1,
       MOVE_UP = -1

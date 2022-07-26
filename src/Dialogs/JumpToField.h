@@ -19,7 +19,7 @@ private:
    string initFileType{};
    int initRecordRegIndex{};
    HWND hFieldList{}, hCaretFlash{};
-   vector<wstring> cFieldLabels{};
+   const vector<wstring>* pFieldLabels{};
 
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();

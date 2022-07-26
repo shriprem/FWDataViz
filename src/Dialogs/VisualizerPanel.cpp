@@ -2173,6 +2173,7 @@ void VisualizerPanel::unfoldLevelMenu() {
 
 void VisualizerPanel::showFoldStructDialog() {
    _foldStructDlg.doDialog((HINSTANCE)_gModule);
+   _foldStructDlg.initDialog(mapFileDescToType, mapFileTypeToDesc);
 }
 
 DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {
