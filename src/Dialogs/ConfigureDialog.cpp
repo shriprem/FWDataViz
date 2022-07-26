@@ -560,7 +560,7 @@ int ConfigureDialog::loadConfigInfo() {
 
 int ConfigureDialog::loadFileTypeInfo(int vIndex, const string& fileType, const wstring& wConfigFile) {
    string sConfigFile{ Utils::WideToNarrow(wConfigFile) };
-   FileType& FT = vFileTypes[vIndex];
+   FileType& FT{ vFileTypes[vIndex] };
 
    FT.label = _configIO.getConfigWideChar(fileType, "FileLabel", "", sConfigFile);
    FT.theme = _configIO.getConfigWideChar(fileType, "FileTheme", "", sConfigFile);
@@ -584,8 +584,8 @@ int ConfigureDialog::loadFileTypeInfo(int vIndex, const string& fileType, const 
    FT.vRecTypes.resize(recTypeCount);
 
    for (int j{}; j < recTypeCount; ++j) {
-      string& recType = recTypesList[j];
-      RecordType& RT = FT.vRecTypes[j];
+      string& recType{ recTypesList[j] };
+      RecordType& RT{ FT.vRecTypes[j] };
 
       RT.label = _configIO.getConfigWideChar(fileType, (recType + "_Label"), "", sConfigFile);
       RT.marker = _configIO.getConfigWideChar(fileType, (recType + "_Marker"), "", sConfigFile);
@@ -667,7 +667,7 @@ int ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode
    wchar_t fileTypeCode[60], recTypeCode[10];
    wstring new_line, rawCode, adft{}, recTypes{}, rtConfig{}, recTypePrefix;
 
-   FileType& FT = vFileTypes[idxFT];
+   FileType& FT{ vFileTypes[idxFT] };
    new_line = cr_lf ? L"\r\n" : L"\n";
 
    string utf8Code{ Utils::WideToNarrow(FT.label) };
@@ -701,7 +701,7 @@ int ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode
    recTypeCount = (FT.vRecTypes.size() > 999) ? 999 : FT.vRecTypes.size();
 
    for (size_t j{}; j < recTypeCount; ++j) {
-      RecordType& RT = FT.vRecTypes[j];
+      RecordType& RT{ FT.vRecTypes[j] };
 
       if (Utils::isInvalidRegex(RT.marker, _hSelf,
          wstring(FWVIZ_DEF_FILE_DESC_LABEL) + L" " + FT.label + new_line +
@@ -832,8 +832,8 @@ int ConfigureDialog::moveFileType(move_dir dir) {
       return LB_ERR;
    }
 
-   FileType currType = vFileTypes[idxFT];
-   FileType& adjType = vFileTypes[idxFT + dir];
+   FileType currType{ vFileTypes[idxFT] };
+   FileType& adjType{ vFileTypes[idxFT + dir] };
 
    vFileTypes[idxFT] = adjType;
    vFileTypes[idxFT + dir] = currType;
@@ -858,7 +858,7 @@ void ConfigureDialog::fillRecTypes() {
       fileInfo = &newFile;
    }
 
-   vector <RecordType>& recInfoList = fileInfo->vRecTypes;
+   vector <RecordType>& recInfoList{ fileInfo->vRecTypes };
 
    // Fill Rec Types Listbox
    SendMessage(hRecsLB, LB_RESETCONTENT, NULL, NULL);
@@ -939,7 +939,7 @@ int ConfigureDialog::moveRecType(move_dir dir) {
    const int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
-   vector<RecordType>& recList = vFileTypes[idxFT].vRecTypes;
+   vector<RecordType>& recList{ vFileTypes[idxFT].vRecTypes };
 
    switch (dir) {
    case MOVE_DOWN:
@@ -954,8 +954,8 @@ int ConfigureDialog::moveRecType(move_dir dir) {
       return LB_ERR;
    }
 
-   RecordType currType = recList[idxRec];
-   RecordType& adjType = recList[idxRec + dir];
+   RecordType currType{ recList[idxRec] };
+   RecordType& adjType{ recList[idxRec + dir] };
 
    recList[idxRec] = adjType;
    recList[idxRec + dir] = currType;
@@ -1098,7 +1098,7 @@ int ConfigureDialog::recEditAccept() {
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return -1;
 
-   RecordType& recInfo = vFileTypes[idxFT].vRecTypes[idxRec];
+   RecordType& recInfo{ vFileTypes[idxFT].vRecTypes[idxRec] };
 
    wchar_t recDesc[MAX_PATH + 1];
 
@@ -1137,7 +1137,7 @@ void ConfigureDialog::recEditNew(bool clone) {
    int idxRT{ getCurrentRecIndex() };
    if (clone && idxRT == LB_ERR) return;
 
-   vector<RecordType>& records = vFileTypes[idxFT].vRecTypes;
+   vector<RecordType>& records{ vFileTypes[idxFT].vRecTypes };
 
    if (static_cast<int>(records.size()) >= REC_TYPE_LIMIT) {
       TCHAR buf[100];
@@ -1175,7 +1175,7 @@ int ConfigureDialog::recEditDelete() {
    int idxRec{ getCurrentRecIndex() };
    if (idxRec == LB_ERR) return LB_ERR;
 
-   vector<RecordType>& records = vFileTypes[idxFT].vRecTypes;
+   vector<RecordType>& records{ vFileTypes[idxFT].vRecTypes };
    records.erase(records.begin() + idxRec);
 
    int lastRec = static_cast<int>(records.size()) - 1;
@@ -1197,7 +1197,7 @@ int ConfigureDialog::fileEditAccept() {
    int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return -1;
 
-   FileType& fileInfo = vFileTypes[idxFT];
+   FileType& fileInfo{ vFileTypes[idxFT] };
 
    wchar_t fileVal[MAX_PATH + 1];
 
@@ -1296,7 +1296,7 @@ void ConfigureDialog::fileEditClone() {
    int idxFT{ getCurrentFileTypeIndex() };
    if (idxFT == LB_ERR) return;
 
-   FileType& FT = vFileTypes[idxFT];
+   FileType& FT{ vFileTypes[idxFT] };
    FileType NF{};
 
    NF.label = FT.label + L"_clone";

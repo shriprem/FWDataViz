@@ -123,12 +123,11 @@ void JumpToField::loadJumpList(int fieldIndex) {
    wchar_t seqNo[5];
    bool showSeqNo{ (_configIO.getPreferenceBool(PREF_JUMP_FIELD_SEQ, FALSE)) };
 
-   const vector<wstring>& cFieldLabels{ *pFieldLabels };
-   int fieldCount{ static_cast<int>(cFieldLabels.size()) };
+   int fieldCount{ static_cast<int>(pFieldLabels->size()) };
 
    for (int i{}; i < fieldCount; ++i) {
       swprintf(seqNo, 5, L"%02d. ", (i + 1));
-      SendMessage(hFieldList, CB_ADDSTRING, NULL, (LPARAM)((showSeqNo ? seqNo : L"") + cFieldLabels[i]).c_str());
+      SendMessage(hFieldList, CB_ADDSTRING, NULL, (LPARAM)((showSeqNo ? seqNo : L"") + pFieldLabels->at(i)).c_str());
    }
 
    if (fieldCount > 0)
