@@ -188,37 +188,41 @@ void ConfigIO::parseFieldStyle(const string& styleText, StyleInfo& style) {
    style.italics = Utils::StringtoInt(styleText.substr(15, 1));
 }
 
-int ConfigIO::getFoldStructCount() {
-   return Utils::StringtoInt(getConfigStringA(L"Base", "FoldStructCount", "0", wCurrentFoldStructFile));
+int ConfigIO::getFoldStructCount(wstring file) {
+   if (file.empty()) file = wCurrentFoldStructFile;
+
+   return Utils::StringtoInt(getConfigStringA(L"Base", "FoldStructCount", "0", file));
 }
 
-string ConfigIO::getFoldStructValueA(string foldStructType, string key) {
-   return getConfigStringA(foldStructType, key, "", Utils::WideToNarrow(wCurrentFoldStructFile));
+string ConfigIO::getFoldStructValueA(string foldStructType, string key, wstring file) {
+   if (file.empty()) file = wCurrentFoldStructFile;
+
+   return getConfigStringA(foldStructType, key, "", Utils::WideToNarrow(file));
 }
 
-string ConfigIO::getFoldStructValue(wstring foldStructType, string key) {
-   return getConfigStringA(foldStructType, key, "", wCurrentFoldStructFile);
+string ConfigIO::getFoldStructValue(wstring foldStructType, string key, wstring file) {
+   if (file.empty()) file = wCurrentFoldStructFile;
+
+   return getConfigStringA(foldStructType, key, "", file);
 }
 
-void ConfigIO::getFoldStructFoldingInfo(wstring foldStructType, vector<FoldingInfo>& foldInfoList) {
-   foldInfoList.clear();
+void ConfigIO::getFoldStructFoldingInfo(wstring foldStructType, vector<FoldingInfo>& vFoldInfo, wstring file) {
+   if (file.empty()) file = wCurrentFoldStructFile;
 
-   string headerRecs{ getFoldStructValue(foldStructType, "HeaderRecords") };
+   string headerRecs{ getFoldStructValue(foldStructType, "HeaderRecords", file) };
    vector<string> headerRecList{};
-   Tokenize(headerRecs, headerRecList);
+   int headerCount{ Tokenize(headerRecs, headerRecList) };
 
-   int headerCount{ static_cast<int>(headerRecList.size()) };
+   vFoldInfo.clear();
+   vFoldInfo.resize(headerCount);
+
    for (int i{}; i < headerCount; ++i) {
       int recTypeIndex{ Utils::StringtoInt(headerRecList[i].substr(3))};
 
-      FoldingInfo foldRecInfo
-      {
-         recTypeIndex,
-         getConfigInt(foldStructType, headerRecList[i] + "_Priority", 0, wCurrentFoldStructFile),
-         (getConfigStringA(foldStructType, headerRecList[i] + "_Recursive", "N", wCurrentFoldStructFile) == "Y"),
-         getConfigWideChar(foldStructType, headerRecList[i] + "_EndRecords", "", wCurrentFoldStructFile)
-      };
-      foldInfoList.emplace_back(foldRecInfo);
+      vFoldInfo[i].recTypeIndex = recTypeIndex;
+      vFoldInfo[i].priority = getConfigInt(foldStructType, headerRecList[i] + "_Priority", 0, file);
+      vFoldInfo[i].recursive = (getConfigStringA(foldStructType, headerRecList[i] + "_Recursive", "N", file) == "Y");
+      vFoldInfo[i].endRecords = getConfigWideChar(foldStructType, headerRecList[i] + "_EndRecords", "", file);
    }
 }
 

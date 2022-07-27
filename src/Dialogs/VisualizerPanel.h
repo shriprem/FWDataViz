@@ -86,9 +86,13 @@ private:
    bool unlexed{}, utf8Config{}, leftAlign{}, themeEnabled{}, fieldEnabled{};
    string calltipText{}; // Needed for the PostMessage call
 
-   // File Type data
-   std::unordered_map<wstring, string> mapFileDescToType{};
-   std::unordered_map<string, wstring> mapFileTypeToDesc{};
+   // File Type Info
+   struct FileTypeInfo {
+      string fileType{};
+      wstring fileLabel{};
+   };
+
+   vector<FileTypeInfo> vFileTypes{};
 
    // Doc Info
    struct DocInfo {
@@ -99,7 +103,7 @@ private:
       bool folded{};
    };
 
-   vector<DocInfo> docInfoList{};
+   vector<DocInfo> vDocInfo{};
 
    // Styleset data
    struct ThemeInfo {
@@ -108,17 +112,18 @@ private:
       int rangeStartIndex{};
    };
 
-   vector<ThemeInfo> themeSet{};
+   vector<ThemeInfo> vThemes{};
    int loadedStyleCount{};
 
    // Regex data
    string fwVizRegexed{};
 
-   vector<RecordInfo> recInfoList;
+   vector<RecordInfo> vRecInfo;
 
    virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
    bool detectFileType(HWND hScintilla, string& fileType);
+   bool detectFileTypeByVizConfig(HWND hScintilla, string& fileType, bool defaultConfig);
    const wstring getCurrentFileName();
    void setDocInfo(bool bDocType, string val);
 

@@ -208,6 +208,8 @@
 // Fold Structures Editor Dialog
 #define FOLD_STRUCT_DIALOG_TITLE    L"Fold Structures Editor"
 #define FOLD_DEF_FILE_GROUP_BOX     L"Fold Structures"
+#define FOLD_DEF_FILE_MOVE_DOWN     L"Move down the selected Fold Structure"
+#define FOLD_DEF_FILE_MOVE_UP       L"Move up the selected Fold Structure"
 #define FOLD_DEF_FILE_TYPE_LABEL    L"Fold Structure - File Type:"
 #define FOLD_DEF_AUTO_FOLD_APPLY    L"Automatically apply Fold Structure \t\ton matching files"
 #define FOLD_DEF_FILE_ACCEPT_BTN    L"Accept"
@@ -215,6 +217,8 @@
 #define FOLD_DEF_FILE_CLONE_BTN     L"Clone"
 #define FOLD_DEF_FILE_DEL_BTN       L"Delete"
 #define FOLD_DEF_HDR_REC_GROUP_BOX  L"Fold Structure - Blocks"
+#define FOLD_DEF_HDR_REC_MOVE_DOWN  L"Move down the selected Fold Block"
+#define FOLD_DEF_HDR_REC_MOVE_UP    L"Move up the selected Fold Block"
 #define FOLD_DEF_HDR_REC_TYPE_LABEL L"Fold Block - Header Record Type:"
 #define FOLD_DEF_HDR_PRIORITY_LABEL L"Fold Block Priority: "
 #define FOLD_DEF_HDR_REC_RECURSIVE  L"Recursive Fold Block"
@@ -223,6 +227,7 @@
 #define FOLD_DEF_HDR_REC_CLONE_BTN  L"Clone"
 #define FOLD_DEF_HDR_REC_DEL_BTN    L"Delete"
 #define FOLD_IMPLICIT_TRMNTRS_GROUP L"Fold Block - Implicit Terminators"
+#define FOLD_IMPLICIT_END_OF_FILE   L"<End of File>"
 #define FOLD_EXPLICIT_TRMNTRS_GROUP L"Fold Block - Explicit Terminators"
 #define FOLD_EXPLICIT_ENDREC_LABEL  L"Explicit Terminator - Record Type:"
 #define FOLD_EXPLICIT_ENDREC_ACCEPT L"Accept"
@@ -234,6 +239,10 @@
 #define FOLD_DEF_BACKUP_VIEW_BTN    L"&View Backup Folder"
 #define FOLD_DEF_EXTRACT_BTN        L"E&xtract Selected Fold Structure"
 #define FOLD_DEF_APPEND_BTN         L"&Append New Fold Structure"
+
+#define FOLD_DEF_DISCARD_CHANGES    L"Discard changes?"
+#define FOLD_DEF_OPEN_BKUP_CONFIG   L"Open Backup Fold Structures File"
+#define FOLD_DEF_SAVE_BKUP_CONFIG   L"Save Backup Fold Structures File"
 
 
 // Define Field Type Dialog
