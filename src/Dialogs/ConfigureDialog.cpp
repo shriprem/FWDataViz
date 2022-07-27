@@ -605,7 +605,7 @@ void ConfigureDialog::fillFileTypes() {
       SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)FT.label.c_str());
    }
 
-   if (vFileTypes.size() > 0)
+   if (vFileTypes.size())
       SendMessage(hFilesLB, LB_SETCURSEL, 0, NULL);
 
    // Fill Files & Records Themes Droplists
@@ -867,7 +867,7 @@ void ConfigureDialog::fillRecTypes() {
       SendMessage(hRecsLB, LB_ADDSTRING, NULL, (LPARAM)RT.label.c_str());
    }
 
-   if (recInfoList.size() > 0)
+   if (recInfoList.size())
       SendMessage(hRecsLB, LB_SETCURSEL, 0, NULL);
 
    cleanRecVals = TRUE;

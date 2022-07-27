@@ -7,8 +7,6 @@
 #include <vector>
 
 using std::vector;
-using std::unordered_map;
-using Utils::showEditBalloonTip;
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -17,31 +15,89 @@ class FoldStructDialog : public StaticDialog {
 public:
    FoldStructDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
-   void initDialog(const unordered_map<wstring, string>& mFDtoT, const unordered_map<string, wstring>& mFTtoD);
    void refreshDarkMode();
 
-   HWND hFilesLB{};
-
 private:
-   HWND hFoldFileStructs{}, hFoldFileType{}, hAutoFold{}, hHdrRecs{}, hHdrRecType{}, hHdrPriority{}, hHdrRecursive{},
-      hImplicitRecs{}, hExplicitRecs{}, hExplicitRecType{};
+   enum move_dir {
+      MOVE_DOWN = 1,
+      MOVE_UP = -1
+   };
 
-   // File Type data
-   unordered_map<wstring, string> cMapFileDescToType{};
-   unordered_map<string, wstring> cMapFileTypeToDesc{};
+   // Type Info
+   struct TypeInfo {
+      string type{};
+      wstring label{};
+   };
+
+   vector<TypeInfo> vFileTypes{};
+   vector<TypeInfo> vRecTypes{};
+
+   // Block Info
+   struct BlockInfo {
+      TypeInfo hdrRec{};
+      int priority{};
+      bool recursive{};
+      vector<TypeInfo> vEndRecs{};
+   };
+
+   // Fold Struct Info
+   struct FoldStructInfo {
+      TypeInfo fileType{};
+      bool autoFold{};
+      vector<BlockInfo> vBlocks{};
+   };
+
+   vector<FoldStructInfo> vFoldStructs{};
+
+   HWND hFoldStructs{}, hFTList{}, hFoldBlocks{}, hHdrRTList{}, hImplRecs{}, hExplRecs{}, hExplRTList{};
+   wstring structsFile{};
+   bool loadingEdits{}, cleanStructsFile{}, cleanStructVals{}, cleanBlockVals{}, cleanEndRecVals{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
 
    void localize();
+   void indicateCleanStatus();
    bool promptDiscardChangesNo();
-   void saveConfigInfo();
+   void saveFoldStructInfo();
    void showEximDialog(bool bExtract);
 
-   void fillFileTypes();
-   void onFileTypeSelect();
-   int fileEditAccept();
-   void fileEditNew();
-   void fileEditClone();
-   int fileEditDelete();
+   int getCurrentFoldStructIndex();
+   bool getCurrentFoldStructInfo(FoldStructInfo*& structInfo);
+   int getFoldStructInfo(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig);
+
+   int getCurrentBlockIndex();
+   bool getCurrentBlockInfo(BlockInfo*& blockInfo);
+
+   int loadFileTypesList();
+   int loadRecTypesList(string fileType);
+
+   int loadStructsInfo();
+   int loadFoldStructInfo(int vIndex, const wstring& sStructsFile);
+   void fillFoldStructs();
+   void onFoldStructSelect();
+   void enableMoveStructButtons();
+   void enableStructSelection();
+   int moveStructType(move_dir dir);
+   int structEditAccept();
+   void structEditNew();
+   void structEditClone();
+   int structEditDelete();
+
+   void fillFoldBlocks();
+   void onFoldBlockSelect();
+   void enableMoveBlockButtons();
+   void enableBlockSelection();
+   int moveBlockType(move_dir dir);
+   int blockEditAccept();
+   void blockEditNew();
+   void blockEditClone();
+   int blockEditDelete();
+
+   void fillImplicitEndRecs();
+   void fillExplicitEndRecs(BlockInfo* blockInfo);
+   void onEndRecSelect();
+   int endRecEditAccept();
+   void endRecEditNew();
+   int endRecEditDelete();
 };
 

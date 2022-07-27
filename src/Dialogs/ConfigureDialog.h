@@ -58,9 +58,11 @@ private:
       wstring regExprs[ADFT_MAX]{};
    };
 
-   wstring configFile{};
    vector<FileType> vFileTypes;
+
+   wstring configFile{};
    bool loadingEdits{}, cleanConfigFile{}, cleanFileVals{}, cleanRecVals{}, cleanFieldVals{};
+   int editLabelsCaret{}, editWidthsCaret{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
@@ -105,7 +107,5 @@ private:
 
    void fillFieldTypes();
    void fieldEditsAccept();
-
-   int editLabelsCaret{}, editWidthsCaret{};
 };
 

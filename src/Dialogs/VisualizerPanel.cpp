@@ -463,18 +463,17 @@ void VisualizerPanel::loadListFileTypes() {
    if (!utf8Config) return;
 
    vector<string> fileTypes;
-   _configIO.getConfigValueList(fileTypes, "Base", "FileTypes");
+   int ftCount{ _configIO.getConfigValueList(fileTypes, "Base", "FileTypes") };
 
-   mapFileDescToType.clear();
-   mapFileTypeToDesc.clear();
-
+   vFileTypes.clear();
+   vFileTypes.resize(ftCount);
    SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)L"-");
 
-   for (string fType : fileTypes) {
-      wstring fileLabel{ _configIO.getConfigWideChar(fType, "FileLabel") };
+   for (int i{}; i < ftCount; ++i) {
+      wstring fileLabel{ _configIO.getConfigWideChar(fileTypes[i], "FileLabel") };
 
-      mapFileDescToType[fileLabel] = fType;
-      mapFileTypeToDesc[fType] = fileLabel;
+      vFileTypes[i].fileType = fileTypes[i];
+      vFileTypes[i].fileLabel = fileLabel;
       SendMessage(hFTList, CB_ADDSTRING, NULL, (LPARAM)fileLabel.c_str());
    }
 }
@@ -499,18 +498,23 @@ void VisualizerPanel::syncListFileTypes() {
    if (!hScintilla) return;
 
    string fileType;
-
    getDocFileType(fileType);
-   _configIO.setVizConfig(fileType);
 
-   if (fileType.empty() && _configIO.getPreferenceBool(PREF_ADFT))
-      detectFileType(hScintilla, fileType);
+   if (fileType.empty()) {
+      if (_configIO.getPreferenceBool(PREF_ADFT))
+         detectFileType(hScintilla, fileType);
+   }
+   else
+      _configIO.setVizConfig(fileType);
 
    loadListFileTypes();
-   enableThemeList(!fileType.empty());
 
-   Utils::setComboBoxSelection(hFTList, fileType.empty() ?
-      0 : static_cast<int>(SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)mapFileTypeToDesc[fileType].c_str())));
+   if (!fileType.empty()) {
+      Utils::setComboBoxSelection(hFTList, static_cast<int>(
+         SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)_configIO.getConfigWideChar(fileType, "FileLabel").c_str())));
+   }
+
+   enableThemeList(!fileType.empty());
 }
 
 void VisualizerPanel::syncListThemes() {
@@ -583,10 +587,15 @@ void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoF
             detectFileType(hScintilla, fileType);
       }
       else {
-         wchar_t fDesc[MAX_PATH]{};
-         SendMessage(hFTList, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
-         fileType = mapFileDescToType[fDesc];
+         int index{ static_cast<int>(SendMessage(hFTList, CB_GETCURSEL, 0, 0)) };
+         if (index > 0)
+            fileType = vFileTypes[index - 1].fileType;
       }
+   }
+
+   if (fileType.empty()) {
+      clearVisualize(FALSE);
+      return;
    }
 
    if (IsWindowVisible(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND)))
@@ -626,9 +635,9 @@ void VisualizerPanel::delDocInfo(intptr_t bufferID) {
    nppMessage(NPPM_GETFULLPATHFROMBUFFERID, bufferID, (LPARAM)filePath.c_str());
    filePath = filePath.c_str();
 
-   for (size_t i{}; i < docInfoList.size(); ++i) {
-      if (docInfoList[i].fileName == filePath) {
-         docInfoList.erase(docInfoList.begin() + i);
+   for (size_t i{}; i < vDocInfo.size(); ++i) {
+      if (vDocInfo[i].fileName == filePath) {
+         vDocInfo.erase(vDocInfo.begin() + i);
          return;
       }
    }
@@ -772,7 +781,7 @@ void VisualizerPanel::fieldPaste() {
    int fieldCurrLen{ rightPos - leftPos };
    if (fieldCurrLen < 1) return;
 
-   int fieldLength{ recInfoList[caretRecordRegIndex].fieldWidths[caretFieldIndex] };
+   int fieldLength{ vRecInfo[caretRecordRegIndex].fieldWidths[caretFieldIndex] };
 
    wstring clipText;
    Utils::getClipboardText(GetParent(_hSelf), clipText);
@@ -821,9 +830,6 @@ void VisualizerPanel::visualizeTheme() {
 }
 
 void VisualizerPanel::clearVisualize(bool sync) {
-   string docType{};
-   if (!getDocFileType(docType)) return;
-
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
@@ -862,7 +868,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    TI.name = theme;
    TI.styleCount = styleCount;
    TI.rangeStartIndex = styleIndex + 1; // Offset by 1 to account for EOL Style
-   themeSet.emplace_back(TI);
+   vThemes.emplace_back(TI);
 
    StyleInfo styleInfo{};
 
@@ -908,7 +914,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
 
 int VisualizerPanel::loadUsedThemes() {
    loadedStyleCount = 0;
-   themeSet.clear();
+   vThemes.clear();
    initCalltipStyle();
 
    string fileType;
@@ -930,8 +936,8 @@ int VisualizerPanel::loadUsedThemes() {
       if (recTheme == L"") continue;
 
       bool loaded{ FALSE };
-      for (size_t j{}; j < themeSet.size(); ++j) {
-         if (recTheme == themeSet[j].name) {
+      for (size_t j{}; j < vThemes.size(); ++j) {
+         if (recTheme == vThemes[j].name) {
             loaded = TRUE;
             break;
          }
@@ -941,7 +947,7 @@ int VisualizerPanel::loadUsedThemes() {
          loadedStyleCount += loadTheme(recTheme);
    }
 
-   return static_cast<int>(themeSet.size());
+   return static_cast<int>(vThemes.size());
 }
 
 int VisualizerPanel::loadLexer() {
@@ -961,8 +967,8 @@ int VisualizerPanel::loadLexer() {
    if (fwVizRegexed.compare(fileType) != 0)
       clearLexer();
 
-   if (recInfoList.size() > 0)
-      return static_cast<int>(recInfoList.size());
+   if (vRecInfo.size() > 0)
+      return static_cast<int>(vRecInfo.size());
 
    const std::wregex trimSpace{ std::wregex(L"(^( )+)|(( )+$)") };
    int styleIndex{ FW_STYLE_THEMES_START_INDEX + FW_STYLE_THEMES_MAX_ITEMS };
@@ -975,11 +981,11 @@ int VisualizerPanel::loadLexer() {
    vector<string> recTypes;
    int recTypeCount{ _configIO.getConfigValueList(recTypes, fileType, "RecordTypes") };
 
-   recInfoList.resize(recTypeCount);
+   vRecInfo.resize(recTypeCount);
 
    for (int i{}; i < recTypeCount; ++i) {
       string& recType = recTypes[i];
-      RecordInfo& RT = recInfoList[i];
+      RecordInfo& RT = vRecInfo[i];
 
       RT.label = _configIO.getConfigWideChar(fileType, (recType + "_Label"), recType, "");
 
@@ -1098,9 +1104,9 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
    wstring fileTheme;
    if (!getDocTheme(fileTheme)) return;
 
-   if (themeSet.size() < 1) return;
+   if (vThemes.size() < 1) return;
 
-   int shiftPerRec{ themeSet[0].styleCount };
+   int shiftPerRec{ vThemes[0].styleCount };
    if (shiftPerRec < 1) return;
 
    size_t lineCount;
@@ -1114,7 +1120,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
    string recStartText{}, eolMarker{};
    size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{}, currentPos, startPos, endPos, recStartPos{};
 
-   const size_t regexedCount{ recInfoList.size() };
+   const size_t regexedCount{ vRecInfo.size() };
    bool newRec{ TRUE };
 
    eolMarker = _configIO.getConfigStringA(fileType, "RecordTerminator");
@@ -1174,7 +1180,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
       size_t regexIndex{};
 
       while (regexIndex < regexedCount) {
-         if (regex_match(recStartText, recInfoList[regexIndex].regExpr)) {
+         if (regex_match(recStartText, vRecInfo[regexIndex].regExpr)) {
             if (caretLine >= recStartLine && caretLine <= currentLine) {
                caretRecordRegIndex = static_cast<int>(regexIndex);
                caretRecordStartPos = static_cast<int>(recStartPos);
@@ -1191,15 +1197,15 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
 
       if (regexIndex >= regexedCount) continue;
 
-      const vector<int>& recFieldWidths{ recInfoList[regexIndex].fieldWidths };
+      const vector<int>& recFieldWidths{ vRecInfo[regexIndex].fieldWidths };
       const size_t fieldCount{ recFieldWidths.size() };
 
-      wstring recTheme{ recInfoList[regexIndex].theme };
+      wstring recTheme{ vRecInfo[regexIndex].theme };
       size_t themeIndex{};
 
       if ((recTheme != L"") && (recTheme != fileTheme)) {
-         for (size_t i{ 0 }; i < themeSet.size(); ++i) {
-            if (recTheme == themeSet[i].name) {
+         for (size_t i{ 0 }; i < vThemes.size(); ++i) {
+            if (recTheme == vThemes[i].name) {
                themeIndex = i;
                colorOffset = 0;
                break;
@@ -1207,8 +1213,8 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
          }
       }
 
-      const int& styleRangeStart{ themeSet[themeIndex].rangeStartIndex };
-      const int& styleCount{ themeSet[themeIndex].styleCount };
+      const int& styleRangeStart{ vThemes[themeIndex].rangeStartIndex };
+      const int& styleCount{ vThemes[themeIndex].styleCount };
       if (styleCount < 1) continue;
 
 #if FW_DEBUG_APPLY_LEXER
@@ -1228,7 +1234,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
 #endif
 
       size_t styleIndex{};
-      const vector<int>& recFieldStyles{ recInfoList[regexIndex].fieldStyles };
+      const vector<int>& recFieldStyles{ vRecInfo[regexIndex].fieldStyles };
 
       if (byteCols) {
          int unstyledLen{};
@@ -1349,7 +1355,7 @@ int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, co
       currFileType = fileType;
    }
 
-   RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
+   RecordInfo& FLD{ vRecInfo[caretRecordRegIndex] };
 
    if (fieldIdx < 0 || fieldIdx >= static_cast<int>(FLD.fieldStarts.size())) return -1;
 
@@ -1463,7 +1469,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
       fieldInfoText = CUR_POS_DATA_REC_TERM;
    }
    else {
-      RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
+      RecordInfo& FLD{ vRecInfo[caretRecordRegIndex] };
       int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 }, recLength;
 
       if (byteCols) {
@@ -1582,7 +1588,7 @@ void VisualizerPanel::showJumpDialog() {
    string fileType;
    if (!getDocFileType(fileType)) return;
 
-   RecordInfo& FLD{ recInfoList[caretRecordRegIndex] };
+   RecordInfo& FLD{ vRecInfo[caretRecordRegIndex] };
 
    int fieldCount = static_cast<int>(FLD.fieldStarts.size());
    int fieldLabelCount = static_cast<int>(FLD.fieldLabels.size());
@@ -1608,12 +1614,28 @@ void VisualizerPanel::showExtractDialog() {
    if (!getDocFileType(fileType)) return;
 
    _dataExtractDlg.doDialog((HINSTANCE)_gModule);
-   _dataExtractDlg.initDialog(fileType, recInfoList);
+   _dataExtractDlg.initDialog(fileType, vRecInfo);
 }
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
    if (!isVisible()) return FALSE;
-   if (!_configIO.checkConfigFilesforUTF8()) return FALSE;
+
+   bool detected{ detectFileTypeByVizConfig(hScintilla, fileType, FALSE) };
+
+   if (!detected)
+      detected = detectFileTypeByVizConfig(hScintilla, fileType, TRUE);
+
+   return detected;
+}
+
+bool VisualizerPanel::detectFileTypeByVizConfig(HWND hScintilla, string& fileType, bool defaultVizConfig) {
+   if (defaultVizConfig) {
+      _configIO.defaultVizConfig();
+   }
+   else {
+      _configIO.userVizConfig();
+      if (!_configIO.checkConfigFilesforUTF8()) return FALSE;
+   }
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    size_t startPos, endPos;
@@ -1666,6 +1688,9 @@ bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
       }
    }
 
+   if (defaultVizConfig && fileType.empty())
+      _configIO.userVizConfig();
+
    return (!fileType.empty());
 }
 
@@ -1678,7 +1703,7 @@ const wstring VisualizerPanel::getCurrentFileName() {
 void VisualizerPanel::setDocInfo(bool bDocType, string val) {
    const wstring fileName{ getCurrentFileName() };
 
-   for (DocInfo& DI : docInfoList) {
+   for (DocInfo& DI : vDocInfo) {
       if (fileName == DI.fileName) {
          if (bDocType) DI.docType = val;
          if (!bDocType) DI.docTheme = val;
@@ -1688,14 +1713,14 @@ void VisualizerPanel::setDocInfo(bool bDocType, string val) {
 
    DocInfo fi{fileName, (bDocType ? val : ""), (!bDocType ? val : "")};
 
-   docInfoList.emplace_back(fi);
+   vDocInfo.emplace_back(fi);
 }
 
 bool VisualizerPanel::getDocFileType(string& fileType) {
    const wstring fileName{ getCurrentFileName() };
    fileType = "";
 
-   for (const DocInfo& DI : docInfoList) {
+   for (const DocInfo& DI : vDocInfo) {
       if (fileName == DI.fileName) {
          fileType = DI.docType;
          break;
@@ -1709,7 +1734,7 @@ bool VisualizerPanel::getDocTheme(wstring& theme) {
    const wstring fileName{ getCurrentFileName() };
    theme = L"";
 
-   for (const DocInfo& DI : docInfoList) {
+   for (const DocInfo& DI : vDocInfo) {
       if (fileName == DI.fileName) {
          theme = Utils::NarrowToWide(DI.docTheme);
          break;
@@ -1722,7 +1747,7 @@ bool VisualizerPanel::getDocTheme(wstring& theme) {
 string VisualizerPanel::getDocFoldStructType() {
    const wstring fileName{ getCurrentFileName() };
 
-   for (const DocInfo& DI : docInfoList) {
+   for (const DocInfo& DI : vDocInfo) {
       if (fileName == DI.fileName) return DI.foldStructType;
    }
    return "";
@@ -1731,7 +1756,7 @@ string VisualizerPanel::getDocFoldStructType() {
 bool VisualizerPanel::getDocFolded() {
    const wstring fileName{ getCurrentFileName() };
 
-   for (const DocInfo& DI : docInfoList) {
+   for (const DocInfo& DI : vDocInfo) {
       if (fileName == DI.fileName) return DI.folded;
    }
    return false;
@@ -1754,7 +1779,7 @@ void VisualizerPanel::setDocTheme(string theme, string fileType) {
 void VisualizerPanel::setDocFoldStructType(string foldStructType) {
    const wstring fileName{ getCurrentFileName() };
 
-   for (DocInfo& DI : docInfoList) {
+   for (DocInfo& DI : vDocInfo) {
       if (fileName == DI.fileName) {
          DI.foldStructType = foldStructType;
          return;
@@ -1765,7 +1790,7 @@ void VisualizerPanel::setDocFoldStructType(string foldStructType) {
 void VisualizerPanel::setDocFolded(bool bFolding) {
    const wstring fileName{ getCurrentFileName() };
 
-   for (DocInfo& DI : docInfoList) {
+   for (DocInfo& DI : vDocInfo) {
       if (fileName == DI.fileName) {
          DI.folded = bFolding;
          return;
@@ -1838,7 +1863,7 @@ void VisualizerPanel::setFocusOnEditor() {
 }
 
 void VisualizerPanel::clearLexer() {
-   recInfoList.clear();
+   vRecInfo.clear();
    fwVizRegexed = "";
 }
 
@@ -1900,7 +1925,7 @@ void VisualizerPanel::applyFolding(string fsType) {
 
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
-   const size_t regexedCount{ recInfoList.size() };
+   const size_t regexedCount{ vRecInfo.size() };
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
@@ -1963,7 +1988,7 @@ void VisualizerPanel::applyFolding(string fsType) {
       size_t regexIndex{};
 
       while (regexIndex < regexedCount) {
-         if (regex_match(recStartText, recInfoList[regexIndex].regExpr)) break;
+         if (regex_match(recStartText, vRecInfo[regexIndex].regExpr)) break;
          ++regexIndex;
       }
 
@@ -2173,7 +2198,6 @@ void VisualizerPanel::unfoldLevelMenu() {
 
 void VisualizerPanel::showFoldStructDialog() {
    _foldStructDlg.doDialog((HINSTANCE)_gModule);
-   _foldStructDlg.initDialog(mapFileDescToType, mapFileTypeToDesc);
 }
 
 DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {

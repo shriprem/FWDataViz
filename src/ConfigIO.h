@@ -78,10 +78,10 @@ public:
    string getFieldStyleText(const wstring& fieldName);
    void parseFieldStyle(const string& styleText, StyleInfo& style);
 
-   int getFoldStructCount();
-   string getFoldStructValueA(string foldStructType, string key);
-   string getFoldStructValue(wstring foldStructType, string key);
-   void getFoldStructFoldingInfo(wstring foldStructType, vector<FoldingInfo>& foldInfoList);
+   int getFoldStructCount(wstring file = L"");
+   string getFoldStructValueA(string foldStructType, string key, wstring file = L"");
+   string getFoldStructValue(wstring foldStructType, string key, wstring file = L"");
+   void getFoldStructFoldingInfo(wstring foldStructType, vector<FoldingInfo>& vFoldInfo, wstring file = L"");
 
    wstring getPreference(const string key, const string default = "");
    void setPreference(const string key, const wstring value);
