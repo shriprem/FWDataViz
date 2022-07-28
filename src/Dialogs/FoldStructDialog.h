@@ -75,6 +75,7 @@ private:
    int loadFoldStructInfo(int vIndex, const wstring& sStructsFile);
    void fillFoldStructs();
    void onFoldStructSelect();
+   void onFoldStructSelectFill(FoldStructInfo* fsInfo);
    void enableMoveStructButtons();
    void enableStructSelection();
    int moveStructType(move_dir dir);
@@ -85,6 +86,7 @@ private:
 
    void fillFoldBlocks();
    void onFoldBlockSelect();
+   void onFoldBlockSelectFill(BlockInfo* blockInfo);
    void enableMoveBlockButtons();
    void enableBlockSelection();
    int moveBlockType(move_dir dir);
@@ -95,6 +97,7 @@ private:
    void fillImplicitEndRecs();
    void fillExplicitEndRecs(BlockInfo* blockInfo);
    void onEndRecSelect();
+   void onEndRecSelectFill();
    void enableEndRecSelection();
    int endRecEditAccept(bool accept = TRUE);
    void endRecEditNew();

@@ -238,7 +238,8 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_FWVIZ_DEF_FILE_ACCEPT_BTN:
-         fileEditAccept();
+      case IDC_FWVIZ_DEF_FILE_RESET_BTN:
+         fileEditAccept(LOWORD(wParam) == IDC_FWVIZ_DEF_FILE_ACCEPT_BTN);
          break;
 
       case IDC_FWVIZ_DEF_FILE_NEW_BTN:
@@ -319,7 +320,8 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_FWVIZ_DEF_REC_ACCEPT_BTN:
-         recEditAccept();
+      case IDC_FWVIZ_DEF_REC_RESET_BTN:
+         recEditAccept(LOWORD(wParam) == IDC_FWVIZ_DEF_REC_ACCEPT_BTN);
          break;
 
       case IDC_FWVIZ_DEF_REC_NEW_BTN:
@@ -479,6 +481,7 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_ADFT_REGEX_LABEL, FWVIZ_DEF_ADFT_REGEX_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_THEME_LABEL, FWVIZ_DEF_FILE_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_ACCEPT_BTN, FWVIZ_DEF_FILE_ACCEPT_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_RESET_BTN, FWVIZ_DEF_FILE_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN, FWVIZ_DEF_FILE_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_CLONE_BTN, FWVIZ_DEF_FILE_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DEL_BTN, FWVIZ_DEF_FILE_DEL_BTN);
@@ -488,6 +491,7 @@ void ConfigureDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_REGEX_LABEL, FWVIZ_DEF_REC_REGEX_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_THEME_LABEL, FWVIZ_DEF_REC_THEME_LABEL);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_ACCEPT_BTN, FWVIZ_DEF_REC_ACCEPT_BTN);
+   SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_RESET_BTN, FWVIZ_DEF_REC_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN, FWVIZ_DEF_REC_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_CLONE_BTN, FWVIZ_DEF_REC_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DEL_BTN, FWVIZ_DEF_REC_DEL_BTN);
@@ -765,6 +769,12 @@ void ConfigureDialog::onFileTypeSelect() {
       fileInfo = &newFile;
    }
 
+   onFileTypeSelectFill(fileInfo);
+   enableMoveFileButtons();
+   fillRecTypes();
+}
+
+void ConfigureDialog::onFileTypeSelectFill(FileType* fileInfo) {
    loadingEdits = TRUE;
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileInfo->label.c_str());
    SetWindowText(hFileEOL, fileInfo->eol.c_str());
@@ -778,13 +788,10 @@ void ConfigureDialog::onFileTypeSelect() {
       SetWindowText(hADFTRegex[i], fileInfo->regExprs[i].c_str());
    }
 
-   loadingEdits = FALSE;
-
    Utils::setComboBoxSelection(hFileThemes, static_cast<int>(
       SendMessage(hFileThemes, CB_FINDSTRING, (WPARAM)-1, (LPARAM)fileInfo->theme.c_str())));
 
-   enableMoveFileButtons();
-   fillRecTypes();
+   loadingEdits = FALSE;
 }
 
 void ConfigureDialog::enableMoveFileButtons() {
@@ -798,9 +805,16 @@ void ConfigureDialog::enableMoveFileButtons() {
 
 void ConfigureDialog::enableFileSelection() {
    bool enable{ cleanFileVals && cleanRecVals && cleanFieldVals };
+   bool fileTypesExist{ SendMessage(hFilesLB, LB_GETCOUNT, 0, 0) > 0 };
+
+   ShowWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN), cleanFileVals ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_RESET_BTN), cleanFileVals ? SW_HIDE : SW_SHOW);
+
    EnableWindow(hFilesLB, enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_NEW_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_CLONE_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_FILE_DEL_BTN), fileTypesExist);
+
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_EXTRACT_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_APPEND_BTN), enable);
 
@@ -882,6 +896,12 @@ void ConfigureDialog::onRecTypeSelect() {
       recInfo = &newRec;
    }
 
+   onRecTypeSelectFill(recInfo);
+   enableMoveRecButtons();
+   fillFieldTypes();
+}
+
+void ConfigureDialog::onRecTypeSelectFill(RecordType* recInfo) {
    loadingEdits = TRUE;
 
    SetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recInfo->label.c_str());
@@ -898,9 +918,6 @@ void ConfigureDialog::onRecTypeSelect() {
 
    Utils::setComboBoxSelection(hRecThemes, static_cast<int>(
       SendMessage(hRecThemes, CB_FINDSTRING, (WPARAM)-1, (LPARAM)recInfo->theme.c_str())));
-
-   enableMoveRecButtons();
-   fillFieldTypes();
 }
 
 void ConfigureDialog::enableMoveRecButtons() {
@@ -917,9 +934,15 @@ void ConfigureDialog::enableMoveRecButtons() {
 
 void ConfigureDialog::enableRecSelection() {
    bool enable{ cleanRecVals && cleanFieldVals };
+   bool recTypesExist{ SendMessage(hRecsLB, LB_GETCOUNT, 0, 0) > 0 };
+
+   ShowWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN), cleanRecVals ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_RESET_BTN), cleanRecVals ? SW_HIDE : SW_SHOW);
+
    EnableWindow(hRecsLB, enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_NEW_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_CLONE_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FWVIZ_DEF_REC_DEL_BTN), recTypesExist);
 
    if (enable) {
       enableMoveRecButtons();
@@ -1089,7 +1112,7 @@ void ConfigureDialog::onRecRegexEditChange() {
    SetWindowText(hRecStart, getOnlyStartsWith(regexText.c_str()).c_str());
 }
 
-int ConfigureDialog::recEditAccept() {
+int ConfigureDialog::recEditAccept(bool accept) {
    if (cleanRecVals) return 0;
 
    int idxFT{ getCurrentFileTypeIndex() };
@@ -1100,27 +1123,36 @@ int ConfigureDialog::recEditAccept() {
 
    RecordType& recInfo{ vFileTypes[idxFT].vRecTypes[idxRec] };
 
-   wchar_t recDesc[MAX_PATH + 1];
+   if (accept) {
+      wchar_t recDesc[MAX_PATH + 1];
 
-   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recDesc, MAX_PATH);
-   recInfo.label = recDesc;
+      GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, recDesc, MAX_PATH);
+      recInfo.label = recDesc;
 
-   wchar_t regexVal[MAX_PATH + 1];
+      wchar_t regexVal[MAX_PATH + 1];
 
-   GetWindowText(hRecRegex, regexVal, MAX_PATH);
+      GetWindowText(hRecRegex, regexVal, MAX_PATH);
 
-   if (Utils::isInvalidRegex(regexVal, _hSelf, FWVIZ_DEF_REC_REGEX_LABEL))
-      return -2;
-   else
-      recInfo.marker = regexVal;
+      if (Utils::isInvalidRegex(regexVal, _hSelf, FWVIZ_DEF_REC_REGEX_LABEL))
+         return -2;
+      else
+         recInfo.marker = regexVal;
 
-   wchar_t themeVal[MAX_PATH + 1];
+      wchar_t themeVal[MAX_PATH + 1];
 
-   GetWindowText(hRecThemes, themeVal, MAX_PATH);
-   recInfo.theme = (wstring{ themeVal } == FWVIZ_DEF_REC_THEME_FROM_FT) ? L"" : themeVal;
+      GetWindowText(hRecThemes, themeVal, MAX_PATH);
+      recInfo.theme = (wstring{ themeVal } == FWVIZ_DEF_REC_THEME_FROM_FT) ? L"" : themeVal;
+   }
+   else if (recInfo.label.empty()) {
+      recEditDelete();
+      return 0;
+   }
+   else {
+      onRecTypeSelectFill(&recInfo);
+   }
 
    SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hRecsLB, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recDesc);
+   SendMessage(hRecsLB, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recInfo.label.c_str());
    SendMessage(hRecsLB, LB_SETCURSEL, idxRec, NULL);
 
    cleanConfigFile = FALSE;
@@ -1191,7 +1223,7 @@ int ConfigureDialog::recEditDelete() {
    return moveTo;
 }
 
-int ConfigureDialog::fileEditAccept() {
+int ConfigureDialog::fileEditAccept(bool accept) {
    if (cleanFileVals) return 0;
 
    int idxFT{ getCurrentFileTypeIndex() };
@@ -1199,35 +1231,44 @@ int ConfigureDialog::fileEditAccept() {
 
    FileType& fileInfo{ vFileTypes[idxFT] };
 
-   wchar_t fileVal[MAX_PATH + 1];
+   if (accept) {
+      wchar_t fileVal[MAX_PATH + 1];
 
-   GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileVal, MAX_PATH);
-   fileInfo.label = fileVal;
+      GetDlgItemText(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, fileVal, MAX_PATH);
+      fileInfo.label = fileVal;
 
-   GetWindowText(hFileThemes, fileVal, MAX_PATH);
-   fileInfo.theme = fileVal;
+      GetWindowText(hFileThemes, fileVal, MAX_PATH);
+      fileInfo.theme = fileVal;
 
-   wchar_t eolVal[MAX_PATH + 1];
+      wchar_t eolVal[MAX_PATH + 1];
 
-   GetWindowText(hFileEOL, eolVal, MAX_PATH);
-   fileInfo.eol = eolVal;
+      GetWindowText(hFileEOL, eolVal, MAX_PATH);
+      fileInfo.eol = eolVal;
 
-   fileInfo.multiByte = (IsDlgButtonChecked(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX) == BST_CHECKED);
+      fileInfo.multiByte = (IsDlgButtonChecked(_hSelf, IDC_FWVIZ_DEF_MCBS_CHECKBOX) == BST_CHECKED);
 
-   // ADFT Info
-   wchar_t lineNum[MAX_PATH + 1];
-   wchar_t regExpr[MAX_PATH + 1];
+      // ADFT Info
+      wchar_t lineNum[MAX_PATH + 1];
+      wchar_t regExpr[MAX_PATH + 1];
 
-   for (int i{}; i < ADFT_MAX; ++i) {
-      GetWindowText(hADFTLine[i], lineNum, MAX_PATH);
-      fileInfo.lineNums[i] = Utils::StringtoInt(lineNum);
+      for (int i{}; i < ADFT_MAX; ++i) {
+         GetWindowText(hADFTLine[i], lineNum, MAX_PATH);
+         fileInfo.lineNums[i] = Utils::StringtoInt(lineNum);
 
-      GetWindowText(hADFTRegex[i], regExpr, MAX_PATH);
-      if (Utils::isInvalidRegex(regExpr, _hSelf,
-         wstring(FWVIZ_DEF_ADFT_GROUP_LABEL) + L" - " + FWVIZ_DEF_ADFT_LINE_LABEL + L" " + to_wstring(i + 1)))
-         return -2;
-      else
-         fileInfo.regExprs[i] = regExpr;
+         GetWindowText(hADFTRegex[i], regExpr, MAX_PATH);
+         if (Utils::isInvalidRegex(regExpr, _hSelf,
+            wstring(FWVIZ_DEF_ADFT_GROUP_LABEL) + L" - " + FWVIZ_DEF_ADFT_LINE_LABEL + L" " + to_wstring(i + 1)))
+            return -2;
+         else
+            fileInfo.regExprs[i] = regExpr;
+      }
+   }
+   else if (fileInfo.label.empty()) {
+      fileEditDelete();
+      return 0;
+   }
+   else {
+      onFileTypeSelectFill(&fileInfo);
    }
 
    // Update FT Listbox Entry

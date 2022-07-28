@@ -99,7 +99,8 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          break;
 
       case IDC_THEME_DEF_ACCEPT_BTN:
-         themeEditAccept();
+      case IDC_THEME_DEF_RESET_BTN:
+         themeEditAccept(LOWORD(wParam) == IDC_THEME_DEF_ACCEPT_BTN);
          break;
 
       case IDC_THEME_DEF_NEW_BTN:
@@ -198,7 +199,7 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          SetCursor(LoadCursor(NULL, IDC_ARROW));
          return TRUE;
 
-      case IDC_THEME_DEF_RESET_BTN:
+      case IDC_THEME_DEF_RESET_CONFIG_BTN:
          if (!promptDiscardChangesNo()) {
             themeFile = L"";
             loadConfigInfo();
@@ -290,6 +291,7 @@ void ThemeDialog::localize() {
    SetDlgItemText(_hSelf, IDC_THEME_DEF_GROUP_BOX, THEME_DEF_GROUP_BOX);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_DESC_LABEL, THEME_DEF_DESC_LABEL);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_ACCEPT_BTN, THEME_DEF_ACCEPT_BTN);
+   SetDlgItemText(_hSelf, IDC_THEME_DEF_RESET_BTN, THEME_DEF_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_NEW_BTN, THEME_DEF_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_CLONE_BTN, THEME_DEF_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_DEL_BTN, THEME_DEF_DEL_BTN);
@@ -300,7 +302,7 @@ void ThemeDialog::localize() {
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_ACCEPT_BTN, THEME_STYLE_DEF_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_STYLE_DEF_RESET_BTN, THEME_STYLE_DEF_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_SAVE_CONFIG_BTN, THEME_DIALOG_SAVE_BTN);
-   SetDlgItemText(_hSelf, IDC_THEME_DEF_RESET_BTN, THEME_DIALOG_RESET_BTN);
+   SetDlgItemText(_hSelf, IDC_THEME_DEF_RESET_CONFIG_BTN, THEME_DIALOG_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_BACKUP_LOAD_BTN, THEME_DIALOG_BKUP_LOAD_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_BACKUP_VIEW_BTN, THEME_DIALOG_BKUP_VIEW_BTN);
    SetDlgItemText(_hSelf, IDC_THEME_DEF_EXTRACT_BTN, THEME_DIALOG_EXTRACT_BTN);
@@ -483,12 +485,15 @@ void ThemeDialog::onThemeSelect() {
       themeInfo = &newTheme;
    }
 
+   onThemeSelectFill(themeInfo);
+   enableMoveThemeButtons();
+   fillStyles();
+}
+
+void ThemeDialog::onThemeSelectFill(ThemeType* themeInfo) {
    loadingEdits = TRUE;
    SetDlgItemText(_hSelf, IDC_THEME_DEF_DESC_EDIT, themeInfo->label.c_str());
    loadingEdits = FALSE;
-
-   enableMoveThemeButtons();
-   fillStyles();
 }
 
 void ThemeDialog::enableMoveThemeButtons() {
@@ -502,9 +507,16 @@ void ThemeDialog::enableMoveThemeButtons() {
 
 void ThemeDialog::enableThemeSelection() {
    bool enable{ cleanThemeVals && cleanStyleDefs };
-   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_LIST_BOX), enable);
+   bool themesExist{ SendMessage(hThemesLB, LB_GETCOUNT, 0, 0) > 0 };
+
+   ShowWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_NEW_BTN), cleanThemeVals ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_RESET_BTN), cleanThemeVals ? SW_HIDE : SW_SHOW);
+
+   EnableWindow(hThemesLB, enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_NEW_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_CLONE_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_DEL_BTN), themesExist);
+
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_EXTRACT_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_THEME_DEF_APPEND_BTN), enable);
 
@@ -853,7 +865,7 @@ int ThemeDialog::styleEditDelete() {
    return moveTo;
 }
 
-void ThemeDialog::themeEditAccept() {
+void ThemeDialog::themeEditAccept(bool accept) {
    if (cleanThemeVals) return;
 
    int idxFT{ getCurrentThemeIndex() };
@@ -861,10 +873,19 @@ void ThemeDialog::themeEditAccept() {
 
    ThemeType& fileInfo = vThemeTypes[idxFT];
 
-   wchar_t fileVal[MAX_PATH + 1];
+   if (accept) {
+      wchar_t fileVal[MAX_PATH + 1];
 
-   GetDlgItemText(_hSelf, IDC_THEME_DEF_DESC_EDIT, fileVal, MAX_PATH + 1);
-   fileInfo.label = fileVal;
+      GetDlgItemText(_hSelf, IDC_THEME_DEF_DESC_EDIT, fileVal, MAX_PATH + 1);
+      fileInfo.label = fileVal;
+   }
+   else if (fileInfo.label.empty()) {
+      themeEditDelete();
+      return;
+   }
+   else {
+      onThemeSelectFill(&fileInfo);
+   }
 
    SendMessage(hThemesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
    SendMessage(hThemesLB, LB_INSERTSTRING, (WPARAM)idxFT, (LPARAM)fileInfo.label.c_str());

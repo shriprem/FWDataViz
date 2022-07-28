@@ -301,8 +301,8 @@ void FoldStructDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_TYPE_LABEL, FOLD_DEF_FILE_TYPE_LABEL);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY, FOLD_DEF_AUTO_FOLD_APPLY);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_ACCEPT_BTN, FOLD_DEF_FILE_ACCEPT_BTN);
-   SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_NEW_BTN, FOLD_DEF_FILE_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_RESET_BTN, FOLD_DEF_FILE_RESET_BTN);
+   SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_NEW_BTN, FOLD_DEF_FILE_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_CLONE_BTN, FOLD_DEF_FILE_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_DEL_BTN, FOLD_DEF_FILE_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_GROUP_BOX, FOLD_DEF_HDR_REC_GROUP_BOX);
@@ -310,16 +310,16 @@ void FoldStructDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_LABEL, FOLD_DEF_HDR_PRIORITY_LABEL);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE, FOLD_DEF_HDR_REC_RECURSIVE);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_ACCEPT_BTN, FOLD_DEF_HDR_REC_ACCEPT_BTN);
-   SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_NEW_BTN, FOLD_DEF_HDR_REC_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_RESET_BTN, FOLD_DEF_HDR_REC_RESET_BTN);
+   SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_NEW_BTN, FOLD_DEF_HDR_REC_NEW_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_CLONE_BTN, FOLD_DEF_HDR_REC_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_DEL_BTN, FOLD_DEF_HDR_REC_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_IMPLICIT_TRMNTRS_GROUP, FOLD_IMPLICIT_TRMNTRS_GROUP);
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_TRMNTRS_GROUP, FOLD_EXPLICIT_TRMNTRS_GROUP);
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_LABEL, FOLD_EXPLICIT_ENDREC_LABEL);
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_ACCEPT, FOLD_EXPLICIT_ENDREC_ACCEPT);
-   SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_NEW, FOLD_EXPLICIT_ENDREC_NEW);
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_RESET, FOLD_EXPLICIT_ENDREC_RESET);
+   SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_NEW, FOLD_EXPLICIT_ENDREC_NEW);
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_DEL, FOLD_EXPLICIT_ENDREC_DEL);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_SAVE_BTN, FOLD_DEF_SAVE_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_RESET_BTN, FOLD_DEF_RESET_BTN);
@@ -488,6 +488,12 @@ void FoldStructDialog::onFoldStructSelect() {
       fsInfo = &newFile;
    }
 
+   onFoldStructSelectFill(fsInfo);
+   enableMoveStructButtons();
+   fillFoldBlocks();
+}
+
+void FoldStructDialog::onFoldStructSelectFill(FoldStructInfo* fsInfo) {
    loadingEdits = TRUE;
 
    Utils::setComboBoxSelection(hFTList, static_cast<int>(
@@ -495,9 +501,6 @@ void FoldStructDialog::onFoldStructSelect() {
    CheckDlgButton(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY, fsInfo->autoFold ? BST_CHECKED : BST_UNCHECKED);
 
    loadingEdits = FALSE;
-
-   enableMoveStructButtons();
-   fillFoldBlocks();
 }
 
 void FoldStructDialog::enableMoveStructButtons() {
@@ -514,8 +517,8 @@ void FoldStructDialog::enableStructSelection() {
    bool structRecsExist{ SendMessage(hFoldStructs, LB_GETCOUNT, 0, 0) > 0 };
    bool fileTypesExist{ vFileTypes.size() > 0 };
 
-   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_NEW_BTN), enable ? SW_SHOW : SW_HIDE);
-   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_RESET_BTN), enable ? SW_HIDE : SW_SHOW);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_NEW_BTN), cleanStructVals ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_RESET_BTN), cleanStructVals ? SW_HIDE : SW_SHOW);
 
    EnableWindow(hFoldStructs, enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY), fileTypesExist);
@@ -594,9 +597,7 @@ int FoldStructDialog::structEditAccept(bool accept) {
       return 0;
    }
    else {
-      Utils::setComboBoxSelection(hFTList, static_cast<int>(
-         SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)fsInfo.fileType.label.c_str())));
-      CheckDlgButton(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY, fsInfo.autoFold ? BST_CHECKED : BST_UNCHECKED);
+      onFoldStructSelectFill(&fsInfo);
    }
 
    // Update FT Listbox Entry
@@ -729,6 +730,13 @@ void FoldStructDialog::onFoldBlockSelect() {
       blockInfo = &newBlock;
    }
 
+   onFoldBlockSelectFill(blockInfo);
+   enableMoveBlockButtons();
+   fillImplicitEndRecs();
+   fillExplicitEndRecs(blockInfo);
+}
+
+void FoldStructDialog::onFoldBlockSelectFill(BlockInfo* blockInfo) {
    loadingEdits = TRUE;
 
    Utils::setComboBoxSelection(hHdrRTList, static_cast<int>(
@@ -737,10 +745,6 @@ void FoldStructDialog::onFoldBlockSelect() {
    CheckDlgButton(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE, blockInfo->recursive ? BST_CHECKED : BST_UNCHECKED);
 
    loadingEdits = FALSE;
-
-   enableMoveBlockButtons();
-   fillImplicitEndRecs();
-   fillExplicitEndRecs(blockInfo);
 }
 
 void FoldStructDialog::enableMoveBlockButtons() {
@@ -848,10 +852,7 @@ int FoldStructDialog::blockEditAccept(bool accept) {
       return 0;
    }
    else {
-      Utils::setComboBoxSelection(hHdrRTList, static_cast<int>(
-         SendMessage(hHdrRTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)BI.hdrRec.label.c_str())));
-      SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_EDIT, to_wstring(BI.priority).c_str());
-      CheckDlgButton(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE, BI.recursive ? BST_CHECKED : BST_UNCHECKED);
+      onFoldBlockSelectFill(&BI);
    }
 
    SendMessage(hFoldBlocks, LB_DELETESTRING, (WPARAM)idxBlock, NULL);
@@ -967,13 +968,17 @@ void FoldStructDialog::fillExplicitEndRecs(BlockInfo* blockInfo) {
 }
 
 void FoldStructDialog::onEndRecSelect() {
+   onEndRecSelectFill();
+   enableEndRecSelection();
+}
+
+void FoldStructDialog::onEndRecSelectFill() {
    loadingEdits = TRUE;
 
    Utils::setComboBoxSelection(hExplRTList, static_cast<int>(
       SendMessage(hExplRTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)Utils::getListBoxItem(hExplRecs).c_str())));
 
    loadingEdits = FALSE;
-   enableEndRecSelection();
 }
 
 void FoldStructDialog::enableEndRecSelection() {
@@ -1020,8 +1025,7 @@ int FoldStructDialog::endRecEditAccept(bool accept) {
       return 0;
    }
    else {
-      Utils::setComboBoxSelection(hExplRTList, static_cast<int>(
-         SendMessage(hExplRTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)Utils::getListBoxItem(hExplRecs).c_str())));
+      onEndRecSelectFill();
    }
 
    SendMessage(hExplRecs, LB_DELETESTRING, (WPARAM)idxEndRec, NULL);
