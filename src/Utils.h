@@ -31,6 +31,7 @@ namespace Utils {
    bool checkBaseOS(winVer os);
    float getNPPVersion();
    bool checkKeyHeldDown(int vKey);
+   wstring getListBoxItem(HWND hList, bool currentSelection = TRUE, const int itemIndex = 0);
    void setComboBoxSelection(HWND hList, int index);
    bool getClipboardText(HWND hwnd, wstring& clipText);
    wstring getVersionInfo(LPCWSTR key);
