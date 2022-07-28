@@ -85,10 +85,11 @@ private:
 
    void fillFileTypes();
    void onFileTypeSelect();
+   void onFileTypeSelectFill(FileType* fileInfo);
    void enableMoveFileButtons();
    void enableFileSelection();
    int moveFileType(move_dir dir);
-   int fileEditAccept();
+   int fileEditAccept(bool accept = TRUE);
    void fileEditNew();
    void fileEditClone();
    int fileEditDelete();
@@ -96,12 +97,13 @@ private:
 
    void fillRecTypes();
    void onRecTypeSelect();
+   void onRecTypeSelectFill(RecordType* recInfo);
    void enableMoveRecButtons();
    void enableRecSelection();
    int moveRecType(move_dir dir);
    void onRecStartEditChange();
    void onRecRegexEditChange();
-   int recEditAccept();
+   int recEditAccept(bool accept = TRUE);
    void recEditNew(bool clone);
    int recEditDelete();
 

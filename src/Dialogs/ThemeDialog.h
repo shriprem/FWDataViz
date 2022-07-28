@@ -62,10 +62,11 @@ private:
 
    void fillThemes();
    void onThemeSelect();
+   void onThemeSelectFill(ThemeType* themeInfo);
    void enableMoveThemeButtons();
    void enableThemeSelection();
    int moveThemeType(move_dir dir);
-   void themeEditAccept();
+   void themeEditAccept(bool accept = TRUE);
    void themeEditNew();
    void themeEditClone();
    int themeEditDelete();
