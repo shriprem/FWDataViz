@@ -106,7 +106,8 @@ INT_PTR CALLBACK FoldStructDialog::run_dlgProc(UINT message, WPARAM wParam, LPAR
          break;
 
       case IDC_FOLD_DEF_FILE_ACCEPT_BTN:
-         structEditAccept();
+      case IDC_FOLD_DEF_FILE_RESET_BTN:
+         structEditAccept(LOWORD(wParam) == IDC_FOLD_DEF_FILE_ACCEPT_BTN);
          break;
 
       case IDC_FOLD_DEF_FILE_NEW_BTN:
@@ -163,15 +164,17 @@ INT_PTR CALLBACK FoldStructDialog::run_dlgProc(UINT message, WPARAM wParam, LPAR
          break;
 
       case IDC_FOLD_DEF_HDR_REC_ACCEPT_BTN:
-         blockEditAccept();
+      case IDC_FOLD_DEF_HDR_REC_RESET_BTN:
+         blockEditAccept(LOWORD(wParam) == IDC_FOLD_DEF_HDR_REC_ACCEPT_BTN);
+         fillImplicitEndRecs();
          break;
 
       case IDC_FOLD_DEF_HDR_REC_NEW_BTN:
-         blockEditNew();
+         blockEditNew(FALSE);
          break;
 
       case IDC_FOLD_DEF_HDR_REC_CLONE_BTN:
-         blockEditClone();
+         blockEditNew(TRUE);
          break;
 
       case IDC_FOLD_DEF_HDR_REC_DEL_BTN:
@@ -191,14 +194,15 @@ INT_PTR CALLBACK FoldStructDialog::run_dlgProc(UINT message, WPARAM wParam, LPAR
          case CBN_SELCHANGE:
             if (!loadingEdits) {
                cleanEndRecVals = FALSE;
-               enableBlockSelection();
+               enableEndRecSelection();
             }
             break;
          }
          break;
 
       case IDC_FOLD_EXPLICIT_ENDREC_ACCEPT:
-         endRecEditAccept();
+      case IDC_FOLD_EXPLICIT_ENDREC_RESET:
+         endRecEditAccept(LOWORD(wParam) == IDC_FOLD_EXPLICIT_ENDREC_ACCEPT);
          break;
 
       case IDC_FOLD_EXPLICIT_ENDREC_NEW:
@@ -298,6 +302,7 @@ void FoldStructDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY, FOLD_DEF_AUTO_FOLD_APPLY);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_ACCEPT_BTN, FOLD_DEF_FILE_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_NEW_BTN, FOLD_DEF_FILE_NEW_BTN);
+   SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_RESET_BTN, FOLD_DEF_FILE_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_CLONE_BTN, FOLD_DEF_FILE_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_FILE_DEL_BTN, FOLD_DEF_FILE_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_GROUP_BOX, FOLD_DEF_HDR_REC_GROUP_BOX);
@@ -306,6 +311,7 @@ void FoldStructDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE, FOLD_DEF_HDR_REC_RECURSIVE);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_ACCEPT_BTN, FOLD_DEF_HDR_REC_ACCEPT_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_NEW_BTN, FOLD_DEF_HDR_REC_NEW_BTN);
+   SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_RESET_BTN, FOLD_DEF_HDR_REC_RESET_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_CLONE_BTN, FOLD_DEF_HDR_REC_CLONE_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_REC_DEL_BTN, FOLD_DEF_HDR_REC_DEL_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_IMPLICIT_TRMNTRS_GROUP, FOLD_IMPLICIT_TRMNTRS_GROUP);
@@ -313,6 +319,7 @@ void FoldStructDialog::localize() {
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_LABEL, FOLD_EXPLICIT_ENDREC_LABEL);
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_ACCEPT, FOLD_EXPLICIT_ENDREC_ACCEPT);
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_NEW, FOLD_EXPLICIT_ENDREC_NEW);
+   SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_RESET, FOLD_EXPLICIT_ENDREC_RESET);
    SetDlgItemText(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_DEL, FOLD_EXPLICIT_ENDREC_DEL);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_SAVE_BTN, FOLD_DEF_SAVE_BTN);
    SetDlgItemText(_hSelf, IDC_FOLD_DEF_RESET_BTN, FOLD_DEF_RESET_BTN);
@@ -504,9 +511,19 @@ void FoldStructDialog::enableMoveStructButtons() {
 
 void FoldStructDialog::enableStructSelection() {
    bool enable{ cleanStructVals && cleanBlockVals && cleanEndRecVals };
+   bool structRecsExist{ SendMessage(hFoldStructs, LB_GETCOUNT, 0, 0) > 0 };
+   bool fileTypesExist{ vFileTypes.size() > 0 };
+
+   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_NEW_BTN), enable ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_RESET_BTN), enable ? SW_HIDE : SW_SHOW);
+
    EnableWindow(hFoldStructs, enable);
-   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_NEW_BTN), enable);
-   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_CLONE_BTN), enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY), fileTypesExist);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_ACCEPT_BTN), fileTypesExist);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_NEW_BTN), fileTypesExist && enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_CLONE_BTN), fileTypesExist && enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_FILE_DEL_BTN), structRecsExist);
+
    EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_EXTRACT_BTN), enable);
    EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_APPEND_BTN), enable);
 
@@ -556,18 +573,118 @@ int FoldStructDialog::moveStructType(move_dir dir) {
    return idxFS + dir;
 }
 
-int FoldStructDialog::structEditAccept() {
-   return 0;
+int FoldStructDialog::structEditAccept(bool accept) {
+   if (cleanStructVals) return 0;
+
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return -1;
+
+   FoldStructInfo& fsInfo{ vFoldStructs[idxFS] };
+
+   if (accept) {
+      int index{ static_cast<int>(SendMessage(hFTList, CB_GETCURSEL, 0, 0)) };
+      if (index >= static_cast<int>(vFileTypes.size())) return -1;
+
+      fsInfo.fileType.type = vFileTypes[index].type;
+      fsInfo.fileType.label = vFileTypes[index].label;
+      fsInfo.autoFold = (IsDlgButtonChecked(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY) == BST_CHECKED);
+   }
+   else if (fsInfo.fileType.label.empty()) {
+      structEditDelete();
+      return 0;
+   }
+   else {
+      Utils::setComboBoxSelection(hFTList, static_cast<int>(
+         SendMessage(hFTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)fsInfo.fileType.label.c_str())));
+      CheckDlgButton(_hSelf, IDC_FOLD_DEF_AUTO_FOLD_APPLY, fsInfo.autoFold ? BST_CHECKED : BST_UNCHECKED);
+   }
+
+   // Update FT Listbox Entry
+   SendMessage(hFoldStructs, LB_DELETESTRING, (WPARAM)idxFS, NULL);
+   SendMessage(hFoldStructs, LB_INSERTSTRING, (WPARAM)idxFS, (LPARAM)fsInfo.fileType.label.c_str());
+   SendMessage(hFoldStructs, LB_SETCURSEL, idxFS, NULL);
+
+   cleanStructsFile = FALSE;
+   cleanStructVals = TRUE;
+   enableStructSelection();
+
+   return 1;
 }
 
 void FoldStructDialog::structEditNew() {
+   FoldStructInfo newFS{};
+
+   vFoldStructs.push_back(newFS);
+
+   size_t moveTo = vFoldStructs.size() - 1;
+
+   SendMessage(hFoldStructs, LB_ADDSTRING, NULL, (LPARAM)newFS.fileType.label.c_str());
+   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   onFoldStructSelect();
+
+   cleanStructsFile = FALSE;
+   cleanStructVals = FALSE;
+   enableStructSelection();
 }
 
 void FoldStructDialog::structEditClone() {
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return;
+
+   FoldStructInfo& FS{ vFoldStructs[idxFS] };
+   FoldStructInfo NF{};
+
+   NF.fileType = FS.fileType;
+   NF.autoFold = FS.autoFold;
+
+   // Block Info
+   size_t blockCount = FS.vBlocks.size();
+   NF.vBlocks.resize(blockCount);
+
+   for (size_t i{}; i < blockCount; ++i) {
+      BlockInfo& NFBI{ NF.vBlocks[i] };
+      BlockInfo& FSBI{ FS.vBlocks[i] };
+      NFBI.hdrRec = FSBI.hdrRec;
+      NFBI.priority = FSBI.priority;
+      NFBI.recursive = FSBI.recursive;
+
+      // End Recs Info
+      size_t endRecsCount = FSBI.vEndRecs.size();
+      NFBI.vEndRecs.resize(endRecsCount);
+
+      for (size_t j{}; j < endRecsCount; ++j) {
+         NFBI.vEndRecs[j] = FSBI.vEndRecs[j];
+      }
+   }
+
+   vFoldStructs.push_back(NF);
+
+   SendMessage(hFoldStructs, LB_ADDSTRING, NULL, (LPARAM)NF.fileType.label.c_str());
+   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)(vFoldStructs.size() - 1), NULL);
+   onFoldStructSelect();
+
+   cleanStructsFile = FALSE;
+   cleanStructVals = FALSE;
+   enableStructSelection();
 }
 
 int FoldStructDialog::structEditDelete() {
-   return 0;
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return LB_ERR;
+
+   vFoldStructs.erase(vFoldStructs.begin() + idxFS);
+
+   int lastFile = static_cast<int>(vFoldStructs.size()) - 1;
+   int moveTo = (idxFS <= lastFile - 1) ? idxFS : lastFile;
+
+   SendMessage(hFoldStructs, LB_DELETESTRING, (WPARAM)idxFS, NULL);
+   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+
+   cleanStructsFile = FALSE;
+   cleanStructVals = TRUE;
+   onFoldStructSelect();
+
+   return moveTo;
 }
 
 void FoldStructDialog::fillFoldBlocks() {
@@ -622,6 +739,7 @@ void FoldStructDialog::onFoldBlockSelect() {
    loadingEdits = FALSE;
 
    enableMoveBlockButtons();
+   fillImplicitEndRecs();
    fillExplicitEndRecs(blockInfo);
 }
 
@@ -639,9 +757,20 @@ void FoldStructDialog::enableMoveBlockButtons() {
 
 void FoldStructDialog::enableBlockSelection() {
    bool enable{ cleanBlockVals && cleanEndRecVals };
+   bool blockRecsExist{ SendMessage(hFoldBlocks, LB_GETCOUNT, 0, 0) > 0 };
+   bool recTypesExist{ vRecTypes.size() > 0 };
+
+   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_NEW_BTN), cleanBlockVals ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_RESET_BTN), cleanBlockVals ? SW_HIDE : SW_SHOW);
+
    EnableWindow(hFoldBlocks, enable);
-   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_NEW_BTN), enable);
-   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_CLONE_BTN), enable);
+   EnableWindow(hHdrRTList, blockRecsExist && recTypesExist);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_EDIT), blockRecsExist && recTypesExist);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE), blockRecsExist && recTypesExist);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_ACCEPT_BTN), blockRecsExist && recTypesExist);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_NEW_BTN), recTypesExist && enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_CLONE_BTN), blockRecsExist && recTypesExist && enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_REC_DEL_BTN), blockRecsExist);
 
    if (enable) {
       enableMoveBlockButtons();
@@ -694,18 +823,104 @@ int FoldStructDialog::moveBlockType(move_dir dir) {
    return idxBlock + dir;
 }
 
-int FoldStructDialog::blockEditAccept() {
-   return 0;
+int FoldStructDialog::blockEditAccept(bool accept) {
+   if (cleanBlockVals) return 0;
+
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return LB_ERR;
+
+   int idxBlock{ getCurrentBlockIndex() };
+   if (idxBlock == LB_ERR) return LB_ERR;
+
+   BlockInfo& BI{ vFoldStructs[idxFS].vBlocks[idxBlock] };
+
+   if (accept) {
+      int index{ static_cast<int>(SendMessage(hHdrRTList, CB_GETCURSEL, 0, 0)) };
+      if (index >= static_cast<int>(vRecTypes.size())) return -1;
+
+      BI.hdrRec.type = vRecTypes[index].type;
+      BI.hdrRec.label = vRecTypes[index].label;
+      BI.priority = static_cast<int>(GetDlgItemInt(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_EDIT, NULL, FALSE));
+      BI.recursive = (IsDlgButtonChecked(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE) == BST_CHECKED);
+   }
+   else if (BI.hdrRec.label.empty()) {
+      blockEditDelete();
+      return 0;
+   }
+   else {
+      Utils::setComboBoxSelection(hHdrRTList, static_cast<int>(
+         SendMessage(hHdrRTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)BI.hdrRec.label.c_str())));
+      SetDlgItemText(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_EDIT, to_wstring(BI.priority).c_str());
+      CheckDlgButton(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE, BI.recursive ? BST_CHECKED : BST_UNCHECKED);
+   }
+
+   SendMessage(hFoldBlocks, LB_DELETESTRING, (WPARAM)idxBlock, NULL);
+   SendMessage(hFoldBlocks, LB_INSERTSTRING, (WPARAM)idxBlock, (LPARAM)BI.hdrRec.label.c_str());
+   SendMessage(hFoldBlocks, LB_SETCURSEL, idxBlock, NULL);
+
+   cleanStructsFile = FALSE;
+   cleanBlockVals = TRUE;
+   enableBlockSelection();
+
+   return 1;
 }
 
-void FoldStructDialog::blockEditNew() {
-}
+void FoldStructDialog::blockEditNew(bool clone) {
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return;
 
-void FoldStructDialog::blockEditClone() {
+   int idxBlock{ getCurrentBlockIndex() };
+   if (clone && idxBlock == LB_ERR) return;
+
+   vector<BlockInfo>& blocks{ vFoldStructs[idxFS].vBlocks };
+   BlockInfo NB{};
+
+   if (clone) {
+      BlockInfo& BI{ blocks[idxBlock] };
+      NB.hdrRec = BI.hdrRec;
+      NB.priority = BI.priority;
+      NB.recursive = BI.recursive;
+
+      size_t endRecCount{ BI.vEndRecs.size() };
+      NB.vEndRecs.resize(endRecCount);
+      for (size_t i{}; i < endRecCount; ++i) {
+         NB.vEndRecs[i] = BI.vEndRecs[i];
+      }
+   }
+
+   blocks.push_back(NB);
+   size_t moveTo = blocks.size() - 1;
+
+   SendMessage(hFoldBlocks, LB_ADDSTRING, NULL, (LPARAM)NB.hdrRec.label.c_str());
+   SendMessage(hFoldBlocks, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   onFoldBlockSelect();
+
+   cleanStructsFile = FALSE;
+   cleanBlockVals = clone;
+   enableBlockSelection();
 }
 
 int FoldStructDialog::blockEditDelete() {
-   return 0;
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return LB_ERR;
+
+   int idxBlock{ getCurrentBlockIndex() };
+   if (idxBlock == LB_ERR) return LB_ERR;
+
+   vector<BlockInfo>& blocks{ vFoldStructs[idxFS].vBlocks };
+   blocks.erase(blocks.begin() + idxBlock);
+
+   int lastRec = static_cast<int>(blocks.size()) - 1;
+   int moveTo = (idxBlock <= lastRec - 1) ? idxBlock : lastRec;
+
+   SendMessage(hFoldBlocks, LB_DELETESTRING, (WPARAM)idxBlock, NULL);
+   SendMessage(hFoldBlocks, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+
+   cleanStructsFile = FALSE;
+   cleanBlockVals = TRUE;
+   onFoldBlockSelect();
+
+   return moveTo;
 }
 
 void FoldStructDialog::fillImplicitEndRecs() {
@@ -716,25 +931,26 @@ void FoldStructDialog::fillImplicitEndRecs() {
       fsInfo = &newFs;
    }
 
-   vector <BlockInfo>& blockInfoList{ fsInfo->vBlocks };
-
+   int recTypeIndex{ static_cast<int>(SendMessage(hHdrRTList, CB_GETCURSEL, 0, 0)) };
    int priority{ static_cast<int>(GetDlgItemInt(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_EDIT, NULL, FALSE)) };
    bool recursive{ IsDlgButtonChecked(_hSelf, IDC_FOLD_DEF_HDR_REC_RECURSIVE) == BST_CHECKED };
    int threshold{ priority - (recursive ? 1 : 0) };
 
+   vector <BlockInfo>& blockInfoList{ fsInfo->vBlocks };
    SendMessage(hImplRecs, LB_RESETCONTENT, NULL, NULL);
 
    for (const auto BI : blockInfoList) {
-      if (BI.priority <= threshold)
-         SendMessage(hImplRecs, LB_ADDSTRING, NULL, (LPARAM)BI.hdrRec.label.c_str());
+      if (BI.hdrRec.label.empty()) continue;
+      if (recursive && (BI.hdrRec.type == vRecTypes[recTypeIndex].type)) continue;
+      if (BI.priority > threshold) continue;
+
+      SendMessage(hImplRecs, LB_ADDSTRING, NULL, (LPARAM)BI.hdrRec.label.c_str());
    }
 
    SendMessage(hImplRecs, LB_ADDSTRING, NULL, (LPARAM)FOLD_IMPLICIT_END_OF_FILE);
 }
 
 void FoldStructDialog::fillExplicitEndRecs(BlockInfo* blockInfo) {
-   fillImplicitEndRecs();
-
    SendMessage(hExplRecs, LB_RESETCONTENT, NULL, NULL);
 
    for (const auto ER : blockInfo->vEndRecs) {
@@ -751,34 +967,125 @@ void FoldStructDialog::fillExplicitEndRecs(BlockInfo* blockInfo) {
 }
 
 void FoldStructDialog::onEndRecSelect() {
-   int index{ static_cast<int>(SendMessage(hExplRecs, LB_GETCURSEL, 0, 0)) };
-   if (index == LB_ERR) {
-      SendMessage(hExplRTList, CB_SETCURSEL, (WPARAM)CB_ERR, 0);
-      return;
-   }
-
-   int itemLength{ static_cast<int>(SendMessage(hExplRecs, LB_GETTEXTLEN, index, 0)) };
-
-   wstring itemText(itemLength + 1, '\0');
-   SendMessage(hExplRecs, LB_GETTEXT, index, (LPARAM)itemText.c_str());
-
    loadingEdits = TRUE;
 
    Utils::setComboBoxSelection(hExplRTList, static_cast<int>(
-      SendMessage(hExplRTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)itemText.c_str())));
+      SendMessage(hExplRTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)Utils::getListBoxItem(hExplRecs).c_str())));
 
    loadingEdits = FALSE;
+   enableEndRecSelection();
 }
 
-int FoldStructDialog::endRecEditAccept() {
-   return 0;
+void FoldStructDialog::enableEndRecSelection() {
+   bool enable{ cleanEndRecVals };
+   bool blockRecsExist{ SendMessage(hFoldBlocks, LB_GETCOUNT, 0, 0) > 0 };
+   bool endRecsExist{ SendMessage(hExplRecs, LB_GETCOUNT, 0, 0) > 0 };
+   bool recTypesExist{ vRecTypes.size() > 0 };
+
+   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_NEW), cleanEndRecVals ? SW_SHOW : SW_HIDE);
+   ShowWindow(GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_RESET), cleanEndRecVals ? SW_HIDE : SW_SHOW);
+
+   EnableWindow(hExplRecs, enable);
+   EnableWindow(hExplRTList, endRecsExist && recTypesExist);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_ACCEPT), endRecsExist && recTypesExist);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_NEW), blockRecsExist && recTypesExist && enable);
+   EnableWindow(GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_DEL), endRecsExist);
+
+   enableBlockSelection();
+}
+
+int FoldStructDialog::endRecEditAccept(bool accept) {
+   if (cleanEndRecVals) return 0;
+
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return LB_ERR;
+
+   int idxBlock{ getCurrentBlockIndex() };
+   if (idxBlock == LB_ERR) return LB_ERR;
+
+   int idxEndRec{ static_cast<int>(SendMessage(hExplRecs, LB_GETCURSEL, 0, 0)) };
+   if (idxEndRec == LB_ERR) return LB_ERR;
+
+   TypeInfo& TI{ vFoldStructs[idxFS].vBlocks[idxBlock].vEndRecs[idxEndRec] };
+
+   if (accept) {
+      int index{ static_cast<int>(SendMessage(hExplRTList, CB_GETCURSEL, 0, 0)) };
+      if (index >= static_cast<int>(vRecTypes.size())) return -1;
+
+      TI.type = vRecTypes[index].type;
+      TI.label = vRecTypes[index].label;
+   }
+   else if (TI.label.empty()) {
+      endRecEditDelete();
+      return 0;
+   }
+   else {
+      Utils::setComboBoxSelection(hExplRTList, static_cast<int>(
+         SendMessage(hExplRTList, CB_FINDSTRING, (WPARAM)-1, (LPARAM)Utils::getListBoxItem(hExplRecs).c_str())));
+   }
+
+   SendMessage(hExplRecs, LB_DELETESTRING, (WPARAM)idxEndRec, NULL);
+   SendMessage(hExplRecs, LB_INSERTSTRING, (WPARAM)idxEndRec, (LPARAM)TI.label.c_str());
+   SendMessage(hExplRecs, LB_SETCURSEL, idxEndRec, NULL);
+
+   cleanStructsFile = FALSE;
+   cleanEndRecVals = TRUE;
+   enableEndRecSelection();
+
+   return 1;
 }
 
 void FoldStructDialog::endRecEditNew() {
+   if (!vRecTypes.size()) return;
+
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return;
+
+   int idxBlock{ getCurrentBlockIndex() };
+   if (idxBlock == LB_ERR) return;
+
+   vector<TypeInfo>& endRecs{ vFoldStructs[idxFS].vBlocks[idxBlock].vEndRecs };
+
+   endRecs.push_back(TypeInfo{});
+   size_t moveTo = endRecs.size() - 1;
+
+   SendMessage(hExplRecs, LB_ADDSTRING, NULL, (LPARAM)L"");
+   SendMessage(hExplRecs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   onEndRecSelect();
+
+   cleanStructsFile = FALSE;
+   cleanEndRecVals = FALSE;
+   enableEndRecSelection();
 }
 
 int FoldStructDialog::endRecEditDelete() {
-   return 0;
+   int endRecCount{ static_cast<int>(SendMessage(hExplRecs, LB_GETCOUNT, 0, 0)) };
+   if (endRecCount == LB_ERR) return LB_ERR;
+   if (!endRecCount) return 0;
+
+   int idxFS{ getCurrentFoldStructIndex() };
+   if (idxFS == LB_ERR) return LB_ERR;
+
+   int idxBlock{ getCurrentBlockIndex() };
+   if (idxBlock == LB_ERR) return LB_ERR;
+
+   int idxEndRec{ static_cast<int>(SendMessage(hExplRecs, LB_GETCURSEL, 0, 0)) };
+   if (idxEndRec == LB_ERR) return LB_ERR;
+
+   vector<TypeInfo>& endRecs{ vFoldStructs[idxFS].vBlocks[idxBlock].vEndRecs };
+   endRecs.erase(endRecs.begin() + idxEndRec);
+
+   int lastRec = static_cast<int>(endRecs.size()) - 1;
+   int moveTo = (idxEndRec <= lastRec - 1) ? idxEndRec : lastRec;
+
+   SendMessage(hExplRecs, LB_DELETESTRING, (WPARAM)idxEndRec, NULL);
+   SendMessage(hExplRecs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+
+   cleanStructsFile = FALSE;
+   cleanEndRecVals = TRUE;
+   onEndRecSelect();
+
+   return moveTo;
 }
 
 bool FoldStructDialog::promptDiscardChangesNo() {

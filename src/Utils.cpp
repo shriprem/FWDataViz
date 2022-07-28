@@ -221,6 +221,23 @@ bool Utils::checkKeyHeldDown(int vKey) {
    return (GetKeyState(vKey) & 0x8000) > 0;
 }
 
+wstring Utils::getListBoxItem(HWND hList, bool currentSelection, const int itemIndex) {
+   int index{};
+
+   if (currentSelection) {
+      index = static_cast<int>(SendMessage(hList, LB_GETCURSEL, 0, 0));
+      if (index == LB_ERR) return L"";
+   }
+   else
+      index = itemIndex;
+
+   int itemLength{ static_cast<int>(SendMessage(hList, LB_GETTEXTLEN, index, 0)) };
+
+   wstring itemText(itemLength + 1, '\0');
+   SendMessage(hList, LB_GETTEXT, index, (LPARAM)itemText.c_str());
+   return itemText;
+}
+
 void Utils::setComboBoxSelection(HWND hList, int index) {
    SendMessage(hList, CB_SETCURSEL, (WPARAM)index, 0);
    InvalidateRect(hList, nullptr, FALSE);

@@ -51,7 +51,7 @@ private:
 
    HWND hFoldStructs{}, hFTList{}, hFoldBlocks{}, hHdrRTList{}, hImplRecs{}, hExplRecs{}, hExplRTList{};
    wstring structsFile{};
-   bool loadingEdits{}, cleanStructsFile{}, cleanStructVals{}, cleanBlockVals{}, cleanEndRecVals{};
+   bool loadingEdits{}, cleanStructsFile{TRUE}, cleanStructVals{TRUE}, cleanBlockVals{TRUE}, cleanEndRecVals{TRUE};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
 
@@ -78,7 +78,7 @@ private:
    void enableMoveStructButtons();
    void enableStructSelection();
    int moveStructType(move_dir dir);
-   int structEditAccept();
+   int structEditAccept(bool accept = TRUE);
    void structEditNew();
    void structEditClone();
    int structEditDelete();
@@ -88,15 +88,15 @@ private:
    void enableMoveBlockButtons();
    void enableBlockSelection();
    int moveBlockType(move_dir dir);
-   int blockEditAccept();
-   void blockEditNew();
-   void blockEditClone();
+   int blockEditAccept(bool accept = TRUE);
+   void blockEditNew(bool clone);
    int blockEditDelete();
 
    void fillImplicitEndRecs();
    void fillExplicitEndRecs(BlockInfo* blockInfo);
    void onEndRecSelect();
-   int endRecEditAccept();
+   void enableEndRecSelection();
+   int endRecEditAccept(bool accept = TRUE);
    void endRecEditNew();
    int endRecEditDelete();
 };
