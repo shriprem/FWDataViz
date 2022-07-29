@@ -20,8 +20,6 @@ public:
    void setFileTypeData(const wstring& ftConfig);
 
 private:
-   bool vizMode{}, extractMode{};
-
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
    void localize();
 
@@ -30,4 +28,6 @@ private:
    void saveExtractFile();
 
    wstring getEditControlText();
+
+   bool vizMode{}, extractMode{};
 };

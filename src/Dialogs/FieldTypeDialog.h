@@ -11,12 +11,6 @@ public:
    void refreshDarkMode();
 
 private:
-   bool loadingEdits{}, newFieldDef{};
-   string fieldDefConfigFile{}, fieldDefStyle;
-   wstring fieldDefLabel, fieldDefRegex;
-
-   HWND hFieldsLB{};
-
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
 
@@ -36,5 +30,10 @@ private:
    void styleDefSave();
 
    void chooseStyleDefColor(bool back);
+   bool loadingEdits{}, newFieldDef{};
+   string fieldDefConfigFile{}, fieldDefStyle;
+   wstring fieldDefLabel, fieldDefRegex;
+
+   HWND hFieldsLB{};
 };
 

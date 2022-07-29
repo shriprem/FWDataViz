@@ -6,9 +6,9 @@
 #include <regex>
 #include <vector>
 
-#define THEME_ITEM_LIMIT 999
-#define STYLE_ITEM_LIMIT 99
-#define SWATCH_ITEM_COUNT 29
+constexpr int THEME_ITEM_LIMIT{ 999 };
+constexpr int STYLE_ITEM_LIMIT{ 99 };
+constexpr int SWATCH_ITEM_COUNT{ 29 };
 
 using std::wregex;
 using std::regex_replace;
@@ -21,7 +21,7 @@ public:
    void doDialog(HINSTANCE hInst);
    void refreshDarkMode();
    int appendThemeConfigs(const wstring& sThemeFile);
-   void initPreviewSwatch(int idxStart=0, int idxEnd=SWATCH_ITEM_COUNT);
+   void initPreviewSwatch(int idxStart = 0, int idxEnd = SWATCH_ITEM_COUNT);
 
 private:
    enum move_dir {
@@ -34,13 +34,6 @@ private:
       StyleInfo eolStyle;
       vector<StyleInfo> vStyleInfo;
    };
-
-   vector<ThemeType> vThemeTypes;
-   wstring themeFile{};
-   int swatchTopIndex{};
-   bool loadingEdits{}, cleanConfigFile{}, cleanThemeVals{};
-
-   HWND hThemesLB{}, hStylesLB{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
@@ -66,7 +59,7 @@ private:
    void enableMoveThemeButtons();
    void enableThemeSelection();
    int moveThemeType(move_dir dir);
-   void themeEditAccept(bool accept = TRUE);
+   void themeEditAccept(bool accept = true);
    void themeEditNew();
    void themeEditClone();
    int themeEditDelete();
@@ -88,5 +81,13 @@ private:
    INT_PTR colorPreviewSwatch(WPARAM wParam, LPARAM lParam);
    void processSwatchClick(int ctrlID);
    void chooseStyleDefColor(bool back);
+
+   wstring themeFile{};
+   int swatchTopIndex{};
+   bool loadingEdits{}, cleanConfigFile{ true }, cleanThemeVals{ true };
+
+   HWND hThemesLB{}, hStylesLB{};
+
+   vector<ThemeType> vThemeTypes;
 };
 

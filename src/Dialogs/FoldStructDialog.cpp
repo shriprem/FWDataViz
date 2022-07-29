@@ -36,7 +36,7 @@ void FoldStructDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    // Dynamically adjust the x position for the Fold Block Priority edit control
@@ -1106,7 +1106,37 @@ bool FoldStructDialog::promptDiscardChangesNo() {
 }
 
 void FoldStructDialog::saveFoldStructInfo() {
-   MessageBox(_hSelf, L"", L"", MB_OK);
+   if (_configIO.isCurrentVizConfigDefault() &&
+      MessageBox(_hSelf, FWVIZ_DEFAULT_OVERWRITE, FWVIZ_DEF_DIALOG_TITLE,
+         MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+      return;
+
+   if (!cleanEndRecVals) endRecEditAccept();
+
+   if (!cleanBlockVals)
+      if (blockEditAccept() < 0) return;
+
+   if (!cleanStructVals)
+      if (structEditAccept() < 0) return;
+
+   size_t fsCount;
+   wstring fileData{}, fsConfig{};
+
+   fsCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
+
+   for (size_t i{}; i < fsCount; ++i) {
+      if (getFoldStructInfo(i, TRUE, fsConfig) < 0) return;
+      fileData += fsConfig + L"\r\n";
+   }
+
+   fileData = L"[Base]\r\nFoldStructCount=" + to_wstring(fsCount) + L"\r\n\r\n" + fileData;
+
+   mbox(fileData.c_str());
+   //_configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
+   //_configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
+
+   cleanStructsFile = TRUE;
+   indicateCleanStatus();
 }
 
 void FoldStructDialog::showEximDialog(bool bExtract) {
@@ -1114,16 +1144,16 @@ void FoldStructDialog::showEximDialog(bool bExtract) {
    _eximDlg.initDialog(bExtract, TRUE);
 
    if (bExtract) {
-      //int idxFT{ getCurrentFileTypeIndex() };
-      //if (idxFT == LB_ERR) return;
+      int idxFS{ getCurrentFoldStructIndex() };
+      if (idxFS == LB_ERR) return;
 
-      wstring ftCode{}, ftConfig{};
-      //if (getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig) < 0) {
-      //   _eximDlg.display(false);
-      //   return;
-      //}
+      wstring fsConfig{};
+      if (getFoldStructInfo(idxFS, TRUE, fsConfig) < 0) {
+         _eximDlg.display(false);
+         return;
+      }
 
-      _eximDlg.setFileTypeData(ftConfig);
+      _eximDlg.setFileTypeData(fsConfig);
    }
 }
 
@@ -1144,7 +1174,36 @@ bool FoldStructDialog::getCurrentFoldStructInfo(FoldStructInfo*& structInfo) {
    return TRUE;
 }
 
-int FoldStructDialog::getFoldStructInfo(size_t /*idxFT*/, bool /*cr_lf*/, wstring& /*ftCode*/, wstring& /*ftConfig*/) {
+int FoldStructDialog::getFoldStructInfo(size_t idxFS, bool cr_lf, wstring& fsConfig) {
+   FoldStructInfo& FS{ vFoldStructs[idxFS] };
+   wstring new_line{ cr_lf ? L"\r\n" : L"\n" };
+
+   wstring hdrRecs{}, blockConfig{};
+
+   for (size_t i{}; i < FS.vBlocks.size(); ++i) {
+      BlockInfo& BI{FS.vBlocks[i]};
+      wstring hdrFileType{ Utils::NarrowToWide(BI.hdrRec.type) };
+      wstring endRecs{};
+
+      for (size_t j{}; j < BI.vEndRecs.size(); ++j) {
+         endRecs += (j == 0 ? L"" : L",") + Utils::NarrowToWide(BI.vEndRecs[j].type);
+      }
+
+      hdrRecs += (i == 0 ? L"" : L",") + hdrFileType;
+      blockConfig += hdrFileType + L"_Priority=" + to_wstring(BI.priority) + new_line +
+         hdrFileType + L"_Recursive=" + (BI.recursive ? L"Y" : L"N") + new_line +
+         hdrFileType + L"_EndRecords=" + endRecs + new_line;
+   }
+
+   wchar_t foldStructCode[10];
+   swprintf(foldStructCode, 10, L"FS%03d", static_cast<int>(idxFS + 1));
+
+   fsConfig = L"[" + wstring{ foldStructCode } + L"]" + new_line +
+      L"FileType=" + Utils::NarrowToWide(FS.fileType.type) + new_line +
+      L"FileLabel=" + FS.fileType.label + new_line +
+      L"FoldLevelAuto=" + (FS.autoFold ? L"Y" : L"N") + new_line +
+      L"HeaderRecords=" + hdrRecs + new_line + blockConfig;
+
    return 0;
 }
 

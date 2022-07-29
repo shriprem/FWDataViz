@@ -14,8 +14,6 @@
 
 #pragma once
 
-#define FW_LINE_MAX_LENGTH 32767
-
 #define WIN32_LEAN_AND_MEAN      // Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <string>
@@ -31,7 +29,6 @@
 #include "Resources/localization.h"
 
 #define PLUGIN_FOLDER_NAME L"FWDataViz"
-#define ADFT_MAX 3
 
 using std::string;
 using std::string_view;
@@ -39,7 +36,9 @@ using std::wstring;
 using std::to_string;
 using std::to_wstring;
 
-static int _gLanguage = LANG_ENGLISH;
+constexpr int FW_LINE_MAX_LENGTH{ 32767 };
+constexpr int ADFT_MAX{ 3 };
+constexpr int _gLanguage{ LANG_ENGLISH };
 
 const enum MenuIndex {
    MI_FWVIZ_PANEL,

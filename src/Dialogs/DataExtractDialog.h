@@ -23,20 +23,12 @@ public:
    bool processSysKey(HWND hCtrl, WPARAM wParam);
 
 private:
-   int currentLineItem{}, currentPage{};
-   string extractsConfigFile{}, initFileType{};
-   wstring initFileTypeLabel{};
-   const vector<RecordInfo>* pRecInfoList{};
-
-   HWND hIndicator{}, hTemplatesList{}, hTemplateName{};
-
    struct LineItemInfo {
       wstring prefix;
       int recType{};
       int fieldType{};
       wstring suffix;
    };
-   vector<LineItemInfo> liBuffer{};
 
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
    void localize();
@@ -75,4 +67,13 @@ private:
    void addPage();
    void deletePage();
    void enablePageButtons();
+
+   int currentLineItem{}, currentPage{};
+   string extractsConfigFile{}, initFileType{};
+   wstring initFileTypeLabel{};
+   const vector<RecordInfo>* pRecInfoList{};
+
+   HWND hIndicator{}, hTemplatesList{}, hTemplateName{};
+
+   vector<LineItemInfo> liBuffer{};
 };

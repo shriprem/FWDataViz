@@ -16,7 +16,7 @@ void FieldTypeDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_FIELD_TYPE_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FIELD_TYPE_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);

@@ -10,10 +10,10 @@ public:
    void initSamplesPopup(HMENU hPopup);
 
 private:
+   static HMENU getPluginSubMenu();
+
    size_t itemCount;
    size_t itemIDStart;
 
    TCHAR pluginSamplesDir[MAX_PATH];
-
-   static HMENU getPluginSubMenu();
 };

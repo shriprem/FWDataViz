@@ -23,7 +23,7 @@ void PreferencesDialog::doDialog(HINSTANCE hInst) {
    int foldLineAlpha{ _configIO.getPreferenceInt(PREF_FOLDLINE_ALPHA, MAXBYTE) };
    SendMessage(GetDlgItem(_hSelf, IDC_PREF_FOLD_LINE_ALPHA_SLIDER), TBM_SETPOS, TRUE, foldLineAlpha);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);

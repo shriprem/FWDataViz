@@ -10,81 +10,6 @@ extern ConfigureDialog _configDlg;
 EximFileTypeDialog _eximDlg;
 FieldTypeDialog _fieldTypeDlg;
 
-LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-   switch (messageId) {
-   case WM_CHAR:
-   {
-      wchar_t editChar{ static_cast<WCHAR>(wParam) };
-      bool valid{ editChar < ' ' || (editChar >= '0' && editChar <= '9') };
-
-      int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
-
-      if (LOWORD(editSel) == 0) {
-         wchar_t editText[MAX_PATH + 1];
-         GetWindowText(hwnd, editText, MAX_PATH);
-
-         if (HIWORD(editSel) == 0 && editText[0] == '-')
-            valid = editChar < ' ';
-         else
-            valid |= editChar == '-';
-      }
-
-      if (!valid) {
-         showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
-         return FALSE;
-      }
-      break;
-   }
-
-   case WM_PASTE:
-   {
-      wstring clipText;
-      Utils::getClipboardText(GetParent(hwnd), clipText);
-
-      int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
-
-      wchar_t editText[MAX_PATH + 1];
-      GetWindowText(hwnd, editText, MAX_PATH);
-
-      wstring clipValid{ (editText[0] == '-' && (LOWORD(editSel) > 0 || HIWORD(editSel) == 0)) ? L"" : L"-?" };
-      clipValid += L"[0-9]*";
-
-      if (!regex_match(clipText, wregex(clipValid))) {
-         showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
-         return FALSE;
-      }
-      break;
-   }
-   }
-
-   return DefSubclassProc(hwnd, messageId, wParam, lParam);
-}
-
-LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-   HWND hThis{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldLabels : _configDlg.hFieldWidths };
-   HWND hThat{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldWidths : _configDlg.hFieldLabels };
-
-   switch (messageId) {
-   case WM_CHAR:
-      if (wParam == ',' && hwnd == _configDlg.hFieldLabels) {
-         showEditBalloonTip(hwnd, FWVIZ_DIALOG_COMMAS_TITLE, FWVIZ_DIALOG_COMMAS_MESSAGE);
-      }
-      break;
-
-   case WM_KEYDOWN:
-   case WM_KEYUP:
-   case WM_LBUTTONUP:
-      _configDlg.hiliteFieldEditPairedItem(hThis, hThat);
-      break;
-
-   case WM_VSCROLL:
-      _configDlg.syncFieldEditScrolling(hThis, hThat);
-      break;
-   }
-
-   return DefSubclassProc(hwnd, messageId, wParam, lParam);
-}
-
 void ConfigureDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
@@ -159,7 +84,7 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    Utils::setFontUnderline(_hSelf, IDC_FWVIZ_DEF_ADFT_GROUP_LABEL);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
@@ -1465,4 +1390,79 @@ void ConfigureDialog::showEximDialog(bool bExtract) {
 
 wstring ConfigureDialog::getOnlyStartsWith(wstring expr) {
    return wstring{ (!expr.empty() && regex_match(expr, std::wregex(L"^\\^[^" + REGEX_META_CHARS + L"]+"))) ? expr.substr(1) : L"" };
+}
+
+LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
+   switch (messageId) {
+   case WM_CHAR:
+   {
+      wchar_t editChar{ static_cast<WCHAR>(wParam) };
+      bool valid{ editChar < ' ' || (editChar >= '0' && editChar <= '9') };
+
+      int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
+
+      if (LOWORD(editSel) == 0) {
+         wchar_t editText[MAX_PATH + 1];
+         GetWindowText(hwnd, editText, MAX_PATH);
+
+         if (HIWORD(editSel) == 0 && editText[0] == '-')
+            valid = editChar < ' ';
+         else
+            valid |= editChar == '-';
+      }
+
+      if (!valid) {
+         showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
+         return FALSE;
+      }
+      break;
+   }
+
+   case WM_PASTE:
+   {
+      wstring clipText;
+      Utils::getClipboardText(GetParent(hwnd), clipText);
+
+      int editSel{ static_cast<int>(SendMessage(hwnd, EM_GETSEL, NULL, NULL)) };
+
+      wchar_t editText[MAX_PATH + 1];
+      GetWindowText(hwnd, editText, MAX_PATH);
+
+      wstring clipValid{ (editText[0] == '-' && (LOWORD(editSel) > 0 || HIWORD(editSel) == 0)) ? L"" : L"-?" };
+      clipValid += L"[0-9]*";
+
+      if (!regex_match(clipText, wregex(clipValid))) {
+         showEditBalloonTip(hwnd, FWVIZ_DIALOG_NUMERIC_TITLE, FWVIZ_DIALOG_NUMERIC_MSG);
+         return FALSE;
+      }
+      break;
+   }
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
+}
+
+LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
+   HWND hThis{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldLabels : _configDlg.hFieldWidths };
+   HWND hThat{ hwnd == _configDlg.hFieldLabels ? _configDlg.hFieldWidths : _configDlg.hFieldLabels };
+
+   switch (messageId) {
+   case WM_CHAR:
+      if (wParam == ',' && hwnd == _configDlg.hFieldLabels) {
+         showEditBalloonTip(hwnd, FWVIZ_DIALOG_COMMAS_TITLE, FWVIZ_DIALOG_COMMAS_MESSAGE);
+      }
+      break;
+
+   case WM_KEYDOWN:
+   case WM_KEYUP:
+   case WM_LBUTTONUP:
+      _configDlg.hiliteFieldEditPairedItem(hThis, hThat);
+      break;
+
+   case WM_VSCROLL:
+      _configDlg.syncFieldEditScrolling(hThis, hThat);
+      break;
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
 }

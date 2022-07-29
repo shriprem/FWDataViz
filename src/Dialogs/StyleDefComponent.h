@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../Utils.h"
 #include "../ConfigIO.h"
 
@@ -10,12 +11,6 @@ public:
    ~StyleDefComponent();
 
 protected:
-   bool cleanStyleDefs{}, styleDefColor{};
-
-   HWND _hDialog{};
-   HBRUSH hbr{};
-   COLORREF styleBack{}, styleFore{}, customColors[16]{};
-
    void initComponent(HWND hDlg);
    void localize();
    int getStyleDefColor(bool back);
@@ -26,6 +21,12 @@ protected:
    void setPangram();
    INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
    void chooseStyleDefColor(bool back);
+
+   bool cleanStyleDefs{ true }, styleDefColor{};
+
+   HWND _hDialog{};
+   HBRUSH hbr{};
+   COLORREF styleBack{}, styleFore{}, customColors[16]{};
 };
 
 LRESULT CALLBACK procHexColorEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR);
