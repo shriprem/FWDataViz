@@ -290,6 +290,10 @@ INT_PTR CALLBACK FoldStructDialog::run_dlgProc(UINT message, WPARAM wParam, LPAR
    case WM_PRINTCLIENT:
       if (NPPDM_IsEnabled()) return TRUE;
       break;
+
+   case FWVIZMSG_APPEND_EXIM_DATA:
+      appendFoldStructInfo(reinterpret_cast<LPCWSTR>(lParam));
+      break;
    }
 
    return FALSE;
@@ -426,15 +430,18 @@ int FoldStructDialog::loadStructsInfo() {
    vFoldStructs.resize(foldStructCount);
 
    for (int i{}; i < foldStructCount; ++i) {
-      loadFoldStructInfo(i, structsFile);
+      loadFoldStructInfo(i, "", structsFile);
    }
 
    return static_cast<int>(vFoldStructs.size());
 }
 
-int FoldStructDialog::loadFoldStructInfo(int vIndex, const wstring& sStructsFile) {
-   string fsType(6, '\0');
-   snprintf(fsType.data(), 6, "FS%03d", vIndex + 1);
+int FoldStructDialog::loadFoldStructInfo(int vIndex, string fsType, const wstring& sStructsFile) {
+   if (fsType.empty()) {
+      char buf[10];
+      snprintf(buf, 6, "FS%03d", vIndex + 1);
+      fsType = buf;
+   }
 
    FoldStructInfo& FS{ vFoldStructs[vIndex] };
    TypeInfo& FT{ FS.fileType };
@@ -1122,18 +1129,16 @@ void FoldStructDialog::saveFoldStructInfo() {
    size_t fsCount;
    wstring fileData{}, fsConfig{};
 
-   fsCount = (vFileTypes.size() > 999) ? 999 : vFileTypes.size();
+   fsCount = vFoldStructs.size();
+   fileData = L"[Base]\r\nFoldStructCount=" + to_wstring(fsCount) + L"\r\n\r\n";
 
    for (size_t i{}; i < fsCount; ++i) {
       if (getFoldStructInfo(i, TRUE, fsConfig) < 0) return;
       fileData += fsConfig + L"\r\n";
    }
 
-   fileData = L"[Base]\r\nFoldStructCount=" + to_wstring(fsCount) + L"\r\n\r\n" + fileData;
-
-   mbox(fileData.c_str());
-   //_configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
-   //_configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
+   _configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
+   _configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
 
    cleanStructsFile = TRUE;
    indicateCleanStatus();
@@ -1141,7 +1146,7 @@ void FoldStructDialog::saveFoldStructInfo() {
 
 void FoldStructDialog::showEximDialog(bool bExtract) {
    _eximDlg.doDialog((HINSTANCE)_gModule);
-   _eximDlg.initDialog(bExtract, TRUE);
+   _eximDlg.initDialog(_hSelf, EximFileTypeDialog::FOLDS_DLG, bExtract);
 
    if (bExtract) {
       int idxFS{ getCurrentFoldStructIndex() };
@@ -1155,6 +1160,38 @@ void FoldStructDialog::showEximDialog(bool bExtract) {
 
       _eximDlg.setFileTypeData(fsConfig);
    }
+}
+
+int FoldStructDialog::appendFoldStructInfo(const wstring& sConfigFile) {
+   vector<string> sectionList{};
+   string sectionFT{};
+   wstring sectionLabel{};
+
+   int sectionCount{ _configIO.getConfigAllSectionsList(sectionList, Utils::WideToNarrow(sConfigFile)) };
+   int validCount{};
+
+   for (int i{}; i < sectionCount; ++i) {
+      sectionFT = _configIO.getConfigStringA(sectionList[i], "FileType", "", Utils::WideToNarrow(sConfigFile));
+      if (sectionFT.empty()) continue;
+
+      sectionLabel = _configIO.getConfigWideChar(sectionList[i], "FileLabel", "", Utils::WideToNarrow(sConfigFile));
+      if (sectionLabel.empty()) continue;
+
+      FoldStructInfo newFS{};
+
+      vFoldStructs.push_back(newFS);
+      loadFoldStructInfo(static_cast<int>(vFoldStructs.size() - 1), sectionList[i], sConfigFile);
+      SendMessage(hFoldStructs, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
+      ++validCount;
+   }
+
+   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)(vFoldStructs.size() - 1), NULL);
+   onFoldStructSelect();
+
+   cleanStructsFile = FALSE;
+   enableStructSelection();
+
+   return validCount;
 }
 
 int FoldStructDialog::getCurrentFoldStructIndex() {

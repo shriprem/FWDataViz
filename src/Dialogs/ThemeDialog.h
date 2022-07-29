@@ -20,7 +20,6 @@ public:
 
    void doDialog(HINSTANCE hInst);
    void refreshDarkMode();
-   int appendThemeConfigs(const wstring& sThemeFile);
    void initPreviewSwatch(int idxStart = 0, int idxEnd = SWATCH_ITEM_COUNT);
 
 private:
@@ -43,6 +42,7 @@ private:
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);
+   int appendThemeConfigs(const wstring& sThemeFile);
 
    int getCurrentThemeIndex();
    bool getCurrentThemeInfo(ThemeType*& fileInfo);

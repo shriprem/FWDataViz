@@ -7,8 +7,9 @@
 ## Table of Content
 1. [Concept](#Concept)
 2. [Scheme](#Scheme)
-3. [Definition (_INI File_)](#Definition-INI-File)
-4. [Sample Files with Folding](#Sample-Files-with-Folding)
+3. [Definitions Editor](#Definitions-Editor)
+4. [Definitions (_INI File_)](#Definitions-INI-File)
+5. [Sample Files with Folding](#Sample-Files-with-Folding)
 
 ## Concept
 The **_Foldable Record Blocks_** concept is applicable only with _Mixed Record-type Fixed-width Data Files_ with hierarchical data. Therefore, the _Foldable Record Blocks_ concept does _NOT_ apply to all fixed-width files, especially _Homogenous Record-type Fixed-width Data Files_.
@@ -52,7 +53,14 @@ With that associated _File Type_ as the reference basis, you will then need to s
 
 ---
 
-## Definition (_INI File_)
+## Definitions Editor
+![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/fold_struct_editor.png)
+
+### _`More documentation will be provided for this section shortly.`_
+
+---
+
+## Definitions (_INI File_)
 The definition schemes for record blocks will reside in the new `FoldStructs.ini` file. Upon the first run of Notepad++ after upgrading the _FWDataViz_ dll with the _Foldable Record Blocks_ feature, this new file will get copied into one of the two folder locations:
 1. `%APPDATA%/Notepad++/plugins/Config/FWDataViz/` (_for **non-portable** installs of Notepad++_)
 
@@ -125,3 +133,4 @@ To illustrate the nesting of fold levels in this file, the levels are indented i
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_ouroboros_indented.png)
 
 
+**See also**: [Extract Fold Structure Data](https://github.com/shriprem/FWDataViz/blob/master/docs/fold_struct_extract_dialog.md) | [Append Fold Structure Data](https://github.com/shriprem/FWDataViz/blob/master/docs/fold_struct_append_dialog.md)

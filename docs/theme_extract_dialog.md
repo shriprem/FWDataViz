@@ -8,4 +8,4 @@ Useful for sharing customized Visualizer Theme definitions with team members and
 * Inspect the selected Theme definition in raw.
 * Edit the selected Theme definition in raw.
 
-**See also**: [Append Visualizer Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md)
+**See also**: [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md) | [Append Visualizer Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md)

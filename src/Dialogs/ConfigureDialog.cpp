@@ -390,6 +390,10 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
    case WM_PRINTCLIENT:
       if (NPPDM_IsEnabled()) return TRUE;
       break;
+
+   case FWVIZMSG_APPEND_EXIM_DATA:
+      appendFileTypeConfigs(reinterpret_cast<LPCWSTR>(lParam));
+      break;
    }
 
    return FALSE;
@@ -1209,24 +1213,24 @@ int ConfigureDialog::fileEditAccept(bool accept) {
 }
 
 int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
-   int sectionCount{}, validCount{};
    vector<string> sectionList{};
    wstring sectionLabel{};
 
-   sectionCount = _configIO.getConfigAllSectionsList(sectionList, Utils::WideToNarrow(sConfigFile));
+   int sectionCount{ _configIO.getConfigAllSectionsList(sectionList, Utils::WideToNarrow(sConfigFile)) };
+   int validCount{};
 
    for (int i{}; i < sectionCount; ++i) {
       sectionLabel = _configIO.getConfigWideChar(sectionList[i], "FileLabel", "", Utils::WideToNarrow(sConfigFile));
-      if (!sectionLabel.empty()) {
-         if (!checkFTLimit(FALSE)) break;
+      if (sectionLabel.empty()) continue;
 
-         FileType newFile{ getNewFileType() };
+      if (!checkFTLimit(FALSE)) break;
 
-         vFileTypes.push_back(newFile);
-         loadFileTypeInfo(static_cast<int>(vFileTypes.size() - 1), sectionList[i], sConfigFile);
-         SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
-         ++validCount;
-      }
+      FileType newFile{ getNewFileType() };
+
+      vFileTypes.push_back(newFile);
+      loadFileTypeInfo(static_cast<int>(vFileTypes.size() - 1), sectionList[i], sConfigFile);
+      SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
+      ++validCount;
    }
 
    SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)(vFileTypes.size() - 1), NULL);
@@ -1372,7 +1376,7 @@ void ConfigureDialog::saveConfigInfo() {
 
 void ConfigureDialog::showEximDialog(bool bExtract) {
    _eximDlg.doDialog((HINSTANCE)_gModule);
-   _eximDlg.initDialog(bExtract, TRUE);
+   _eximDlg.initDialog(_hSelf, EximFileTypeDialog::FWTYPES_DLG, bExtract);
 
    if (bExtract) {
       int idxFT{ getCurrentFileTypeIndex() };

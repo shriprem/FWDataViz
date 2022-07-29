@@ -49,10 +49,11 @@ private:
    void localize();
    void indicateCleanStatus();
    int loadStructsInfo();
-   int loadFoldStructInfo(int vIndex, const wstring& sStructsFile);
+   int loadFoldStructInfo(int vIndex, string fsType, const wstring& sStructsFile);
    bool promptDiscardChangesNo();
    void saveFoldStructInfo();
    void showEximDialog(bool bExtract);
+   int appendFoldStructInfo(const wstring& sConfigFile);
 
    int getCurrentFoldStructIndex();
    bool getCurrentFoldStructInfo(FoldStructInfo*& structInfo);

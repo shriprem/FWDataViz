@@ -14,9 +14,10 @@ void EximFileTypeDialog::doDialog(HINSTANCE hInst) {
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 }
 
-void EximFileTypeDialog::initDialog(bool bExtract, bool bViz) {
+void EximFileTypeDialog::initDialog(HWND hWnd, exim_clients mode, bool bExtract) {
+   hClientDlg = hWnd;
+   exim_mode = mode;
    extractMode = bExtract;
-   vizMode = bViz;
    localize();
 
    ShowWindow(GetDlgItem(_hSelf, IDC_FTEXIM_SAVE_FILE), extractMode ? SW_SHOW : SW_HIDE);
@@ -41,19 +42,17 @@ void EximFileTypeDialog::setFileTypeData(const wstring& ftConfig) {
 }
 
 void EximFileTypeDialog::localize() {
-   SetWindowText(_hSelf, vizMode ?
-      extractMode ? FT_EXIM_EXTRACT_FT_TITLE : FT_EXIM_APPEND_FT_TITLE :
-      extractMode ? FT_EXIM_EXTRACT_THEME_TITLE : FT_EXIM_APPEND_THEME_TITLE);
-   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_LABEL, vizMode ? FT_EXIM_EDIT_FT_LABEL : FT_EXIM_EDIT_THEME_LABEL);
+   SetWindowText(_hSelf, extractMode ? EXTRACT_TITLE[exim_mode] : APPEND_TITLE[exim_mode]);
+   SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_LABEL, EDIT_LABEL[exim_mode]);
    SetDlgItemText(_hSelf, IDC_FTEXIM_EDIT_CNTRL, L"");
-   SetDlgItemText(_hSelf, IDCLOSE, FT_EXIM_CLOSE_BTN);
+   SetDlgItemText(_hSelf, IDCLOSE, EXIM_CLOSE_BTN);
 
    if (extractMode) {
-      SetDlgItemText(_hSelf, IDC_FTEXIM_SAVE_FILE, FT_EXIM_SAVE_FILE_BTN);
+      SetDlgItemText(_hSelf, IDC_FTEXIM_SAVE_FILE, EXIM_SAVE_FILE_BTN);
    }
    else {
-      SetDlgItemText(_hSelf, IDC_FTEXIM_LOAD_FILE, FT_EXIM_LOAD_FILE_BTN);
-      SetDlgItemText(_hSelf, IDC_FTEXIM_APPEND, FT_EXIM_APPEND_BTN);
+      SetDlgItemText(_hSelf, IDC_FTEXIM_LOAD_FILE, EXIM_LOAD_FILE_BTN);
+      SetDlgItemText(_hSelf, IDC_FTEXIM_APPEND, APPEND_BTN[exim_mode]);
    }
 }
 
@@ -62,10 +61,7 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
    case WM_COMMAND:
       switch LOWORD(wParam) {
       case IDC_FTEXIM_INFO_BUTTON:
-         ShellExecute(NULL, L"open", vizMode ?
-            extractMode ? FILE_EXTRACT_INFO_README : FILE_APPEND_INFO_README :
-            extractMode ? THEME_EXTRACT_INFO_README : THEME_APPEND_INFO_README,
-            NULL, NULL, SW_SHOW);
+         ShellExecute(NULL, L"open", extractMode ? EXTRACT_DOC_URL[exim_mode] : APPEND_DOC_URL[exim_mode], NULL, NULL, SW_SHOW);
          break;
 
       case IDCANCEL:
@@ -125,15 +121,7 @@ void EximFileTypeDialog::appendExtractFile() {
    _configIO.saveConfigFile(getEditControlText(), tmpFile);
    display(FALSE);
 
-   if (vizMode) {
-      _configDlg.appendFileTypeConfigs(tmpFile);
-      SetFocus(_configDlg.getHSelf());
-   }
-   else {
-      _themeDlg.appendThemeConfigs(tmpFile);
-      SetFocus(_themeDlg.getHSelf());
-   }
-
+   SendMessage(hClientDlg, FWVIZMSG_APPEND_EXIM_DATA, 0, (LPARAM)tmpFile.c_str());
    DeleteFile(tmpFile.c_str());
 }
 

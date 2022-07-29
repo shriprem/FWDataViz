@@ -27,7 +27,6 @@ public:
    void setFieldEditCaretOnFocus(HWND hEdit);
    void hiliteFieldEditPairedItem(HWND hThis, HWND hThat);
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
-   int appendFileTypeConfigs(const wstring& sConfigFile);
 
    HWND hFieldLabels{}, hFieldWidths{};
 
@@ -63,6 +62,7 @@ private:
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);
+   int appendFileTypeConfigs(const wstring& sConfigFile);
    wstring getOnlyStartsWith(wstring expr);
 
    int getCurrentFileTypeIndex();
