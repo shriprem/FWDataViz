@@ -500,8 +500,8 @@ int ConfigIO::getBackupTempFileName(wstring& tempFileName) {
 void ConfigIO::backupConfigFile(wstring file) {
    using fsp = std::filesystem::path;
 
-   char backupFile[MAX_PATH];
-   wchar_t backupFilePath[MAX_PATH];
+   char backupFile[MAX_PATH + 1];
+   wchar_t backupFilePath[MAX_PATH + 1];
 
    wstring backupTemplate{ wstring{ fsp(file).stem().c_str() }.substr(0, 30) };
    backupTemplate +=  L"_%Y%m%d_%H%M%S" + wstring{fsp(file).extension().c_str()};

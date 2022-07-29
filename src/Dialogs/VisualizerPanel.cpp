@@ -352,7 +352,7 @@ void VisualizerPanel::initPanel() {
 
    setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if constexpr(_gLanguage != LANG_ENGLISH) localize();
 }
 
 void VisualizerPanel::localize() {

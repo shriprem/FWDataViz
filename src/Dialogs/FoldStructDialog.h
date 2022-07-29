@@ -29,9 +29,6 @@ private:
       wstring label{};
    };
 
-   vector<TypeInfo> vFileTypes{};
-   vector<TypeInfo> vRecTypes{};
-
    // Block Info
    struct BlockInfo {
       TypeInfo hdrRec{};
@@ -47,23 +44,20 @@ private:
       vector<BlockInfo> vBlocks{};
    };
 
-   vector<FoldStructInfo> vFoldStructs{};
-
-   HWND hFoldStructs{}, hFTList{}, hFoldBlocks{}, hHdrRTList{}, hImplRecs{}, hExplRecs{}, hExplRTList{};
-   wstring structsFile{};
-   bool loadingEdits{}, cleanStructsFile{TRUE}, cleanStructVals{TRUE}, cleanBlockVals{TRUE}, cleanEndRecVals{TRUE};
-
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
 
    void localize();
    void indicateCleanStatus();
+   int loadStructsInfo();
+   int loadFoldStructInfo(int vIndex, string fsType, const wstring& sStructsFile);
    bool promptDiscardChangesNo();
    void saveFoldStructInfo();
    void showEximDialog(bool bExtract);
+   int appendFoldStructInfo(const wstring& sConfigFile);
 
    int getCurrentFoldStructIndex();
    bool getCurrentFoldStructInfo(FoldStructInfo*& structInfo);
-   int getFoldStructInfo(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig);
+   int getFoldStructInfo(size_t idxFS, bool cr_lf, wstring& fsConfig);
 
    int getCurrentBlockIndex();
    bool getCurrentBlockInfo(BlockInfo*& blockInfo);
@@ -71,15 +65,13 @@ private:
    int loadFileTypesList();
    int loadRecTypesList(string fileType);
 
-   int loadStructsInfo();
-   int loadFoldStructInfo(int vIndex, const wstring& sStructsFile);
    void fillFoldStructs();
    void onFoldStructSelect();
    void onFoldStructSelectFill(FoldStructInfo* fsInfo);
    void enableMoveStructButtons();
    void enableStructSelection();
    int moveStructType(move_dir dir);
-   int structEditAccept(bool accept = TRUE);
+   int structEditAccept(bool accept = true);
    void structEditNew();
    void structEditClone();
    int structEditDelete();
@@ -90,7 +82,7 @@ private:
    void enableMoveBlockButtons();
    void enableBlockSelection();
    int moveBlockType(move_dir dir);
-   int blockEditAccept(bool accept = TRUE);
+   int blockEditAccept(bool accept = true);
    void blockEditNew(bool clone);
    int blockEditDelete();
 
@@ -99,8 +91,18 @@ private:
    void onEndRecSelect();
    void onEndRecSelectFill();
    void enableEndRecSelection();
-   int endRecEditAccept(bool accept = TRUE);
+   int endRecEditAccept(bool accept = true);
    void endRecEditNew();
    int endRecEditDelete();
+
+   wstring structsFile{};
+   bool loadingEdits{}, cleanStructsFile{ true }, cleanStructVals{ true }, cleanBlockVals{ true }, cleanEndRecVals{ true };
+
+   HWND hFoldStructs{}, hFTList{}, hFoldBlocks{}, hHdrRTList{}, hImplRecs{}, hExplRecs{}, hExplRTList{};
+
+   vector<TypeInfo> vFileTypes{};
+   vector<TypeInfo> vRecTypes{};
+   vector<FoldStructInfo> vFoldStructs{};
 };
+
 

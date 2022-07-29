@@ -19,7 +19,7 @@ void JumpToField::doDialog(HINSTANCE hInst) {
    Utils::addTooltip(_hSelf, IDC_JUMP_CARET_FLASH_SLIDER, NULL, JUMP_TIP_CARET_FLASH, TRUE);
    Utils::addTooltip(_hSelf, IDC_JUMP_CARET_FLASH_VALUE, NULL, JUMP_TIP_CARET_FLASH, TRUE);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);

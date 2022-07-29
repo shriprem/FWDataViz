@@ -267,16 +267,24 @@
 
 
 // Exim File Type Dialog
-#define FT_EXIM_EXTRACT_FT_TITLE    L"Extract File Type Metadata"
-#define FT_EXIM_APPEND_FT_TITLE     L"Append File Type Metadata"
-#define FT_EXIM_EDIT_FT_LABEL       L"File Type Metadata:"
-#define FT_EXIM_EXTRACT_THEME_TITLE L"Extract Visualizer Theme Data"
-#define FT_EXIM_APPEND_THEME_TITLE  L"Append Visualizer Theme Data"
-#define FT_EXIM_EDIT_THEME_LABEL    L"Visualizer Theme Data:"
-#define FT_EXIM_LOAD_FILE_BTN       L"&Load from a File"
-#define FT_EXIM_SAVE_FILE_BTN       L"&Save to a File"
-#define FT_EXIM_APPEND_BTN          L"&Append File Type"
-#define FT_EXIM_CLOSE_BTN           L"&Close"
+#define EXIM_APPEND_FT_TITLE        L"Append File Type Metadata"
+#define EXIM_EXTRACT_FT_TITLE       L"Extract File Type Metadata"
+#define EXIM_EDIT_FT_LABEL          L"File Type Metadata:"
+#define EXIM_APPEND_FT_BTN          L"&Append File Type(s)"
+
+#define EXIM_APPEND_THEME_TITLE     L"Append Visualizer Theme Data"
+#define EXIM_EXTRACT_THEME_TITLE    L"Extract Visualizer Theme Data"
+#define EXIM_EDIT_THEME_LABEL       L"Visualizer Theme Data:"
+#define EXIM_APPEND_THEME_BTN       L"&Append Theme(s)"
+
+#define EXIM_APPEND_FOLD_TITLE      L"Append Fold Structure Data"
+#define EXIM_EXTRACT_FOLD_TITLE     L"Extract Fold Structure Data"
+#define EXIM_EDIT_FOLD_LABEL        L"Fold Structure Data:"
+#define EXIM_APPEND_FOLD_BTN        L"&Append Fold Struct(s)"
+
+#define EXIM_LOAD_FILE_BTN          L"&Load from a File"
+#define EXIM_SAVE_FILE_BTN          L"&Save to a File"
+#define EXIM_CLOSE_BTN              L"&Close"
 
 
 // Preferences Dialog
@@ -340,10 +348,12 @@
 #define FWVIZ_DEF_ADFT_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md"
 #define FWVIZ_RT_THEME_INFO_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md"
 #define THEME_DEF_INFO_README       L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md"
-#define FILE_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md"
 #define FILE_APPEND_INFO_README     L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md"
-#define FIELD_TYPE_INFO_README      L"https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md"
-#define THEME_EXTRACT_INFO_README   L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md"
+#define FILE_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md"
 #define THEME_APPEND_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md"
+#define THEME_EXTRACT_INFO_README   L"https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md"
+#define FOLD_APPEND_INFO_README     L"https://github.com/shriprem/FWDataViz/blob/master/docs/fold_struct_append_dialog.md"
+#define FOLD_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/fold_struct_extract_dialog.md"
+#define FIELD_TYPE_INFO_README      L"https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md"
 #define DATA_EXTRACT_INFO_README    L"https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md"
 #define DATA_EXTRACT_KEYNAV_README  L"https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_key_shortcuts.md"

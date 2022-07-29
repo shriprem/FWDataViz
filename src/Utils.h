@@ -5,11 +5,13 @@
 #include <regex>
 #include <ShlObj_core.h>
 
-#define PREFS_TIP_MAX_WIDTH         400
-#define mbox(message)               MessageBox(NULL, message, L"", MB_OK)
-#define mboxA(message)              MessageBoxA(NULL, message, "", MB_OK)
+#define mbox(message)      MessageBox(NULL, message, L"", MB_OK)
+#define mboxA(message)     MessageBoxA(NULL, message, "", MB_OK)
+
 
 namespace Utils {
+   constexpr int PREFS_TIP_MAX_WIDTH{ 400 };
+
    int StringtoInt(const string& str, int base = 10);
    int StringtoInt(const wstring& str, int base = 10);
    LPCWSTR ToUpper(LPWSTR str);

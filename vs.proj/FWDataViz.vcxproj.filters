@@ -162,6 +162,9 @@
     <ClInclude Include="..\src\Dialogs\FoldStructDialog.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Resources\FWVIZ_messages.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\Resources\VisualizerUI.rc">

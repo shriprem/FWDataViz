@@ -55,6 +55,7 @@
     <ClInclude Include="..\src\NPP\Window.h" />
     <ClInclude Include="..\src\PluginDefinition.h" />
     <ClInclude Include="..\src\Resources\control_ids.h" />
+    <ClInclude Include="..\src\Resources\FWVIZ_messages.h" />
     <ClInclude Include="..\src\Resources\localization.h" />
     <ClInclude Include="..\src\Resources\resource.h" />
     <ClInclude Include="..\src\Resources\SamplesMenuDefs.h" />

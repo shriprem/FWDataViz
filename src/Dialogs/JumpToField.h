@@ -16,11 +16,6 @@ public:
    void setFileTypeData(const wstring& ftConfig);
 
 private:
-   string initFileType{};
-   int initRecordRegIndex{};
-   HWND hFieldList{}, hCaretFlash{};
-   const vector<wstring>* pFieldLabels{};
-
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
    void loadJumpList(int fieldIndex = -1);
@@ -29,4 +24,11 @@ private:
 
    int getTbarPosition();
    void setTbarPosition(int val, bool savePref);
+
+   string initFileType{};
+   int initRecordRegIndex{};
+
+   HWND hFieldList{}, hCaretFlash{};
+
+   const vector<wstring>* pFieldLabels{};
 };

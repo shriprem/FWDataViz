@@ -45,7 +45,7 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_THEME_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_THEME_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
@@ -281,6 +281,10 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
    case WM_INITDIALOG:
       NPPDM_AutoSubclassAndThemeChildControls(_hSelf);
       break;
+
+   case FWVIZMSG_APPEND_EXIM_DATA:
+      appendThemeConfigs(reinterpret_cast<LPCWSTR>(lParam));
+      break;
    }
 
    return FALSE;
@@ -363,9 +367,7 @@ int ThemeDialog::loadThemeInfo(int vIndex, const wstring& themeType, const wstri
    _configIO.getFullStyle(themeType, "EOL", TT.eolStyle, sThemeFile);
 
    char buf[10];
-   int styleCount;
-
-   styleCount = Utils::StringtoInt(_configIO.getStyleValue(themeType, "Count", sThemeFile));
+   int styleCount{ Utils::StringtoInt(_configIO.getStyleValue(themeType, "Count", sThemeFile)) };
 
    TT.vStyleInfo.clear();
    TT.vStyleInfo.resize(styleCount);
@@ -1038,7 +1040,7 @@ void ThemeDialog::saveConfigInfo() {
 
 void ThemeDialog::showEximDialog(bool bExtract) {
    _eximDlg.doDialog((HINSTANCE)_gModule);
-   _eximDlg.initDialog(bExtract, FALSE);
+   _eximDlg.initDialog(_hSelf, EximFileTypeDialog::THEMES_DLG, bExtract);
 
    if (bExtract) {
       int idxTT{ getCurrentThemeIndex() };

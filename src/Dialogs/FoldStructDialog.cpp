@@ -36,7 +36,7 @@ void FoldStructDialog::doDialog(HINSTANCE hInst) {
    Utils::loadBitmap(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    Utils::addTooltip(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   if (_gLanguage != LANG_ENGLISH) localize();
+   if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
    // Dynamically adjust the x position for the Fold Block Priority edit control
@@ -290,6 +290,10 @@ INT_PTR CALLBACK FoldStructDialog::run_dlgProc(UINT message, WPARAM wParam, LPAR
    case WM_PRINTCLIENT:
       if (NPPDM_IsEnabled()) return TRUE;
       break;
+
+   case FWVIZMSG_APPEND_EXIM_DATA:
+      appendFoldStructInfo(reinterpret_cast<LPCWSTR>(lParam));
+      break;
    }
 
    return FALSE;
@@ -426,15 +430,18 @@ int FoldStructDialog::loadStructsInfo() {
    vFoldStructs.resize(foldStructCount);
 
    for (int i{}; i < foldStructCount; ++i) {
-      loadFoldStructInfo(i, structsFile);
+      loadFoldStructInfo(i, "", structsFile);
    }
 
    return static_cast<int>(vFoldStructs.size());
 }
 
-int FoldStructDialog::loadFoldStructInfo(int vIndex, const wstring& sStructsFile) {
-   string fsType(6, '\0');
-   snprintf(fsType.data(), 6, "FS%03d", vIndex + 1);
+int FoldStructDialog::loadFoldStructInfo(int vIndex, string fsType, const wstring& sStructsFile) {
+   if (fsType.empty()) {
+      char buf[10];
+      snprintf(buf, 6, "FS%03d", vIndex + 1);
+      fsType = buf;
+   }
 
    FoldStructInfo& FS{ vFoldStructs[vIndex] };
    TypeInfo& FT{ FS.fileType };
@@ -1106,25 +1113,85 @@ bool FoldStructDialog::promptDiscardChangesNo() {
 }
 
 void FoldStructDialog::saveFoldStructInfo() {
-   MessageBox(_hSelf, L"", L"", MB_OK);
+   if (_configIO.isCurrentVizConfigDefault() &&
+      MessageBox(_hSelf, FWVIZ_DEFAULT_OVERWRITE, FWVIZ_DEF_DIALOG_TITLE,
+         MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDNO)
+      return;
+
+   if (!cleanEndRecVals) endRecEditAccept();
+
+   if (!cleanBlockVals)
+      if (blockEditAccept() < 0) return;
+
+   if (!cleanStructVals)
+      if (structEditAccept() < 0) return;
+
+   size_t fsCount;
+   wstring fileData{}, fsConfig{};
+
+   fsCount = vFoldStructs.size();
+   fileData = L"[Base]\r\nFoldStructCount=" + to_wstring(fsCount) + L"\r\n\r\n";
+
+   for (size_t i{}; i < fsCount; ++i) {
+      if (getFoldStructInfo(i, TRUE, fsConfig) < 0) return;
+      fileData += fsConfig + L"\r\n";
+   }
+
+   _configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
+   _configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
+
+   cleanStructsFile = TRUE;
+   indicateCleanStatus();
 }
 
 void FoldStructDialog::showEximDialog(bool bExtract) {
    _eximDlg.doDialog((HINSTANCE)_gModule);
-   _eximDlg.initDialog(bExtract, TRUE);
+   _eximDlg.initDialog(_hSelf, EximFileTypeDialog::FOLDS_DLG, bExtract);
 
    if (bExtract) {
-      //int idxFT{ getCurrentFileTypeIndex() };
-      //if (idxFT == LB_ERR) return;
+      int idxFS{ getCurrentFoldStructIndex() };
+      if (idxFS == LB_ERR) return;
 
-      wstring ftCode{}, ftConfig{};
-      //if (getFileTypeConfig(idxFT, TRUE, ftCode, ftConfig) < 0) {
-      //   _eximDlg.display(false);
-      //   return;
-      //}
+      wstring fsConfig{};
+      if (getFoldStructInfo(idxFS, TRUE, fsConfig) < 0) {
+         _eximDlg.display(false);
+         return;
+      }
 
-      _eximDlg.setFileTypeData(ftConfig);
+      _eximDlg.setFileTypeData(fsConfig);
    }
+}
+
+int FoldStructDialog::appendFoldStructInfo(const wstring& sConfigFile) {
+   vector<string> sectionList{};
+   string sectionFT{};
+   wstring sectionLabel{};
+
+   int sectionCount{ _configIO.getConfigAllSectionsList(sectionList, Utils::WideToNarrow(sConfigFile)) };
+   int validCount{};
+
+   for (int i{}; i < sectionCount; ++i) {
+      sectionFT = _configIO.getConfigStringA(sectionList[i], "FileType", "", Utils::WideToNarrow(sConfigFile));
+      if (sectionFT.empty()) continue;
+
+      sectionLabel = _configIO.getConfigWideChar(sectionList[i], "FileLabel", "", Utils::WideToNarrow(sConfigFile));
+      if (sectionLabel.empty()) continue;
+
+      FoldStructInfo newFS{};
+
+      vFoldStructs.push_back(newFS);
+      loadFoldStructInfo(static_cast<int>(vFoldStructs.size() - 1), sectionList[i], sConfigFile);
+      SendMessage(hFoldStructs, LB_ADDSTRING, NULL, (LPARAM)sectionLabel.c_str());
+      ++validCount;
+   }
+
+   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)(vFoldStructs.size() - 1), NULL);
+   onFoldStructSelect();
+
+   cleanStructsFile = FALSE;
+   enableStructSelection();
+
+   return validCount;
 }
 
 int FoldStructDialog::getCurrentFoldStructIndex() {
@@ -1144,7 +1211,36 @@ bool FoldStructDialog::getCurrentFoldStructInfo(FoldStructInfo*& structInfo) {
    return TRUE;
 }
 
-int FoldStructDialog::getFoldStructInfo(size_t /*idxFT*/, bool /*cr_lf*/, wstring& /*ftCode*/, wstring& /*ftConfig*/) {
+int FoldStructDialog::getFoldStructInfo(size_t idxFS, bool cr_lf, wstring& fsConfig) {
+   FoldStructInfo& FS{ vFoldStructs[idxFS] };
+   wstring new_line{ cr_lf ? L"\r\n" : L"\n" };
+
+   wstring hdrRecs{}, blockConfig{};
+
+   for (size_t i{}; i < FS.vBlocks.size(); ++i) {
+      BlockInfo& BI{FS.vBlocks[i]};
+      wstring hdrFileType{ Utils::NarrowToWide(BI.hdrRec.type) };
+      wstring endRecs{};
+
+      for (size_t j{}; j < BI.vEndRecs.size(); ++j) {
+         endRecs += (j == 0 ? L"" : L",") + Utils::NarrowToWide(BI.vEndRecs[j].type);
+      }
+
+      hdrRecs += (i == 0 ? L"" : L",") + hdrFileType;
+      blockConfig += hdrFileType + L"_Priority=" + to_wstring(BI.priority) + new_line +
+         hdrFileType + L"_Recursive=" + (BI.recursive ? L"Y" : L"N") + new_line +
+         hdrFileType + L"_EndRecords=" + endRecs + new_line;
+   }
+
+   wchar_t foldStructCode[10];
+   swprintf(foldStructCode, 10, L"FS%03d", static_cast<int>(idxFS + 1));
+
+   fsConfig = L"[" + wstring{ foldStructCode } + L"]" + new_line +
+      L"FileType=" + Utils::NarrowToWide(FS.fileType.type) + new_line +
+      L"FileLabel=" + FS.fileType.label + new_line +
+      L"FoldLevelAuto=" + (FS.autoFold ? L"Y" : L"N") + new_line +
+      L"HeaderRecords=" + hdrRecs + new_line + blockConfig;
+
    return 0;
 }
 

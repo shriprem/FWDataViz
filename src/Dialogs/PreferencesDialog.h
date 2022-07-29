@@ -19,8 +19,6 @@ public:
    static void applyFoldLineColorAlpha();
 
 private:
-   HBRUSH hbr{};
-
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
    void initCheckbox(int nIDButton, const string& preference, bool default);
@@ -31,5 +29,7 @@ private:
    void displayFoldLineColor();
    INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
    void setFoldLineAlpha();
+
+   HBRUSH hbr{};
 };
 

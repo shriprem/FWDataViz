@@ -6,9 +6,9 @@
 #include <regex>
 #include <vector>
 
-#define FILE_TYPE_LIMIT 999
-#define REC_TYPE_LIMIT 999
-#define REGEX_META_CHARS wstring{ L"\\^\\$\\\\(\\)\\{\\}\\[\\]\\<\\>\\.\\?\\*\\+\\,\\-\\|\\!\\:\\=" }
+constexpr int FILE_TYPE_LIMIT{ 999 };
+constexpr int REC_TYPE_LIMIT{ 999 };
+const wstring REGEX_META_CHARS{ L"\\^\\$\\\\(\\)\\{\\}\\[\\]\\<\\>\\.\\?\\*\\+\\,\\-\\|\\!\\:\\=" };
 
 using std::wregex;
 using std::regex_replace;
@@ -27,14 +27,10 @@ public:
    void setFieldEditCaretOnFocus(HWND hEdit);
    void hiliteFieldEditPairedItem(HWND hThis, HWND hThat);
    void syncFieldEditScrolling(HWND hThis, HWND hThat);
-   int appendFileTypeConfigs(const wstring& sConfigFile);
 
    HWND hFieldLabels{}, hFieldWidths{};
 
 private:
-   HWND hFilesLB{}, hFileEOL{}, hFileThemes{}, hADFTLine[ADFT_MAX]{}, hADFTRegex[ADFT_MAX]{},
-      hRecsLB{}, hRecStart{}, hRecRegex{}, hRecThemes{};
-
    enum move_dir {
       MOVE_DOWN = 1,
       MOVE_UP = -1
@@ -58,12 +54,6 @@ private:
       wstring regExprs[ADFT_MAX]{};
    };
 
-   vector<FileType> vFileTypes;
-
-   wstring configFile{};
-   bool loadingEdits{}, cleanConfigFile{}, cleanFileVals{}, cleanRecVals{}, cleanFieldVals{};
-   int editLabelsCaret{}, editWidthsCaret{};
-
    INT_PTR CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM);
    void localize();
    void indicateCleanStatus();
@@ -72,6 +62,7 @@ private:
    bool promptDiscardChangesNo();
    void saveConfigInfo();
    void showEximDialog(bool bExtract);
+   int appendFileTypeConfigs(const wstring& sConfigFile);
    wstring getOnlyStartsWith(wstring expr);
 
    int getCurrentFileTypeIndex();
@@ -89,7 +80,7 @@ private:
    void enableMoveFileButtons();
    void enableFileSelection();
    int moveFileType(move_dir dir);
-   int fileEditAccept(bool accept = TRUE);
+   int fileEditAccept(bool accept = true);
    void fileEditNew();
    void fileEditClone();
    int fileEditDelete();
@@ -103,11 +94,22 @@ private:
    int moveRecType(move_dir dir);
    void onRecStartEditChange();
    void onRecRegexEditChange();
-   int recEditAccept(bool accept = TRUE);
+   int recEditAccept(bool accept = true);
    void recEditNew(bool clone);
    int recEditDelete();
 
    void fillFieldTypes();
    void fieldEditsAccept();
+
+   wstring configFile{};
+   bool loadingEdits{}, cleanConfigFile{ true }, cleanFileVals{ true }, cleanRecVals{ true }, cleanFieldVals{ true };
+   int editLabelsCaret{}, editWidthsCaret{};
+
+   HWND hFilesLB{}, hFileEOL{}, hFileThemes{}, hADFTLine[ADFT_MAX]{}, hADFTRegex[ADFT_MAX]{},
+      hRecsLB{}, hRecStart{}, hRecRegex{}, hRecThemes{};
+
+   vector<FileType> vFileTypes;
 };
 
+LRESULT CALLBACK procNumberEditControl(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR);
+LRESULT CALLBACK procFieldEditMessages(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR);

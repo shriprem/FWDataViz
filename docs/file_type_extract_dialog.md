@@ -8,4 +8,4 @@ Useful for sharing customized File Type Metadata definitions with team members a
 * Inspect the selected File Type definition in raw.
 * Edit the selected File Type definition in raw.
 
-**See also**: [Append File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md)
+**See also**: [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) | [Append File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md)
