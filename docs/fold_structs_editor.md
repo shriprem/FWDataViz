@@ -8,6 +8,17 @@ This editor is organized in a three-level hierarchy:
 3. * [Fold Block » Implicit Terminators](#Fold-Blocks-Implicit-Terminators) and
    * [Fold Block » Explicit Terminators](#Fold-Blocks-Explicit-Terminators)
 
+* Changes in the _Fold Block » Implicit Terminators_ section will disable change of selections at the Fold Structure and Fold Block levels until the changes are accepted or reset or the configuration file is saved or reloaded.
+
+* Changes in the _Fold Structure » Fold Blocks_ section will disable change of selections at the Fold Structure and Fold Block levels until the changes are accepted or the configuration file is saved or reloaded.
+
+* Changes in the _Fold Structures_ section will disable change of selections at the Fold Structure level until the changes are accepted or the configuration file is saved or reloaded.
+
+* When any of the fields in either the _Fold Structures_ or the _Fold Structure » Fold Blocks_ or _Fold Block » Implicit Terminators_ section are modified, the _New_ button in that section will be replaced by the _Reset_ button. When the changes are accepted, the _New_ button will be restored back in place of the _Reset_ button.
+
+* Previous configurations are automatically backed up with each save. Use _Load Backup Configuration File_ to load a backup file.
+
+
 ## Fold Structures
 
 ### Fold Structure » File Type
@@ -26,8 +37,6 @@ Multiple Fold Structures with slightly different settings can be defined on the 
  :book: Related: [Definitions (_INI File_)](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md#Definitions-INI-File) - `FoldLevelAuto`
 
 This option specifies if the plugin should automatically do a full file scan and apply the specified folding structure for the matching File Type after a file loads in the Notepad++ editor. Recommend unchecking this option for File Types with likely large data files, when this process can take a long time.
-
-> :information_desk_person: When either of the fields in the _Fold Structures_ section is modified, the _New_ button in this section will be replaced by the _Reset_ button. When the changes are accepted, the _New_ button will be restored back in place of the _Reset_ button.
 
 ## Fold Structures » Fold Blocks
 
@@ -52,8 +61,6 @@ Multiple Fold Blocks with slightly different settings can be defined on the same
  :book: Related: [Definitions (_INI File_)](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md#Definitions-INI-File) - `RECnnn_Recursive`
 
  This option will specify whether the _Fold Blocks_ with same priority value will nest inside each other. Since most data files are _non-recursive_, this option will need to be enabled very rarerly.
-
-> :information_desk_person: When any of the fields in the _Fold Structures » Fold Blocks_ section are modified, the _New_ button in this section will be replaced by the _Reset_ button. When the changes are accepted, the _New_ button will be restored back in place of the _Reset_ button.
 
 
 ## Fold Blocks » Implicit Terminators
