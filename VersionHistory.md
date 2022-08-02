@@ -1,4 +1,4 @@
-## Version History
+﻿## Version History
 
 ### Version 2.6.1.0 [August 2, 2022]
 
@@ -237,7 +237,7 @@ The _FWDataViz_ ***x64*** plugin was affected by this incompatibility issue spec
 
 ### Version 2.1.0.0 [August 23, 2021]
 1. **Enhancement:** FWDataViz is now able to visualize even when wordwrap is enabled for a document. Hence the "Turnoff Wordwrap" button on the panel became redundant, and so has been removed.
-2. **Fixed:** FWDataviz was not visualizing all lines in view when block(s) of lines were folded or hidden (the latter, via NPP menu: *View � Hide Lines*). See: [issue #25](https://github.com/shriprem/FWDataViz/issues/25).
+2. **Fixed:** FWDataviz was not visualizing all lines in view when block(s) of lines were folded or hidden (the latter, via NPP menu: *View » Hide Lines*). See: [issue #25](https://github.com/shriprem/FWDataViz/issues/25).
 
 **Release:** [Wordwrap, Fold Lines & Hide Lines Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.1.0.0)
 

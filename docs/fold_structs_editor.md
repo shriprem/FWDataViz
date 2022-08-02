@@ -3,25 +3,28 @@
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/fold_struct_editor.png)
 
 This editor is organized in a three-level hierarchy:
-1. [Fold Structures](#Fold-Structures)
-2. [Fold Structure » Fold Blocks](#Fold-Structure-Fold-Blocks)
-3. * [Fold Block » Implicit Terminators](#Fold-Blocks-Implicit-Terminators) and
-   * [Fold Block » Explicit Terminators](#Fold-Blocks-Explicit-Terminators)
 
-* Changes in the _Fold Block » Implicit Terminators_ section will disable change of selections at the Fold Structure and Fold Block levels until the changes are accepted or reset or the configuration file is saved or reloaded.
+| Level | Brief Description |
+|---|---|
+| **[Fold Structures](#Fold-Structures)** | From the list of _Fold Structures_, select a _Fold Structure_ to modify or clone or delete. Or add a new _Fold Structure_. |
+| **[Fold Structure Â» Fold Blocks](#Fold-Structure--Fold-Blocks)** | From the list of _Fold Blocks_ for the _Fold Structure_ selected in Level 1, select a _Fold Block_ to modify or clone or delete. Or add a new _Fold Block_ for the selected _Fold Structure_. |
+| a. **[Fold Block Â» Implicit Terminators](#Fold-Block--Implicit-Terminators)** | For the _Fold Block_ selected in Level 2, view its implicit terminators. _(This list is for reference only.)_ |
+| b. **[Fold Block Â» Explicit Terminators](#Fold-Block--Explicit-Terminators)** | For the _Fold Block_ selected in Level 2, add or modify or delete its explicit termination records. |
 
-* Changes in the _Fold Structure » Fold Blocks_ section will disable change of selections at the Fold Structure and Fold Block levels until the changes are accepted or the configuration file is saved or reloaded.
+* Changes in the _Fold Block Â» Implicit Terminators_ section will disable change of selections at the Fold Structure and Fold Block levels until the changes are accepted or reset or the configuration file is saved or reloaded.
+
+* Changes in the _Fold Structure Â» Fold Blocks_ section will disable change of selections at the Fold Structure and Fold Block levels until the changes are accepted or the configuration file is saved or reloaded.
 
 * Changes in the _Fold Structures_ section will disable change of selections at the Fold Structure level until the changes are accepted or the configuration file is saved or reloaded.
 
-* When any of the fields in either the _Fold Structures_ or the _Fold Structure » Fold Blocks_ or _Fold Block » Implicit Terminators_ section are modified, the _New_ button in that section will be replaced by the _Reset_ button. When the changes are accepted, the _New_ button will be restored back in place of the _Reset_ button.
+* When any of the fields in either the _Fold Structures_ or the _Fold Structure Â» Fold Blocks_ or _Fold Block Â» Implicit Terminators_ section are modified, the _New_ button in that section will be replaced by the _Reset_ button. When the changes are accepted, the _New_ button will be restored back in place of the _Reset_ button.
 
 * Previous configurations are automatically backed up with each save. Use _Load Backup Configuration File_ to load a backup file.
 
 
 ## Fold Structures
 
-### Fold Structure » File Type
+### Fold Structure Â» File Type
 
 :book: Related: [Definitions (_INI File_)](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md#Definitions-INI-File) - `FileType`
 
@@ -38,7 +41,7 @@ Multiple Fold Structures with slightly different settings can be defined on the 
 
 This option specifies if the plugin should automatically do a full file scan and apply the specified folding structure for the matching File Type after a file loads in the Notepad++ editor. Recommend unchecking this option for File Types with likely large data files, when this process can take a long time.
 
-## Fold Structures » Fold Blocks
+## Fold Structure Â» Fold Blocks
 
 ### Fold Block - Header Record Type
 
@@ -63,13 +66,13 @@ Multiple Fold Blocks with slightly different settings can be defined on the same
  This option will specify whether the _Fold Blocks_ with same priority value will nest inside each other. Since most data files are _non-recursive_, this option will need to be enabled very rarerly.
 
 
-## Fold Blocks » Implicit Terminators
+## Fold Block Â» Implicit Terminators
 
 :book: See: [Record Block Termination](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md#record-block-termination)
 
 This list is displayed for reference only. It is dynamically built by the system based on the _Priority_ and _Recursive_ values of the _Header Record Types_ for the _Fold Block_.
 
-## Fold Blocks » Explicit Terminators
+## Fold Block Â» Explicit Terminators
 
  :book: Related: [Definitions (_INI File_)](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md#Definitions-INI-File) - `RECnnn_EndRecords`
 

@@ -3,9 +3,12 @@
 ![FileType_Config](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/file_type_editor.png)
 
 This editor is organized in a three-level hierarchy:
-1. File Types
-2. File Type » Record Types
-3. Record Type » Fields
+
+| Level | Brief Description |
+|---|---|
+| **File Types** | From the list of _File Types_, select a _File Type_ to modify or clone or delete. Or add a new _File Type_. |
+| **File Type Â» Record Types** | From the list of _Record Types_ for the _File Type_ selected in Level 1, select a _Record Type_ to modify or clone or delete. Or add a new _Record Type_ for the selected _File Type_. |
+| **Record Type Â» Fields** | For the _Record Type_ selected in Level 2, define or modify its _Field Labels_ and _Field Widths_. |
 
 * Starting with v2.3.0.0, all fields in the Metadata Editor will accept multi-byte characters.
 
@@ -23,13 +26,13 @@ This editor is organized in a three-level hierarchy:
 
 * Field Labels and Field Widths are synchronized for editing and scrolling.
 
-* Changes in the _Record Type » Fields_ section will disable change of selections at the File Type and Record Type levels until the changes are accepted or reset or the configuration file is saved or reloaded.
+* Changes in the _Record Type Â» Fields_ section will disable change of selections at the File Type and Record Type levels until the changes are accepted or reset or the configuration file is saved or reloaded.
 
-* Changes in the _File Type » Record Types_ section will disable change of selections at the File Type and Record Type levels until the changes are accepted or the configuration file is saved or reloaded.
+* Changes in the _File Type Â» Record Types_ section will disable change of selections at the File Type and Record Type levels until the changes are accepted or the configuration file is saved or reloaded.
 
 * Changes in the _File Types_ section will disable change of selections at the File Type level until the changes are accepted or the configuration file is saved or reloaded.
 
-* When any of the fields in either the _File Types_ or the _File Type » Record Types_ section are modified, the _New_ button in that section will be replaced by the _Reset_ button. When the changes are accepted, the _New_ button will be restored back in place of the _Reset_ button.
+* When any of the fields in either the _File Types_ or the _File Type Â» Record Types_ section are modified, the _New_ button in that section will be replaced by the _Reset_ button. When the changes are accepted, the _New_ button will be restored back in place of the _Reset_ button.
 
 * Previous configurations are automatically backed up with each save. Use _Load Backup Configuration File_ to load a backup file.
 

@@ -3,9 +3,12 @@
 ![Theme_Config](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/color_theme_editor.png)
 
 This editor is organized in a three-level hierarchy:
-1. Themes
-2. Theme » Styles
-3. Style Definition
+
+| Level | Brief Description |
+|---|---|
+| **Themes** | From the list of _Themes_, select a _Theme_ to modify or clone or delete. Or add a new _Theme_. |
+| **Theme Â» Styles** | From the list of _Styles_ for the _Theme_ selected in Level 1, select a _Style_ to modify or clone or delete. Or add a new _Style_ for the selected _Theme_. |
+| **Style Definition** | For the _Style_ selected in Level 2, define or modify its _Style Definition_. |
 
 * The _Theme - Label_ field will accept Unicode characters.
 

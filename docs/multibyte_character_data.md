@@ -1,4 +1,4 @@
-﻿## Multi-byte Character Data Visualization
+## Multi-byte Character Data Visualization
 
 ![Multi-byte_Character_Data](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multibyte_character_data.png)
 
