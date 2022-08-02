@@ -49,10 +49,12 @@ void EximFileTypeDialog::localize() {
 
    if (extractMode) {
       SetDlgItemText(_hSelf, IDC_FTEXIM_SAVE_FILE, EXIM_SAVE_FILE_BTN);
+      SetDlgItemText(_hSelf, IDCLOSE, EXIM_CLOSE_BTN);
    }
    else {
       SetDlgItemText(_hSelf, IDC_FTEXIM_LOAD_FILE, EXIM_LOAD_FILE_BTN);
       SetDlgItemText(_hSelf, IDC_FTEXIM_APPEND, APPEND_BTN[exim_mode]);
+      SetDlgItemText(_hSelf, IDCLOSE, EXIM_CANCEL_BTN);
    }
 }
 
@@ -61,7 +63,7 @@ INT_PTR CALLBACK EximFileTypeDialog::run_dlgProc(UINT message, WPARAM wParam, LP
    case WM_COMMAND:
       switch LOWORD(wParam) {
       case IDC_FTEXIM_INFO_BUTTON:
-         ShellExecute(NULL, L"open", extractMode ? EXTRACT_DOC_URL[exim_mode] : APPEND_DOC_URL[exim_mode], NULL, NULL, SW_SHOW);
+         ShellExecute(NULL, L"open", extractMode ? CONFIG_EXTRACT_INFO_README : CONFIG_APPEND_INFO_README, NULL, NULL, SW_SHOW);
          break;
 
       case IDCANCEL:

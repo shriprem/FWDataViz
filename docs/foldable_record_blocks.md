@@ -4,10 +4,10 @@
 
 **ICD-10 Billable-Flagged Order Codes Sample File, with folding applied.**
 
-## Table of Content
+## Contents
 1. [Concept](#Concept)
 2. [Scheme](#Scheme)
-3. [Definitions Editor](#Definitions-Editor)
+3. [Fold Structures Editor](#Fold-Structures-Editor)
 4. [Definitions (_INI File_)](#Definitions-INI-File)
 5. [Sample Files with Folding](#Sample-Files-with-Folding)
 
@@ -53,10 +53,13 @@ With that associated _File Type_ as the reference basis, you will then need to s
 
 ---
 
-## Definitions Editor
+## Fold Structures Editor
+
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/fold_struct_editor.png)
 
-### _`More documentation will be provided for this section shortly.`_
+For more information, see: [Fold Structures Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/fold_structs_editor.md)
+
+
 
 ---
 
@@ -80,7 +83,7 @@ The definition schemes for record blocks will reside in the new `FoldStructs.ini
 
 * `FileLabel`: This value must _optionally_ match the corresponding `FileLabel` value in the `Visualizer.ini` file.
 
-* `FoldLevelAuto`: This value can be either `Y` or `N`. This will specify whether, after a file loads in the Notepad++ editor, the plugin should automatically try to do a full file scan and apply the specified folding structure for the matching _File Type_. Recommend setting this to `N` for _File Types_ with likely large data files, when this process can take a long time.
+* `FoldLevelAuto`: This value can be either `Y` or `N`. This will specify if the plugin should automatically try to do a full file scan and apply the specified folding structure for the matching _File Type_ after a file loads in the Notepad++ editor, . Recommend setting this to `N` for _File Types_ with likely large data files, when this process can take a long time.
 
 * `HeaderRecords`: A comma-separated list of _Record Types_ (see **_Header Records_** under: [Scheme](#scheme)). The _Record Types_ in the list must exactly match the corresponding _Record Types_ of associated the _File Type_ in the `Visualizer.ini` file.
 
@@ -126,11 +129,11 @@ This sample file is named after the icon of [a serpent eating its own tail](http
 
 * The `TF` record type 5 is _non-recursive_. The `TF` record type terminates all other record types: `P3`, `Q4`, `R5` & `S6`.
 
-To gain better sense of the recursive and nested folding structure in this file, turn on the _Show Calltip_ option on the plugin panel, and then click through lines 1 to 10. The last line within the calltip will indicate the fold level of the current line.
+> :bulb: To gain better sense of the recursive and nested folding structure in this file, turn on the _Show Calltip_ option on the plugin panel, and then click through lines 1 to 10. The last line within the calltip will indicate the fold level of the current line.
 
 To illustrate the nesting of fold levels in this file, the levels are indented in the clip below.
 
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_ouroboros_indented.png)
 
 
-**See also**: [Extract Fold Structure Data](https://github.com/shriprem/FWDataViz/blob/master/docs/fold_struct_extract_dialog.md) | [Append Fold Structure Data](https://github.com/shriprem/FWDataViz/blob/master/docs/fold_struct_append_dialog.md)
+**See also**: [Extract Configuration Data](https://github.com/shriprem/FWDataViz/blob/master/docs/config_extract_dialog.md) | [Append Configuration Data](https://github.com/shriprem/FWDataViz/blob/master/docs/config_append_dialog.md)

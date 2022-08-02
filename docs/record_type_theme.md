@@ -1,5 +1,5 @@
-## Record Type Theme
-The Record Type Theme feature allows you to specify a different color theme than the file-type theme for select-few record types to make them distinctive.
+## Record Type - Theme
+The Record Type - Theme feature allows you to specify a different color theme than the file-type theme for select-few record types to make them distinctive.
 
 Specify a distinctive theme such as _Dark Energy_, _Lunar_, or _Martian_ for record types that function as demarcators or section headers within a fixed-width data file.
 

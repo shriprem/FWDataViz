@@ -5,16 +5,6 @@ extern HINSTANCE _gModule;
 extern ThemeDialog _themeDlg;
 extern EximFileTypeDialog _eximDlg;
 
-LRESULT CALLBACK procStylesListBox(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
-   switch (messageId) {
-   case WM_VSCROLL:
-      _themeDlg.initPreviewSwatch();
-      break;
-   }
-
-   return DefSubclassProc(hwnd, messageId, wParam, lParam);
-}
-
 void ThemeDialog::doDialog(HINSTANCE hInst) {
    if (!isCreated()) {
       Window::init(hInst, nppData._nppHandle);
@@ -81,10 +71,6 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 
       case IDC_THEME_DEF_UP_BUTTON:
          moveThemeType(MOVE_UP);
-         break;
-
-      case IDC_THEME_DEF_INFO_BUTTON:
-         ShellExecute(NULL, L"open", THEME_DEF_INFO_README, NULL, NULL, SW_SHOW);
          break;
 
       case IDC_THEME_DEF_DESC_EDIT:
@@ -187,11 +173,9 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
          fillStyleDefs();
          break;
 
-      case IDCANCEL:
-      case IDCLOSE:
-         if (promptDiscardChangesNo()) return TRUE;
-         display(FALSE);
-         return TRUE;
+      case IDC_THEME_DEF_INFO_BUTTON:
+         ShellExecute(NULL, L"open", THEME_DEF_INFO_README, NULL, NULL, SW_SHOW);
+         break;
 
       case IDC_THEME_DEF_SAVE_CONFIG_BTN:
          SetCursor(LoadCursor(NULL, IDC_WAIT));
@@ -234,6 +218,12 @@ INT_PTR CALLBACK ThemeDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
       case IDC_THEME_DEF_APPEND_BTN:
          showEximDialog(FALSE);
          break;
+
+      case IDCANCEL:
+      case IDCLOSE:
+         if (promptDiscardChangesNo()) return TRUE;
+         display(FALSE);
+         return TRUE;
 
       default:
          if (cleanStyleDefs)
@@ -1050,4 +1040,14 @@ void ThemeDialog::showEximDialog(bool bExtract) {
       getThemeConfig(idxTT, TRUE, ttCode, ttConfig);
       _eximDlg.setFileTypeData(ttConfig);
    }
+}
+
+LRESULT CALLBACK procStylesListBox(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR) {
+   switch (messageId) {
+   case WM_VSCROLL:
+      _themeDlg.initPreviewSwatch();
+      break;
+   }
+
+   return DefSubclassProc(hwnd, messageId, wParam, lParam);
 }

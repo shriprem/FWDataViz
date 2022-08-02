@@ -3,40 +3,46 @@
 ![GitHub](https://img.shields.io/github/license/shriprem/FWDataViz) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/shriprem/FWDataViz) ![GitHub all releases](https://img.shields.io/github/downloads/shriprem/FWDataViz/total)
 
 ## Fixed Width Data Visualizer plugin for Notepad++
-[Current Version: 2.6.0.0](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.0.0)
+[Current Version: 2.6.1.0](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.1.0)
 
-![FWDataViz](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_weather_stations.png)
+![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_orders_file.png)
+**ICD-10 Billable-Flagged Order Codes Sample File, with folding applied.**
 
-* Visualizes fields within fixed-width data files with distinct colors and font styles.
 
-* [Displays record, field and byte information at cursor position.](#fixed-width-data-visualizer-panel)
+### Features at the Panel
+* Visualization of fields in fixed-width data files with distinct colors and font styles. With or optionally without distinct background colors.
+
+* [Display of record, field and byte information at cursor position](#fixed-width-data-visualizer-panel) on the panel. Also, optionally, inside a calltip within the Notepad++ editor pane.
+
+* [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md) for files with hierarchical data.
 
 * [Quick Field Navigation](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md) to [Jump](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md#jump-to-field) to any field of the current record or [Hop](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md#hop-field) to the left or right edge of the current field or adjacent fields.
 
-* [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md) for fixed-width data files with hierarchical data.
-
 * [Field Copy](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-copy) and [Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-paste) with smart left or right alignment and padding or trimming.
-
-* [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) to extract a handful data fields into an easily readable, quick report.
-
-* [Menu Items with Keyboard Shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/menu_shortcuts.md) for quick and easy access of frequently used actions.
-
-* [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) to intuitively define and customize file type metadata with record types and fields.
-
-* Easy sharing of customized File Type metadata with [Extract File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md) and [Append File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md).
-
-* [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md) to intuitively define and customize themes and colors for data visualization.
 
 * [Default Style Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md#default-style) for turning off visualization for specific fields like spaces or separators.
 
-* Easy sharing of customized Themes with [Extract Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_extract_dialog.md) and [Append Theme Data](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_append_dialog.md).
+* Choice of visualization based either on the default single byte (US-ASCII) or [multi-byte](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) character data.
+
+* [Menu Items with Keyboard Shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/menu_shortcuts.md) for quick and easy access of frequently used actions.
 
 * [Sample Data files](#sample-data-files) in the plugin package demonstrating:
    * [Homogenous record-type data](#homogenous-record-type-fixed-width-data-files)
    * [Mixed record-types data](#mixed-record-type-fixed-width-data-files)
    * [Multiple-line-spanning record-types data](#multi-line-record-type-fixed-width-data-files)
+   * [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md)
 
-* Choice of visualization based either on the default single byte (US-ASCII) or [multi-byte](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md) character data.
+### Features beyond the Panel
+
+* [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md) to intuitively define and customize file type metadata with record types and fields.
+
+* [Visualizer Theme Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/theme_config_dialog.md) to intuitively define and customize themes and colors for data visualization.
+
+* [Fold Structures Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/fold_structs_editor.md) to intuitively define and customize Fold Structure definitions.
+
+* Easy sharing of customized File Type or Visualizer Theme or Fold Structure definitions with [Extract Configuration Data](https://github.com/shriprem/FWDataViz/blob/master/docs/config_extract_dialog.md) and [Append Configuration Data](https://github.com/shriprem/FWDataViz/blob/master/docs/config_append_dialog.md).
+
+* [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md) to extract a handful data fields into an easily readable, quick report.
 
 * Full support for [multi-byte characters](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_support.md) in File Type metadata, Theme Labels, Data Extraction Prefix and Suffix Labels, and left or right padding & trimming.
 
@@ -61,7 +67,9 @@
 
 * Check the _Default Background_ box to render the fixed-width fields with just the text colors while suppressing the background colors of the theme styles.
 
-* Check the _Show Calltip_ box to display the _Cursor Position Data_ in a calltip within the editor, right below the current cursor position. This option will be useful during presentations and other situations when there is a need to avoid an additional glance towards the side panel to view the same _Cursor Position Data_.
+* Check the _Show Calltip_ box to display the _Cursor Position Data_ in a calltip within the editor, right below the current cursor position. The calltip will be useful during presentations and other situations when there is a need to avoid an additional glance towards the side panel to view the same _Cursor Position Data_.
+
+  > :bulb: To display the calltip text in bold, check the option for _**Use DirectWrite**_ in Notepad++ _Settings » Preferences » MISC._
 
 * Check the _Trim Field Copy_ box to automatically ignore the left or right padding characters when copying a field. For more information, see: [Field Copy](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md#field-copy).
 
@@ -71,7 +79,9 @@
 
 * For more information on the _Data Extraction_ button, see: [Data Extraction](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md).
 
-* For more information on the buttons in the _Folding_ section, see: [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md).
+* For more information on the buttons in the _Folding_ section, see: [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md) and [Fold Structures Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/fold_structs_editor.md).
+
+* Clicking the `…` button at the right-bottom corner of the plugin panel will display the refreshed list of file paths for the INI files active for the current fixed-width file. Just hovering over this button will display the last refreshed list.
 
 
 ---
@@ -94,7 +104,7 @@ _(Same data from the preceding sample, but now flagged based on the GSN field)_
 
 
 __Treasury IPAC File__
-_(real format, but with fake data)_
+_(Real format, but with fake data. Foldable.)_
 ![Multi_Rec](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/multi_rec_ipac_file.png)
 
 In this sample clip:
@@ -112,7 +122,7 @@ __Weather Stations List with location wiki and Daily Weather data__ _(A contrive
 ---
 
 ## Installation
-1. Install Notepad++ version 8.0 or higher.
+1. Install Notepad++ version 8.4 or higher.
 2. Open Notepad++.
 3. In Notepad++, go to menu **Plugins** » **Plugins Admin...**.
 4. In the **Available** tab, check the box for **Fixed-width Data Visualizer**.

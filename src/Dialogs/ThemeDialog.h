@@ -91,3 +91,4 @@ private:
    vector<ThemeType> vThemeTypes;
 };
 
+LRESULT CALLBACK procStylesListBox(HWND hwnd, UINT messageId, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR);

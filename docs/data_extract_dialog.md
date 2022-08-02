@@ -8,9 +8,9 @@ The field data can be optionally prefixed and suffixed by text labels, separator
 
 The _Data Extraction_ dialog is launched by clicking the _Data Extraction_ button that appears on the _FWDataViz_ panel when the currently open document has been visualized with a specific _File Type_ by the plugin.
 
-###### Caveats
- * The data extraction performance is inversely proportional to the size of the fixed-width data file.
- * The data extraction performance is also inversely proportional to the number of [_line items_](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md#line-items). Although the Data Extraction dialog will allow up to 30 line items, try limiting between 5 and 10 line items.
+>##### Caveats
+ >* The data extraction performance is inversely proportional to the size of the fixed-width data file.
+ >* The data extraction performance is also inversely proportional to the number of [_line items_](https://github.com/shriprem/FWDataViz/blob/master/docs/data_extract_dialog.md#line-items). Although the Data Extraction dialog will allow up to 30 line items, try limiting between 5 and 10 line items.
 
 ### Data Extraction dialog
 ![Data_Extraction_Dialog](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/data_extract_dialog.png)

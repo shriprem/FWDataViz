@@ -213,12 +213,9 @@ INT_PTR CALLBACK FoldStructDialog::run_dlgProc(UINT message, WPARAM wParam, LPAR
          endRecEditDelete();
          break;
 
-      case IDCANCEL:
-      case IDCLOSE:
-         if (promptDiscardChangesNo()) return TRUE;
-
-         display(FALSE);
-         return TRUE;
+      case IDC_FOLD_DEF_INFO_BUTTON:
+         ShellExecute(NULL, L"open", FOLD_DEF_INFO_README, NULL, NULL, SW_SHOW);
+         break;
 
       case IDC_FOLD_DEF_SAVE_BTN:
          SetCursor(LoadCursor(NULL, IDC_WAIT));
@@ -261,6 +258,13 @@ INT_PTR CALLBACK FoldStructDialog::run_dlgProc(UINT message, WPARAM wParam, LPAR
       case IDC_FOLD_DEF_APPEND_BTN:
          showEximDialog(FALSE);
          break;
+
+      case IDCANCEL:
+      case IDCLOSE:
+         if (promptDiscardChangesNo()) return TRUE;
+
+         display(FALSE);
+         return TRUE;
       }
       break;
 

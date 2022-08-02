@@ -1,5 +1,40 @@
 ## Version History
 
+### Version 2.6.1.0 [August 2, 2022]
+
+#### Major Enhancements
+1. [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md)
+2. [Fold Structures Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/fold_structs_editor.md)
+3. [_Plugin Panel_] **Default Background** checkbox option to suppress the background colors specified in theme styles.
+4. [_Side Panel_] **Show Calltip** checkbox option to display inline **Cursor Position Data**.
+
+#### Minor Enhancements
+1. [_Plugin Panel_] **Fold** and **Unfold** buttons for: _All Levels_ and _Level 1_ to _Level 10_. These buttons are functional with any file (fixed-width or not) opened in Notepad++.
+2. [_Plugin Panel_] **Toggle Line** button to toggle between folded and unfolded states on the current line. This button is functional with any file (fixed-width or not) opened in Notepad++.
+3. [_Jump to Field popup_] Checkbox option to prefix sequence numbers to field names in the _Select Fields_ dropdown list.
+4. [_Preferences Dialog_] Specify color and transparency for the horizontal demarcator lines drawn above and below the fold header text-line when the block it encloses is in collapsed state. This preference setting is applied globally for all files open in Notepad++.
+5. [_Plugin Panel_] Selecting `-` as the _File Type_ will clear the fixed-width data visualization.
+6. [_Plugin Panel_] If the plugin is unable to find a match for the fixed-width file type in the user-customized `Visualizer.ini` file, it will attempt to find a match in the `default_Visualizer.ini` file.
+7. [_Plugin Panel_] Clicking the `…` button at the right-bottom corner of the plugin panel will display the refreshed list of file paths for the INI files active for the current fixed-width file. Just hovering over this button will display the last refreshed list.
+
+#### Known Issues
+1. If you use Notepad++ menu options to fold levels, the text in the view page may end up partially colorized. However, if you move the caret (i.e., keyboard cursor) to a different position, the page will be fully colorized again. You can avoid this by using the **Fold** and **Unfold** buttons on the _FWDataViz_ side panel.
+2. If you edit the data file, you may also need to click on the **Apply** button on the _FWDataViz_ side panel to rescan the file and rebuild the new folding structure. No workaround for this, since any file edits may require a full file scan which will not be optimal if done automatically for each bit of file edit.
+
+#### Manual Upgrade
+Download the zip file matching your Notepad++ version bitness. Copy these 4 files that are new/changed:
+| File | Status | Install Location |
+|---|---|---|
+| `FWDataViz.dll` | _Changed_ | `<Notepad++_executable_folder>/plugins/FWDataViz/` |
+| `default_FoldStructs.ini` | _New_ | `<Notepad++_executable_folder>/plugins/FWDataViz/` |
+| `default_Visualizer.ini` | _Changed_ | `<Notepad++_executable_folder>/plugins/FWDataViz/` |
+| `Samples/Ouroboros.txt` | _New_ |  `<Notepad++_executable_folder>/plugins/FWDataViz/Samples/` |
+
+
+**Release:** [2.6.1.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.1.0)
+
+---
+
 ### Version 2.6.0.0 [July 11, 2022]
 
 #### Major Enhancements
@@ -256,7 +291,7 @@ Due to the current NPP API limitation, this minor release for FWDataViz is only 
 
 ### Version 1.0.3.0 [April 15, 2021]
 #### Enhancements:
-1. [Record Type Themes](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md)
+1. [Record Type Themes](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md)
 
 ---
 

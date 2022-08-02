@@ -4,18 +4,18 @@
 
 This editor is organized in a three-level hierarchy:
 1. File Types
-2. Record Types
-3. Fields
+2. File Type » Record Types
+3. Record Type » Fields
 
 * Starting with v2.3.0.0, all fields in the Metadata Editor will accept multi-byte characters.
 
 * The following fields are optional:
-  * File Records Terminator
+  * File Type - Records Terminator
   * [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md)
   * All [Auto-Detect File Type](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md) fields
-  * Record Starts With
-  * Record Regex Key
-  * [Record Color Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md)
+  * Record Type - Starts With
+  * Record Type - Regex Key
+  * [Record Type - Color Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md)
 
 * Fields with shared traits can be tagged so that they always render with a distinct visual styling. Fore more info, see: [Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md).
 
@@ -23,12 +23,14 @@ This editor is organized in a three-level hierarchy:
 
 * Field Labels and Field Widths are synchronized for editing and scrolling.
 
-* Changes in the Fields section will disable change of selections at the File Types and Record Type levels until the changes are accepted or reset or the configuration file is saved or reloaded.
+* Changes in the _Record Type » Fields_ section will disable change of selections at the File Type and Record Type levels until the changes are accepted or reset or the configuration file is saved or reloaded.
 
-* Changes in the Record Types section will disable change of selections at the File Types and Record Type levels until the changes are accepted or the configuration file is saved or reloaded.
+* Changes in the _File Type » Record Types_ section will disable change of selections at the File Type and Record Type levels until the changes are accepted or the configuration file is saved or reloaded.
 
-* Changes in the File Types section will disable change of selections at the File Types levels until the changes are accepted or the configuration file is saved or reloaded.
+* Changes in the _File Types_ section will disable change of selections at the File Type level until the changes are accepted or the configuration file is saved or reloaded.
+
+* When any of the fields in either the _File Types_ or the _File Type » Record Types_ section are modified, the _New_ button in that section will be replaced by the _Reset_ button. When the changes are accepted, the _New_ button will be restored back in place of the _Reset_ button.
 
 * Previous configurations are automatically backed up with each save. Use _Load Backup Configuration File_ to load a backup file.
 
-**See also**: [Auto-Detect File Type Configuration](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md) | [Record Type Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md) | [Define Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md) | [Extract File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_extract_dialog.md) | [Append File Type Data](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_append_dialog.md) | [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md)
+**See also**: [Auto-Detect File Type Configuration](https://github.com/shriprem/FWDataViz/blob/master/docs/auto_detect_file_type.md) | [Record Type Theme](https://github.com/shriprem/FWDataViz/blob/master/docs/record_type_theme.md) | [Define Field Types](https://github.com/shriprem/FWDataViz/blob/master/docs/field_type_dialog.md) | [Extract Configuration Data](https://github.com/shriprem/FWDataViz/blob/master/docs/config_extract_dialog.md) | [Append Configuration Data](https://github.com/shriprem/FWDataViz/blob/master/docs/config_append_dialog.md) | [Multi-byte Character Data](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md)

@@ -136,10 +136,6 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
          ShellExecute(NULL, L"open", FWVIZ_RT_THEME_INFO_README, NULL, NULL, SW_SHOW);
          break;
 
-      case IDC_FWVIZ_DEF_INFO_BUTTON:
-         ShellExecute(NULL, L"open", FWVIZ_DEF_INFO_README, NULL, NULL, SW_SHOW);
-         break;
-
       case IDC_FWVIZ_DEF_FILE_DESC_EDIT:
       case IDC_FWVIZ_DEF_FILE_EOL_EDIT:
       case IDC_FWVIZ_DEF_MCBS_CHECKBOX:
@@ -313,12 +309,9 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
          _fieldTypeDlg.doDialog((HINSTANCE)_gModule);
          break;
 
-      case IDCANCEL:
-      case IDCLOSE:
-         if (promptDiscardChangesNo()) return TRUE;
-
-         display(FALSE);
-         return TRUE;
+      case IDC_FWVIZ_DEF_INFO_BUTTON:
+         ShellExecute(NULL, L"open", FWVIZ_DEF_INFO_README, NULL, NULL, SW_SHOW);
+         break;
 
       case IDC_FWVIZ_DEF_SAVE_CONFIG_BTN:
          SetCursor(LoadCursor(NULL, IDC_WAIT));
@@ -361,6 +354,13 @@ INT_PTR CALLBACK ConfigureDialog::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case IDC_FWVIZ_DEF_APPEND_BTN:
          showEximDialog(FALSE);
          break;
+
+      case IDCANCEL:
+      case IDCLOSE:
+         if (promptDiscardChangesNo()) return TRUE;
+
+         display(FALSE);
+         return TRUE;
       }
       break;
 
