@@ -1,6 +1,5 @@
 #include "VisualizerPanel.h"
 #include "PreferencesDialog.h"
-//#include "FieldTypeDialog.h"
 #include "JumpToField.h"
 #include "DataExtractDialog.h"
 #include "FoldStructDialog.h"
@@ -9,7 +8,6 @@
 extern HINSTANCE _gModule;
 extern SubmenuManager _submenu;
 extern FuncItem pluginMenuItems[MI_COUNT];
-//extern FieldTypeDialog _fieldTypeDlg;
 
 PreferencesDialog _prefsDlg;
 JumpToField _jumpDlg;
@@ -1577,9 +1575,8 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
                L"\n  Fold Header: " + to_wstring(level + 1) :
                L"\n   Fold Level: " + to_wstring(level));
       }
-      calltipText = Utils::WideToNarrow(fieldInfoText);
 
-      SendMessage(hScintilla, SCI_CALLTIPUSESTYLE, 3, 0);
+      calltipText = Utils::WideToNarrow(fieldInfoText);
       PostMessage(hScintilla, SCI_CALLTIPSHOW, caretPos, (LPARAM)calltipText.c_str());
    }
 }
@@ -1844,6 +1841,7 @@ void VisualizerPanel::initCalltipStyle() {
    SendMessage(hScintilla, SCI_STYLESETWEIGHT, STYLE_CALLTIP, 550);
    SendMessage(hScintilla, SCI_STYLESETFORE, STYLE_CALLTIP, RGB(175, 95, 63));
    SendMessage(hScintilla, SCI_STYLESETBACK, STYLE_CALLTIP, RGB(255, 255, 255));
+   SendMessage(hScintilla, SCI_CALLTIPUSESTYLE, 3, 0);
 }
 
 void VisualizerPanel::onBufferActivate() {
