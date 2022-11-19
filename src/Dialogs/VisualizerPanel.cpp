@@ -591,22 +591,17 @@ void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoF
       }
    }
 
-   if (fileType.empty()) {
-      clearVisualize(FALSE);
-      return;
-   }
-
    if (IsWindowVisible(GetDlgItem(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND)))
       setPanelMBCharIndicator(fileType);
 
-   wstring theme{};
-   if (fileType.length() > 1)
-      getDocTheme(theme);
-   else {
+   if (fileType.empty()) {
       syncListFileTypes();
       syncListThemes();
       return;
    }
+
+   wstring theme{};
+   getDocTheme(theme);
 
    clearVisualize(FALSE);
    setDocFileType(fileType);
