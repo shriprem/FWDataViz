@@ -35,7 +35,7 @@ struct StyleInfo {
 };
 
 struct FoldingInfo {
-   int recTypeIndex;
+   int recTypeIndex{};
    int priority{ 0 };
    bool recursive{ FALSE };
    wstring endRecords{};

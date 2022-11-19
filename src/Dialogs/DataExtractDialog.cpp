@@ -354,6 +354,7 @@ void DataExtractDialog::localize() {
    SetDlgItemText(_hSelf, IDC_DAT_EXT_PREFIX_LABEL, DATA_EXTRACT_PREFIX_LABEL);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_RECORD_LABEL, DATA_EXTRACT_RECORD_LABEL);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_FIELD_LABEL, DATA_EXTRACT_FIELD_LABEL);
+   SetDlgItemText(_hSelf, IDC_DAT_EXT_FIELD_TRIM, DATA_EXTRACT_FIELD_TRIM);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_SUFFIX_LABEL, DATA_EXTRACT_SUFFIX_LABEL);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_NEW_KEYBOARD_TIP, DATA_EXTRACT_KEYBOARD_TIP);
    SetDlgItemText(_hSelf, IDC_DAT_EXT_NEW_LINE_TAB_TIP, DATA_EXTRACT_NEW_LINE_TAB);
@@ -617,6 +618,10 @@ void DataExtractDialog::extractData() {
 
    bool byteCols{ !_configIO.getMultiByteLexing(fileType) };
 
+   bool trimSpaces{ IsDlgButtonChecked(_hSelf, IDC_DAT_EXT_FIELD_TRIM) == BST_CHECKED };
+   const std::wregex regexTrimSpaces{ std::wregex(L"^\\s+|\\s+$") };
+   wstring fieldData{};
+
    const size_t endLine{ lineCount };
    for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
@@ -689,7 +694,11 @@ void DataExtractDialog::extractData() {
             (recStartPos + RI.fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
             sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
 
-            extract += validLIs[j].prefix + Utils::NarrowToWide(fieldText.c_str()) + validLIs[j].suffix;
+            fieldData = Utils::NarrowToWide(fieldText.c_str());
+            if (trimSpaces)
+               fieldData = std::regex_replace(fieldData, regexTrimSpaces, L"");
+
+            extract += validLIs[j].prefix + fieldData + validLIs[j].suffix;
             recMatch = TRUE;
          }
       }
@@ -737,6 +746,8 @@ void DataExtractDialog::loadTemplate() {
    }
 
    SetWindowText(hTemplateName, Utils::NarrowToWide(templateName).c_str());
+   CheckDlgButton(_hSelf, IDC_DAT_EXT_FIELD_TRIM,
+      _configIO.getConfigStringA(templateName, "TrimSpaces", "N", extractsConfigFile) == "Y" ? BST_CHECKED : BST_UNCHECKED);
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), TRUE);
    enableDeleteTemplate();
 
@@ -822,6 +833,8 @@ void DataExtractDialog::saveTemplate() {
    _configIO.setConfigStringA(templateName, "FileType", initFileType, extractsConfigFile);
    _configIO.setConfigMultiByte(templateName, "FileLabel", initFileTypeLabel, extractsConfigFile);
    _configIO.setConfigStringA(templateName, "LineItemCount", to_string(validLIs.size()), extractsConfigFile);
+   _configIO.setConfigStringA(templateName, "TrimSpaces",
+      (IsDlgButtonChecked(_hSelf, IDC_DAT_EXT_FIELD_TRIM) == BST_CHECKED) ? "Y" : "N", extractsConfigFile);
 
    for (size_t i{}; i < validLIs.size(); ++i) {
       LineItemInfo& LI = validLIs[i];
@@ -852,6 +865,7 @@ void DataExtractDialog::newTemplate() {
 
    Utils::setComboBoxSelection(hTemplatesList, 0);
    SetWindowText(hTemplateName, L"");
+   CheckDlgButton(_hSelf, IDC_DAT_EXT_FIELD_TRIM, BST_UNCHECKED);
    EnableWindow(GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_SAVE_BTN), FALSE);
    enableDeleteTemplate();
 }
@@ -877,7 +891,7 @@ int DataExtractDialog::getPageCount(int items) {
 }
 
 void DataExtractDialog::loadPage(int pageNum) {
-   size_t seq{ static_cast<size_t>(pageNum * LINES_PER_PAGE) };
+   size_t seq{ static_cast<size_t>(pageNum) * LINES_PER_PAGE };
 
    if (liBuffer.size() <= seq) return;
 
@@ -896,7 +910,7 @@ void DataExtractDialog::loadPage(int pageNum) {
 }
 
 void DataExtractDialog::readPage() {
-   size_t seq{ static_cast<size_t>(currentPage * LINES_PER_PAGE) };
+   size_t seq{ static_cast<size_t>(currentPage) * LINES_PER_PAGE };
 
    if (liBuffer.size() < (seq + LINES_PER_PAGE))
       liBuffer.resize(seq + LINES_PER_PAGE);

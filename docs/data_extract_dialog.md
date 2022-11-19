@@ -20,6 +20,7 @@ The _Data Extraction_ dialog is launched by clicking the _Data Extraction_ butto
 * Only line items with a specified _Record Type_ and _Field_ are used for data extraction. _Prefix Text_ and _Suffix Text_ are optional.
 * The _Record Type_ is a dropdown list derived from the list of record types of the current document _File Type_.
 * The _Field_ is a dropdown list derived from the list of field types of the specified _Record Type_.
+* Check the _Trim Leading & Trailing Spaces_ box if you need to trim the leading and trailing spaces of all fields data. The state of this checkbox will be saved as part of the template.
 * In _Prefix_ and _Suffix Text_ boxes, use `\n` for new lines and `\t` for TABs.
    * `\n` can be used to achieve a blank line separation between records or, preferably, a group of records.
    * `\t` can also be used at the start of a Prefix on the first field of a record type to achieve indentation for a hierarchical listing in the output data, as seen in the sample below.

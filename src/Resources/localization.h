@@ -314,6 +314,7 @@
 #define DATA_EXTRACT_PREFIX_LABEL   L"Prefix Text¹"
 #define DATA_EXTRACT_RECORD_LABEL   L"Record Type"
 #define DATA_EXTRACT_FIELD_LABEL    L"Field"
+#define DATA_EXTRACT_FIELD_TRIM     L"Trim Leading && Trailing Spaces"
 #define DATA_EXTRACT_SUFFIX_LABEL   L"Suffix Text¹"
 #define DATA_EXTRACT_ADD_LINE_ITEM  L"Insert Line Item\t[CTRL+Insert]"
 #define DATA_EXTRACT_DEL_LINE_ITEM  L"Delete Line Item\t[CTRL+Delete]"
