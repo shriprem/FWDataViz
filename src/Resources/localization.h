@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // Common
 #define MENU_PANEL_NAME             L"Fixed-Width Data Visualizer"
