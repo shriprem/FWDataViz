@@ -21,7 +21,7 @@ constexpr int FW_STYLE_FIELDS_MIN_INDEX{ FW_STYLE_THEMES_START_INDEX + 36 };
 constexpr int FW_TIP_LONG{ 30 };
 constexpr int FW_TIP_MEDIUM{ 20 };
 constexpr int FW_TIP_SHORT{ 10 };
-constexpr int FOLDER_MARGIN{ 2 };
+constexpr int FOLDING_MARGIN{ 3 };
 
 static bool idemPotentKey{ FALSE };
 
