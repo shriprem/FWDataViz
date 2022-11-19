@@ -21,7 +21,11 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case IDC_VIZPANEL_FILETYPE_SELECT:
          switch HIWORD(wParam) {
          case CBN_SELCHANGE:
-            visualizeFile("", FALSE, FALSE, FALSE);
+            if (SendMessage(hFTList, CB_GETCURSEL, 0, 0) > 0)
+               visualizeFile("", FALSE, FALSE, FALSE);
+            else
+               clearVisualize(FALSE);
+
             break;
          }
          break;
@@ -72,7 +76,8 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
             CheckDlgButton(_hSelf, IDC_VIZPANEL_AUTO_DETECT_FT, BST_UNCHECKED);
             setADFTCheckbox();
          }
-         clearVisualize();
+         SendMessage(hFTList, CB_SETCURSEL, (WPARAM)-1, 0);
+         clearVisualize(FALSE);
          break;
 
       case IDCANCEL:
@@ -823,12 +828,14 @@ void VisualizerPanel::visualizeTheme() {
 }
 
 void VisualizerPanel::clearVisualize(bool sync) {
-   HWND hScintilla{ getCurrentScintilla() };
-   if (!hScintilla) return;
+   if (!fwVizRegexed.empty()) {
+      HWND hScintilla{ getCurrentScintilla() };
+      if (!hScintilla) return;
 
-   SendMessage(hScintilla, SCI_STARTSTYLING, 0, NULL);
-   SendMessage(hScintilla, SCI_SETSTYLING,
-      SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
+      SendMessage(hScintilla, SCI_STARTSTYLING, 0, NULL);
+      SendMessage(hScintilla, SCI_SETSTYLING,
+         SendMessage(hScintilla, SCI_GETLENGTH, NULL, NULL), STYLE_DEFAULT);
+   }
 
    setDocFileType("");
    setDocTheme("");
