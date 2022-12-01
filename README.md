@@ -3,7 +3,7 @@
 ![GitHub](https://img.shields.io/github/license/shriprem/FWDataViz) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/shriprem/FWDataViz) ![GitHub all releases](https://img.shields.io/github/downloads/shriprem/FWDataViz/total)
 
 ## Fixed Width Data Visualizer plugin for Notepad++
-[Current Version: 2.6.1.0](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.1.0)
+[Current Version: 2.6.2.0](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.2.0)
 
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_orders_file.png)
 **ICD-10 Billable-Flagged Order Codes Sample File, with folding applied.**

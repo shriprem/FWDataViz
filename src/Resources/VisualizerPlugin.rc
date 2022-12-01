@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Shridhar Kumar <shriprem@gmail.com>
+ Copyright 2023 Shridhar Kumar <shriprem@gmail.com>
 
  Notepad++ Visualizer plugin is free software: you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published by
@@ -17,8 +17,8 @@
 
 #include <windows.h>
 
-#define VERSION_VALUE "2.6.1.0"
-#define VERSION_DIGITALVALUE 2,6,1,0
+#define VERSION_VALUE "2.6.2.0"
+#define VERSION_DIGITALVALUE 2,6,2,0
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION VERSION_DIGITALVALUE
@@ -41,7 +41,7 @@ BEGIN
          VALUE "FileDescription", "Fixed Width Data Visualizer plugin for Notepad++"
          VALUE "FileVersion", VERSION_VALUE
          VALUE "InternalName",  "FWDataViz.dll"
-         VALUE "LegalCopyright", "Copyright (C) 2022 by Shridhar Kumar"
+         VALUE "LegalCopyright", "Copyright (C) 2023 by Shridhar Kumar"
          VALUE "OriginalFilename", "FWDataViz.dll"
          VALUE "ProductName", "Fixed Width Data Visualizer"
          VALUE "ProductVersion", VERSION_VALUE
