@@ -3,10 +3,10 @@
 ### Version 2.6.2.0 [December 1, 2022]
 
 #### Enhancement
-1. Trim Leading & Trailing Spaces of Fields during Data Extraction. Feature Request: #83.
+1. Trim Leading & Trailing Spaces of Fields during Data Extraction. Feature Request: [#83](https://github.com/shriprem/FWDataViz/issues/83).
 
 #### Fixed Issues
-1. File Type Selection List for new or non-fixed-width files. Issue: #81.
+1. File Type Selection List for new or non-fixed-width files. Issue: [#81](https://github.com/shriprem/FWDataViz/issues/81).
 2. No styling issue when viewing non-fixed-width files that were being styled by NPP lexer.
 3. Update FOLDING_MARGIN value due to Change History feature in NPP 8.4.6. See NPP Commit: [Add Change History markers for saved/unsaved/undone modification](notepad-plus-plus/notepad-plus-plus@fc32fbd).
 4. Clear button action: Clear styling only for previously visualized files.
