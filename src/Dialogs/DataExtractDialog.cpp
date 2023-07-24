@@ -54,15 +54,15 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
    hTemplatesList = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST);
    hTemplateName = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME);
 
-   SendMessage(hTemplateName, EM_LIMITTEXT, (WPARAM)MAX_TEMPLATE_NAME, NULL);
+   SendMessage(hTemplateName, EM_LIMITTEXT, MAX_TEMPLATE_NAME, NULL);
    SetWindowSubclass(hTemplateName, procTemplateName, NULL, NULL);
 
    for (int i{}; i < LINES_PER_PAGE; ++i) {
       SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i), procKeyNavigation, NULL, NULL);
-      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_PREFIX_01 + i, EM_LIMITTEXT, MAX_PATH, NULL);
 
       SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i), procKeyNavigation, NULL, NULL);
-      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+      SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i, EM_LIMITTEXT, MAX_PATH, NULL);
 
       Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, IDB_DAT_EXT_PLUS_BITMAP);
       Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, NULL, DATA_EXTRACT_ADD_LINE_ITEM, FALSE);
@@ -610,7 +610,7 @@ void DataExtractDialog::extractData() {
    wstring extract{};
 
    string fieldText(FW_LINE_MAX_LENGTH, '\0');
-   Sci_TextRange sciTR{};
+   Sci_TextRangeFull sciTR{};
    sciTR.lpstrText = fieldText.data();
 
    eolMarker = _configIO.getConfigStringA(fileType, "RecordTerminator");
@@ -628,7 +628,7 @@ void DataExtractDialog::extractData() {
          continue;
       }
 
-      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr.c_str());
+      sciFunc(sciPtr, SCI_GETLINE, currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
       string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
@@ -681,10 +681,8 @@ void DataExtractDialog::extractData() {
             sciTR.chrg.cpMax = sciTR.chrg.cpMin + RI.fieldWidths[LI.fieldType];
          }
          else {
-            sciTR.chrg.cpMin = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
-               (WPARAM)recStartPos, (LPARAM)RI.fieldStarts[LI.fieldType]));
-            sciTR.chrg.cpMax = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
-               (WPARAM)sciTR.chrg.cpMin, (LPARAM)RI.fieldWidths[LI.fieldType]));
+            sciTR.chrg.cpMin = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE, recStartPos, (LPARAM)RI.fieldStarts[LI.fieldType]));
+            sciTR.chrg.cpMax = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE, sciTR.chrg.cpMin, (LPARAM)RI.fieldWidths[LI.fieldType]));
          }
 
          if (sciTR.chrg.cpMax > static_cast<long>(eolMarkerPos) || sciTR.chrg.cpMax == 0)
@@ -878,7 +876,7 @@ void DataExtractDialog::deleteTemplate() {
    _configIO.deleteSection(getTemplateName(), extractsConfigFile);
 
    SendMessage(hTemplatesList, CB_DELETESTRING,
-      (WPARAM)SendMessage(hTemplatesList, CB_GETCURSEL, (WPARAM)0, NULL), NULL);
+      SendMessage(hTemplatesList, CB_GETCURSEL, 0, NULL), NULL);
 
    newTemplate();
 }

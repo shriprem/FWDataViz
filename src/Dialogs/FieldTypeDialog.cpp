@@ -239,7 +239,7 @@ void FieldTypeDialog::onFieldSelect() {
    if (idxFT == LB_ERR) return;
 
    wstring label(MAX_PATH, '\0');
-   SendMessage(hFieldsLB, LB_GETTEXT, (WPARAM)idxFT, (LPARAM)label.c_str());
+   SendMessage(hFieldsLB, LB_GETTEXT, idxFT, (LPARAM)label.c_str());
    label = label.c_str();
 
    fieldDefLabel = label;
@@ -272,7 +272,7 @@ void FieldTypeDialog::fieldEditNew() {
    SendMessage(hFieldsLB, LB_ADDSTRING, NULL, (LPARAM)L"");
 
    int lbLast{ static_cast<int>(SendMessage(hFieldsLB, LB_GETCOUNT, NULL, NULL)) - 1 };
-   SendMessage(hFieldsLB, LB_SETCURSEL, (WPARAM)lbLast, NULL);
+   SendMessage(hFieldsLB, LB_SETCURSEL, lbLast, NULL);
 
    fieldDefLabel = L"";
    fieldDefRegex = L"";
@@ -290,7 +290,7 @@ void FieldTypeDialog::fieldEditClone() {
    SendMessage(hFieldsLB, LB_ADDSTRING, NULL, (LPARAM)fieldDefLabel.c_str());
 
    int lbLast{ static_cast<int>(SendMessage(hFieldsLB, LB_GETCOUNT, NULL, NULL)) - 1 };
-   SendMessage(hFieldsLB, LB_SETCURSEL, (WPARAM)lbLast, NULL);
+   SendMessage(hFieldsLB, LB_SETCURSEL, lbLast, NULL);
 
    fillStyleDefs();
 
@@ -308,7 +308,7 @@ void FieldTypeDialog::fieldEditDelete() {
       //>>_configIO.deleteKey("Validations", Utils::WideToNarrow(fieldDefLabel), fieldDefConfigFile);
    }
 
-   SendMessage(hFieldsLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
+   SendMessage(hFieldsLB, LB_DELETESTRING, idxFT, NULL);
 
    int lbLast{ static_cast<int>(SendMessage(hFieldsLB, LB_GETCOUNT, NULL, NULL)) - 1 };
    if (lbLast < 0) {
@@ -316,7 +316,7 @@ void FieldTypeDialog::fieldEditDelete() {
       return;
    }
 
-   SendMessage(hFieldsLB, LB_SETCURSEL, (WPARAM)((idxFT <= lbLast) ? idxFT : lbLast), NULL);
+   SendMessage(hFieldsLB, LB_SETCURSEL, ((idxFT <= lbLast) ? idxFT : lbLast), NULL);
 
    newFieldDef = FALSE;
    onFieldSelect();
@@ -369,8 +369,8 @@ void FieldTypeDialog::styleDefSave() {
    _configIO.setConfigStringA("Styles", Utils::WideToNarrow(fieldDefLabel), fieldDefStyle, fieldDefConfigFile);
    //>>_configIO.setConfigStringA("Validations", Utils::WideToNarrow(fieldDefLabel), fieldDefStyle, fieldDefConfigFile);
 
-   SendMessage(hFieldsLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
-   SendMessage(hFieldsLB, LB_INSERTSTRING, (WPARAM)idxFT, (LPARAM)fieldLabel);
+   SendMessage(hFieldsLB, LB_DELETESTRING, idxFT, NULL);
+   SendMessage(hFieldsLB, LB_INSERTSTRING, idxFT, (LPARAM)fieldLabel);
    SendMessage(hFieldsLB, LB_SETCURSEL, idxFT, NULL);
 
    newFieldDef = FALSE;

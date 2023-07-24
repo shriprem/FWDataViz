@@ -578,8 +578,8 @@ int FoldStructDialog::moveStructType(move_dir dir) {
    vFoldStructs[idxFS] = adjStruct;
    vFoldStructs[idxFS + dir] = currStruct;
 
-   SendMessage(hFoldStructs, LB_DELETESTRING, (WPARAM)idxFS, NULL);
-   SendMessage(hFoldStructs, LB_INSERTSTRING, (WPARAM)(idxFS + dir),
+   SendMessage(hFoldStructs, LB_DELETESTRING, idxFS, NULL);
+   SendMessage(hFoldStructs, LB_INSERTSTRING, (idxFS + dir),
       (LPARAM)vFoldStructs[idxFS + dir].fileType.label.c_str());
    SendMessage(hFoldStructs, LB_SETCURSEL, idxFS + dir, NULL);
 
@@ -615,8 +615,8 @@ int FoldStructDialog::structEditAccept(bool accept) {
    }
 
    // Update FT Listbox Entry
-   SendMessage(hFoldStructs, LB_DELETESTRING, (WPARAM)idxFS, NULL);
-   SendMessage(hFoldStructs, LB_INSERTSTRING, (WPARAM)idxFS, (LPARAM)fsInfo.fileType.label.c_str());
+   SendMessage(hFoldStructs, LB_DELETESTRING, idxFS, NULL);
+   SendMessage(hFoldStructs, LB_INSERTSTRING, idxFS, (LPARAM)fsInfo.fileType.label.c_str());
    SendMessage(hFoldStructs, LB_SETCURSEL, idxFS, NULL);
 
    cleanStructsFile = FALSE;
@@ -634,7 +634,7 @@ void FoldStructDialog::structEditNew() {
    size_t moveTo = vFoldStructs.size() - 1;
 
    SendMessage(hFoldStructs, LB_ADDSTRING, NULL, (LPARAM)newFS.fileType.label.c_str());
-   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFoldStructs, LB_SETCURSEL, moveTo, NULL);
    onFoldStructSelect();
 
    cleanStructsFile = FALSE;
@@ -675,7 +675,7 @@ void FoldStructDialog::structEditClone() {
    vFoldStructs.push_back(NF);
 
    SendMessage(hFoldStructs, LB_ADDSTRING, NULL, (LPARAM)NF.fileType.label.c_str());
-   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)(vFoldStructs.size() - 1), NULL);
+   SendMessage(hFoldStructs, LB_SETCURSEL, (vFoldStructs.size() - 1), NULL);
    onFoldStructSelect();
 
    cleanStructsFile = FALSE;
@@ -692,8 +692,8 @@ int FoldStructDialog::structEditDelete() {
    int lastFile = static_cast<int>(vFoldStructs.size()) - 1;
    int moveTo = (idxFS <= lastFile - 1) ? idxFS : lastFile;
 
-   SendMessage(hFoldStructs, LB_DELETESTRING, (WPARAM)idxFS, NULL);
-   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFoldStructs, LB_DELETESTRING, idxFS, NULL);
+   SendMessage(hFoldStructs, LB_SETCURSEL, moveTo, NULL);
 
    cleanStructsFile = FALSE;
    cleanStructVals = TRUE;
@@ -829,9 +829,8 @@ int FoldStructDialog::moveBlockType(move_dir dir) {
    blockList[idxBlock] = adjType;
    blockList[idxBlock + dir] = currType;
 
-   SendMessage(hFoldBlocks, LB_DELETESTRING, (WPARAM)idxBlock, NULL);
-   SendMessage(hFoldBlocks, LB_INSERTSTRING, (WPARAM)(idxBlock + dir),
-      (LPARAM)blockList[idxBlock + dir].hdrRec.label.c_str());
+   SendMessage(hFoldBlocks, LB_DELETESTRING, idxBlock, NULL);
+   SendMessage(hFoldBlocks, LB_INSERTSTRING, (idxBlock + dir), (LPARAM)blockList[idxBlock + dir].hdrRec.label.c_str());
    SendMessage(hFoldBlocks, LB_SETCURSEL, idxBlock + dir, NULL);
 
    cleanStructsFile = FALSE;
@@ -869,8 +868,8 @@ int FoldStructDialog::blockEditAccept(bool accept) {
       onFoldBlockSelectFill(&BI);
    }
 
-   SendMessage(hFoldBlocks, LB_DELETESTRING, (WPARAM)idxBlock, NULL);
-   SendMessage(hFoldBlocks, LB_INSERTSTRING, (WPARAM)idxBlock, (LPARAM)BI.hdrRec.label.c_str());
+   SendMessage(hFoldBlocks, LB_DELETESTRING, idxBlock, NULL);
+   SendMessage(hFoldBlocks, LB_INSERTSTRING, idxBlock, (LPARAM)BI.hdrRec.label.c_str());
    SendMessage(hFoldBlocks, LB_SETCURSEL, idxBlock, NULL);
 
    cleanStructsFile = FALSE;
@@ -907,7 +906,7 @@ void FoldStructDialog::blockEditNew(bool clone) {
    size_t moveTo = blocks.size() - 1;
 
    SendMessage(hFoldBlocks, LB_ADDSTRING, NULL, (LPARAM)NB.hdrRec.label.c_str());
-   SendMessage(hFoldBlocks, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFoldBlocks, LB_SETCURSEL, moveTo, NULL);
    onFoldBlockSelect();
 
    cleanStructsFile = FALSE;
@@ -928,8 +927,8 @@ int FoldStructDialog::blockEditDelete() {
    int lastRec = static_cast<int>(blocks.size()) - 1;
    int moveTo = (idxBlock <= lastRec - 1) ? idxBlock : lastRec;
 
-   SendMessage(hFoldBlocks, LB_DELETESTRING, (WPARAM)idxBlock, NULL);
-   SendMessage(hFoldBlocks, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFoldBlocks, LB_DELETESTRING, idxBlock, NULL);
+   SendMessage(hFoldBlocks, LB_SETCURSEL, moveTo, NULL);
 
    cleanStructsFile = FALSE;
    cleanBlockVals = TRUE;
@@ -1042,8 +1041,8 @@ int FoldStructDialog::endRecEditAccept(bool accept) {
       onEndRecSelectFill();
    }
 
-   SendMessage(hExplRecs, LB_DELETESTRING, (WPARAM)idxEndRec, NULL);
-   SendMessage(hExplRecs, LB_INSERTSTRING, (WPARAM)idxEndRec, (LPARAM)TI.label.c_str());
+   SendMessage(hExplRecs, LB_DELETESTRING, idxEndRec, NULL);
+   SendMessage(hExplRecs, LB_INSERTSTRING, idxEndRec, (LPARAM)TI.label.c_str());
    SendMessage(hExplRecs, LB_SETCURSEL, idxEndRec, NULL);
 
    cleanStructsFile = FALSE;
@@ -1068,7 +1067,7 @@ void FoldStructDialog::endRecEditNew() {
    size_t moveTo = endRecs.size() - 1;
 
    SendMessage(hExplRecs, LB_ADDSTRING, NULL, (LPARAM)L"");
-   SendMessage(hExplRecs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hExplRecs, LB_SETCURSEL, moveTo, NULL);
    onEndRecSelect();
 
    cleanStructsFile = FALSE;
@@ -1096,8 +1095,8 @@ int FoldStructDialog::endRecEditDelete() {
    int lastRec = static_cast<int>(endRecs.size()) - 1;
    int moveTo = (idxEndRec <= lastRec - 1) ? idxEndRec : lastRec;
 
-   SendMessage(hExplRecs, LB_DELETESTRING, (WPARAM)idxEndRec, NULL);
-   SendMessage(hExplRecs, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hExplRecs, LB_DELETESTRING, idxEndRec, NULL);
+   SendMessage(hExplRecs, LB_SETCURSEL, moveTo, NULL);
 
    cleanStructsFile = FALSE;
    cleanEndRecVals = TRUE;
@@ -1189,7 +1188,7 @@ int FoldStructDialog::appendFoldStructInfo(const wstring& sConfigFile) {
       ++validCount;
    }
 
-   SendMessage(hFoldStructs, LB_SETCURSEL, (WPARAM)(vFoldStructs.size() - 1), NULL);
+   SendMessage(hFoldStructs, LB_SETCURSEL, (vFoldStructs.size() - 1), NULL);
    onFoldStructSelect();
 
    cleanStructsFile = FALSE;

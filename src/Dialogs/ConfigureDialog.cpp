@@ -31,17 +31,17 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
       hADFTRegex[i] = GetDlgItem(_hSelf, id++);
    }
 
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
+   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_FILE_DESC_EDIT, EM_LIMITTEXT, MAX_PATH, NULL);
+   SendDlgItemMessage(_hSelf, IDC_FWVIZ_DEF_REC_DESC_EDIT, EM_LIMITTEXT, MAX_PATH, NULL);
 
-   SendMessage(hFileEOL, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hADFTRegex[0], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hADFTRegex[1], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hADFTRegex[2], EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hRecStart, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hRecRegex, EM_LIMITTEXT, (WPARAM)MAX_PATH, NULL);
-   SendMessage(hFieldLabels, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
-   SendMessage(hFieldWidths, EM_LIMITTEXT, (WPARAM)FW_LINE_MAX_LENGTH, NULL);
+   SendMessage(hFileEOL, EM_LIMITTEXT, MAX_PATH, NULL);
+   SendMessage(hADFTRegex[0], EM_LIMITTEXT, MAX_PATH, NULL);
+   SendMessage(hADFTRegex[1], EM_LIMITTEXT, MAX_PATH, NULL);
+   SendMessage(hADFTRegex[2], EM_LIMITTEXT, MAX_PATH, NULL);
+   SendMessage(hRecStart, EM_LIMITTEXT, MAX_PATH, NULL);
+   SendMessage(hRecRegex, EM_LIMITTEXT, MAX_PATH, NULL);
+   SendMessage(hFieldLabels, EM_LIMITTEXT, FW_LINE_MAX_LENGTH, NULL);
+   SendMessage(hFieldWidths, EM_LIMITTEXT, FW_LINE_MAX_LENGTH, NULL);
 
    SetWindowSubclass(hFieldLabels, procFieldEditMessages, NULL, NULL);
    SetWindowSubclass(hFieldWidths, procFieldEditMessages, NULL, NULL);
@@ -781,9 +781,8 @@ int ConfigureDialog::moveFileType(move_dir dir) {
    vFileTypes[idxFT] = adjType;
    vFileTypes[idxFT + dir] = currType;
 
-   SendMessage(hFilesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
-   SendMessage(hFilesLB, LB_INSERTSTRING, (WPARAM)(idxFT + dir),
-      (LPARAM)vFileTypes[idxFT + dir].label.c_str());
+   SendMessage(hFilesLB, LB_DELETESTRING, idxFT, NULL);
+   SendMessage(hFilesLB, LB_INSERTSTRING, (idxFT + dir), (LPARAM)vFileTypes[idxFT + dir].label.c_str());
    SendMessage(hFilesLB, LB_SETCURSEL, idxFT + dir, NULL);
 
    cleanConfigFile = FALSE;
@@ -912,9 +911,8 @@ int ConfigureDialog::moveRecType(move_dir dir) {
    recList[idxRec] = adjType;
    recList[idxRec + dir] = currType;
 
-   SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hRecsLB, LB_INSERTSTRING, (WPARAM)(idxRec + dir),
-      (LPARAM)recList[idxRec + dir].label.c_str());
+   SendMessage(hRecsLB, LB_DELETESTRING, idxRec, NULL);
+   SendMessage(hRecsLB, LB_INSERTSTRING, (idxRec + dir), (LPARAM)recList[idxRec + dir].label.c_str());
    SendMessage(hRecsLB, LB_SETCURSEL, idxRec + dir, NULL);
 
    cleanConfigFile = FALSE;
@@ -950,7 +948,7 @@ void ConfigureDialog::setFieldEditCaretOnFocus(HWND hEdit) {
 
    if (GetWindowTextLength(hEdit) == static_cast<int>(endPos) - static_cast<int>(startPos)) {
       int caretPos = (hEdit == hFieldLabels) ? editLabelsCaret : editWidthsCaret;
-      SendMessage(hEdit, EM_SETSEL, (WPARAM)caretPos, (LPARAM)caretPos);
+      SendMessage(hEdit, EM_SETSEL, caretPos, caretPos);
       SendMessage(hEdit, EM_SCROLLCARET, NULL, NULL);
    }
 
@@ -959,17 +957,17 @@ void ConfigureDialog::setFieldEditCaretOnFocus(HWND hEdit) {
 
 void ConfigureDialog::hiliteFieldEditPairedItem(HWND hThis, HWND hThat) {
    int thisLine = static_cast<int>(SendMessage(hThis, EM_LINEFROMCHAR,
-      (WPARAM)SendMessage(hThis, EM_LINEINDEX, (WPARAM)-1, NULL), NULL));
+      SendMessage(hThis, EM_LINEINDEX, (WPARAM)-1, NULL), NULL));
 
    int thatLineCount = static_cast<int>(SendMessage(hThat, EM_GETLINECOUNT, NULL, NULL));
    if (thisLine >= thatLineCount) return;
 
-   int lineStart = static_cast<int>(SendMessage(hThat, EM_LINEINDEX, (WPARAM)thisLine, NULL));
-   int lineLength = static_cast<int>(SendMessage(hThat, EM_LINELENGTH, (WPARAM)lineStart, NULL));
+   int lineStart = static_cast<int>(SendMessage(hThat, EM_LINEINDEX, thisLine, NULL));
+   int lineLength = static_cast<int>(SendMessage(hThat, EM_LINELENGTH, lineStart, NULL));
 
    ((hThis == hFieldLabels) ? editWidthsCaret : editLabelsCaret) = lineStart;
 
-   SendMessage(hThat, EM_SETSEL, (WPARAM)lineStart, (LPARAM)(lineStart + lineLength));
+   SendMessage(hThat, EM_SETSEL, lineStart, (lineStart + lineLength));
    SendMessage(hThat, EM_SCROLLCARET, NULL, NULL);
 }
 
@@ -1080,8 +1078,8 @@ int ConfigureDialog::recEditAccept(bool accept) {
       onRecTypeSelectFill(&recInfo);
    }
 
-   SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hRecsLB, LB_INSERTSTRING, (WPARAM)idxRec, (LPARAM)recInfo.label.c_str());
+   SendMessage(hRecsLB, LB_DELETESTRING, idxRec, NULL);
+   SendMessage(hRecsLB, LB_INSERTSTRING, idxRec, (LPARAM)recInfo.label.c_str());
    SendMessage(hRecsLB, LB_SETCURSEL, idxRec, NULL);
 
    cleanConfigFile = FALSE;
@@ -1121,7 +1119,7 @@ void ConfigureDialog::recEditNew(bool clone) {
    size_t moveTo = records.size() - 1;
 
    SendMessage(hRecsLB, LB_ADDSTRING, NULL, (LPARAM)newRec.label.c_str());
-   SendMessage(hRecsLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hRecsLB, LB_SETCURSEL, moveTo, NULL);
    onRecTypeSelect();
 
    cleanConfigFile = FALSE;
@@ -1142,8 +1140,8 @@ int ConfigureDialog::recEditDelete() {
    int lastRec = static_cast<int>(records.size()) - 1;
    int moveTo = (idxRec <= lastRec - 1) ? idxRec : lastRec;
 
-   SendMessage(hRecsLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hRecsLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hRecsLB, LB_DELETESTRING, idxRec, NULL);
+   SendMessage(hRecsLB, LB_SETCURSEL, moveTo, NULL);
 
    cleanConfigFile = FALSE;
    cleanRecVals = TRUE;
@@ -1201,8 +1199,8 @@ int ConfigureDialog::fileEditAccept(bool accept) {
    }
 
    // Update FT Listbox Entry
-   SendMessage(hFilesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
-   SendMessage(hFilesLB, LB_INSERTSTRING, (WPARAM)idxFT, (LPARAM)fileInfo.label.c_str());
+   SendMessage(hFilesLB, LB_DELETESTRING, idxFT, NULL);
+   SendMessage(hFilesLB, LB_INSERTSTRING, idxFT, (LPARAM)fileInfo.label.c_str());
    SendMessage(hFilesLB, LB_SETCURSEL, idxFT, NULL);
 
    cleanConfigFile = FALSE;
@@ -1233,7 +1231,7 @@ int ConfigureDialog::appendFileTypeConfigs(const wstring& sConfigFile) {
       ++validCount;
    }
 
-   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)(vFileTypes.size() - 1), NULL);
+   SendMessage(hFilesLB, LB_SETCURSEL, (vFileTypes.size() - 1), NULL);
    onFileTypeSelect();
 
    cleanConfigFile = FALSE;
@@ -1252,7 +1250,7 @@ void ConfigureDialog::fileEditNew() {
    size_t moveTo = vFileTypes.size() - 1;
 
    SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
-   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFilesLB, LB_SETCURSEL, moveTo, NULL);
    onFileTypeSelect();
 
    cleanConfigFile = FALSE;
@@ -1294,7 +1292,7 @@ void ConfigureDialog::fileEditClone() {
    vFileTypes.push_back(NF);
 
    SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)NF.label.c_str());
-   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)(vFileTypes.size() - 1), NULL);
+   SendMessage(hFilesLB, LB_SETCURSEL, (vFileTypes.size() - 1), NULL);
 
    onFileTypeSelect();
    cleanConfigFile = FALSE;
@@ -1310,8 +1308,8 @@ int ConfigureDialog::fileEditDelete() {
    int lastFile = static_cast<int>(vFileTypes.size()) - 1;
    int moveTo = (idxFT <= lastFile - 1) ? idxFT : lastFile;
 
-   SendMessage(hFilesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
-   SendMessage(hFilesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hFilesLB, LB_DELETESTRING, idxFT, NULL);
+   SendMessage(hFilesLB, LB_SETCURSEL, moveTo, NULL);
 
    cleanConfigFile = FALSE;
    cleanFileVals = TRUE;

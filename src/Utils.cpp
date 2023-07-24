@@ -239,7 +239,7 @@ wstring Utils::getListBoxItem(HWND hList, bool currentSelection, const int itemI
 }
 
 void Utils::setComboBoxSelection(HWND hList, int index) {
-   SendMessage(hList, CB_SETCURSEL, (WPARAM)index, 0);
+   SendMessage(hList, CB_SETCURSEL, index, 0);
    InvalidateRect(hList, nullptr, FALSE);
 }
 

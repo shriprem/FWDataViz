@@ -690,7 +690,7 @@ void VisualizerPanel::fieldCopy() {
    int leftTrimLen{}, rightTrimLen{};
 
    string colText(fieldLen + 1, '\0');
-   Sci_TextRange sciTR{};
+   Sci_TextRangeFull sciTR{};
 
    sciTR.lpstrText = colText.data();
    sciTR.chrg.cpMin = static_cast<long>(leftPos);
@@ -873,10 +873,10 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    StyleInfo styleInfo{};
 
    _configIO.getFullStyle(theme, "EOL", styleInfo);
-   sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)(useDefaultBackColor ? defaultBackColor : styleInfo.backColor));
-   sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)styleInfo.foreColor);
-   sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)styleInfo.bold);
-   sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)styleInfo.italics);
+   sciFunc(sciPtr, SCI_STYLESETBACK, styleIndex, (useDefaultBackColor ? defaultBackColor : styleInfo.backColor));
+   sciFunc(sciPtr, SCI_STYLESETFORE, styleIndex, styleInfo.foreColor);
+   sciFunc(sciPtr, SCI_STYLESETBOLD, styleIndex, styleInfo.bold);
+   sciFunc(sciPtr, SCI_STYLESETITALIC, styleIndex, styleInfo.italics);
    ++styleIndex;
 
    char bufKey[8];
@@ -884,10 +884,10 @@ int VisualizerPanel::loadTheme(const wstring theme) {
       snprintf(bufKey, 8, "BFBI_%02i", i);
       _configIO.getFullStyle(theme, bufKey, styleInfo);
 
-      sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)(useDefaultBackColor ? defaultBackColor : styleInfo.backColor));
-      sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)styleInfo.foreColor);
-      sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)styleInfo.bold);
-      sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)styleInfo.italics);
+      sciFunc(sciPtr, SCI_STYLESETBACK, styleIndex, (useDefaultBackColor ? defaultBackColor : styleInfo.backColor));
+      sciFunc(sciPtr, SCI_STYLESETFORE, styleIndex, styleInfo.foreColor);
+      sciFunc(sciPtr, SCI_STYLESETBOLD, styleIndex, styleInfo.bold);
+      sciFunc(sciPtr, SCI_STYLESETITALIC, styleIndex, styleInfo.italics);
       ++styleIndex;
    }
 
@@ -896,10 +896,10 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    int back, fore, bold, italics;
 
    for (int i{ styleIndex - styleCount }; i < styleIndex; ++i) {
-      back = sciFunc(sciPtr, SCI_STYLEGETBACK, (WPARAM)i, NULL);
-      fore = sciFunc(sciPtr, SCI_STYLEGETFORE, (WPARAM)i, NULL);
-      bold = sciFunc(sciPtr, SCI_STYLEGETBOLD, (WPARAM)i, NULL);
-      italics = sciFunc(sciPtr, SCI_STYLEGETITALIC, (WPARAM)i, NULL);
+      back = static_cast<int>(sciFunc(sciPtr, SCI_STYLEGETBACK, i, NULL));
+      fore = static_cast<int>(sciFunc(sciPtr, SCI_STYLEGETFORE, i, NULL));
+      bold = static_cast<int>(sciFunc(sciPtr, SCI_STYLEGETBOLD, i, NULL));
+      italics = static_cast<int>(sciFunc(sciPtr, SCI_STYLEGETITALIC, i, NULL));
 
       dbgMessage = L"C0" + to_wstring(i - styleIndex + styleCount) + L"_STYLES = " +
          to_wstring(back) + L", " + to_wstring(fore) + L", " +
@@ -1049,10 +1049,10 @@ int VisualizerPanel::loadLexer() {
             StyleInfo fieldStyle;
             _configIO.parseFieldStyle(styleText, fieldStyle);
 
-            sciFunc(sciPtr, SCI_STYLESETBACK, (WPARAM)styleIndex, (LPARAM)fieldStyle.backColor);
-            sciFunc(sciPtr, SCI_STYLESETFORE, (WPARAM)styleIndex, (LPARAM)fieldStyle.foreColor);
-            sciFunc(sciPtr, SCI_STYLESETBOLD, (WPARAM)styleIndex, (LPARAM)fieldStyle.bold);
-            sciFunc(sciPtr, SCI_STYLESETITALIC, (WPARAM)styleIndex, (LPARAM)fieldStyle.italics);
+            sciFunc(sciPtr, SCI_STYLESETBACK, styleIndex, fieldStyle.backColor);
+            sciFunc(sciPtr, SCI_STYLESETFORE, styleIndex, fieldStyle.foreColor);
+            sciFunc(sciPtr, SCI_STYLESETBOLD, styleIndex, fieldStyle.bold);
+            sciFunc(sciPtr, SCI_STYLESETITALIC, styleIndex, fieldStyle.italics);
 
             RT.fieldStyles[fnum] = styleIndex;
             loadedStyles.emplace_back(loadedStyle{ styleIndex, styleText });
@@ -1143,7 +1143,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH)
          continue;
 
-      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr.c_str());
+      sciFunc(sciPtr, SCI_GETLINE, currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
       string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
@@ -1238,8 +1238,9 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
 
       if (byteCols) {
          int unstyledLen{};
+
          for (size_t i{}; i < fieldCount; ++i) {
-            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
+            sciFunc(sciPtr, SCI_STARTSTYLING, currentPos, NULL);
             unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
             currentPos += recFieldWidths[i];
 
@@ -1247,50 +1248,81 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
                recFieldStyles[i] : styleRangeStart + ((i + colorOffset) % styleCount);
 
             if (recFieldWidths[i] < unstyledLen) {
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)recFieldWidths[i], styleIndex);
+               sciFunc(sciPtr, SCI_SETSTYLING, recFieldWidths[i], styleIndex);
             }
             else {
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)unstyledLen, styleIndex);
+               sciFunc(sciPtr, SCI_SETSTYLING, unstyledLen, styleIndex);
                unstyledLen = 0;
 
-               sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, styleRangeStart - 1);
+               sciFunc(sciPtr, SCI_STARTSTYLING, eolMarkerPos, NULL);
+               sciFunc(sciPtr, SCI_SETSTYLING, eolMarkerLen, styleRangeStart - 1);
                break;
             }
          }
 
          if (fieldCount > 0 && unstyledLen > 0) {
-            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), styleRangeStart - 1);
+            sciFunc(sciPtr, SCI_STARTSTYLING, currentPos, NULL);
+            sciFunc(sciPtr, SCI_SETSTYLING, (endPos - currentPos), styleRangeStart - 1);
          }
+
+#if FW_DEBUG_APPLIED_STYLES
+         if (currentLine == caretLine) {
+            size_t dbgStyleIndex{};
+            wstring dbgMessage{}, dbgPre{ L", " }, dbgNoPre{};
+            size_t dbgPos{};
+
+            dbgPos = recStartPos;
+            dbgMessage = L"Input Styles:\n";
+
+            for (size_t i{}; (i < fieldCount) && (dbgPos < eolMarkerPos); ++i) {
+               dbgStyleIndex = (recFieldStyles[i] >= 0) ?
+                  recFieldStyles[i] : styleRangeStart + ((i + colorOffset) % styleCount);
+               dbgMessage += (i == 0 ? dbgNoPre : dbgPre) + L"(" + to_wstring(dbgPos) + L", " +
+                  to_wstring(recFieldWidths[i]) + L", " + to_wstring(dbgStyleIndex) + L")";
+               dbgPos += recFieldWidths[i];
+            }
+
+            dbgPos = recStartPos;
+            dbgMessage += L"\n\nApplied Styles:\n";
+
+            for (size_t i{}; (i < fieldCount) && (dbgPos < eolMarkerPos); ++i) {
+               dbgMessage += (i == 0 ? dbgNoPre : dbgPre) + L"(" + to_wstring(dbgPos) + L", " +
+                  to_wstring(recFieldWidths[i]) + L", " + to_wstring(sciFunc(sciPtr, SCI_GETSTYLEAT, dbgPos, NULL)) + L")";
+               dbgPos += recFieldWidths[i];
+            }
+
+            dbgMessage += L"\n\nDocument Length: " + to_wstring(sciFunc(sciPtr, SCI_GETLENGTH, NULL, NULL));
+            dbgMessage += L"\tEnd Styled: " + to_wstring(sciFunc(sciPtr, SCI_GETENDSTYLED, NULL, NULL));
+            MessageBox(_hSelf, dbgMessage.c_str(), L"", MB_OK);
+         }
+#endif
       }
       else {
          size_t nextPos{};
          for (size_t i{}; i < fieldCount; ++i) {
-            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-            nextPos = static_cast<int>(sciFunc(sciPtr, SCI_POSITIONRELATIVE,
-               (WPARAM)currentPos, (LPARAM)recFieldWidths[i]));
+            sciFunc(sciPtr, SCI_STARTSTYLING, currentPos, NULL);
+            nextPos = sciFunc(sciPtr, SCI_POSITIONRELATIVE, currentPos, recFieldWidths[i]);
 
             styleIndex = (recFieldStyles[i] >= 0) ?
                recFieldStyles[i] : styleRangeStart + ((i + colorOffset) % styleCount);
 
             if (nextPos > 0 && nextPos <= eolMarkerPos) {
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(nextPos - currentPos), styleIndex);
+               sciFunc(sciPtr, SCI_SETSTYLING, (nextPos - currentPos), styleIndex);
                currentPos = nextPos;
             }
             else {
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(eolMarkerPos - currentPos), styleIndex);
+               sciFunc(sciPtr, SCI_SETSTYLING, (eolMarkerPos - currentPos), styleIndex);
 
-               sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)eolMarkerPos, NULL);
-               sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)eolMarkerLen, styleRangeStart - 1);
+               sciFunc(sciPtr, SCI_STARTSTYLING, eolMarkerPos, NULL);
+               sciFunc(sciPtr, SCI_SETSTYLING, eolMarkerLen, styleRangeStart - 1);
                currentPos = 0;
                break;
             }
          }
 
          if (fieldCount > 0 && currentPos > 0 && eolMarkerPos >= currentPos) {
-            sciFunc(sciPtr, SCI_STARTSTYLING, (WPARAM)currentPos, NULL);
-            sciFunc(sciPtr, SCI_SETSTYLING, (WPARAM)(endPos - currentPos), styleRangeStart - 1);
+            sciFunc(sciPtr, SCI_STARTSTYLING, currentPos, NULL);
+            sciFunc(sciPtr, SCI_SETSTYLING, (endPos - currentPos), styleRangeStart - 1);
          }
       }
    }
@@ -1367,10 +1399,8 @@ int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, co
       rightPos = caretRecordStartPos + rightOffset;
    }
    else {
-      leftPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
-         (WPARAM)caretRecordStartPos, (LPARAM)leftOffset));
-      rightPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE,
-         (WPARAM)caretRecordStartPos, (LPARAM)rightOffset));
+      leftPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE, caretRecordStartPos, leftOffset));
+      rightPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE, caretRecordStartPos, rightOffset));
    }
 
    if (leftPos >= caretEolMarkerPos)
@@ -1410,7 +1440,7 @@ void VisualizerPanel::moveToFieldEdge(const string fileType, const int fieldIdx,
       }
    }
 
-   SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, (LPARAM)0);
+   SendMessage(hScintilla, SCI_SETXCARETPOLICY, CARET_JUMPS | CARET_EVEN, 0);
    SendMessage(hScintilla, SCI_GOTOPOS, (rightEdge ? rightPos : leftPos), 0);
 
    // Flash caret
@@ -1649,14 +1679,14 @@ bool VisualizerPanel::detectFileTypeByVizConfig(HWND hScintilla, string& fileTyp
          char idx[5];
          snprintf(idx, 5, "%02d", i + 1);
 
-         int line = _configIO.getConfigInt(fType, "ADFT_Line_" + string{ idx });
+         size_t line = _configIO.getConfigInt(fType, "ADFT_Line_" + string{ idx });
          if (line == 0) continue;
 
          string strRegex = _configIO.getConfigStringA(fType, "ADFT_Regex_" + string{ idx });
          if (strRegex.empty()) continue;
          if (Utils::isInvalidRegex(strRegex)) continue;
 
-         int lineCount = static_cast<int>(SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL));
+         size_t lineCount = SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL);
 
          line += (line < 0) ? lineCount : -1;
          if (line < 0 || line >= lineCount) continue;
@@ -1664,7 +1694,7 @@ bool VisualizerPanel::detectFileTypeByVizConfig(HWND hScintilla, string& fileTyp
          if (strRegex.substr(strRegex.length() - 1) != "$")
             strRegex += ".*";
 
-         SendMessage(hScintilla, SCI_GETLINE, (WPARAM)line, (LPARAM)lineTextCStr.c_str());
+         SendMessage(hScintilla, SCI_GETLINE, line, (LPARAM)lineTextCStr.c_str());
          startPos = SendMessage(hScintilla, SCI_POSITIONFROMLINE, line, NULL);
          endPos = SendMessage(hScintilla, SCI_GETLINEENDPOSITION, line, NULL);
          string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
@@ -1953,7 +1983,7 @@ void VisualizerPanel::applyFolding(string fsType) {
          continue;
       }
 
-      sciFunc(sciPtr, SCI_GETLINE, (WPARAM)currentLine, (LPARAM)lineTextCStr.c_str());
+      sciFunc(sciPtr, SCI_GETLINE, currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
       string_view lineText{ lineTextCStr.c_str(), endPos - startPos };
@@ -2218,7 +2248,7 @@ DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {
    Sleep(_configIO.getPreferenceInt(PREF_CARET_FLASH, 5) * 1000);
    SendMessage(hScintilla, SCI_SETCARETSTYLE, currCaret, 0);
 
-   int pos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, 0, 0));
+   size_t pos = SendMessage(hScintilla, SCI_GETCURRENTPOS, 0, 0);
    SendMessage(hScintilla, SCI_BRACEHIGHLIGHT, pos, -1);
 
    // Clear Idem Potency Hold

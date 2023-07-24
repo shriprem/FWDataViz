@@ -546,9 +546,8 @@ int ThemeDialog::moveThemeType(move_dir dir) {
    vThemeTypes[idxTheme] = adjType;
    vThemeTypes[idxTheme + dir] = currType;
 
-   SendMessage(hThemesLB, LB_DELETESTRING, (WPARAM)idxTheme, NULL);
-   SendMessage(hThemesLB, LB_INSERTSTRING, (WPARAM)(idxTheme + dir),
-      (LPARAM)vThemeTypes[idxTheme + dir].label.c_str());
+   SendMessage(hThemesLB, LB_DELETESTRING, idxTheme, NULL);
+   SendMessage(hThemesLB, LB_INSERTSTRING, (idxTheme + dir), (LPARAM)vThemeTypes[idxTheme + dir].label.c_str());
    SendMessage(hThemesLB, LB_SETCURSEL, idxTheme + dir, NULL);
 
    cleanConfigFile = FALSE;
@@ -656,9 +655,9 @@ int ThemeDialog::moveStyleType(move_dir dir) {
 
    TCHAR itemText[100]{};
 
-   SendMessage(hStylesLB, LB_GETTEXT, (WPARAM)idxStyle, (LPARAM)itemText);
-   SendMessage(hStylesLB, LB_DELETESTRING, (WPARAM)idxStyle, NULL);
-   SendMessage(hStylesLB, LB_INSERTSTRING, (WPARAM)(idxStyle + dir), (LPARAM)itemText);
+   SendMessage(hStylesLB, LB_GETTEXT, idxStyle, (LPARAM)itemText);
+   SendMessage(hStylesLB, LB_DELETESTRING, idxStyle, NULL);
+   SendMessage(hStylesLB, LB_INSERTSTRING, (idxStyle + dir), (LPARAM)itemText);
    SendMessage(hStylesLB, LB_SETCURSEL, idxStyle + dir, NULL);
 
    cleanConfigFile = FALSE;
@@ -826,7 +825,7 @@ void ThemeDialog::styleEditNew(bool clone) {
    styles.push_back(newStyle);
 
    SendMessage(hStylesLB, LB_INSERTSTRING, newIdx, (LPARAM)styleLabel);
-   SendMessage(hStylesLB, LB_SETCURSEL, (WPARAM)newIdx, NULL);
+   SendMessage(hStylesLB, LB_SETCURSEL, newIdx, NULL);
    onStyleSelect();
    initPreviewSwatch();
 
@@ -847,8 +846,8 @@ int ThemeDialog::styleEditDelete() {
    int lastRec = static_cast<int>(records.size()) - 1;
    int moveTo = (idxRec <= lastRec - 1) ? idxRec : lastRec;
 
-   SendMessage(hStylesLB, LB_DELETESTRING, (WPARAM)idxRec, NULL);
-   SendMessage(hStylesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hStylesLB, LB_DELETESTRING, idxRec, NULL);
+   SendMessage(hStylesLB, LB_SETCURSEL, moveTo, NULL);
 
    cleanConfigFile = FALSE;
    onStyleSelect();
@@ -879,8 +878,8 @@ void ThemeDialog::themeEditAccept(bool accept) {
       onThemeSelectFill(&fileInfo);
    }
 
-   SendMessage(hThemesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
-   SendMessage(hThemesLB, LB_INSERTSTRING, (WPARAM)idxFT, (LPARAM)fileInfo.label.c_str());
+   SendMessage(hThemesLB, LB_DELETESTRING, idxFT, NULL);
+   SendMessage(hThemesLB, LB_INSERTSTRING, idxFT, (LPARAM)fileInfo.label.c_str());
    SendMessage(hThemesLB, LB_SETCURSEL, idxFT, NULL);
 
    cleanConfigFile = FALSE;
@@ -907,7 +906,7 @@ int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
       }
    }
 
-   SendMessage(hThemesLB, LB_SETCURSEL, (WPARAM)(vThemeTypes.size() - 1), NULL);
+   SendMessage(hThemesLB, LB_SETCURSEL, (vThemeTypes.size() - 1), NULL);
    onThemeSelect();
 
    cleanConfigFile = FALSE;
@@ -926,7 +925,7 @@ void ThemeDialog::themeEditNew() {
    size_t moveTo = vThemeTypes.size() - 1;
 
    SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
-   SendMessage(hThemesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hThemesLB, LB_SETCURSEL, moveTo, NULL);
    onThemeSelect();
 
    cleanConfigFile = FALSE;
@@ -958,7 +957,7 @@ void ThemeDialog::themeEditClone() {
    vThemeTypes.push_back(NT);
 
    SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)NT.label.c_str());
-   SendMessage(hThemesLB, LB_SETCURSEL, (WPARAM)(vThemeTypes.size() - 1), NULL);
+   SendMessage(hThemesLB, LB_SETCURSEL, (vThemeTypes.size() - 1), NULL);
 
    onThemeSelect();
    cleanConfigFile = FALSE;
@@ -974,8 +973,8 @@ int ThemeDialog::themeEditDelete() {
    int lastFile = static_cast<int>(vThemeTypes.size()) - 1;
    int moveTo = (idxFT <= lastFile - 1) ? idxFT : lastFile;
 
-   SendMessage(hThemesLB, LB_DELETESTRING, (WPARAM)idxFT, NULL);
-   SendMessage(hThemesLB, LB_SETCURSEL, (WPARAM)moveTo, NULL);
+   SendMessage(hThemesLB, LB_DELETESTRING, idxFT, NULL);
+   SendMessage(hThemesLB, LB_SETCURSEL, moveTo, NULL);
 
    cleanConfigFile = FALSE;
    cleanThemeVals = TRUE;
