@@ -3,8 +3,8 @@
  ** Define the Sci_Position type used in Scintilla's external interfaces.
  ** These need to be available to clients written in C so are not in a C++ namespace.
  **/
- // Copyright 2015 by Neil Hodgson <neilh@scintilla.org>
- // The License.txt file describes the conditions under which this software may be distributed.
+// Copyright 2015 by Neil Hodgson <neilh@scintilla.org>
+// The License.txt file describes the conditions under which this software may be distributed.
 
 #ifndef SCI_POSITION_H
 #define SCI_POSITION_H
@@ -18,12 +18,12 @@ typedef ptrdiff_t Sci_Position;
 typedef size_t Sci_PositionU;
 
 // For Sci_CharacterRange  which is defined as long to be compatible with Win32 CHARRANGE
-typedef intptr_t Sci_PositionCR;
+typedef long Sci_PositionCR;
 
 #ifdef _WIN32
-#define SCI_METHOD __stdcall
+	#define SCI_METHOD __stdcall
 #else
-#define SCI_METHOD
+	#define SCI_METHOD
 #endif
 
 #endif
