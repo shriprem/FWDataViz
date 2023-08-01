@@ -596,14 +596,15 @@ void DataExtractDialog::extractData() {
       return;
    }
 
-   const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
+   const intptr_t lineCount{ sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL) };
    if (lineCount < 1) return;
 
    const size_t regexedCount{ pRecInfoList->size() };
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
-   size_t eolMarkerLen, eolMarkerPos, recStartLine{}, startPos, endPos, recStartPos{};
+   size_t eolMarkerLen;
+   intptr_t eolMarkerPos, recStartLine{}, startPos, endPos, recStartPos{};
    bool newRec{ TRUE };
 
    bool recMatch{};
@@ -622,8 +623,8 @@ void DataExtractDialog::extractData() {
    const std::wregex regexTrimSpaces{ std::wregex(L"^\\s+|\\s+$") };
    wstring fieldData{};
 
-   const size_t endLine{ lineCount };
-   for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
+   const intptr_t endLine{ lineCount };
+   for (intptr_t currentLine{}; currentLine < endLine; ++currentLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
          continue;
       }
@@ -631,7 +632,7 @@ void DataExtractDialog::extractData() {
       sciFunc(sciPtr, SCI_GETLINE, currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
-      string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
+      string_view lineText{ lineTextCStr.c_str(), static_cast<size_t>(endPos - startPos)};
 
       if (newRec) {
          recStartLine = currentLine;
@@ -677,18 +678,18 @@ void DataExtractDialog::extractData() {
          if (static_cast<int>(regexIndex) != LI.recType) continue;
 
          if (byteCols) {
-            sciTR.chrg.cpMin = static_cast<long>(recStartPos + RI.fieldStarts[LI.fieldType]);
+            sciTR.chrg.cpMin = recStartPos + RI.fieldStarts[LI.fieldType];
             sciTR.chrg.cpMax = sciTR.chrg.cpMin + RI.fieldWidths[LI.fieldType];
          }
          else {
-            sciTR.chrg.cpMin = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE, recStartPos, (LPARAM)RI.fieldStarts[LI.fieldType]));
-            sciTR.chrg.cpMax = static_cast<long>(sciFunc(sciPtr, SCI_POSITIONRELATIVE, sciTR.chrg.cpMin, (LPARAM)RI.fieldWidths[LI.fieldType]));
+            sciTR.chrg.cpMin = sciFunc(sciPtr, SCI_POSITIONRELATIVE, recStartPos, (LPARAM)RI.fieldStarts[LI.fieldType]);
+            sciTR.chrg.cpMax = sciFunc(sciPtr, SCI_POSITIONRELATIVE, sciTR.chrg.cpMin, (LPARAM)RI.fieldWidths[LI.fieldType]);
          }
 
-         if (sciTR.chrg.cpMax > static_cast<long>(eolMarkerPos) || sciTR.chrg.cpMax == 0)
-            sciTR.chrg.cpMax = static_cast<long>(eolMarkerPos);
+         if (sciTR.chrg.cpMax > eolMarkerPos || sciTR.chrg.cpMax == 0)
+            sciTR.chrg.cpMax = eolMarkerPos;
 
-         if (sciTR.chrg.cpMin < static_cast<long>(eolMarkerPos) &&
+         if (sciTR.chrg.cpMin < eolMarkerPos &&
             (recStartPos + RI.fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
             sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
 
