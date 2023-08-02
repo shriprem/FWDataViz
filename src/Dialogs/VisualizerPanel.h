@@ -80,7 +80,8 @@ private:
    HBRUSH hbr{};
 
    // Field Info tracking
-   int caretRecordStartPos{}, caretRecordEndPos{}, caretRecordRegIndex{}, caretEolMarkerPos{}, caretFieldIndex{};
+   intptr_t caretRecordStartPos{}, caretRecordEndPos{}, caretEolMarkerPos{};
+   int caretRecordRegIndex{}, caretFieldIndex{};
    bool unlexed{}, utf8Config{}, leftAlign{}, themeEnabled{}, fieldEnabled{};
    string calltipText{}; // Needed for the PostMessage call
 
@@ -148,14 +149,14 @@ private:
    int loadTheme(const wstring theme);
    int loadUsedThemes();
    int loadLexer();
-   void applyLexer(const size_t startLine, size_t endLine);
+   void applyLexer(const intptr_t startLine, intptr_t endLine);
    void clearLexer();
    void visualizeTheme();
 
-   void displayCaretFieldInfo(const size_t startLine, const size_t endLine);
+   void displayCaretFieldInfo(const intptr_t startLine, const intptr_t endLine);
    void clearCaretFieldInfo();
    void onPanelResize(LPARAM lParam);
-   int getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback, int& leftPos, int& rightPos);
+   int getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback, intptr_t& leftPos, intptr_t& rightPos);
    void moveToFieldEdge(const string fileType, const int fieldIdx, bool jumpTo, bool rightEdge, bool hilite);
    void setFieldAlign(bool left);
    void popupSamplesMenu();

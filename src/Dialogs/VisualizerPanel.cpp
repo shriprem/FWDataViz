@@ -670,10 +670,10 @@ void VisualizerPanel::fieldCopy() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   int leftPos{}, rightPos{};
+   intptr_t leftPos{}, rightPos{};
    if (getFieldEdges("", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
 
-   int fieldLen{ rightPos - leftPos };
+   intptr_t fieldLen{ rightPos - leftPos };
    if (fieldLen < 1) return;
 
    // if no trimming is required, copy to clipbard and return early
@@ -686,29 +686,29 @@ void VisualizerPanel::fieldCopy() {
    padText = Utils::WideToNarrow(_configIO.getPreference(leftAlign ? PREF_PASTE_RPAD : PREF_PASTE_LPAD));
    if (padText.empty()) padText = " ";
 
-   int padLen{ static_cast<int>(padText.length()) };
-   int leftTrimLen{}, rightTrimLen{};
+   intptr_t padLen{ static_cast<intptr_t>(padText.length()) };
+   intptr_t leftTrimLen{}, rightTrimLen{};
 
    string colText(fieldLen + 1, '\0');
    Sci_TextRangeFull sciTR{};
 
    sciTR.lpstrText = colText.data();
-   sciTR.chrg.cpMin = static_cast<long>(leftPos);
-   sciTR.chrg.cpMax = static_cast<long>(rightPos);
+   sciTR.chrg.cpMin = leftPos;
+   sciTR.chrg.cpMax = rightPos;
    SendMessage(hScintilla, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
 
    colText = string{ colText.c_str() };
 
    if (leftAlign && fieldLen >= padLen) {
       // find right-most full/partial match
-      int lastPadLen{ padLen };
-      int matchStart{ fieldLen - padLen };
-      int matchingPos{};
+      intptr_t lastPadLen{ padLen };
+      intptr_t matchStart{ fieldLen - padLen };
+      intptr_t matchingPos{};
 
       while (lastPadLen > 0) {
          bool matchFailed{ FALSE };
 
-         for (int i{}; i < lastPadLen; ++i) {
+         for (intptr_t i{}; i < lastPadLen; ++i) {
             matchingPos = matchStart + i;
             if (colText.at(matchingPos) != padText.at(i)) {
                matchFailed = TRUE;
@@ -773,10 +773,10 @@ void VisualizerPanel::fieldPaste() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   int leftPos{}, rightPos{};
+   intptr_t leftPos{}, rightPos{};
    if (getFieldEdges("", caretFieldIndex, 0, leftPos, rightPos) < 0) return;
 
-   int fieldCurrLen{ rightPos - leftPos };
+   intptr_t fieldCurrLen{ rightPos - leftPos };
    if (fieldCurrLen < 1) return;
 
    int fieldLength{ vRecInfo[caretRecordRegIndex].fieldWidths[caretFieldIndex] };
@@ -1090,7 +1090,7 @@ int VisualizerPanel::loadLexer() {
    return recTypeCount;
 }
 
-void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
+void VisualizerPanel::applyLexer(const intptr_t startLine, intptr_t endLine) {
    if (unlexed && !isVisible()) return;
 
    PSCIFUNC_T sciFunc;
@@ -1109,8 +1109,8 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
    int shiftPerRec{ vThemes[0].styleCount };
    if (shiftPerRec < 1) return;
 
-   size_t lineCount;
-   lineCount = static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL));
+   intptr_t lineCount;
+   lineCount = sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL);
    if (endLine > lineCount) endLine = lineCount;
 
    // set shiftPerRec to an integer just less than half of base theme's styleCount
@@ -1118,8 +1118,8 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
-   size_t caretLine, eolMarkerLen, eolMarkerPos, recStartLine{}, currentPos, startPos, endPos, recStartPos{};
-
+   intptr_t caretLine, eolMarkerPos, recStartLine{}, currentPos, startPos, endPos, recStartPos{};
+   size_t eolMarkerLen;
    const size_t regexedCount{ vRecInfo.size() };
    bool newRec{ TRUE };
 
@@ -1146,7 +1146,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
       sciFunc(sciPtr, SCI_GETLINE, currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
-      string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
+      string_view lineText{ lineTextCStr.c_str(), static_cast<size_t>(endPos - startPos) };
 
       if (newRec) {
          recStartLine = currentLine;
@@ -1237,11 +1237,11 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
       const vector<int>& recFieldStyles{ vRecInfo[regexIndex].fieldStyles };
 
       if (byteCols) {
-         int unstyledLen{};
+         intptr_t unstyledLen{};
 
          for (size_t i{}; i < fieldCount; ++i) {
             sciFunc(sciPtr, SCI_STARTSTYLING, currentPos, NULL);
-            unstyledLen = static_cast<int>(eolMarkerPos - currentPos);
+            unstyledLen = eolMarkerPos - currentPos;
             currentPos += recFieldWidths[i];
 
             styleIndex = (recFieldStyles[i] >= 0) ?
@@ -1269,7 +1269,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
          if (currentLine == caretLine) {
             size_t dbgStyleIndex{};
             wstring dbgMessage{}, dbgPre{ L", " }, dbgNoPre{};
-            size_t dbgPos{};
+            intptr_t dbgPos{};
 
             dbgPos = recStartPos;
             dbgMessage = L"Input Styles:\n";
@@ -1298,7 +1298,7 @@ void VisualizerPanel::applyLexer(const size_t startLine, size_t endLine) {
 #endif
       }
       else {
-         size_t nextPos{};
+         intptr_t nextPos{};
          for (size_t i{}; i < fieldCount; ++i) {
             sciFunc(sciPtr, SCI_STARTSTYLING, currentPos, NULL);
             nextPos = sciFunc(sciPtr, SCI_POSITIONRELATIVE, currentPos, recFieldWidths[i]);
@@ -1337,12 +1337,12 @@ void VisualizerPanel::renderCurrentPage() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   size_t linesOnScreen, firstVisible, startLine, endLine;
+   intptr_t linesOnScreen, firstVisible, startLine, endLine;
 
-   linesOnScreen = static_cast<size_t>(SendMessage(hScintilla, SCI_LINESONSCREEN, NULL, NULL));
-   firstVisible = static_cast<size_t>(SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL));
-   startLine = static_cast<size_t>(SendMessage(hScintilla, SCI_DOCLINEFROMVISIBLE, firstVisible, NULL));
-   endLine = static_cast<size_t>(SendMessage(hScintilla, SCI_DOCLINEFROMVISIBLE, firstVisible + linesOnScreen, NULL));
+   linesOnScreen = SendMessage(hScintilla, SCI_LINESONSCREEN, NULL, NULL);
+   firstVisible = SendMessage(hScintilla, SCI_GETFIRSTVISIBLELINE, NULL, NULL);
+   startLine = SendMessage(hScintilla, SCI_DOCLINEFROMVISIBLE, firstVisible, NULL);
+   endLine = SendMessage(hScintilla, SCI_DOCLINEFROMVISIBLE, firstVisible + linesOnScreen, NULL);
 
    applyLexer(startLine, endLine + 1);
    displayCaretFieldInfo(startLine, endLine);
@@ -1374,7 +1374,7 @@ void VisualizerPanel::onPanelResize(LPARAM lParam) {
 }
 
 int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback,
-   int& leftPos, int& rightPos) {
+   intptr_t& leftPos, intptr_t& rightPos) {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return -1;
 
@@ -1399,8 +1399,8 @@ int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, co
       rightPos = caretRecordStartPos + rightOffset;
    }
    else {
-      leftPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE, caretRecordStartPos, leftOffset));
-      rightPos = static_cast<int>(SendMessage(hScintilla, SCI_POSITIONRELATIVE, caretRecordStartPos, rightOffset));
+      leftPos = SendMessage(hScintilla, SCI_POSITIONRELATIVE, caretRecordStartPos, leftOffset);
+      rightPos = SendMessage(hScintilla, SCI_POSITIONRELATIVE, caretRecordStartPos, rightOffset);
    }
 
    if (leftPos >= caretEolMarkerPos)
@@ -1416,7 +1416,7 @@ void VisualizerPanel::moveToFieldEdge(const string fileType, const int fieldIdx,
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   int caretPos{ caretPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL)) };
+   intptr_t caretPos{ SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL) };
 
    if (fieldIdx < 0) {
       if (caretPos >= caretEolMarkerPos) {
@@ -1426,7 +1426,7 @@ void VisualizerPanel::moveToFieldEdge(const string fileType, const int fieldIdx,
       return;
    }
 
-   int leftPos{}, rightPos{};
+   intptr_t leftPos{}, rightPos{};
    if (getFieldEdges(fileType, fieldIdx, 1, leftPos, rightPos) < 0) return;
 
    if (!jumpTo) {
@@ -1458,7 +1458,7 @@ void VisualizerPanel::setFieldAlign(bool left) {
    ShowWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_INDIC), leftAlign ? SW_HIDE : SW_SHOW);
 }
 
-void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t endLine) {
+void VisualizerPanel::displayCaretFieldInfo(const intptr_t startLine, const intptr_t endLine) {
    if (!isVisible()) return;
 
    HWND hScintilla{ getCurrentScintilla() };
@@ -1469,13 +1469,13 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    if (!getDocFileType(fileType)) return;
 
    wstring fieldInfoText{};
-   int caretPos;
-   size_t caretLine;
+   intptr_t caretPos;
+   intptr_t caretLine;
    bool byteCols{ !_configIO.getMultiByteLexing(fileType) };
    wstring newLine{ L"\r\n" };
 
    caretFieldIndex = -1;
-   caretPos = static_cast<int>(SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL));
+   caretPos = SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL);
    caretLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION, caretPos, NULL);
 
    if (caretLine < startLine || caretLine > endLine) {
@@ -1500,15 +1500,16 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
    }
    else {
       RecordInfo& FLD{ vRecInfo[caretRecordRegIndex] };
-      int caretColumn, fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 }, recLength;
+      intptr_t caretColumn, recLength;
+      int fieldCount, fieldLabelCount, cumulativeWidth{}, matchedField{ -1 };
 
       if (byteCols) {
          caretColumn = caretPos - caretRecordStartPos;
          recLength = caretEolMarkerPos - caretRecordStartPos;
       }
       else {
-         caretColumn = static_cast<int>(SendMessage(hScintilla, SCI_COUNTCHARACTERS, caretRecordStartPos, caretPos));
-         recLength = static_cast<int>(SendMessage(hScintilla, SCI_COUNTCHARACTERS, caretRecordStartPos, caretEolMarkerPos));
+         caretColumn = SendMessage(hScintilla, SCI_COUNTCHARACTERS, caretRecordStartPos, caretPos);
+         recLength = SendMessage(hScintilla, SCI_COUNTCHARACTERS, caretRecordStartPos, caretEolMarkerPos);
       }
 
       fieldInfoText = CUR_POS_DATA_REC_TYPE + FLD.label;
@@ -1543,7 +1544,7 @@ void VisualizerPanel::displayCaretFieldInfo(const size_t startLine, const size_t
          fieldInfoText += newLine + CUR_POS_DATA_FIELD_START + to_wstring(fieldBegin + 1);
          fieldInfoText += newLine + CUR_POS_DATA_FIELD_WIDTH + to_wstring(fieldLength);
          fieldInfoText += newLine + CUR_POS_DATA_FIELD_COL + to_wstring(caretColumn - fieldBegin + 1);
-         setFieldAlign((caretColumn - fieldBegin) < (fieldBegin + fieldLength - caretColumn));
+         setFieldAlign(static_cast<int>(caretColumn - fieldBegin) < (fieldBegin + fieldLength - caretColumn));
       }
    }
 
@@ -1667,7 +1668,7 @@ bool VisualizerPanel::detectFileTypeByVizConfig(HWND hScintilla, string& fileTyp
    }
 
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
-   size_t startPos, endPos;
+   intptr_t startPos, endPos;
 
    vector<string> fileTypes;
    _configIO.getConfigValueList(fileTypes, "Base", "FileTypes");
@@ -1679,14 +1680,14 @@ bool VisualizerPanel::detectFileTypeByVizConfig(HWND hScintilla, string& fileTyp
          char idx[5];
          snprintf(idx, 5, "%02d", i + 1);
 
-         size_t line = _configIO.getConfigInt(fType, "ADFT_Line_" + string{ idx });
+         intptr_t line = _configIO.getConfigInt(fType, "ADFT_Line_" + string{ idx });
          if (line == 0) continue;
 
          string strRegex = _configIO.getConfigStringA(fType, "ADFT_Regex_" + string{ idx });
          if (strRegex.empty()) continue;
          if (Utils::isInvalidRegex(strRegex)) continue;
 
-         size_t lineCount = SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL);
+         intptr_t lineCount = SendMessage(hScintilla, SCI_GETLINECOUNT, NULL, NULL);
 
          line += (line < 0) ? lineCount : -1;
          if (line < 0 || line >= lineCount) continue;
@@ -1697,7 +1698,7 @@ bool VisualizerPanel::detectFileTypeByVizConfig(HWND hScintilla, string& fileTyp
          SendMessage(hScintilla, SCI_GETLINE, line, (LPARAM)lineTextCStr.c_str());
          startPos = SendMessage(hScintilla, SCI_POSITIONFROMLINE, line, NULL);
          endPos = SendMessage(hScintilla, SCI_GETLINEENDPOSITION, line, NULL);
-         string_view lineText{ lineTextCStr.c_str(), endPos - startPos};
+         string_view lineText{ lineTextCStr.c_str(), static_cast<size_t>(endPos - startPos) };
 
          if (regex_match(string{ lineText }, regex{ strRegex }))
             matched = TRUE;
@@ -1975,10 +1976,10 @@ void VisualizerPanel::applyFolding(string fsType) {
 #endif // FW_DEBUG_FOLD_INFO
 
    SetCursor(LoadCursor(NULL, IDC_WAIT));
-   const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
-   const size_t endLine{ lineCount };
+   const intptr_t lineCount{ sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL) };
+   const intptr_t endLine{ lineCount };
 
-   for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
+   for (intptr_t currentLine{}; currentLine < endLine; ++currentLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
          continue;
       }
@@ -1986,7 +1987,7 @@ void VisualizerPanel::applyFolding(string fsType) {
       sciFunc(sciPtr, SCI_GETLINE, currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
-      string_view lineText{ lineTextCStr.c_str(), endPos - startPos };
+      string_view lineText{ lineTextCStr.c_str(), static_cast<size_t>(endPos - startPos) };
 
       if (newRec) {
          recStartLine = currentLine;
@@ -2107,10 +2108,10 @@ void VisualizerPanel::removeFolding() {
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    SetCursor(LoadCursor(NULL, IDC_WAIT));
-   const size_t lineCount{ static_cast<size_t>(sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL)) };
+   const intptr_t lineCount{ sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL) };
 
-   const size_t endLine{ lineCount };
-   for (size_t currentLine{}; currentLine < endLine; ++currentLine) {
+   const intptr_t endLine{ lineCount };
+   for (intptr_t currentLine{}; currentLine < endLine; ++currentLine) {
       sciFunc(sciPtr, SCI_SETFOLDLEVEL, currentLine, SC_FOLDLEVELBASE);
    }
 
@@ -2137,7 +2138,7 @@ void VisualizerPanel::enableFoldedControls(bool bFolded) {
       SendMessage(hScintilla, SCI_SETMARGINWIDTHN, FOLDING_MARGIN, Utils::scaleDPIX(14));
       SendMessage(hScintilla, SCI_SETFOLDFLAGS, SC_FOLDFLAG_LINEBEFORE_CONTRACTED | SC_FOLDFLAG_LINEAFTER_CONTRACTED, NULL);
 
-      if (static_cast<int>(SendMessage(hScintilla, SCI_MARKERSYMBOLDEFINED, SC_MARKNUM_FOLDEROPEN, 0)) < SC_MARK_ARROWDOWN) {
+      if (SendMessage(hScintilla, SCI_MARKERSYMBOLDEFINED, SC_MARKNUM_FOLDEROPEN, 0) < SC_MARK_ARROWDOWN) {
          SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS);
          SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS);
          SendMessage(hScintilla, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);
@@ -2153,7 +2154,7 @@ void VisualizerPanel::toggleFolding() {
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
 
-   size_t currentLine, headerLine;
+   intptr_t currentLine, headerLine;
 
    currentLine = SendMessage(hScintilla, SCI_LINEFROMPOSITION, SendMessage(hScintilla, SCI_GETCURRENTPOS, 0, 0), 0);
 
@@ -2201,9 +2202,9 @@ void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {
    if (!hScintilla) return;
 
    SetCursor(LoadCursor(NULL, IDC_WAIT));
-   size_t lineCount{ static_cast<size_t>(SendMessage(hScintilla, SCI_GETLINECOUNT, 0, 0)) };
+   intptr_t lineCount{ SendMessage(hScintilla, SCI_GETLINECOUNT, 0, 0) };
 
-   for (size_t line = 0; line < lineCount; ++line) {
+   for (intptr_t line{ 0 }; line < lineCount; ++line) {
       int level{ static_cast<int>(SendMessage(hScintilla, SCI_GETFOLDLEVEL, line, 0)) };
       if (!(level & SC_FOLDLEVELHEADERFLAG)) continue;
 
@@ -2248,8 +2249,7 @@ DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {
    Sleep(_configIO.getPreferenceInt(PREF_CARET_FLASH, 5) * 1000);
    SendMessage(hScintilla, SCI_SETCARETSTYLE, currCaret, 0);
 
-   size_t pos = SendMessage(hScintilla, SCI_GETCURRENTPOS, 0, 0);
-   SendMessage(hScintilla, SCI_BRACEHIGHLIGHT, pos, -1);
+   SendMessage(hScintilla, SCI_BRACEHIGHLIGHT, SendMessage(hScintilla, SCI_GETCURRENTPOS, 0, 0), -1);
 
    // Clear Idem Potency Hold
    idemPotentKey = FALSE;
