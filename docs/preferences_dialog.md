@@ -13,6 +13,10 @@
 ### Show Multi-byte check box in plugin panel [_Default: Unchecked_]
 When this box is checked, the _Multi-Byte Chars_ checkbox will become visible on the plugin panel. Since this is a **_3-state_** checkbox, please review the documentation for it at: [Multi-byte Character Data Visualization](https://github.com/shriprem/FWDataViz/blob/master/docs/multibyte_character_data.md#quick-override-from-panel).
 
+### Hop Right: Move to the left edge of the following field [_Default: Unchecked_]
+* When this box is unchecked, clicking the right [Hop](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md#hop-field) button will move cursor to the right edge of the current field. If already at the right edge of the field, the cursor will be moved to the right edge of the following field.
+* When this box is checked, clicking the right [Hop](https://github.com/shriprem/FWDataViz/blob/master/docs/field_navigation.md#hop-field) button will move cursor to the left edge of the following field.
+
 ### Fold Line Color & Alpha
 * Click the colored square to specify the color for the lines that indicate the folding block headers. [_Notepad++ default color: Black_]
 * Adjust the slider to specify the color transparency (alpha) for the lines that indicate the folding block headers. [_Notepad++ default value: Opaque_]

@@ -17,9 +17,18 @@ More frequently, there is a need to hop to the other edge of the current field o
 
 For field hops, use the left and right arrow buttons on either side of the _Jump to Field_ button. Or better still, use the `ALT + Left Arrow` or `ALT + Right Arrow` keyboard shortcuts.
 
-* With a left hop, if the cursor is already at the left edge of the current field, it will move to the left edge of the preceding field within the same record.
+#### Left Hop action
+* The cursor will initially move to the left edge of the current field.
+* If the cursor is already at the left edge of the current field, it will move to the left edge of the preceding field within the same record.
 
-* With a right hop, if the cursor is already at the right edge of the current field, it will move to the right edge of the following field within the same record.
+#### Right Hop action
+The action of Right Hop is dependent on the state of the [Hop Right: Move to the left edge of the following field](https://github.com/shriprem/FWDataViz/blob/master/docs/preferences_dialog.md#hop-right-move-to-the-left-edge-of-the-following-field-default-unchecked) checkbox in the Preferences dialog.
+ * When the [Hop Right: Move to the left edge of the following field](https://github.com/shriprem/FWDataViz/blob/master/docs/preferences_dialog.md#hop-right-move-to-the-left-edge-of-the-following-field-default-unchecked) option is unchecked:
+   * The cursor will initially move to the right edge of the current field.
+   * If the cursor is already at the right edge of the current field, it will move to the right edge of the following field within the same record.
+
+ * When the [Hop Right: Move to the left edge of the following field](https://github.com/shriprem/FWDataViz/blob/master/docs/preferences_dialog.md#hop-right-move-to-the-left-edge-of-the-following-field-default-unchecked) option is checked:
+    * The cursor will move to the left edge of the following field within the same record.
 
 
-See also: [Field Copy and Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md) | [Menu Item Keyboard Shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/menu_shortcuts.md)
+See also: [Field Copy and Field Paste](https://github.com/shriprem/FWDataViz/blob/master/docs/field_copy_paste.md) | [Preferences: Hop Right](https://github.com/shriprem/FWDataViz/blob/master/docs/preferences_dialog.md#hop-right-move-to-the-left-edge-of-the-following-field-default-unchecked) | [Menu Item Keyboard Shortcuts](https://github.com/shriprem/FWDataViz/blob/master/docs/menu_shortcuts.md)
