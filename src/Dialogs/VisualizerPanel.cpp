@@ -335,7 +335,9 @@ void VisualizerPanel::initPanel() {
    addTooltip(_hSelf, IDC_VIZPANEL_FIELD_COPY_TRIM, NULL, VIZ_PANEL_FIELD_TRIM_TIP, FW_TIP_SHORT, TRUE);
 
    addTooltip(_hSelf, IDC_VIZPANEL_FIELD_LEFT_BUTTON, NULL, VIZ_PANEL_FIELD_LEFT_TIP, FW_TIP_SHORT, TRUE);
-   addTooltip(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON, NULL, VIZ_PANEL_FIELD_RIGHT_TIP, FW_TIP_SHORT, TRUE);
+   hTipHopRight = addTooltip(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON, NULL,
+      _configIO.getPreferenceBool(PREF_HOP_RT_LEFT_EDGE, FALSE) ? VIZ_PANEL_FLD_ALT_RIGHT_TIP : VIZ_PANEL_FIELD_RIGHT_TIP,
+      FW_TIP_SHORT, TRUE);
 
    addTooltip(_hSelf, IDC_VIZPANEL_FIELD_COPY_BUTTON, NULL, VIZ_PANEL_FIELD_COPY_TIP, FW_TIP_MEDIUM, TRUE);
    addTooltip(_hSelf, IDC_VIZPANEL_FIELD_PASTE_BUTTON, NULL, VIZ_PANEL_FIELD_PASTE_TIP, FW_TIP_LONG, TRUE);
@@ -454,6 +456,11 @@ void VisualizerPanel::initMBCharsCheckbox() {
       CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, BST_INDETERMINATE);
    else
       CheckDlgButton(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE, (mbcState == L"Y") ? BST_CHECKED : BST_UNCHECKED);
+}
+
+void VisualizerPanel::updateHopRightTip() {
+   Utils::updateTooltip(_hSelf, IDC_VIZPANEL_FIELD_RIGHT_BUTTON, hTipHopRight,
+      (_configIO.getPreferenceBool(PREF_HOP_RT_LEFT_EDGE, FALSE)) ? VIZ_PANEL_FLD_ALT_RIGHT_TIP : VIZ_PANEL_FIELD_RIGHT_TIP);
 }
 
 void VisualizerPanel::setParent(HWND parent2set) {
@@ -661,7 +668,8 @@ void VisualizerPanel::fieldLeft() {
 }
 
 void VisualizerPanel::fieldRight() {
-   moveToFieldEdge("", caretFieldIndex, FALSE, TRUE, FALSE);
+   bool hopRight_LeftEdge{ _configIO.getPreferenceBool(PREF_HOP_RT_LEFT_EDGE, FALSE) };
+   moveToFieldEdge("", caretFieldIndex + (hopRight_LeftEdge ? 1 : 0), FALSE, !hopRight_LeftEdge, FALSE);
 }
 
 void VisualizerPanel::fieldCopy() {

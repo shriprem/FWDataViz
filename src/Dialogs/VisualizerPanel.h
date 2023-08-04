@@ -52,6 +52,7 @@ public:
    virtual void display(bool toShow = TRUE);
    void refreshDarkMode();
    void initMBCharsCheckbox();
+   void updateHopRightTip();
    void setParent(HWND parent2set);
    void setFocusOnEditor();
 
@@ -76,7 +77,7 @@ public:
 #endif
 
 private:
-   HWND hFTList{}, hThemesLB{}, hFieldInfo{}, hTipIniFiles{};
+   HWND hFTList{}, hThemesLB{}, hFieldInfo{}, hTipIniFiles{}, hTipHopRight{};
    HBRUSH hbr{};
 
    // Field Info tracking
