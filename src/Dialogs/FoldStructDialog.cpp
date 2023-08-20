@@ -39,24 +39,6 @@ void FoldStructDialog::doDialog(HINSTANCE hInst) {
    if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
 
-   // Dynamically adjust the x position for the Fold Block Priority edit control
-   HWND hPriorityLabel{ GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_LABEL) };
-
-   wchar_t priorityText[MAX_PATH + 1];
-   GetWindowText(hPriorityLabel, priorityText, MAX_PATH);
-   int textWidth{ Utils::getTextPixelWidth(_hSelf, priorityText) };
-
-   RECT rcLabel{};
-   GetClientRect(hPriorityLabel, &rcLabel);
-   MapWindowPoints(hPriorityLabel, _hSelf, (LPPOINT)&rcLabel, 2);
-
-   HWND hPriorityEdit{ GetDlgItem(_hSelf, IDC_FOLD_DEF_HDR_PRIORITY_EDIT) };
-   RECT rcEdit{};
-   GetClientRect(hPriorityEdit, &rcEdit);
-   MapWindowPoints(hPriorityEdit, _hSelf, (LPPOINT)&rcEdit, 2);
-
-   SetWindowPos(hPriorityEdit, NULL, rcLabel.left + textWidth, rcEdit.top, NULL, NULL, SWP_NOSIZE | SWP_NOZORDER);
-
    SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_hSelf);
 
    loadFileTypesList();
