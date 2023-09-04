@@ -24,7 +24,7 @@
 #include <shlwapi.h>
 #include <string>
 #include "StaticDialog.h"
-
+#include "../Darkmode/NppDarkMode.h"
 
 
 class DockingDlgInterface : public StaticDialog
@@ -36,7 +36,7 @@ public:
 	virtual void init(HINSTANCE hInst, HWND parent) {
 		StaticDialog::init(hInst, parent);
 		TCHAR temp[MAX_PATH];
-		::GetModuleFileName(reinterpret_cast<HMODULE>(hInst), temp, MAX_PATH);
+		::GetModuleFileName(hInst, temp, MAX_PATH);
 		_moduleName = ::PathFindFileName(temp);
 	}
 
@@ -62,7 +62,9 @@ public:
 		::SendMessage(_hParent, NPPM_DMMUPDATEDISPINFO, 0, reinterpret_cast<LPARAM>(_hSelf));
 	}
 
-    virtual void destroy() {}
+    virtual void destroy() {
+		StaticDialog::destroy();
+	}
 
 	virtual void setBackgroundColor(COLORREF) {}
 	virtual void setForegroundColor(COLORREF) {}
@@ -91,10 +93,22 @@ protected :
 	std::wstring _pluginName;
 	bool _isClosed = false;
 
-	virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM, LPARAM lParam) {
+	virtual intptr_t CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
 		switch (message)
 		{
-			case WM_NOTIFY: 
+			case WM_ERASEBKGND:
+			{
+				if (!NppDarkMode::isEnabled())
+				{
+					break;
+				}
+
+				RECT rc = {};
+				getClientRect(rc);
+				::FillRect(reinterpret_cast<HDC>(wParam), &rc, NppDarkMode::getDarkerBackgroundBrush());
+				return TRUE;
+			}
+			case WM_NOTIFY:
 			{
 				LPNMHDR	pnmh = reinterpret_cast<LPNMHDR>(lParam);
 
