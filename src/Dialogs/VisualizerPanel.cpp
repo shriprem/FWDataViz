@@ -204,6 +204,10 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          unfoldLevelMenu();
          break;
 
+      case IDC_VIZPANEL_ABOUT_BUTTON:
+         ShowAboutDialog();
+         break;
+
       case IDC_VIZPANEL_FILE_INFO_BUTTON:
       {
          wstring fileList = _configIO.getActiveConfigFile(_configIO.CONFIG_VIZ) + L"\n" +
@@ -352,6 +356,8 @@ void VisualizerPanel::initPanel() {
 
    loadBitmap(_hSelf, IDC_VIZPANEL_FOLD_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    addTooltip(_hSelf, IDC_VIZPANEL_FOLD_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+
+   addTooltip(_hSelf, IDC_VIZPANEL_ABOUT_BUTTON, NULL, ABOUT_DIALOG_TITLE, TRUE);
 
    hTipIniFiles = addTooltip(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON, VIZ_PANEL_FILE_INFO_TITLE, VIZ_PANEL_FILE_INFO_TIP, FW_TIP_MEDIUM, TRUE);
 
@@ -1371,6 +1377,20 @@ void VisualizerPanel::onPanelResize(LPARAM lParam) {
 
    MoveWindow(hFieldInfo, pt.x, pt.y, (LOWORD(lParam) - pt.x - 3), (rcInfo.bottom - rcInfo.top), TRUE);
 
+   // About button
+   HWND hAboutBtn{GetDlgItem(_hSelf, IDC_VIZPANEL_ABOUT_BUTTON)};
+   RECT rcAboutBtn;
+   GetWindowRect(hAboutBtn, &rcAboutBtn);
+
+   POINT ptAbout{ rcAboutBtn.left, rcAboutBtn.top };
+   ScreenToClient(_hSelf, &ptAbout);
+
+   int aboutBtnWidth{rcAboutBtn.right - rcAboutBtn.left};
+   int aboutBtnHeight{rcAboutBtn.bottom - rcAboutBtn.top};
+
+   MoveWindow(hAboutBtn, ptAbout.x, (HIWORD(lParam) - aboutBtnHeight - 3), aboutBtnWidth, aboutBtnHeight, TRUE);
+
+   // Ini Files Info button
    HWND hIniBtn{GetDlgItem(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON)};
    RECT rcIniBtn;
    GetWindowRect(hIniBtn, &rcIniBtn);
