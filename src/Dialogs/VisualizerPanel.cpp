@@ -1,18 +1,24 @@
 #include "VisualizerPanel.h"
+#include "ConfigureDialog.h"
+#include "ThemeDialog.h"
 #include "PreferencesDialog.h"
 #include "JumpToField.h"
 #include "DataExtractDialog.h"
 #include "FoldStructDialog.h"
+#include "AboutDialog.h"
 #include <WindowsX.h>
 
 extern HINSTANCE _gModule;
 extern SubmenuManager _submenu;
 extern FuncItem pluginMenuItems[MI_COUNT];
 
+ConfigureDialog _configDlg;
+ThemeDialog _themeDlg;
 PreferencesDialog _prefsDlg;
 JumpToField _jumpDlg;
 DataExtractDialog _dataExtractDlg;
 FoldStructDialog _foldStructDlg;
+AboutDialog _aboutDlg;
 
 INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
    switch (message) {
@@ -54,8 +60,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_FILETYPE_CONFIG:
-         if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_VIZ))
-            ShowConfigDialog();
+         showConfigDialog();
          break;
 
       case IDC_VIZPANEL_THEME_SELECT:
@@ -67,8 +72,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_THEME_CONFIG:
-         if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_THEMES))
-            ShowThemeDialog();
+         showThemeDialog();
          break;
 
       case IDC_VIZPANEL_CLEAR_BTN:
@@ -83,7 +87,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
       case IDCANCEL:
       case IDCLOSE:
          setFocusOnEditor();
-         ShowVisualizerPanel(FALSE);
+         display(FALSE);
          break;
 
       case IDC_VIZPANEL_PREFERENCES_BTN:
@@ -205,7 +209,7 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
          break;
 
       case IDC_VIZPANEL_ABOUT_BUTTON:
-         ShowAboutDialog();
+         showAboutDialog();
          break;
 
       case IDC_VIZPANEL_FILE_INFO_BUTTON:
@@ -238,6 +242,8 @@ INT_PTR CALLBACK VisualizerPanel::run_dlgProc(UINT message, WPARAM wParam, LPARA
    {
       LPNMHDR pnmh = reinterpret_cast<LPNMHDR>(lParam);
       if (pnmh->hwndFrom == _hParent && LOWORD(pnmh->code) == DMN_CLOSE) {
+         display(FALSE);
+
          unlexed = (_configIO.getPreferenceBool(PREF_CLEARVIZ_PANEL, FALSE));
          if (unlexed) clearVisualize(FALSE);
       }
@@ -404,6 +410,27 @@ void VisualizerPanel::display(bool toShow) {
    if (!utf8Config) return;
 
    if (!toShow) {
+      if (_configDlg.isCreated() && _configDlg.isVisible())
+         _configDlg.display(FALSE);
+
+      if (_themeDlg.isCreated() && _themeDlg.isVisible())
+         _themeDlg.display(FALSE);
+
+      if (_prefsDlg.isCreated() && _prefsDlg.isVisible())
+         _prefsDlg.display(FALSE);
+
+      if (_jumpDlg.isCreated() && _jumpDlg.isVisible())
+         _jumpDlg.display(FALSE);
+
+      if (_dataExtractDlg.isCreated() && _dataExtractDlg.isVisible())
+         _dataExtractDlg.display(FALSE);
+
+      if (_foldStructDlg.isCreated() && _foldStructDlg.isVisible())
+         _foldStructDlg.display(FALSE);
+
+      if (_aboutDlg.isCreated() && _aboutDlg.isVisible())
+         _aboutDlg.display(FALSE);
+
       unlexed = (_configIO.getPreferenceBool(PREF_CLEARVIZ_PANEL, FALSE));
       if (unlexed) clearVisualize(FALSE);
       return;
@@ -441,6 +468,12 @@ void VisualizerPanel::refreshDarkMode() {
    redraw();
    SendMessage(GetDlgItem(_hSelf, IDC_PREF_FOLD_LINE_ALPHA_SLIDER), TBM_SETRANGEMIN, FALSE, 0);
 
+   if (_configDlg.isCreated())
+      _configDlg.refreshDarkMode();
+
+   if (_themeDlg.isCreated())
+      _themeDlg.refreshDarkMode();
+
    if (_prefsDlg.isCreated())
       _prefsDlg.refreshDarkMode();
 
@@ -452,6 +485,9 @@ void VisualizerPanel::refreshDarkMode() {
 
    if (_foldStructDlg.isCreated())
       _foldStructDlg.refreshDarkMode();
+
+   if (_aboutDlg.isCreated())
+      _aboutDlg.refreshDarkMode();
 }
 
 void VisualizerPanel::initMBCharsCheckbox() {
@@ -654,6 +690,16 @@ void VisualizerPanel::delDocInfo(intptr_t bufferID) {
          return;
       }
    }
+}
+
+void VisualizerPanel::showConfigDialog() {
+   if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_VIZ))
+      _configDlg.doDialog((HINSTANCE)_gModule);
+}
+
+void VisualizerPanel::showThemeDialog() {
+   if (_configIO.fixIfNotUTF8File(_configIO.CONFIG_THEMES))
+      _themeDlg.doDialog((HINSTANCE)_gModule);
 }
 
 void VisualizerPanel::jumpToField(const string fileType, const int recordIndex, const int fieldIdx) {
@@ -1664,6 +1710,10 @@ void VisualizerPanel::showJumpDialog() {
 
    _jumpDlg.doDialog((HINSTANCE)_gModule);
    _jumpDlg.initDialog(fileType, caretRecordRegIndex, caretFieldIndex, fieldLabels);
+}
+
+void VisualizerPanel::showAboutDialog() {
+   _aboutDlg.doDialog((HINSTANCE)_gModule);
 }
 
 void VisualizerPanel::showExtractDialog() {

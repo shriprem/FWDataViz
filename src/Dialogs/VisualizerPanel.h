@@ -64,7 +64,11 @@ public:
    void visualizeFile(string fileType, bool bCachedFT, bool bAutoFT, bool bSyncFT);
    void delDocInfo(intptr_t bufferID);
 
+   void showConfigDialog();
+   void showThemeDialog();
    void showJumpDialog();
+   void showAboutDialog();
+
    void jumpToField(const string fileType, const int recordIndex, const int fieldIdx);
    void fieldLeft();
    void fieldRight();

@@ -18,9 +18,6 @@
 #include "SubmenuManager.h"
 
 #include "Dialogs/VisualizerPanel.h"
-#include "Dialogs/ConfigureDialog.h"
-#include "Dialogs/ThemeDialog.h"
-#include "Dialogs/AboutDialog.h"
 
 #ifdef UNICODE
    #define generic_itoa _itow
@@ -36,9 +33,6 @@ ConfigIO _configIO;
 SubmenuManager _submenu;
 
 VisualizerPanel _vizPanel;
-ConfigureDialog _configDlg;
-ThemeDialog _themeDlg;
-AboutDialog _aboutDlg;
 
 void pluginInit(HANDLE hModule) {
    _gModule = (HINSTANCE)hModule;
@@ -185,11 +179,11 @@ void RefreshVisualizerPanel() {
 }
 
 void ShowConfigDialog() {
-   _configDlg.doDialog((HINSTANCE)_gModule);
+   _vizPanel.showConfigDialog();
 }
 
 void ShowThemeDialog() {
-   _themeDlg.doDialog((HINSTANCE)_gModule);
+   _vizPanel.showThemeDialog();
 }
 
 void ShowJumpDialog() {
@@ -217,20 +211,11 @@ void ShowDataExtractDialog() {
 }
 
 void ShowAboutDialog() {
-   _aboutDlg.doDialog((HINSTANCE)_gModule);
+   _vizPanel.showAboutDialog();
 }
 
 void refreshDarkMode() {
    if (_vizPanel.isCreated())
       _vizPanel.refreshDarkMode();
-
-   if (_configDlg.isCreated())
-      _configDlg.refreshDarkMode();
-
-   if (_themeDlg.isCreated())
-      _themeDlg.refreshDarkMode();
-
-   if (_aboutDlg.isCreated())
-      _aboutDlg.refreshDarkMode();
 }
 

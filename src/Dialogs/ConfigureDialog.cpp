@@ -93,6 +93,18 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
    fillFileTypes();
 }
 
+void ConfigureDialog::display(bool toShow) {
+   StaticDialog::display(toShow);
+
+   if (!toShow) {
+      if (_eximDlg.isCreated() && _eximDlg.isVisible())
+         _eximDlg.display(FALSE);
+
+      if (_fieldTypeDlg.isCreated() && _fieldTypeDlg.isVisible())
+         _fieldTypeDlg.display(FALSE);
+   }
+}
+
 void ConfigureDialog::refreshDarkMode() {
    NPPDM_AutoThemeChildControls(_hSelf);
    redraw();

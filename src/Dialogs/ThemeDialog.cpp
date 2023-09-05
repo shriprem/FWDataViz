@@ -45,6 +45,15 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
    fillThemes();
 }
 
+void ThemeDialog::display(bool toShow) {
+   StaticDialog::display(toShow);
+
+   if (!toShow) {
+      if (_eximDlg.isCreated() && _eximDlg.isVisible())
+         _eximDlg.display(FALSE);
+   }
+}
+
 void ThemeDialog::refreshDarkMode() {
    NPPDM_AutoThemeChildControls(_hSelf);
    redraw();

@@ -19,6 +19,7 @@ public:
    ThemeDialog() : StaticDialog() {};
 
    void doDialog(HINSTANCE hInst);
+   void display(bool toShow = TRUE);
    void refreshDarkMode();
    void initPreviewSwatch(int idxStart = 0, int idxEnd = SWATCH_ITEM_COUNT);
 
