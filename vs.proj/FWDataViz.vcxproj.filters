@@ -201,6 +201,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\src\Resources\about.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
     <Image Include="..\src\Resources\color_config.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
@@ -217,6 +220,9 @@
       <Filter>Resources\Bitmaps</Filter>
     </Image>
     <Image Include="..\src\Resources\up.bmp">
+      <Filter>Resources\Bitmaps</Filter>
+    </Image>
+    <Image Include="..\src\Resources\ini_files.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
     <Image Include="..\src\Resources\information.bmp">

@@ -16,6 +16,8 @@
 #define IDB_VIZ_INFO_BITMAP             9013
 #define IDB_VIZ_MOVE_DOWN_BITMAP        9014
 #define IDB_VIZ_MOVE_UP_BITMAP          9015
+#define IDB_VIZ_INI_FILES_BITMAP        9016
+#define IDB_VIZ_ABOUT_BITMAP            9017
 #define IDC_VIZPANEL_FIELD_LABEL        9021
 #define IDC_VIZPANEL_FIELD_INFO         9022
 #define IDC_VIZPANEL_JUMP_FIELD_BTN     9023

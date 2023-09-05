@@ -51,8 +51,8 @@ BEGIN
     PUSHBUTTON      "Fold »",IDC_VIZPANEL_FOLDING_FOLD_BTN,8,382,50,14
     PUSHBUTTON      "Toggle Line",IDC_VIZPANEL_FOLDING_TOGGLE_BTN,69,382,50,14
     PUSHBUTTON      "Unfold »",IDC_VIZPANEL_FOLDING_UNFOLD_BTN,131,382,50,14
-    PUSHBUTTON      "@",IDC_VIZPANEL_ABOUT_BUTTON,1,417,15,13,BS_BITMAP
-    PUSHBUTTON      "…",IDC_VIZPANEL_FILE_INFO_BUTTON,166,417,15,13,BS_BITMAP | BS_FLAT
+    PUSHBUTTON      "...",IDC_VIZPANEL_FILE_INFO_BUTTON,147,417,15,13,BS_BITMAP | BS_FLAT
+    PUSHBUTTON      "...",IDC_VIZPANEL_ABOUT_BUTTON,166,417,15,13,BS_BITMAP
 END
 
 
@@ -475,8 +475,10 @@ IDB_VIZ_TOOL_BTN_STD_FIELDS BITMAP                 "fields.bmp"
 IDB_VIZ_FILE_CONFIG_BITMAP BITMAP                  "file_config.bmp"
 IDB_VIZ_FILE_SAMPLES_BITMAP BITMAP                 "file_samples.bmp"
 IDB_VIZ_MOVE_DOWN_BITMAP BITMAP                    "down.bmp"
-IDB_VIZ_MOVE_UP_BITMAP  BITMAP                     "up.bmp"
-IDB_VIZ_INFO_BITMAP     BITMAP                     "information.bmp"
+IDB_VIZ_MOVE_UP_BITMAP BITMAP                      "up.bmp"
+IDB_VIZ_INFO_BITMAP BITMAP                         "information.bmp"
+IDB_VIZ_INI_FILES_BITMAP BITMAP                    "ini_files.bmp"
+IDB_VIZ_ABOUT_BITMAP BITMAP                        "about.bmp"
 IDB_DAT_EXT_PLUS_BITMAP BITMAP                     "plus.bmp"
 IDB_DAT_EXT_MINUS_BITMAP BITMAP                    "minus.bmp"
 IDB_DAT_EXT_PAGE_ADD_BITMAP BITMAP                 "page_add.bmp"

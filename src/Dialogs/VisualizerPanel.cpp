@@ -357,9 +357,11 @@ void VisualizerPanel::initPanel() {
    loadBitmap(_hSelf, IDC_VIZPANEL_FOLD_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
    addTooltip(_hSelf, IDC_VIZPANEL_FOLD_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
 
-   addTooltip(_hSelf, IDC_VIZPANEL_ABOUT_BUTTON, NULL, ABOUT_DIALOG_TITLE, TRUE);
-
+   loadBitmap(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON, IDB_VIZ_INI_FILES_BITMAP);
    hTipIniFiles = addTooltip(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON, VIZ_PANEL_FILE_INFO_TITLE, VIZ_PANEL_FILE_INFO_TIP, FW_TIP_MEDIUM, TRUE);
+
+   loadBitmap(_hSelf, IDC_VIZPANEL_ABOUT_BUTTON, IDB_VIZ_ABOUT_BITMAP);
+   addTooltip(_hSelf, IDC_VIZPANEL_ABOUT_BUTTON, NULL, ABOUT_DIALOG_TITLE, TRUE);
 
    setFont(_hSelf, IDC_VIZPANEL_MCBS_OVERRIDE_IND, fontName, 9);
 
@@ -1382,13 +1384,10 @@ void VisualizerPanel::onPanelResize(LPARAM lParam) {
    RECT rcAboutBtn;
    GetWindowRect(hAboutBtn, &rcAboutBtn);
 
-   POINT ptAbout{ rcAboutBtn.left, rcAboutBtn.top };
-   ScreenToClient(_hSelf, &ptAbout);
-
    int aboutBtnWidth{rcAboutBtn.right - rcAboutBtn.left};
    int aboutBtnHeight{rcAboutBtn.bottom - rcAboutBtn.top};
 
-   MoveWindow(hAboutBtn, ptAbout.x, (HIWORD(lParam) - aboutBtnHeight - 3), aboutBtnWidth, aboutBtnHeight, TRUE);
+   MoveWindow(hAboutBtn, (LOWORD(lParam) - aboutBtnWidth - 3), (HIWORD(lParam) - aboutBtnHeight - 3), aboutBtnWidth, aboutBtnHeight, TRUE);
 
    // Ini Files Info button
    HWND hIniBtn{GetDlgItem(_hSelf, IDC_VIZPANEL_FILE_INFO_BUTTON)};
@@ -1398,7 +1397,7 @@ void VisualizerPanel::onPanelResize(LPARAM lParam) {
    int iniBtnWidth{rcIniBtn.right - rcIniBtn.left};
    int iniBtnHeight{rcIniBtn.bottom - rcIniBtn.top};
 
-   MoveWindow(hIniBtn, (LOWORD(lParam) - iniBtnWidth - 3), (HIWORD(lParam) - iniBtnHeight - 3), iniBtnWidth, iniBtnHeight, TRUE);
+   MoveWindow(hIniBtn, (LOWORD(lParam) - aboutBtnWidth - iniBtnWidth - 4), (HIWORD(lParam) - iniBtnHeight - 3), iniBtnWidth, iniBtnHeight, TRUE);
 }
 
 int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback,
