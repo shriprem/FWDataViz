@@ -87,7 +87,7 @@ private:
    // Field Info tracking
    intptr_t caretRecordStartPos{}, caretRecordEndPos{}, caretEolMarkerPos{};
    int caretRecordRegIndex{}, caretFieldIndex{};
-   bool unlexed{}, utf8Config{}, leftAlign{}, themeEnabled{}, fieldEnabled{};
+   bool panelMounted{}, unlexed{}, utf8Config{}, leftAlign{}, themeEnabled{}, fieldEnabled{};
    string calltipText{}; // Needed for the PostMessage call
 
    // File Type Info

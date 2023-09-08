@@ -409,6 +409,8 @@ void VisualizerPanel::display(bool toShow) {
 
    if (!utf8Config) return;
 
+   panelMounted = toShow;
+
    if (!toShow) {
       if (_configDlg.isCreated() && _configDlg.isVisible())
          _configDlg.display(FALSE);
@@ -872,8 +874,6 @@ void VisualizerPanel::fieldPaste() {
 }
 
 void VisualizerPanel::visualizeTheme() {
-   if (!isVisible()) return;
-
    wchar_t fDesc[MAX_PATH]{};
 
    SendMessage(hThemesLB, WM_GETTEXT, MAX_PATH, (LPARAM)fDesc);
@@ -1013,7 +1013,7 @@ int VisualizerPanel::loadUsedThemes() {
 }
 
 int VisualizerPanel::loadLexer() {
-   if (unlexed && !isVisible()) return 0;
+   if (unlexed && !panelMounted) return 0;
 
    PSCIFUNC_T sciFunc;
    void* sciPtr;
@@ -1153,7 +1153,7 @@ int VisualizerPanel::loadLexer() {
 }
 
 void VisualizerPanel::applyLexer(const intptr_t startLine, intptr_t endLine) {
-   if (unlexed && !isVisible()) return;
+   if (unlexed && !panelMounted) return;
 
    PSCIFUNC_T sciFunc;
    void* sciPtr;
@@ -1725,7 +1725,7 @@ void VisualizerPanel::showExtractDialog() {
 }
 
 bool VisualizerPanel::detectFileType(HWND hScintilla, string& fileType) {
-   if (!isVisible()) return FALSE;
+   if (!panelMounted) return FALSE;
 
    bool detected{ detectFileTypeByVizConfig(hScintilla, fileType, FALSE) };
 
@@ -1870,7 +1870,7 @@ bool VisualizerPanel::getDocFolded() {
 }
 
 void VisualizerPanel::setDocFileType(string fileType) {
-   if (!isVisible()) return;
+   if (!panelMounted) return;
 
    enableThemeList(!fileType.empty());
    setDocInfo(true, fileType);
@@ -1958,7 +1958,7 @@ void VisualizerPanel::onBufferActivate() {
    unlexed = TRUE;
    enableFoldableControls(FALSE);
 
-   if (isVisible()) visualizeFile("", TRUE, TRUE, TRUE);
+   if (panelMounted) visualizeFile("", TRUE, TRUE, TRUE);
 
    enableFoldedControls(getDocFolded());
 }
