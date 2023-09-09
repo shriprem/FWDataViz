@@ -548,7 +548,7 @@ void VisualizerPanel::loadListThemes() {
 }
 
 void VisualizerPanel::syncListFileTypes() {
-   if (!isVisible()) return;
+   if (!panelMounted) return;
 
    HWND hScintilla{ getCurrentScintilla() };
    if (!hScintilla) return;
@@ -621,7 +621,7 @@ void VisualizerPanel::enableFieldControls(bool enable) {
 }
 
 void VisualizerPanel::enableThemeList(bool enable) {
-   if (!isVisible()) return;
+   if (!panelMounted) return;
 
    themeEnabled = enable;
    InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_THEME_LABEL), nullptr, TRUE);
