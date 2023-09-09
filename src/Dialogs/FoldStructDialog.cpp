@@ -669,10 +669,11 @@ int FoldStructDialog::structEditDelete() {
    int idxFS{ getCurrentFoldStructIndex() };
    if (idxFS == LB_ERR) return LB_ERR;
 
+   vFoldStructs[idxFS].vBlocks.clear();
    vFoldStructs.erase(vFoldStructs.begin() + idxFS);
 
    int lastFile = static_cast<int>(vFoldStructs.size()) - 1;
-   int moveTo = (idxFS <= lastFile - 1) ? idxFS : lastFile;
+   int moveTo = (idxFS <= lastFile) ? idxFS : lastFile;
 
    SendMessage(hFoldStructs, LB_DELETESTRING, idxFS, NULL);
    SendMessage(hFoldStructs, LB_SETCURSEL, moveTo, NULL);
