@@ -1,5 +1,19 @@
 ## Version History
 
+### Version 2.6.3.0 [September 9, 2023]
+
+1. Visualize file even if the plugin is stacked behind other panels. Issue: [#89](https://github.com/shriprem/FWDataViz/issues/89).
+
+2. User-customizable Field Hop Right behavior. Issues: [#82](https://github.com/shriprem/FWDataViz/issues/82), [#86](https://github.com/shriprem/FWDataViz/issues/86).
+
+3. Potential fix for hard-to-replicate Fold Structure Definition dialog crash. Issue: [#84](https://github.com/shriprem/FWDataViz/issues/84).
+
+4. Updated Scintilla & NPP headers to match Notepad++ v8.5.6. See commit: [264d3bc](https://github.com/shriprem/FWDataViz/commit/264d3bc87c80001a8980eceb94e9465d6f0f373f)
+
+**Release:** [2.6.3.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.3.0)
+
+---
+
 ### Version 2.6.2.0 [December 1, 2022]
 
 #### Enhancement
