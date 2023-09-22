@@ -1772,6 +1772,9 @@ bool VisualizerPanel::detectFileTypeByVizConfig(HWND hScintilla, string& fileTyp
          if (strRegex.substr(strRegex.length() - 1) != "$")
             strRegex += ".*";
 
+         if (SendMessage(hScintilla, SCI_LINELENGTH, line, NULL) > FW_LINE_MAX_LENGTH)
+            continue;
+
          SendMessage(hScintilla, SCI_GETLINE, line, (LPARAM)lineTextCStr.c_str());
          startPos = SendMessage(hScintilla, SCI_POSITIONFROMLINE, line, NULL);
          endPos = SendMessage(hScintilla, SCI_GETLINEENDPOSITION, line, NULL);
