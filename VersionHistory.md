@@ -1,5 +1,13 @@
 ## Version History
 
+### Version 2.6.3.1 [October 3, 2023]
+
+1. Fixed: 'Auto-Detect File Type' crashes Notepad++ when a file with a line having more than 32767 chars is opened. Issue: [#90](https://github.com/shriprem/FWDataViz/issues/90).
+
+**Release:** [2.6.3.1 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.3.1)
+
+---
+
 ### Version 2.6.3.0 [September 9, 2023]
 
 1. Visualize file even if the plugin is stacked behind other panels. Issue: [#89](https://github.com/shriprem/FWDataViz/issues/89).
