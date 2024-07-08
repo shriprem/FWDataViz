@@ -9,15 +9,15 @@ void ConfigIO::init() {
    nppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
 
    // If no existing config path, create it
-   if (!PathFileExists(pluginConfigDir)) CreateDirectory(pluginConfigDir, NULL);
+   if (!Utils::checkDirectoryExists(pluginConfigDir)) CreateDirectory(pluginConfigDir, NULL);
 
    // If no existing config folder for this plugin, create it
    PathAppend(pluginConfigDir, PLUGIN_FOLDER_NAME);
-   if (!PathFileExists(pluginConfigDir)) CreateDirectory(pluginConfigDir, NULL);
+   if (!Utils::checkDirectoryExists(pluginConfigDir)) CreateDirectory(pluginConfigDir, NULL);
 
    // If no existing config backup folder for this plugin, create it
    PathCombine(pluginConfigBackupDir, pluginConfigDir, L"Backup\\");
-   if (!PathFileExists(pluginConfigBackupDir)) CreateDirectory(pluginConfigBackupDir, NULL);
+   if (!Utils::checkDirectoryExists(pluginConfigBackupDir)) CreateDirectory(pluginConfigBackupDir, NULL);
 
    // Reconcile config files
    const wstring sDefaultPrefix{ L"default_" };
@@ -29,7 +29,7 @@ void ConfigIO::init() {
    // Rename any existing Themes.dat file to Themes.ini
    PathCombine(sThemeDatFile, pluginConfigDir, L"Themes.dat");
    PathCombine(sConfigFile, pluginConfigDir, L"Themes.ini");
-   if (PathFileExists(sThemeDatFile) && !PathFileExists(sConfigFile))
+   if (Utils::checkFileExists(sThemeDatFile) && !Utils::checkFileExists(sConfigFile))
       MoveFile(sThemeDatFile, sConfigFile);
 
    // If config files are missing, copy them from the plugins folder
@@ -38,7 +38,7 @@ void ConfigIO::init() {
       WCONFIG_FILE_PATHS[i] = wstring{ sConfigFile };
       CONFIG_FILE_PATHS[i] = Utils::WideToNarrow(sConfigFile);
 
-      if (!PathFileExists(sConfigFile)) {
+      if (!Utils::checkFileExists(sConfigFile)) {
          PathCombine(sDefaultsFile, sPluginDirectory, (sDefaultPrefix + CONFIG_FILES[i]).c_str());
          CopyFile(sDefaultsFile, sConfigFile, TRUE);
       }

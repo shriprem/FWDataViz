@@ -375,3 +375,12 @@ int Utils::getTextPixelWidth(HWND hDlg, const wstring& text) {
    return textSize.cx;
 }
 
+bool Utils::checkDirectoryExists(LPCWSTR lpDirPath) {
+   DWORD dwAttrib = GetFileAttributes(lpDirPath);
+   return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+bool Utils::checkFileExists(LPCWSTR lpFilePath) {
+   DWORD dwAttrib = GetFileAttributes(lpFilePath);
+   return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}

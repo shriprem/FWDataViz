@@ -48,7 +48,7 @@ void SubmenuManager::listSampleFiles() {
       }
 
       PathCombine(sampleFile, pluginSamplesDir, gSampleFiles[i].file_name.c_str());
-      if (PathFileExists(sampleFile))
+      if (Utils::checkFileExists(sampleFile))
          AppendMenu(hWhich, MF_STRING, itemIDStart + i, Utils::NarrowToWide(gSampleFiles[i].display_name).c_str());
    }
 }
@@ -60,7 +60,7 @@ void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
    TCHAR sampleFile[MAX_PATH];
 
    PathCombine(sampleFile, pluginSamplesDir, gSampleFiles[cmdID].file_name.c_str());
-   if (!PathFileExists(sampleFile)) return;
+   if (!Utils::checkFileExists(sampleFile)) return;
 
    nppMessage(NPPM_DOOPEN, 0, (LPARAM)sampleFile);
    ShowVisualizerPanel(TRUE);
