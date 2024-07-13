@@ -59,42 +59,42 @@ public:
    int setVizConfig(const string& docFileType);
    void userVizConfig();
    void defaultVizConfig();
-   bool isCurrentVizConfigDefault() { return (wCurrentConfigFile == defaultConfigFile); }
+   bool isCurrentVizConfigDefault() const { return (wCurrentConfigFile == defaultConfigFile); }
    wstring getConfigFile(CF_TYPES cfType);
    wstring getActiveConfigFile(CF_TYPES cfType);
 
-   string getConfigStringA(const string& section, const string& key, const string& default = "", string file = "");
-   string getConfigStringA(const wstring& section, const string& key, const string& default = "", wstring file = L"");
-   wstring getConfigWideChar(const string& section, const string& key, const string& default = "", string file = "");
-   wstring getConfigWideChar(const wstring& section, const string& key, const string& default = "", wstring file = L"");
+   string getConfigStringA(const string& section, const string& key, const string& defaultVal = "", string file = "") const;
+   string getConfigStringA(const wstring& section, const string& key, const string& defaultVal = "", wstring file = L"") const;
+   wstring getConfigWideChar(const string& section, const string& key, const string& defaultVal = "", string file = "") const;
+   wstring getConfigWideChar(const wstring& section, const string& key, const string& defaultVal = "", wstring file = L"") const;
 
-   void setConfigStringA(const string& section, const string& key, const string& value, string file = "");
-   void setConfigMultiByte(const string& section, const string& key, const wstring& value, string file = "");
+   void setConfigStringA(const string& section, const string& key, const string& value, string file = "") const;
+   void setConfigMultiByte(const string& section, const string& key, const wstring& value, string file = "") const;
 
-   int getConfigInt(const string& section, const string& key, const int& default = 0, string file = "");
-   int getConfigInt(const wstring& section, const string& key, const int& default = 0, wstring file = L"");
+   int getConfigInt(const string& section, const string& key, const int& defaultVal = 0, string file = "") const;
+   int getConfigInt(const wstring& section, const string& key, const int& defaultVal = 0, wstring file = L"") const;
 
-   wstring getStyleValue(const wstring& theme, const string& styleName, wstring file = L"");
-   void getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file = L"");
-   string getFieldStyleText(const wstring& fieldName);
+   wstring getStyleValue(const wstring& theme, const string& styleName, wstring file = L"") const;
+   void getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file = L"") const;
+   string getFieldStyleText(const wstring& fieldName) const;
    void parseFieldStyle(const string& styleText, StyleInfo& style);
 
-   int getFoldStructCount(wstring file = L"");
-   string getFoldStructValueA(string foldStructType, string key, wstring file = L"");
-   string getFoldStructValue(wstring foldStructType, string key, wstring file = L"");
+   int getFoldStructCount(wstring file = L"") const;
+   string getFoldStructValueA(string foldStructType, string key, wstring file = L"") const;
+   string getFoldStructValue(wstring foldStructType, string key, wstring file = L"") const;
    void getFoldStructFoldingInfo(wstring foldStructType, vector<FoldingInfo>& vFoldInfo, wstring file = L"");
 
-   wstring getPreference(const string key, const string default = "");
-   void setPreference(const string key, const wstring value);
+   wstring getPreference(const string key, const string defaultVal = "") const;
+   void setPreference(const string key, const wstring value) const;
 
-   bool getPreferenceBool(const string key, const bool default = TRUE);
-   void setPreferenceBool(const string key, const bool value);
+   bool getPreferenceBool(const string key, const bool defaultVal = TRUE) const;
+   void setPreferenceBool(const string key, const bool value) const;
 
-   int getPreferenceInt(const string key, const int default = 0);
-   void setPreferenceInt(const string key, const int value);
+   int getPreferenceInt(const string key, const int defaultVal = 0) const;
+   void setPreferenceInt(const string key, const int value) const;
 
-   void setPanelMBCharState(UINT state);
-   bool getMultiByteLexing(string fileType);
+   void setPanelMBCharState(UINT state) const;
+   bool getMultiByteLexing(string fileType) const;
 
    int getConfigAllSections(string& sections, const string file);
    int getConfigAllSectionsList(vector<string>& sectionsList, const string file);
@@ -105,7 +105,7 @@ public:
    int getConfigAllKeysList(const string& section, vector<wstring>& keysList, const string file);
 
    int getConfigValueList(vector<string>& valList, const string& section, const string& key,
-      const string& default = "", string file = "");
+      const string& defaultVal = "", string file = "");
    int getThemesList(vector<wstring>& valList, wstring file = L"");
 
    int Tokenize(const string& text, vector<string>& results, const string& delim = ",");
@@ -113,17 +113,17 @@ public:
    int Tokenize(const string& text, vector<int>& results, const string& delim = ",");
 
    void ActivateNewLineTabs(wstring& str);
-   void deleteKey(const string& section, const string& key, string file = "");
-   void deleteKey(const wstring& section, const wstring& key, wstring file = L"");
+   void deleteKey(const string& section, const string& key, string file = "") const;
+   void deleteKey(const wstring& section, const wstring& key, wstring file = L"") const;
    void deleteSection(const string& section, string file = "");
 
-   string readConfigFile(wstring file = L"");
-   bool queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, wstring& backupConfigFile);
+   string readConfigFile(wstring file = L"") const;
+   bool queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, wstring& backupConfigFile) const;
    void saveConfigFile(const wstring& fileData, wstring file);
 
-   int getBackupTempFileName(wstring& tempFileName);
-   void backupConfigFile(wstring file);
-   void viewBackupFolder();
+   int getBackupTempFileName(wstring& tempFileName) const;
+   void backupConfigFile(wstring file) const;
+   void viewBackupFolder() const;
    void flushConfigFile();
 
    bool checkConfigFilesforUTF8();

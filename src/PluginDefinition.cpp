@@ -110,11 +110,11 @@ void commandMenuCleanUp() {
 }
 
 // Initialize plugin commands
-bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk, bool checkOnInit) {
+bool setCommand(size_t index, const wstring& cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk, bool checkOnInit) {
     if (index >= MI_COUNT) return false;
     if (!pFunc) return false;
 
-    lstrcpy(pluginMenuItems[index]._itemName, cmdName);
+    lstrcpy(pluginMenuItems[index]._itemName, cmdName.c_str());
     pluginMenuItems[index]._pFunc = pFunc;
     pluginMenuItems[index]._pShKey = sk;
     pluginMenuItems[index]._init2Check = checkOnInit;

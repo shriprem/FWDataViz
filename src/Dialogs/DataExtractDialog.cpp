@@ -50,6 +50,9 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
       create(IDD_DATA_EXTRACT_DIALOG);
    }
 
+   using Utils::addTooltip;
+   using Utils::loadBitmap;
+
    hIndicator = GetDlgItem(_hSelf, IDC_DAT_EXT_CURRENT_LINE);
    hTemplatesList = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_LIST);
    hTemplateName = GetDlgItem(_hSelf, IDC_DAT_EXT_TEMPLATE_NAME);
@@ -64,35 +67,35 @@ void DataExtractDialog::doDialog(HINSTANCE hInst) {
       SetWindowSubclass(GetDlgItem(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i), procKeyNavigation, NULL, NULL);
       SendDlgItemMessage(_hSelf, IDC_DAT_EXT_ITEM_SUFFIX_01 + i, EM_LIMITTEXT, MAX_PATH, NULL);
 
-      Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, IDB_DAT_EXT_PLUS_BITMAP);
-      Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, NULL, DATA_EXTRACT_ADD_LINE_ITEM, FALSE);
+      loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, IDB_DAT_EXT_PLUS_BITMAP);
+      addTooltip(_hSelf, IDC_DAT_EXT_ITEM_ADD_BTN_01 + i, L"", DATA_EXTRACT_ADD_LINE_ITEM, FALSE);
 
-      Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + i, IDB_DAT_EXT_MINUS_BITMAP);
-      Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + i, NULL, DATA_EXTRACT_DEL_LINE_ITEM, FALSE);
+      loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + i, IDB_DAT_EXT_MINUS_BITMAP);
+      addTooltip(_hSelf, IDC_DAT_EXT_ITEM_DEL_BTN_01 + i, L"", DATA_EXTRACT_DEL_LINE_ITEM, FALSE);
    }
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_PREV_BUTTON, IDB_DAT_EXT_PAGE_PREV_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_PAGE_PREV_BUTTON, NULL, DATA_EXTRACT_PAGE_PREV, FALSE);
+   loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_PREV_BUTTON, IDB_DAT_EXT_PAGE_PREV_BITMAP);
+   addTooltip(_hSelf, IDC_DAT_EXT_PAGE_PREV_BUTTON, L"", DATA_EXTRACT_PAGE_PREV, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_NEXT_BUTTON, IDB_DAT_EXT_PAGE_NEXT_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_PAGE_NEXT_BUTTON, NULL, DATA_EXTRACT_PAGE_NEXT, FALSE);
+   loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_NEXT_BUTTON, IDB_DAT_EXT_PAGE_NEXT_BITMAP);
+   addTooltip(_hSelf, IDC_DAT_EXT_PAGE_NEXT_BUTTON, L"", DATA_EXTRACT_PAGE_NEXT, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_ADD_BUTTON, IDB_DAT_EXT_PAGE_ADD_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_PAGE_ADD_BUTTON, NULL, DATA_EXTRACT_PAGE_ADD, FALSE);
+   loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_ADD_BUTTON, IDB_DAT_EXT_PAGE_ADD_BITMAP);
+   addTooltip(_hSelf, IDC_DAT_EXT_PAGE_ADD_BUTTON, L"", DATA_EXTRACT_PAGE_ADD, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_DEL_BUTTON, IDB_DAT_EXT_PAGE_DEL_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_PAGE_DEL_BUTTON, NULL, DATA_EXTRACT_PAGE_DEL, FALSE);
+   loadBitmap(_hSelf, IDC_DAT_EXT_PAGE_DEL_BUTTON, IDB_DAT_EXT_PAGE_DEL_BITMAP);
+   addTooltip(_hSelf, IDC_DAT_EXT_PAGE_DEL_BUTTON, L"", DATA_EXTRACT_PAGE_DEL, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON, NULL, DATA_EXTRACT_MOVE_DOWN, FALSE);
+   loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
+   addTooltip(_hSelf, IDC_DAT_EXT_ITEM_DOWN_BUTTON, L"", DATA_EXTRACT_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON, NULL, DATA_EXTRACT_MOVE_UP, FALSE);
+   loadBitmap(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
+   addTooltip(_hSelf, IDC_DAT_EXT_ITEM_UP_BUTTON, L"", DATA_EXTRACT_MOVE_UP, FALSE);
 
    CheckDlgButton(_hSelf, IDC_DAT_EXT_TEMPLATE_CURR_ONLY, BST_CHECKED);
 
-   Utils::loadBitmap(_hSelf, IDC_DAT_EXT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_DAT_EXT_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+   loadBitmap(_hSelf, IDC_DAT_EXT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   addTooltip(_hSelf, IDC_DAT_EXT_INFO_BUTTON, L"", VIZ_PANEL_INFO_TIP, FALSE);
 
    if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
@@ -786,7 +789,7 @@ void DataExtractDialog::loadTemplate() {
    loadPage(0);
 }
 
-string DataExtractDialog::getSelectedTemplate() {
+string DataExtractDialog::getSelectedTemplate() const {
    bool validTemplate{ SendMessage(hTemplatesList, CB_GETCURSEL, NULL, NULL) > 0 };
    string templateName{};
 
@@ -805,7 +808,7 @@ string DataExtractDialog::getSelectedTemplate() {
    return templateName;
 }
 
-string DataExtractDialog::getTemplateName() {
+string DataExtractDialog::getTemplateName() const {
    wchar_t tName[MAX_TEMPLATE_NAME + 1];
    GetWindowText(hTemplateName, tName, MAX_TEMPLATE_NAME);
    return Utils::WideToNarrow(tName);

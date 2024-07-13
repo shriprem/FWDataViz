@@ -21,20 +21,23 @@ void FoldStructDialog::doDialog(HINSTANCE hInst) {
    hExplRecs = GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_TRMNTRS_LIST);
    hExplRTList = GetDlgItem(_hSelf, IDC_FOLD_EXPLICIT_ENDREC_LIST);
 
-   Utils::loadBitmap(_hSelf, IDC_FOLD_DEF_FILE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FOLD_DEF_FILE_DOWN_BUTTON, NULL, FOLD_DEF_FILE_MOVE_DOWN, FALSE);
+   using Utils::addTooltip;
+   using Utils::loadBitmap;
 
-   Utils::loadBitmap(_hSelf, IDC_FOLD_DEF_FILE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FOLD_DEF_FILE_UP_BUTTON, NULL, FOLD_DEF_FILE_MOVE_UP, FALSE);
+   loadBitmap(_hSelf, IDC_FOLD_DEF_FILE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
+   addTooltip(_hSelf, IDC_FOLD_DEF_FILE_DOWN_BUTTON, L"", FOLD_DEF_FILE_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FOLD_DEF_HDR_REC_DOWN_BTN, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FOLD_DEF_HDR_REC_DOWN_BTN, NULL, FOLD_DEF_HDR_REC_MOVE_DOWN, FALSE);
+   loadBitmap(_hSelf, IDC_FOLD_DEF_FILE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
+   addTooltip(_hSelf, IDC_FOLD_DEF_FILE_UP_BUTTON, L"", FOLD_DEF_FILE_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FOLD_DEF_HDR_REC_UP_BTN, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FOLD_DEF_HDR_REC_UP_BTN, NULL, FOLD_DEF_HDR_REC_MOVE_UP, FALSE);
+   loadBitmap(_hSelf, IDC_FOLD_DEF_HDR_REC_DOWN_BTN, IDB_VIZ_MOVE_DOWN_BITMAP);
+   addTooltip(_hSelf, IDC_FOLD_DEF_HDR_REC_DOWN_BTN, L"", FOLD_DEF_HDR_REC_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+   loadBitmap(_hSelf, IDC_FOLD_DEF_HDR_REC_UP_BTN, IDB_VIZ_MOVE_UP_BITMAP);
+   addTooltip(_hSelf, IDC_FOLD_DEF_HDR_REC_UP_BTN, L"", FOLD_DEF_HDR_REC_MOVE_UP, FALSE);
+
+   loadBitmap(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   addTooltip(_hSelf, IDC_FOLD_DEF_INFO_BUTTON, L"", VIZ_PANEL_INFO_TIP, FALSE);
 
    if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
@@ -698,7 +701,7 @@ void FoldStructDialog::fillFoldBlocks() {
    // Fill Fold Blocks Listbox
    SendMessage(hFoldBlocks, LB_RESETCONTENT, NULL, NULL);
 
-   for (const auto BI : blockInfoList) {
+   for (const auto& BI : blockInfoList) {
       SendMessage(hFoldBlocks, LB_ADDSTRING, NULL, (LPARAM)BI.hdrRec.label.c_str());
    }
 
@@ -710,7 +713,7 @@ void FoldStructDialog::fillFoldBlocks() {
    SendMessage(hHdrRTList, CB_RESETCONTENT, NULL, NULL);
    SendMessage(hExplRTList, CB_RESETCONTENT, NULL, NULL);
 
-   for (const auto RT : vRecTypes) {
+   for (const auto& RT : vRecTypes) {
       SendMessage(hHdrRTList, CB_ADDSTRING, NULL, (LPARAM)RT.label.c_str());
       SendMessage(hExplRTList, CB_ADDSTRING, NULL, (LPARAM)RT.label.c_str());
    }
@@ -936,7 +939,7 @@ void FoldStructDialog::fillImplicitEndRecs() {
    vector <BlockInfo>& blockInfoList{ fsInfo->vBlocks };
    SendMessage(hImplRecs, LB_RESETCONTENT, NULL, NULL);
 
-   for (const auto BI : blockInfoList) {
+   for (const auto& BI : blockInfoList) {
       if (BI.hdrRec.label.empty()) continue;
       if (recursive && (BI.hdrRec.type == vRecTypes[recTypeIndex].type)) continue;
       if (BI.priority > threshold) continue;
@@ -950,7 +953,7 @@ void FoldStructDialog::fillImplicitEndRecs() {
 void FoldStructDialog::fillExplicitEndRecs(BlockInfo* blockInfo) {
    SendMessage(hExplRecs, LB_RESETCONTENT, NULL, NULL);
 
-   for (const auto ER : blockInfo->vEndRecs) {
+   for (const auto& ER : blockInfo->vEndRecs) {
       SendMessage(hExplRecs, LB_ADDSTRING, NULL, (LPARAM)ER.label.c_str());
    }
 
@@ -1180,7 +1183,7 @@ int FoldStructDialog::appendFoldStructInfo(const wstring& sConfigFile) {
    return validCount;
 }
 
-int FoldStructDialog::getCurrentFoldStructIndex() {
+int FoldStructDialog::getCurrentFoldStructIndex() const {
    int idxFS;
 
    idxFS = static_cast<int>(SendMessage(hFoldStructs, LB_GETCURSEL, NULL, NULL));
@@ -1230,7 +1233,7 @@ int FoldStructDialog::getFoldStructInfo(size_t idxFS, bool cr_lf, wstring& fsCon
    return 0;
 }
 
-int FoldStructDialog::getCurrentBlockIndex() {
+int FoldStructDialog::getCurrentBlockIndex() const {
    int idxBlock;
 
    idxBlock = static_cast<int>(SendMessage(hFoldBlocks, LB_GETCURSEL, NULL, NULL));

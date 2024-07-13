@@ -132,8 +132,8 @@ wstring Utils::getKnownFolderPath(REFKNOWNFOLDERID folderID) {
    return sFolderPath;
 }
 
-HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, bool bBalloon) {
-   if (!controlID || !hDlg || !pMessage)
+HWND Utils::addTooltip(HWND hDlg, int controlID, const wstring& pTitle, const wstring& pMessage, bool bBalloon) {
+   if (!controlID || !hDlg || pMessage == L"")
       return FALSE;
 
    // Get the window of the tool.
@@ -158,26 +158,26 @@ HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage,
    toolInfo.hwnd = hDlg;
    toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
    toolInfo.uId = (UINT_PTR)hwndCtrl;
-   toolInfo.lpszText = pMessage;
+   toolInfo.lpszText = (LPWSTR)pMessage.c_str();
    SendMessage(hwndTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
-   SendMessage(hwndTip, TTM_SETTITLE, TTI_INFO, (LPARAM)pTitle);
+   SendMessage(hwndTip, TTM_SETTITLE, TTI_INFO, (LPARAM)pTitle.c_str());
    SendMessage(hwndTip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)PREFS_TIP_MAX_WIDTH);
 
    return hwndTip;
 }
 
-HWND Utils::addTooltip(HWND hDlg, int controlID, LPWSTR pTitle, LPWSTR pMessage, int duration, bool bBalloon) {
+HWND Utils::addTooltip(HWND hDlg, int controlID, const wstring& pTitle, const wstring& pMessage, int duration, bool bBalloon) {
    HWND hwndTip{ addTooltip(hDlg, controlID, pTitle, pMessage, bBalloon) };
    SendMessage(hwndTip, TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(duration * 1000));
    return hwndTip;
 }
 
-void Utils::updateTooltip(HWND hDlg, int controlID, HWND hTip, LPWSTR pMessage) {
+void Utils::updateTooltip(HWND hDlg, int controlID, HWND hTip, const wstring& pMessage) {
    TOOLINFO toolInfo{};
    toolInfo.cbSize = sizeof(toolInfo);
    toolInfo.hwnd = hDlg;
    toolInfo.uId = (UINT_PTR)GetDlgItem(hDlg, controlID);
-   toolInfo.lpszText = pMessage;
+   toolInfo.lpszText = (LPWSTR)pMessage.c_str();
    SendMessage(hTip, TTM_UPDATETIPTEXT, 0, (LPARAM)&toolInfo);
 }
 

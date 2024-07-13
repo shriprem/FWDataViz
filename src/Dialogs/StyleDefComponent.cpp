@@ -22,7 +22,7 @@ void StyleDefComponent::initComponent(HWND hDlg) {
    setPangram();
 }
 
-void StyleDefComponent::localize() {
+void StyleDefComponent::localize() const {
    SetDlgItemText(_hDialog, IDC_STYLE_DEF_GROUP_BOX, STYLE_DEF_GROUP_BOX);
    SetDlgItemText(_hDialog, IDC_STYLE_DEF_BACK_LABEL, STYLE_DEF_BACK_LABEL);
    SetDlgItemText(_hDialog, IDC_STYLE_DEF_FORE_LABEL, STYLE_DEF_FORE_LABEL);
@@ -31,7 +31,7 @@ void StyleDefComponent::localize() {
    SetDlgItemText(_hDialog, IDC_STYLE_DEF_PREVIEW_LABEL, STYLE_DEF_PREVIEW_LABEL);
 }
 
-int StyleDefComponent::getStyleDefColor(bool back) {
+int StyleDefComponent::getStyleDefColor(bool back) const {
    TCHAR buf[10];
 
    GetDlgItemText(_hDialog, back ? IDC_STYLE_DEF_BACK_EDIT : IDC_STYLE_DEF_FORE_EDIT, buf, 7);
@@ -54,7 +54,7 @@ void StyleDefComponent::setStyleDefColor(bool setEdit, int color, bool back) {
    setOutputFontStyle();
 }
 
-void StyleDefComponent::setOutputFontStyle() {
+void StyleDefComponent::setOutputFontStyle() const {
    Utils::setFontRegular(_hDialog, IDC_STYLE_DEF_PREVIEW_BOX);
 
    if (IsDlgButtonChecked(_hDialog, IDC_STYLE_DEF_BOLD) == BST_CHECKED)
@@ -74,7 +74,7 @@ void StyleDefComponent::fillStyleDefs(StyleInfo& style) {
    cleanStyleDefs = TRUE;
 }
 
-void StyleDefComponent::setPangram() {
+void StyleDefComponent::setPangram() const {
    constexpr int count{ 10 };
 
    wstring pangrams[count] = {

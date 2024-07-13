@@ -21,7 +21,7 @@ public:
 private:
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
-   void initCheckbox(int nIDButton, const string& preference, bool default);
+   void initCheckbox(int nIDButton, const string& preference, bool defaultVal);
    void setCheckbox(int nIDButton, const string& preference);
 
    void chooseColor();

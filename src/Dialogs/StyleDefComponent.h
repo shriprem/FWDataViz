@@ -12,13 +12,13 @@ public:
 
 protected:
    void initComponent(HWND hDlg);
-   void localize();
-   int getStyleDefColor(bool back);
+   void localize() const;
+   int getStyleDefColor(bool back) const;
    void setStyleDefColor(bool setEdit, int color, bool back);
-   void setOutputFontStyle();
+   void setOutputFontStyle() const;
    void fillStyleDefs(StyleInfo& style);
 
-   void setPangram();
+   void setPangram() const;
    INT_PTR colorStaticControl(WPARAM wParam, LPARAM lParam);
    void chooseStyleDefColor(bool back);
 

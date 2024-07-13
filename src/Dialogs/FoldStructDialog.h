@@ -55,11 +55,11 @@ private:
    void showEximDialog(bool bExtract);
    int appendFoldStructInfo(const wstring& sConfigFile);
 
-   int getCurrentFoldStructIndex();
+   int getCurrentFoldStructIndex() const;
    bool getCurrentFoldStructInfo(FoldStructInfo*& structInfo);
    int getFoldStructInfo(size_t idxFS, bool cr_lf, wstring& fsConfig);
 
-   int getCurrentBlockIndex();
+   int getCurrentBlockIndex() const;
    bool getCurrentBlockInfo(BlockInfo*& blockInfo);
 
    int loadFileTypesList();

@@ -16,10 +16,12 @@ void PreferencesDialog::doDialog(HINSTANCE hInst) {
    initCheckbox(IDC_PREF_MBCHARS_STATE, PREF_MBCHARS_SHOW, FALSE);
    initCheckbox(IDC_PREF_HOP_FIELD_LEFT_EDGE, PREF_HOP_RT_LEFT_EDGE, FALSE);
 
-   Utils::addTooltip(_hSelf, IDC_PREF_CLEARVIZ_AUTO, NULL, PREF_CLEARVIZ_AUTO_TIP, PREF_TIP_LONG, TRUE);
-   Utils::addTooltip(_hSelf, IDC_PREF_CLEARVIZ_PANEL, NULL, PREF_CLEARVIZ_PANEL_TIP, PREF_TIP_LONG, TRUE);
-   Utils::addTooltip(_hSelf, IDC_PREF_MBCHARS_STATE, NULL, PREF_MBCHARS_STATE_TIP, PREF_TIP_LONG, TRUE);
-   Utils::addTooltip(_hSelf, IDC_PREF_HOP_FIELD_LEFT_EDGE, NULL, PREF_HOP_RT_LEFT_EDGE_TIP, PREF_TIP_LONG, TRUE);
+   using Utils::addTooltip;
+
+   addTooltip(_hSelf, IDC_PREF_CLEARVIZ_AUTO, L"", PREF_CLEARVIZ_AUTO_TIP, PREF_TIP_LONG, TRUE);
+   addTooltip(_hSelf, IDC_PREF_CLEARVIZ_PANEL, L"", PREF_CLEARVIZ_PANEL_TIP, PREF_TIP_LONG, TRUE);
+   addTooltip(_hSelf, IDC_PREF_MBCHARS_STATE, L"", PREF_MBCHARS_STATE_TIP, PREF_TIP_LONG, TRUE);
+   addTooltip(_hSelf, IDC_PREF_HOP_FIELD_LEFT_EDGE, L"", PREF_HOP_RT_LEFT_EDGE_TIP, PREF_TIP_LONG, TRUE);
 
    displayFoldLineColor();
    int foldLineAlpha{ _configIO.getPreferenceInt(PREF_FOLDLINE_ALPHA, MAXBYTE) };
@@ -118,8 +120,8 @@ void PreferencesDialog::localize() {
    SetDlgItemText(_hSelf, IDCLOSE, PREFERENCES_CLOSE_BTN);
 }
 
-void PreferencesDialog::initCheckbox(int nIDButton, const string& preference, bool default) {
-   CheckDlgButton(_hSelf, nIDButton, _configIO.getPreferenceBool(preference, default) ? BST_CHECKED : BST_UNCHECKED);
+void PreferencesDialog::initCheckbox(int nIDButton, const string& preference, bool defaultVal) {
+   CheckDlgButton(_hSelf, nIDButton, _configIO.getPreferenceBool(preference, defaultVal) ? BST_CHECKED : BST_UNCHECKED);
 }
 
 void PreferencesDialog::setCheckbox(int nIDButton, const string& preference) {
@@ -129,7 +131,7 @@ void PreferencesDialog::setCheckbox(int nIDButton, const string& preference) {
 }
 
 void PreferencesDialog::chooseColor() {
-   COLORREF customColors[16];
+   COLORREF customColors[16]{};
 
    CHOOSECOLOR cc;
    ZeroMemory(&cc, sizeof(cc));

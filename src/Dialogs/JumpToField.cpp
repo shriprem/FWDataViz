@@ -15,9 +15,11 @@ void JumpToField::doDialog(HINSTANCE hInst) {
    SendMessage(hCaretFlash, TBM_SETRANGEMIN, FALSE, 1);
    SendMessage(hCaretFlash, TBM_SETRANGEMAX, FALSE, 10);
 
-   Utils::addTooltip(_hSelf, IDC_JUMP_CARET_FLASH_LABEL, NULL, JUMP_TIP_CARET_FLASH, TRUE);
-   Utils::addTooltip(_hSelf, IDC_JUMP_CARET_FLASH_SLIDER, NULL, JUMP_TIP_CARET_FLASH, TRUE);
-   Utils::addTooltip(_hSelf, IDC_JUMP_CARET_FLASH_VALUE, NULL, JUMP_TIP_CARET_FLASH, TRUE);
+   using Utils::addTooltip;
+
+   addTooltip(_hSelf, IDC_JUMP_CARET_FLASH_LABEL, L"", JUMP_TIP_CARET_FLASH, TRUE);
+   addTooltip(_hSelf, IDC_JUMP_CARET_FLASH_SLIDER, L"", JUMP_TIP_CARET_FLASH, TRUE);
+   addTooltip(_hSelf, IDC_JUMP_CARET_FLASH_VALUE, L"", JUMP_TIP_CARET_FLASH, TRUE);
 
    if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
@@ -146,7 +148,7 @@ void JumpToField::onJumpBtnClick() {
       static_cast<int>(SendMessage(hFieldList, CB_GETCURSEL, NULL, NULL)));
 }
 
-int JumpToField::getTbarPosition() {
+int JumpToField::getTbarPosition() const {
    return static_cast<int>(SendMessage(hCaretFlash, TBM_GETPOS, 0, 0));
 }
 

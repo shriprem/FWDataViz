@@ -66,12 +66,12 @@ private:
    int appendFileTypeConfigs(const wstring& sConfigFile);
    wstring getOnlyStartsWith(wstring expr);
 
-   int getCurrentFileTypeIndex();
+   int getCurrentFileTypeIndex() const;
    bool getCurrentFileTypeInfo(FileType*& fileInfo);
    FileType getNewFileType();
    int getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode, wstring& ftConfig);
 
-   int getCurrentRecIndex();
+   int getCurrentRecIndex() const;
    bool getCurrentRecInfo(RecordType*& recInfo);
    RecordType getNewRec();
 
@@ -93,7 +93,7 @@ private:
    void enableMoveRecButtons();
    void enableRecSelection();
    int moveRecType(move_dir dir);
-   void onRecStartEditChange();
+   void onRecStartEditChange() const;
    void onRecRegexEditChange();
    int recEditAccept(bool accept = true);
    void recEditNew(bool clone);

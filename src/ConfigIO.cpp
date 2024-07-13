@@ -111,54 +111,54 @@ wstring ConfigIO::getActiveConfigFile(CF_TYPES cfType) {
    }
 }
 
-string ConfigIO::getConfigStringA(const string& section, const string& key, const string& default, string file) {
+string ConfigIO::getConfigStringA(const string& section, const string& key, const string& defaultVal, string file) const {
    const int bufSize{ FW_LINE_MAX_LENGTH };
    string ftBuf(bufSize, '\0');
 
    if (file.empty()) file = currentConfigFile;
 
-   GetPrivateProfileStringA(section.c_str(), key.c_str(), default.c_str(), ftBuf.data(), bufSize, file.c_str());
+   GetPrivateProfileStringA(section.c_str(), key.c_str(), defaultVal.c_str(), ftBuf.data(), bufSize, file.c_str());
 
    return string{ ftBuf.c_str()};
 }
 
-string ConfigIO::getConfigStringA(const wstring& section, const string& key, const string& default, wstring file) {
-   return getConfigStringA(Utils::WideToNarrow(section), key, default, Utils::WideToNarrow(file));
+string ConfigIO::getConfigStringA(const wstring& section, const string& key, const string& defaultVal, wstring file) const {
+   return getConfigStringA(Utils::WideToNarrow(section), key, defaultVal, Utils::WideToNarrow(file));
 }
 
-wstring ConfigIO::getConfigWideChar(const string& section, const string& key, const string& default, string file) {
-   return Utils::NarrowToWide(getConfigStringA(section, key, default, file));
+wstring ConfigIO::getConfigWideChar(const string& section, const string& key, const string& defaultVal, string file) const {
+   return Utils::NarrowToWide(getConfigStringA(section, key, defaultVal, file));
 }
 
-wstring ConfigIO::getConfigWideChar(const wstring& section, const string& key, const string& default, wstring file) {
-   return Utils::NarrowToWide(getConfigStringA(section, key, default, file));
+wstring ConfigIO::getConfigWideChar(const wstring& section, const string& key, const string& defaultVal, wstring file) const {
+   return Utils::NarrowToWide(getConfigStringA(section, key, defaultVal, file));
 }
 
-void ConfigIO::setConfigStringA(const string& section, const string& key, const string& value, string file) {
+void ConfigIO::setConfigStringA(const string& section, const string& key, const string& value, string file) const {
    if (file.empty()) file = currentConfigFile;
 
    WritePrivateProfileStringA(section.c_str(), key.c_str(), value.c_str(), file.c_str());
 }
 
-void ConfigIO::setConfigMultiByte(const string& section, const string& key, const wstring& value, string file) {
+void ConfigIO::setConfigMultiByte(const string& section, const string& key, const wstring& value, string file) const {
    setConfigStringA(section, key, Utils::WideToNarrow(value), file);
 }
 
-int ConfigIO::getConfigInt(const string& section, const string& key, const int& default, string file) {
-   string defVal{ to_string(default) };
+int ConfigIO::getConfigInt(const string& section, const string& key, const int& defaultVal, string file) const {
+   string defVal{ to_string(defaultVal) };
    return Utils::StringtoInt(getConfigStringA(section, key, defVal, file));
 }
 
-int ConfigIO::getConfigInt(const wstring& section, const string& key, const int& default, wstring file) {
-   string defVal{ to_string(default) };
+int ConfigIO::getConfigInt(const wstring& section, const string& key, const int& defaultVal, wstring file) const {
+   string defVal{ to_string(defaultVal) };
    return Utils::StringtoInt(getConfigStringA(section, key, defVal, file));
 }
 
-wstring ConfigIO::getStyleValue(const wstring& theme, const string& styleName, wstring file) {
+wstring ConfigIO::getStyleValue(const wstring& theme, const string& styleName, wstring file) const {
    return getConfigWideChar(theme, styleName, "", (file.empty()) ? wCurrentThemeFile : file);
 }
 
-void ConfigIO::getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file) {
+void ConfigIO::getFullStyle(const wstring& theme, const string& styleName, StyleInfo& style, wstring file) const {
    wstring val = getStyleValue(theme, styleName, file);
 
    if (val.length() < 16) {
@@ -175,7 +175,7 @@ void ConfigIO::getFullStyle(const wstring& theme, const string& styleName, Style
    style.italics = Utils::StringtoInt(val.substr(15, 1));
 }
 
-string ConfigIO::getFieldStyleText(const wstring& fieldName) {
+string ConfigIO::getFieldStyleText(const wstring& fieldName) const {
    return getConfigStringA("Styles", Utils::WideToNarrow(fieldName), "", CONFIG_FILE_PATHS[CONFIG_FIELD_TYPES]);
 }
 
@@ -188,19 +188,19 @@ void ConfigIO::parseFieldStyle(const string& styleText, StyleInfo& style) {
    style.italics = Utils::StringtoInt(styleText.substr(15, 1));
 }
 
-int ConfigIO::getFoldStructCount(wstring file) {
+int ConfigIO::getFoldStructCount(wstring file) const {
    if (file.empty()) file = wCurrentFoldStructFile;
 
    return Utils::StringtoInt(getConfigStringA(L"Base", "FoldStructCount", "0", file));
 }
 
-string ConfigIO::getFoldStructValueA(string foldStructType, string key, wstring file) {
+string ConfigIO::getFoldStructValueA(string foldStructType, string key, wstring file) const {
    if (file.empty()) file = wCurrentFoldStructFile;
 
    return getConfigStringA(foldStructType, key, "", Utils::WideToNarrow(file));
 }
 
-string ConfigIO::getFoldStructValue(wstring foldStructType, string key, wstring file) {
+string ConfigIO::getFoldStructValue(wstring foldStructType, string key, wstring file) const {
    if (file.empty()) file = wCurrentFoldStructFile;
 
    return getConfigStringA(foldStructType, key, "", file);
@@ -226,37 +226,37 @@ void ConfigIO::getFoldStructFoldingInfo(wstring foldStructType, vector<FoldingIn
    }
 }
 
-wstring ConfigIO::getPreference(const string key, const string default) {
-   return getConfigWideChar("Preferences", key, default, CONFIG_FILE_PATHS[CONFIG_PREFS]);
+wstring ConfigIO::getPreference(const string key, const string defaultVal) const {
+   return getConfigWideChar("Preferences", key, defaultVal, CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-void ConfigIO::setPreference(const string key, const wstring value) {
+void ConfigIO::setPreference(const string key, const wstring value) const {
    setConfigStringA("Preferences", key.c_str(), Utils::WideToNarrow(value.c_str()), CONFIG_FILE_PATHS[CONFIG_PREFS].c_str());
 }
 
-bool ConfigIO::getPreferenceBool(const string key, const bool default) {
-   return getConfigStringA("Preferences", key, default ? "Y" : "N", CONFIG_FILE_PATHS[CONFIG_PREFS]) == "Y";
+bool ConfigIO::getPreferenceBool(const string key, const bool defaultVal) const {
+   return getConfigStringA("Preferences", key, defaultVal ? "Y" : "N", CONFIG_FILE_PATHS[CONFIG_PREFS]) == "Y";
 }
 
-void ConfigIO::setPreferenceBool(const string key, const bool value) {
+void ConfigIO::setPreferenceBool(const string key, const bool value) const {
    setConfigStringA("Preferences", key, value ? "Y" : "N", CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-int ConfigIO::getPreferenceInt(const string key, const int default) {
-   return getConfigInt("Preferences", key, default, CONFIG_FILE_PATHS[CONFIG_PREFS]);
+int ConfigIO::getPreferenceInt(const string key, const int defaultVal) const {
+   return getConfigInt("Preferences", key, defaultVal, CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-void ConfigIO::setPreferenceInt(const string key, const int value) {
+void ConfigIO::setPreferenceInt(const string key, const int value) const {
    setConfigStringA("Preferences", key, to_string(value), CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-void ConfigIO::setPanelMBCharState(UINT state) {
+void ConfigIO::setPanelMBCharState(UINT state) const {
    setConfigStringA("Preferences", "PanelMBCharState",
       (state == BST_INDETERMINATE) ? "FT" : ((state == BST_CHECKED) ? "Y" : "N"),
       CONFIG_FILE_PATHS[CONFIG_PREFS]);
 }
 
-bool ConfigIO::getMultiByteLexing(string fileType) {
+bool ConfigIO::getMultiByteLexing(string fileType) const {
    string state{ getConfigStringA("Preferences", "PanelMBCharState", "FT", CONFIG_FILE_PATHS[CONFIG_PREFS]) };
 
    if (state == "FT")
@@ -342,8 +342,8 @@ int ConfigIO::getConfigAllKeysList(const string& section, vector<wstring>& keysL
 }
 
 int ConfigIO::getConfigValueList(vector<string>& valList, const string& section, const string& key,
-   const string& default, string file) {
-   return Tokenize(getConfigStringA(section, key, default, file), valList);
+   const string& defaultVal, string file) {
+   return Tokenize(getConfigStringA(section, key, defaultVal, file), valList);
 }
 
 int ConfigIO::getThemesList(vector<wstring>& valList, wstring file) {
@@ -409,13 +409,13 @@ void ConfigIO::ActivateNewLineTabs(wstring& str) {
    str = std::regex_replace(str, std::wregex(L"\\\\t"), L"\t");
 }
 
-void ConfigIO::deleteKey(const string& section, const string& key, string file) {
+void ConfigIO::deleteKey(const string& section, const string& key, string file) const {
    if (file.empty()) file = currentConfigFile;
 
    WritePrivateProfileStringA(section.c_str(), key.c_str(), NULL, file.c_str());
 }
 
-void ConfigIO::deleteKey(const wstring& section, const wstring& key, wstring file) {
+void ConfigIO::deleteKey(const wstring& section, const wstring& key, wstring file) const {
    if (file.empty()) file = wCurrentConfigFile;
 
    WritePrivateProfileString(section.c_str(), key.c_str(), NULL, file.c_str());
@@ -425,7 +425,7 @@ void ConfigIO::deleteSection(const string& section, string file) {
    WritePrivateProfileStringA(section.c_str(), NULL, NULL, file.c_str());
 }
 
-string ConfigIO::readConfigFile(wstring file) {
+string ConfigIO::readConfigFile(wstring file) const {
    if (file.empty()) file = wCurrentConfigFile;
 
    using std::ios;
@@ -440,7 +440,7 @@ string ConfigIO::readConfigFile(wstring file) {
    return "";
 }
 
-bool ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, wstring& backupConfigFile) {
+bool ConfigIO::queryConfigFileName(HWND hwnd, bool bOpen, bool backupFolder, wstring& backupConfigFile) const {
    OPENFILENAME ofn;
 
    TCHAR filePath[MAX_PATH]{};
@@ -485,7 +485,7 @@ void ConfigIO::saveConfigFile(const wstring& fileData, wstring file) {
    flushConfigFile();
 }
 
-int ConfigIO::getBackupTempFileName(wstring& tempFileName) {
+int ConfigIO::getBackupTempFileName(wstring& tempFileName) const {
    TCHAR tmpFilePath[MAX_PATH];
 
    if (GetTempFileName(pluginConfigBackupDir, L"FWViz_", 0, tmpFilePath) == 0) {
@@ -497,7 +497,7 @@ int ConfigIO::getBackupTempFileName(wstring& tempFileName) {
    return 0;
 }
 
-void ConfigIO::backupConfigFile(wstring file) {
+void ConfigIO::backupConfigFile(wstring file) const {
    using fsp = std::filesystem::path;
 
    char backupFile[MAX_PATH + 1];
@@ -517,7 +517,7 @@ void ConfigIO::backupConfigFile(wstring file) {
    CopyFile(file.c_str(), backupFilePath, FALSE);
 }
 
-void ConfigIO::viewBackupFolder() {
+void ConfigIO::viewBackupFolder() const {
    ShellExecute(NULL, L"open", pluginConfigBackupDir, NULL, NULL, SW_SHOWNORMAL);
 }
 

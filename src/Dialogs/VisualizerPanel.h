@@ -58,7 +58,7 @@ public:
 
    void loadListFileTypes();
    bool getDocFileType(string& fileType);
-   void loadListThemes();
+   void loadListThemes() const;
    void onBufferActivate();
    void renderCurrentPage();
    void visualizeFile(string fileType, bool bCachedFT, bool bAutoFT, bool bSyncFT);

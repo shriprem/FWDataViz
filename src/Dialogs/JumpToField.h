@@ -22,7 +22,7 @@ private:
    void onJumpSeqNumPref();
    void onJumpBtnClick();
 
-   int getTbarPosition();
+   int getTbarPosition() const;
    void setTbarPosition(int val, bool savePref);
 
    string initFileType{};

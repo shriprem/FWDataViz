@@ -53,7 +53,7 @@ void SubmenuManager::listSampleFiles() {
    }
 }
 
-void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) {
+void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) const {
    size_t cmdID{ LOWORD(wParam) - itemIDStart };
    if (cmdID < 0 || cmdID > itemCount) return;
 

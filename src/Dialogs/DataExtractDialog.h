@@ -51,8 +51,8 @@ private:
 
    int loadTemplatesList();
    void loadTemplate();
-   string getSelectedTemplate();
-   string getTemplateName();
+   string getSelectedTemplate() const;
+   string getTemplateName() const;
    void enableSaveTemplate();
    void enableDeleteTemplate();
    void saveTemplate();

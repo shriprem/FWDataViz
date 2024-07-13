@@ -14,7 +14,7 @@ void FieldTypeDialog::doDialog(HINSTANCE hInst) {
    SendDlgItemMessage(_hSelf, IDC_FIELD_TYPE_DESC_EDIT, EM_LIMITTEXT, MAX_PATH, NULL);
 
    Utils::loadBitmap(_hSelf, IDC_FIELD_TYPE_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FIELD_TYPE_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+   Utils::addTooltip(_hSelf, IDC_FIELD_TYPE_INFO_BUTTON, L"", VIZ_PANEL_INFO_TIP, FALSE);
 
    if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
@@ -184,7 +184,7 @@ void FieldTypeDialog::localize() {
    StyleDefComponent::localize();
 }
 
-int FieldTypeDialog::getCurrentFieldIndex() {
+int FieldTypeDialog::getCurrentFieldIndex() const {
    int idxFT;
 
    idxFT = static_cast<int>(SendMessage(hFieldsLB, LB_GETCURSEL, NULL, NULL));

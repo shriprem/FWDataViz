@@ -13,6 +13,9 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
 
    initComponent(_hSelf);
 
+   using Utils::addTooltip;
+   using Utils::loadBitmap;
+
    hThemesLB = GetDlgItem(_hSelf, IDC_THEME_DEF_LIST_BOX);
    hStylesLB = GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX);
 
@@ -20,20 +23,20 @@ void ThemeDialog::doDialog(HINSTANCE hInst) {
 
    SetWindowSubclass(GetDlgItem(_hSelf, IDC_THEME_STYLE_LIST_BOX), procStylesListBox, NULL, NULL);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, NULL, THEME_DEF_MOVE_DOWN, FALSE);
+   loadBitmap(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
+   addTooltip(_hSelf, IDC_THEME_DEF_DOWN_BUTTON, L"", THEME_DEF_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_THEME_DEF_UP_BUTTON, NULL, THEME_DEF_MOVE_UP, FALSE);
+   loadBitmap(_hSelf, IDC_THEME_DEF_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
+   addTooltip(_hSelf, IDC_THEME_DEF_UP_BUTTON, L"", THEME_DEF_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, NULL, THEME_STYLE_MOVE_DOWN, FALSE);
+   loadBitmap(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
+   addTooltip(_hSelf, IDC_THEME_STYLE_DOWN_BUTTON, L"", THEME_STYLE_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_STYLE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_THEME_STYLE_UP_BUTTON, NULL, THEME_STYLE_MOVE_UP, FALSE);
+   loadBitmap(_hSelf, IDC_THEME_STYLE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
+   addTooltip(_hSelf, IDC_THEME_STYLE_UP_BUTTON, L"", THEME_STYLE_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_THEME_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_THEME_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+   loadBitmap(_hSelf, IDC_THEME_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   addTooltip(_hSelf, IDC_THEME_DEF_INFO_BUTTON, L"", VIZ_PANEL_INFO_TIP, FALSE);
 
    if constexpr(_gLanguage != LANG_ENGLISH) localize();
    goToCenter();
@@ -394,7 +397,7 @@ void ThemeDialog::fillThemes() {
    onThemeSelect();
 }
 
-int ThemeDialog::getCurrentThemeIndex() {
+int ThemeDialog::getCurrentThemeIndex() const {
    int idxTT;
 
    idxTT = static_cast<int>(SendMessage(hThemesLB, LB_GETCURSEL, NULL, NULL));
@@ -403,7 +406,7 @@ int ThemeDialog::getCurrentThemeIndex() {
    return idxTT;
 }
 
-int ThemeDialog::getCurrentStyleIndex() {
+int ThemeDialog::getCurrentStyleIndex() const {
    int idxStyle;
 
    idxStyle = static_cast<int>(SendMessage(hStylesLB, LB_GETCURSEL, NULL, NULL));

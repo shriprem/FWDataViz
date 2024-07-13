@@ -45,12 +45,12 @@ private:
    void showEximDialog(bool bExtract);
    int appendThemeConfigs(const wstring& sThemeFile);
 
-   int getCurrentThemeIndex();
+   int getCurrentThemeIndex() const;
    bool getCurrentThemeInfo(ThemeType*& fileInfo);
    ThemeType getNewTheme();
    void getThemeConfig(size_t idxTh, bool cr_lf, wstring& themeLabel, wstring& ttConfig);
 
-   int getCurrentStyleIndex();
+   int getCurrentStyleIndex() const;
    bool getCurrentStyleInfo(StyleInfo*& styleInfo);
    StyleInfo getNewStyle();
 

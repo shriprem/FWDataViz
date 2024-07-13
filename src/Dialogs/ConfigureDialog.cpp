@@ -52,35 +52,38 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    HWND hToolTip{};
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
+   using Utils::addTooltip;
+   using Utils::loadBitmap;
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, NULL, FWVIZ_DEF_FILE_MOVE_UP, FALSE);
+   loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
+   addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_DOWN_BUTTON, L"", FWVIZ_DEF_FILE_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_MCBS_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   hToolTip = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_MCBS_INFO_BUTTON,
+   loadBitmap(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
+   addTooltip(_hSelf, IDC_FWVIZ_DEF_FILE_UP_BUTTON, L"", FWVIZ_DEF_FILE_MOVE_UP, FALSE);
+
+   loadBitmap(_hSelf, IDC_FWVIZ_DEF_MCBS_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   hToolTip = addTooltip(_hSelf, IDC_FWVIZ_DEF_MCBS_INFO_BUTTON,
       FWVIZ_DEF_MCBS_HINT_TITLE, FWVIZ_DEF_MCBS_HINT_TEXT, TRUE);
    SendMessage(hToolTip, TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   hToolTip = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON,
+   loadBitmap(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   hToolTip = addTooltip(_hSelf, IDC_FWVIZ_DEF_ADFT_INFO_BUTTON,
       FWVIZ_DEF_ADFT_HINT_TITLE, FWVIZ_DEF_ADFT_HINT_TEXT, TRUE);
    SendMessage(hToolTip, TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
+   loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, IDB_VIZ_MOVE_DOWN_BITMAP);
+   addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_DOWN_BUTTON, L"", FWVIZ_DEF_REC_MOVE_DOWN, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, NULL, FWVIZ_DEF_REC_MOVE_UP, FALSE);
+   loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, IDB_VIZ_MOVE_UP_BITMAP);
+   addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_UP_BUTTON, L"", FWVIZ_DEF_REC_MOVE_UP, FALSE);
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN, IDB_VIZ_INFO_BITMAP);
-   hToolTip = Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN,
+   loadBitmap(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN, IDB_VIZ_INFO_BITMAP);
+   hToolTip = addTooltip(_hSelf, IDC_FWVIZ_DEF_REC_THEME_INFOBTN,
       FWVIZ_DEF_RECTHEME_HINT_HDR, FWVIZ_DEF_RECTHEME_HINT_TXT, TRUE);
    SendMessage(hToolTip, TTM_SETDELAYTIME, TTDT_AUTOPOP, (LPARAM)(30000));
 
-   Utils::loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
-   Utils::addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, NULL, VIZ_PANEL_INFO_TIP, FALSE);
+   loadBitmap(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, IDB_VIZ_INFO_BITMAP);
+   addTooltip(_hSelf, IDC_FWVIZ_DEF_INFO_BUTTON, L"", VIZ_PANEL_INFO_TIP, FALSE);
 
    Utils::setFontUnderline(_hSelf, IDC_FWVIZ_DEF_ADFT_GROUP_LABEL);
 
@@ -571,7 +574,7 @@ void ConfigureDialog::fillFileTypes() {
    onFileTypeSelect();
 }
 
-int ConfigureDialog::getCurrentFileTypeIndex() {
+int ConfigureDialog::getCurrentFileTypeIndex() const {
    int idxFT;
 
    idxFT = static_cast<int>(SendMessage(hFilesLB, LB_GETCURSEL, NULL, NULL));
@@ -580,7 +583,7 @@ int ConfigureDialog::getCurrentFileTypeIndex() {
    return idxFT;
 }
 
-int ConfigureDialog::getCurrentRecIndex() {
+int ConfigureDialog::getCurrentRecIndex() const {
    int idxRec;
 
    idxRec = static_cast<int>(SendMessage(hRecsLB, LB_GETCURSEL, NULL, NULL));
@@ -1033,7 +1036,7 @@ void ConfigureDialog::fieldEditsAccept() {
    enableRecSelection();
 }
 
-void ConfigureDialog::onRecStartEditChange() {
+void ConfigureDialog::onRecStartEditChange() const {
    wstring startText(MAX_PATH + 1, '\0');
    GetWindowText(hRecStart, startText.data(), MAX_PATH);
    startText = startText.c_str();

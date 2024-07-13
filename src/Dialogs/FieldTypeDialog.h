@@ -14,7 +14,7 @@ private:
    INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
    void localize();
 
-   int getCurrentFieldIndex();
+   int getCurrentFieldIndex() const;
    string getNewStyle();
    string getStyleConfig();
 
