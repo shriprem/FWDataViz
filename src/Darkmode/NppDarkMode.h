@@ -16,8 +16,9 @@
 
 #pragma once
 
+#pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "comctl32.lib")
-#pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "uxtheme.lib")
 
 #include "../NPP/Notepad_plus_msgs.h"
@@ -70,11 +71,14 @@ namespace NppDarkMode
    void queryNPPDarkmode();      // sync options from NPP instance
    bool isEnabled();
    bool isExperimentalSupported();
+
+   bool isWindows10();
    bool isWindows11();
+   DWORD getWindowsBuildNumber();
 
    COLORREF invertLightness(COLORREF c);
    COLORREF invertLightnessSofter(COLORREF c);
-   double calculatePerceivedLighness(COLORREF c);
+   double calculatePerceivedLightness(COLORREF c);
 
    COLORREF getBackgroundColor();
    COLORREF getSofterBackgroundColor();

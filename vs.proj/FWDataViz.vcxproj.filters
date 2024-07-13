@@ -61,6 +61,9 @@
     <ClCompile Include="..\src\Dialogs\FoldStructDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\NPP\dpiManagerV2.cpp">
+      <Filter>_NPP Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\NPP\Docking.h">
@@ -164,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Resources\FWVIZ_messages.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NPP\dpiManagerV2.h">
+      <Filter>_NPP Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

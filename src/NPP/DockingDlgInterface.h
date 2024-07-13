@@ -33,21 +33,21 @@ public:
 	DockingDlgInterface() = default;
 	explicit DockingDlgInterface(int dlgID): _dlgID(dlgID) {}
 
-	virtual void init(HINSTANCE hInst, HWND parent) {
+	void init(HINSTANCE hInst, HWND parent) override {
 		StaticDialog::init(hInst, parent);
 		TCHAR temp[MAX_PATH];
 		::GetModuleFileName(hInst, temp, MAX_PATH);
 		_moduleName = ::PathFindFileName(temp);
 	}
 
-    void create(tTbData* data, bool isRTL = false) {
+	void create(tTbData* data, bool isRTL = false) {
 		assert(data != nullptr);
 		StaticDialog::create(_dlgID, isRTL);
 		TCHAR temp[MAX_PATH];
 		::GetWindowText(_hSelf, temp, MAX_PATH);
 		_pluginName = temp;
 
-        // user information
+		// user information
 		data->hClient = _hSelf;
 		data->pszName = _pluginName.c_str();
 
@@ -69,7 +69,7 @@ public:
 	virtual void setBackgroundColor(COLORREF) {}
 	virtual void setForegroundColor(COLORREF) {}
 
-	virtual void display(bool toShow = true) const {
+	void display(bool toShow = true) const override {
 		::SendMessage(_hParent, toShow ? NPPM_DMMSHOW : NPPM_DMMHIDE, 0, reinterpret_cast<LPARAM>(_hSelf));
 	}
 
@@ -93,7 +93,7 @@ protected :
 	std::wstring _pluginName;
 	bool _isClosed = false;
 
-	virtual intptr_t CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) {
+	intptr_t CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) override {
 		switch (message)
 		{
 			case WM_ERASEBKGND:

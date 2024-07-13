@@ -1,11 +1,11 @@
-#include <Windows.h>
+#include <windows.h>
 
 #include "DarkMode.h"
 
 #include "IatHook.h"
 
-#include <Uxtheme.h>
-#include <Vssym32.h>
+#include <uxtheme.h>
+#include <vssym32.h>
 
 #include <unordered_set>
 #include <mutex>
@@ -125,9 +125,10 @@ bool AllowDarkModeForWindow(HWND hWnd, bool allow)
 
 bool IsHighContrast()
 {
-	HIGHCONTRASTW highContrast = { sizeof(highContrast) };
-	if (SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(highContrast), &highContrast, FALSE))
-		return highContrast.dwFlags & HCF_HIGHCONTRASTON;
+	HIGHCONTRASTW highContrast{};
+	highContrast.cbSize = sizeof(HIGHCONTRASTW);
+	if (SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(HIGHCONTRASTW), &highContrast, FALSE))
+		return (highContrast.dwFlags & HCF_HIGHCONTRASTON) == HCF_HIGHCONTRASTON;
 	return false;
 }
 
@@ -257,12 +258,22 @@ constexpr bool CheckBuildNumber(DWORD buildNumber)
 		buildNumber == 19043 || // 21H1
 		buildNumber == 19044 || // 21H2
 		(buildNumber > 19044 && buildNumber < 22000) || // Windows 10 any version > 21H2 
-		buildNumber >= 22000);  // Windows 11 insider builds
+		buildNumber >= 22000);  // Windows 11 builds
+}
+
+bool IsWindows10() // or later OS version
+{
+	return (g_buildNumber >= 17763);
 }
 
 bool IsWindows11() // or later OS version
 {
 	return (g_buildNumber >= 22000);
+}
+
+DWORD GetWindowsBuildNumber()
+{
+	return g_buildNumber;
 }
 
 void InitDarkMode()
