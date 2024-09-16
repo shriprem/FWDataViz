@@ -27,6 +27,7 @@
 #include "../Darkmode/NppDarkMode.h"
 
 
+
 class DockingDlgInterface : public StaticDialog
 {
 public:
@@ -35,7 +36,7 @@ public:
 
 	void init(HINSTANCE hInst, HWND parent) override {
 		StaticDialog::init(hInst, parent);
-		TCHAR temp[MAX_PATH];
+		wchar_t temp[MAX_PATH];
 		::GetModuleFileName(hInst, temp, MAX_PATH);
 		_moduleName = ::PathFindFileName(temp);
 	}
@@ -43,7 +44,7 @@ public:
 	void create(tTbData* data, bool isRTL = false) {
 		assert(data != nullptr);
 		StaticDialog::create(_dlgID, isRTL);
-		TCHAR temp[MAX_PATH];
+		wchar_t temp[MAX_PATH];
 		::GetWindowText(_hSelf, temp, MAX_PATH);
 		_pluginName = temp;
 
@@ -81,7 +82,7 @@ public:
 		_isClosed = toClose;
 	}
 
-	const TCHAR * getPluginFileName() const {
+	const wchar_t * getPluginFileName() const {
 		return _moduleName.c_str();
 	}
 

@@ -81,10 +81,6 @@ public :
 		DPIManagerV2::setPositionDpi(lParam, _hSelf, flags);
 	}
 
-	void sendDpiMsgToChildCtrls(WPARAM wParam = 0, LPARAM lParam = 0) {
-		DPIManagerV2::sendMessageToChildControls(_hSelf, WM_DPICHANGED, wParam, lParam);
-	}
-
 	void destroy() override;
 
 	DPIManagerV2& dpiManager() { return _dpiManager; }

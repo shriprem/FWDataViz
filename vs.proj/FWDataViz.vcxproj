@@ -314,6 +314,7 @@
       <LargeAddressAware>
       </LargeAddressAware>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <CETCompat>false</CETCompat>
     </Link>
     <PostBuildEvent>
       <Command>START /MIN /D ..\ copy$(Platform).cmd</Command>
@@ -354,6 +355,7 @@
       <MinimumRequiredVersion>6.00</MinimumRequiredVersion>
       <LargeAddressAware>true</LargeAddressAware>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <CETCompat>false</CETCompat>
     </Link>
     <PostBuildEvent>
       <Command>START /MIN /D ..\ copy$(Platform).cmd</Command>
@@ -392,6 +394,7 @@
       <Version>1.0</Version>
       <MinimumRequiredVersion>6.00</MinimumRequiredVersion>
       <LargeAddressAware>true</LargeAddressAware>
+      <CETCompat>false</CETCompat>
     </Link>
     <PostBuildEvent>
       <Command>START /MIN /D ..\ copy$(Platform).cmd</Command>
