@@ -133,7 +133,7 @@ wstring Utils::getKnownFolderPath(REFKNOWNFOLDERID folderID) {
 }
 
 HWND Utils::addTooltip(HWND hDlg, int controlID, const wstring& pTitle, const wstring& pMessage, bool bBalloon) {
-   if (!controlID || !hDlg || pMessage == L"")
+   if (!controlID || !hDlg || pMessage.empty())
       return FALSE;
 
    // Get the window of the tool.
