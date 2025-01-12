@@ -8,8 +8,6 @@
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/shriprem/FWDataViz/CI_build.yml)
 ![GitHub issues](https://img.shields.io/github/issues/shriprem/FWDataViz)
 
-<a href='https://ko-fi.com/S6S417WICS' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
-
 ## Fixed Width Data Visualizer plugin for Notepad++
 [Current Version: 2.6.3.1](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.3.1)
 
