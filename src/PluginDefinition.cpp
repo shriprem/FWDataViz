@@ -123,12 +123,7 @@ bool setCommand(size_t index, const wstring& cmdName, PFUNCPLUGINCMD pFunc, Shor
 }
 
 HWND getCurrentScintilla() {
-   int which{ -1 };
-
-   nppMessage(NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)&which);
-   if (which < 0) return (HWND)NULL;
-
-   return (HWND)(which ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
+   return (HWND)(nppMessage(NPPM_GETCURRENTVIEW, 0, 0) ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
 }
 
 bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr) {
