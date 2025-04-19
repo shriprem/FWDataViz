@@ -39,7 +39,7 @@ enum LangType {L_TEXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,\
 			   L_MMIXAL, L_NIM, L_NNCRONTAB, L_OSCRIPT, L_REBOL, \
 			   L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG,\
 			   L_TYPESCRIPT, L_JSON5, L_MSSQL, L_GDSCRIPT, L_HOLLYWOOD,\
-			   L_GOLANG, L_RAKU, L_TOML,\
+			   L_GOLANG, L_RAKU, L_TOML, L_SAS,\
 			   // Don't use L_JS, use L_JAVASCRIPT instead
 			   // The end of enumated language type, so it should be always at the end
 			   L_EXTERNAL};
@@ -111,7 +111,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// return value: The number of files in XML session file
 
 	#define NPPM_GETSESSIONFILES (NPPMSG + 14)
-	// NPPM_GETSESSIONFILES (wchar_t** sessionFileArray, wchar_t* sessionFileName)
+	// BOOL NPPM_GETSESSIONFILES (wchar_t** sessionFileArray, wchar_t* sessionFileName)
 	// the files' full path name from a session file.
 	// wParam[out]: sessionFileArray is the array in which the files' full path of the same group are written. To allocate the array with the proper size, send message NPPM_GETNBSESSIONFILES.
 	// lParam[in]: sessionFileName is XML session full path
@@ -974,7 +974,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// Note: there's no symetric command NPPM_SETTABCOLORID. Plugins can use NPPM_MENUCOMMAND to set current tab color with the desired tab color ID.
 
 	#define NPPM_SETUNTITLEDNAME (NPPMSG + 115)
-	// int NPPM_SETUNTITLEDNAME(BufferID id, const wchar_t* newName)
+	// BOOL NPPM_SETUNTITLEDNAME(BufferID id, const wchar_t* newName)
 	// Rename the tab name for an untitled tab.
 	// wParam[in]: id - BufferID of the tab. -1 for currently active tab
 	// lParam[in]: newName - the desired new name of the tab
@@ -985,10 +985,39 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// Get the Current native language file name string. Use it after getting NPPN_READY notification to find out which native language is used.
 	// Users should call it with nativeLangFileName as NULL to get the required number of char (not including the terminating nul character),
 	// allocate language file name string buffer with the return value + 1, then call it again to get the current native language file name string.
-	// If there's no localization file aplied, the returned value is 0.
+	// If there's no localization file applied, the returned value is 0.
 	// wParam[in]: strLen is "language file name string" buffer length
 	// lParam[out]: language file name string receives all copied native language file name string
 	// Return the number of char copied/to copy
+
+	#define NPPM_ADDSCNMODIFIEDFLAGS (NPPMSG + 117)
+	// BOOL NPPM_ADDSCNMODIFIEDFLAGS(0, unsigned long scnMotifiedFlags2Add)
+	// Add the necessary SCN_MODIFIED flags so that your plugin will receive the SCN_MODIFIED notification for these events, enabling your specific treatments.
+	// By default, Notepad++ only forwards SCN_MODIFIED with the following 5 flags/events:
+	// SC_MOD_DELETETEXT | SC_MOD_INSERTTEXT | SC_PERFORMED_UNDO | SC_PERFORMED_REDO | SC_MOD_CHANGEINDICATOR to plugins.
+	// If your plugin needs to process other SCN_MODIFIED events, you should add the required flags by sending this message to Notepad++. You can send it immediately after receiving NPPN_READY,
+	// or only when your plugin needs to listen to specific events (to avoid penalizing Notepad++'s performance). Just ensure that the message is sent only once.
+	// wParam: 0 (not used)
+	// lParam[in]: scnMotifiedFlags2Add - Scintilla SCN_MODIFIED flags to add. 
+	// Return TRUE
+	//
+	// Example:
+	//
+	//  extern "C" __declspec(dllexport) void beNotified(SCNotification* notifyCode)
+	//  {
+	//  	switch (notifyCode->nmhdr.code)
+	//  	{
+	//  		case NPPN_READY:
+	//  		{
+	//  			// Add SC_MOD_BEFOREDELETE and SC_MOD_BEFOREINSERT to listen to the 2 events of SCN_MODIFIED
+	//  			::SendMessage(nppData._nppHandle, NPPM_ADDSCNMODIFIEDFLAGS, 0, SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT); 
+	//  		}
+	//  		break;
+	//  		...
+	//  	}
+	//  	...
+	//  }
+
 
 	// For RUNCOMMAND_USER
 	#define VAR_NOT_RECOGNIZED 0
