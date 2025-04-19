@@ -1390,6 +1390,18 @@ void VisualizerPanel::applyLexer(const intptr_t startLine, intptr_t endLine) {
    }
 }
 
+void VisualizerPanel::renderScrolledPage(void* view) {
+   bool otherView{ (view != getCurrentScintilla()) };
+
+   if (otherView)
+      nppMessage(NPPM_MENUCOMMAND, 0, (LPARAM)IDM_VIEW_SWITCHTO_OTHER_VIEW);
+
+   renderCurrentPage();
+
+   if (otherView)
+      nppMessage(NPPM_MENUCOMMAND, 0, (LPARAM)IDM_VIEW_SWITCHTO_OTHER_VIEW);
+}
+
 void VisualizerPanel::renderCurrentPage() {
    if (loadLexer() < 1) {
       clearCaretFieldInfo();

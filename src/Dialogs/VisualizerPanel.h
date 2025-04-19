@@ -60,6 +60,7 @@ public:
    bool getDocFileType(string& fileType);
    void loadListThemes() const;
    void onBufferActivate();
+   void renderScrolledPage(void* view);
    void renderCurrentPage();
    void visualizeFile(string fileType, bool bCachedFT, bool bAutoFT, bool bSyncFT);
    void delDocInfo(intptr_t bufferID);
