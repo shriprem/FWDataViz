@@ -1,5 +1,13 @@
 ## Version History
 
+### Version 2.6.4.0 [April 19, 2025]
+
+1. Fixed: When NP++ dual views are active, FWDataViz is visualizing only files in the active view. Issue: [#95](https://github.com/shriprem/FWDataViz/issues/95).
+
+**Release:** [2.6.4.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.4.0)
+
+---
+
 ### Version 2.6.3.1 [October 3, 2023]
 
 1. Fixed: 'Auto-Detect File Type' crashes Notepad++ when a file with a line having more than 32767 chars is opened. Issue: [#90](https://github.com/shriprem/FWDataViz/issues/90).
