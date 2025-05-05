@@ -1164,13 +1164,8 @@ namespace NppDarkMode
          auto colorEnabledText = isHot ? getTextColor() : getDarkerTextColor();
          ::SetTextColor(hdc, isWindowEnabled ? colorEnabledText : getDisabledTextColor());
          ::SetBkColor(hdc, isHot ? getHotBackgroundColor() : getBackgroundColor());
-         ::ExtTextOut(hdc,
-            rcArrow.left + (rcArrow.right - rcArrow.left) / 2 - scaleDPIX(4),
-            rcArrow.top + 3,
-            ETO_OPAQUE | ETO_CLIPPED,
-            &rcArrow, L"˅",
-            1,
-            nullptr);
+         wchar_t arrow[] = L"˅";
+         ::DrawText(hdc, arrow, -1, &rcArrow, DT_NOPREFIX | DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
          ::SetBkColor(hdc, getBackgroundColor());
 
          auto hEnabledPen = (isHot || hasFocus) ? getHotEdgePen() : getEdgePen();
@@ -1825,49 +1820,14 @@ namespace NppDarkMode
          lf.lfWeight = 900;
          auto holdFont = static_cast<HFONT>(::SelectObject(hdc, CreateFontIndirect(&lf)));
 
-         if ((style & UDS_HORZ) == UDS_HORZ) {
-            auto mPosX = ((rcArrowUp.right - rcArrowUp.left - scaleDPIX(7) + 1) / 2);
-            auto mPosY = ((rcArrowUp.bottom - rcArrowUp.top + lf.lfHeight - scaleDPIY(1) - 3) / 2);
+         const bool isHorizontal = ((style & UDS_HORZ) == UDS_HORZ);
+         const auto arrowTextFlags = DT_NOPREFIX | DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP;
 
-            ::SetTextColor(hdc, isHotUp ? getTextColor() : getDarkerTextColor());
-            ::ExtTextOut(hdc,
-               rcArrowUp.left + mPosX,
-               rcArrowUp.top + mPosY,
-               ETO_CLIPPED,
-               &rcArrowUp, L"<",
-               1,
-               nullptr);
+         ::SetTextColor(hdc, isHotUp ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
+         ::DrawText(hdc, isHorizontal ? L"<" : L"˄", -1, &rcArrowUp, arrowTextFlags);
 
-            ::SetTextColor(hdc, isHotDown ? getTextColor() : getDarkerTextColor());
-            ::ExtTextOut(hdc,
-               rcArrowDown.left + mPosX - scaleDPIX(2) + 3,
-               rcArrowDown.top + mPosY,
-               ETO_CLIPPED,
-               &rcArrowDown, L">",
-               1,
-               nullptr);
-         }
-         else {
-            auto mPosX = scaleDPIX(4);
-
-            ::SetTextColor(hdc, isHotUp ? getTextColor() : getDarkerTextColor());
-            ::ExtTextOut(hdc,
-               rcArrowUp.left + mPosX,
-               rcArrowUp.top + scaleDPIX(2),
-               ETO_CLIPPED,
-               &rcArrowUp, L"˄",
-               1,
-               nullptr);
-
-            ::SetTextColor(hdc, isHotDown ? getTextColor() : getDarkerTextColor());
-            ::ExtTextOut(hdc,
-               rcArrowDown.left + mPosX,
-               rcArrowDown.top,
-               ETO_CLIPPED,
-               &rcArrowDown, L"˅",
-               1,
-               nullptr);
-         }
+         ::SetTextColor(hdc, isHotDown ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
+         ::DrawText(hdc, isHorizontal ? L">" : L"˅", -1, &rcArrowDown, arrowTextFlags);
 
          if (!hasTheme)
          {
