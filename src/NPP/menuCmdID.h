@@ -182,6 +182,8 @@
     #define    IDM_EDIT_MULTISELECTNEXTMATCHCASEWHOLEWORD       (IDM_EDIT + 97)
     #define    IDM_EDIT_MULTISELECTUNDO                         (IDM_EDIT + 98)
     #define    IDM_EDIT_MULTISELECTSSKIP                        (IDM_EDIT + 99)
+    #define    IDM_EDIT_SORTLINES_LOCALE_ASCENDING              (IDM_EDIT + 100)
+    #define    IDM_EDIT_SORTLINES_LOCALE_DESCENDING             (IDM_EDIT + 101)
 
     #define    IDM_EDIT_AUTOCOMPLETE                            (50000 + 0)
     #define    IDM_EDIT_AUTOCOMPLETE_CURRENTFILE                (50000 + 1)
@@ -564,7 +566,8 @@
     #define    IDM_LANG_RAKU               (IDM_LANG + 90)
     #define    IDM_LANG_TOML               (IDM_LANG + 91)
     #define    IDM_LANG_SAS                (IDM_LANG + 92)
-    
+    #define    IDM_LANG_ERRORLIST          (IDM_LANG + 93)
+
     #define    IDM_LANG_EXTERNAL           (IDM_LANG + 165)
     #define    IDM_LANG_EXTERNAL_LIMIT     (IDM_LANG + 179)
 
