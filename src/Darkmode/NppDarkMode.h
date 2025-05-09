@@ -37,9 +37,9 @@ namespace NppDarkMode
    struct Colors
    {
       COLORREF background = 0;
-      COLORREF softerBackground = 0;
+      COLORREF softerBackground = 0; // ctrl background color
       COLORREF hotBackground = 0;
-      COLORREF pureBackground = 0;
+      COLORREF pureBackground = 0;   // dlg background color
       COLORREF errorBackground = 0;
       COLORREF text = 0;
       COLORREF darkerText = 0;
@@ -50,6 +50,19 @@ namespace NppDarkMode
       COLORREF disabledEdge = 0;
    };
 
+   struct Options
+   {
+      bool enable = false;
+      bool enableMenubar = false;
+      bool enablePlugin = false;
+   };
+
+   struct NppDarkModeParams
+   {
+      const wchar_t* _themeClassName = nullptr;
+      bool _subclass = false;
+      bool _theme = false;
+   };
 
    enum class ToolTipsType
    {
@@ -58,6 +71,17 @@ namespace NppDarkMode
       listview,
       treeview,
       tabbar
+   };
+
+   enum ColorTone {
+      blackTone = 0,
+      redTone = 1,
+      greenTone = 2,
+      blueTone = 3,
+      purpleTone = 4,
+      cyanTone = 5,
+      oliveTone = 6,
+      customizedTone = 32
    };
 
    enum class TreeViewStyle
@@ -81,9 +105,9 @@ namespace NppDarkMode
    double calculatePerceivedLightness(COLORREF c);
 
    COLORREF getBackgroundColor();
-   COLORREF getSofterBackgroundColor();
+   COLORREF getCtrlBackgroundColor();
    COLORREF getHotBackgroundColor();
-   COLORREF getDarkerBackgroundColor();
+   COLORREF getDlgBackgroundColor();
    COLORREF getErrorBackgroundColor();
 
    COLORREF getTextColor();
@@ -96,8 +120,8 @@ namespace NppDarkMode
    COLORREF getDisabledEdgeColor();
 
    HBRUSH getBackgroundBrush();
-   HBRUSH getDarkerBackgroundBrush();
-   HBRUSH getSofterBackgroundBrush();
+   HBRUSH getDlgBackgroundBrush();
+   HBRUSH getCtrlBackgroundBrush();
    HBRUSH getHotBackgroundBrush();
    HBRUSH getErrorBackgroundBrush();
 
