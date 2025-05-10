@@ -261,5 +261,8 @@
     <Image Include="..\src\Resources\page_prev.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
+    <Image Include="..\src\Resources\fields_dock.ico">
+      <Filter>Resources\Icons</Filter>
+    </Image>
   </ItemGroup>
 </Project>

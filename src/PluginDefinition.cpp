@@ -152,8 +152,9 @@ void ShowVisualizerPanel(bool show) {
          data.pszModuleName = _vizPanel.getPluginFileName();
          data.dlgID = MI_FWVIZ_PANEL;
          data.pszName = MENU_PANEL_NAME;
-         data.hIconTab = (HICON)::LoadImage(_gModule, MAKEINTRESOURCE(IDI_VIZ_TOOL_BTN_STD_FIELDS), IMAGE_ICON, 14, 14,
-            LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+         data.hIconTab = (HICON)::LoadImage(_gModule,
+            MAKEINTRESOURCE(nppMessage(NPPM_ISDARKMODEENABLED, 0, 0) ? IDI_VIZ_DOCK_BTN_DARK_FIELDS : IDI_VIZ_TOOL_BTN_STD_FIELDS),
+            IMAGE_ICON, 14, 14, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
 
          nppMessage(NPPM_DMMREGASDCKDLG, 0, (LPARAM)&data);
 
