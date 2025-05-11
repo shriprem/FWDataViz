@@ -261,7 +261,10 @@
     <Image Include="..\src\Resources\page_prev.bmp">
       <Filter>Resources\Bitmaps</Filter>
     </Image>
-    <Image Include="..\src\Resources\fields_dock.ico">
+    <Image Include="..\src\Resources\dock_dark.ico">
+      <Filter>Resources\Icons</Filter>
+    </Image>
+    <Image Include="..\src\Resources\dock_lite.ico">
       <Filter>Resources\Icons</Filter>
     </Image>
   </ItemGroup>

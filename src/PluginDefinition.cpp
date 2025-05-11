@@ -139,6 +139,18 @@ LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
    return SendMessage(nppData._nppHandle, messageID, wparam, lparam);
 }
 
+UINT getDockPanelIcon() {
+   wchar_t sConfigFilePath[MAX_PATH]{};
+
+   nppMessage(NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)sConfigFilePath);
+   PathAppend(sConfigFilePath, L"config.xml");
+
+   if (nppMessage(NPPM_ISDARKMODEENABLED, 0, 0))
+      return (Utils::matchStringInFile(sConfigFilePath, L"darkToolBarIconSet=\"4\"")) ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_DARK_MODE_ICON;
+   else
+      return (Utils::matchStringInFile(sConfigFilePath, L"lightToolBarIconSet=\"4\"")) ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_LITE_MODE_ICON;
+}
+
 // Dockable Visualizer Dialog
 void ShowVisualizerPanel(bool show) {
    if (show && !_vizPanel.isVisible()) {
@@ -153,8 +165,7 @@ void ShowVisualizerPanel(bool show) {
          data.dlgID = MI_FWVIZ_PANEL;
          data.pszName = MENU_PANEL_NAME;
          data.hIconTab = (HICON)::LoadImage(_gModule,
-            MAKEINTRESOURCE(nppMessage(NPPM_ISDARKMODEENABLED, 0, 0) ? IDI_VIZ_DOCK_BTN_DARK_FIELDS : IDI_VIZ_TOOL_BTN_STD_FIELDS),
-            IMAGE_ICON, 14, 14, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+            MAKEINTRESOURCE(getDockPanelIcon()), IMAGE_ICON, 14, 14, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
 
          nppMessage(NPPM_DMMREGASDCKDLG, 0, (LPARAM)&data);
 

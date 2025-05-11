@@ -94,9 +94,10 @@
   <ItemGroup>
     <Image Include="..\src\Resources\about.bmp" />
     <Image Include="..\src\Resources\color_config.bmp" />
+    <Image Include="..\src\Resources\dock_dark.ico" />
+    <Image Include="..\src\Resources\dock_lite.ico" />
     <Image Include="..\src\Resources\down.bmp" />
     <Image Include="..\src\Resources\fields.bmp" />
-    <Image Include="..\src\Resources\fields_dock.ico" />
     <Image Include="..\src\Resources\file_config.bmp" />
     <Image Include="..\src\Resources\file_samples.bmp" />
     <Image Include="..\src\Resources\ini_files.bmp" />
