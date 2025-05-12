@@ -2,7 +2,6 @@
 
 #include "PluginDefinition.h"
 #include <codecvt>
-#include <fstream>
 #include <regex>
 #include <ShlObj_core.h>
 
@@ -52,5 +51,4 @@ namespace Utils {
 
    bool checkDirectoryExists(LPCWSTR lpDirPath);
    bool checkFileExists(LPCWSTR lpFilePath);
-   bool matchStringInFile(wstring filePath, wstring text);
 }

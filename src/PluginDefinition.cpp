@@ -140,15 +140,12 @@ LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
 }
 
 UINT getDockPanelIcon() {
-   wchar_t sConfigFilePath[MAX_PATH]{};
-
-   nppMessage(NPPM_GETNPPDIRECTORY, MAX_PATH, (LPARAM)sConfigFilePath);
-   PathAppend(sConfigFilePath, L"config.xml");
+   bool bStandardIcons{ nppMessage(NPPM_GETTOOLBARICONSETMODE, 0, 0) == 4 };
 
    if (nppMessage(NPPM_ISDARKMODEENABLED, 0, 0))
-      return (Utils::matchStringInFile(sConfigFilePath, L"darkToolBarIconSet=\"4\"")) ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_DARK_MODE_ICON;
+      return bStandardIcons ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_DARK_MODE_ICON;
    else
-      return (Utils::matchStringInFile(sConfigFilePath, L"lightToolBarIconSet=\"4\"")) ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_LITE_MODE_ICON;
+      return bStandardIcons ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_LITE_MODE_ICON;
 }
 
 // Dockable Visualizer Dialog

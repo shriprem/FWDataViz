@@ -23,7 +23,6 @@
 #pragma once
 
 #include <windows.h>
-#include <tchar.h>
 
 enum LangType {L_TEXT, L_PHP , L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC,\
 			   L_HTML, L_XML, L_MAKEFILE, L_PASCAL, L_BATCH, L_INI, L_ASCII, L_USER,\
@@ -998,7 +997,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// If your plugin needs to process other SCN_MODIFIED events, you should add the required flags by sending this message to Notepad++. You can send it immediately after receiving NPPN_READY,
 	// or only when your plugin needs to listen to specific events (to avoid penalizing Notepad++'s performance). Just ensure that the message is sent only once.
 	// wParam: 0 (not used)
-	// lParam[in]: scnMotifiedFlags2Add - Scintilla SCN_MODIFIED flags to add. 
+	// lParam[in]: scnMotifiedFlags2Add - Scintilla SCN_MODIFIED flags to add.
 	// Return TRUE
 	//
 	// Example:
@@ -1010,13 +1009,20 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	//  		case NPPN_READY:
 	//  		{
 	//  			// Add SC_MOD_BEFOREDELETE and SC_MOD_BEFOREINSERT to listen to the 2 events of SCN_MODIFIED
-	//  			::SendMessage(nppData._nppHandle, NPPM_ADDSCNMODIFIEDFLAGS, 0, SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT); 
+	//  			::SendMessage(nppData._nppHandle, NPPM_ADDSCNMODIFIEDFLAGS, 0, SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT);
 	//  		}
 	//  		break;
 	//  		...
 	//  	}
 	//  	...
 	//  }
+
+	#define NPPM_GETTOOLBARICONSETMODE (NPPMSG + 118)
+	// BOOL NPPM_GETTOOLBARICONSETMODE(0, 0)
+	// Get Notepad++ Toobar Icon Set mode (ENUM Range: 0 to 4).
+	// wParam: 0 (not used)
+	// lParam: 0 (not used)
+	// Return Toolbar Icon Set mode as an integer value [ENUM range: 0 (TB_SMALL - Fluent UI: small) to 4 (TB_STANDARD - Standard icons: small)].
 
 
 	// For RUNCOMMAND_USER
