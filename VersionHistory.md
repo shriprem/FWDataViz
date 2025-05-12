@@ -1,5 +1,16 @@
 ## Version History
 
+### Version 2.6.4.1 [May 12, 2025]
+
+1. New Feature: Dock Panel icon will be rendered with Fluent or Standard icon depending on the selection under `Notepad++ menu: Settings » Preferences... » Toolbar`. [_Note: To see this feature in action, you will need a build of Notepad++ with the new plugin API message: `NPPM_GETTOOLBARICONSETMODE`._]
+
+2. Darkmode Enhancement: Chevron in Dropdown Lists in the plugin updated to match corresponding UI change in Notepad++.
+
+3. Enhancement: Fluent and standard toolbar icons have been tweaked.
+**Release:** [2.6.4.1 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.4.1)
+
+---
+
 ### Version 2.6.4.0 [April 19, 2025]
 
 1. Fixed: When NP++ dual views are active, FWDataViz is visualizing only files in the active view. Issue: [#95](https://github.com/shriprem/FWDataViz/issues/95).
