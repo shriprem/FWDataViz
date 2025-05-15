@@ -759,7 +759,7 @@ void VisualizerPanel::fieldCopy() {
    sciTR.lpstrText = colText.data();
    sciTR.chrg.cpMin = leftPos;
    sciTR.chrg.cpMax = rightPos;
-   SendMessage(hScintilla, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
+   SendMessage(hScintilla, SCI_GETTEXTRANGEFULL, NULL, (LPARAM)&sciTR);
 
    colText = string{ colText.c_str() };
 

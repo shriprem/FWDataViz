@@ -997,7 +997,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	// If your plugin needs to process other SCN_MODIFIED events, you should add the required flags by sending this message to Notepad++. You can send it immediately after receiving NPPN_READY,
 	// or only when your plugin needs to listen to specific events (to avoid penalizing Notepad++'s performance). Just ensure that the message is sent only once.
 	// wParam: 0 (not used)
-	// lParam[in]: scnMotifiedFlags2Add - Scintilla SCN_MODIFIED flags to add.
+	// lParam[in]: scnMotifiedFlags2Add - Scintilla SCN_MODIFIED flags to add. 
 	// Return TRUE
 	//
 	// Example:
@@ -1009,7 +1009,7 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	//  		case NPPN_READY:
 	//  		{
 	//  			// Add SC_MOD_BEFOREDELETE and SC_MOD_BEFOREINSERT to listen to the 2 events of SCN_MODIFIED
-	//  			::SendMessage(nppData._nppHandle, NPPM_ADDSCNMODIFIEDFLAGS, 0, SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT);
+	//  			::SendMessage(nppData._nppHandle, NPPM_ADDSCNMODIFIEDFLAGS, 0, SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT); 
 	//  		}
 	//  		break;
 	//  		...
@@ -1017,13 +1017,13 @@ enum Platform { PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64 };
 	//  	...
 	//  }
 
-	#define NPPM_GETTOOLBARICONSETMODE (NPPMSG + 118)
-	// BOOL NPPM_GETTOOLBARICONSETMODE(0, 0)
-	// Get Notepad++ Toobar Icon Set mode (ENUM Range: 0 to 4).
+	#define NPPM_GETTOOLBARICONSETCHOICE (NPPMSG + 118)
+	// BOOL NPPM_GETTOOLBARICONSETCHOICE(0, 0)
+	// Get Notepad++ toobar icon set choice (Fluent UI: small, Fluent UI: large, Filled Fluent UI: small, Filled Fluent UI: large and Standard icons: small.
 	// wParam: 0 (not used)
 	// lParam: 0 (not used)
-	// Return Toolbar Icon Set mode as an integer value [ENUM range: 0 (TB_SMALL - Fluent UI: small) to 4 (TB_STANDARD - Standard icons: small)].
-
+	// Return toolbar icon set choice as an integer value. Here are 5 possible values:
+	// 0 (Fluent UI: small), 1 (Fluent UI: large), 2 (Filled Fluent UI: small), 3 (Filled Fluent UI: large) and 4 (Standard icons: small).
 
 	// For RUNCOMMAND_USER
 	#define VAR_NOT_RECOGNIZED 0

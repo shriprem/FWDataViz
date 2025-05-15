@@ -694,7 +694,7 @@ void DataExtractDialog::extractData() {
 
          if (sciTR.chrg.cpMin < eolMarkerPos &&
             (recStartPos + RI.fieldStarts[LI.fieldType] == 0 || sciTR.chrg.cpMin > 0)) {
-            sciFunc(sciPtr, SCI_GETTEXTRANGE, NULL, (LPARAM)&sciTR);
+            sciFunc(sciPtr, SCI_GETTEXTRANGEFULL, NULL, (LPARAM)&sciTR);
 
             fieldData = Utils::NarrowToWide(fieldText.c_str());
             if (trimSpaces)

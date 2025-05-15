@@ -140,7 +140,7 @@ LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
 }
 
 UINT getDockPanelIcon() {
-   bool bStandardIcons{ nppMessage(NPPM_GETTOOLBARICONSETMODE, 0, 0) == 4 };
+   bool bStandardIcons{ nppMessage(NPPM_GETTOOLBARICONSETCHOICE, 0, 0) == 4 };
 
    if (nppMessage(NPPM_ISDARKMODEENABLED, 0, 0))
       return bStandardIcons ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_DARK_MODE_ICON;
