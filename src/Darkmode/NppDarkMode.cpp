@@ -483,6 +483,40 @@ namespace NppDarkMode
       }
    };
 
+   struct SpinData
+   {
+      HTHEME hTheme = nullptr;
+      int iStateID = 0;
+
+      bool isSizeSet = false;
+      SIZE szBtn{};
+
+      SpinData() {};
+
+      ~SpinData()
+      {
+         closeTheme();
+      }
+
+      bool ensureTheme(HWND hwnd)
+      {
+         if (!hTheme)
+         {
+            hTheme = OpenThemeData(hwnd, VSCLASS_SPIN);
+         }
+         return hTheme != nullptr;
+      }
+
+      void closeTheme()
+      {
+         if (hTheme)
+         {
+            CloseThemeData(hTheme);
+            hTheme = nullptr;
+         }
+      }
+   };
+
    void renderButton(HWND hwnd, HDC hdc, HTHEME hTheme, int iPartID, int iStateID)
    {
       RECT rcClient{};
@@ -2011,14 +2045,14 @@ namespace NppDarkMode
       DWORD_PTR dwRefData
    )
    {
-      auto pButtonData = reinterpret_cast<ButtonData*>(dwRefData);
+      auto pSpinData = reinterpret_cast<SpinData*>(dwRefData);
 
       switch (uMsg)
       {
       case WM_PRINTCLIENT:
       case WM_PAINT:
       {
-         if (!isEnabled())
+         if (!NppDarkMode::isEnabled())
          {
             break;
          }
@@ -2026,43 +2060,48 @@ namespace NppDarkMode
          const auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
          const bool isHorizontal = ((style & UDS_HORZ) == UDS_HORZ);
 
-         bool hasTheme = pButtonData->ensureTheme(hWnd);
+         bool hasTheme = pSpinData->ensureTheme(hWnd);
 
          RECT rcClient{};
          ::GetClientRect(hWnd, &rcClient);
 
          PAINTSTRUCT ps{};
          auto hdc = ::BeginPaint(hWnd, &ps);
-         auto holdPen = static_cast<HPEN>(::SelectObject(hdc, getEdgePen()));
 
-         ::FillRect(hdc, &rcClient, getDlgBackgroundBrush());
+         ::FillRect(hdc, &rcClient, NppDarkMode::getDlgBackgroundBrush());
 
          RECT rcArrowPrev{};
          RECT rcArrowNext{};
 
          if (isHorizontal)
          {
-            rcArrowPrev = {
+            RECT rcArrowLeft{
                rcClient.left, rcClient.top,
-               rcClient.right - ((rcClient.right + 1 - rcClient.left) / 2), rcClient.bottom
+               rcClient.right - ((rcClient.right - rcClient.left + 1) / 2), rcClient.bottom
             };
 
-            rcArrowNext = {
-               rcArrowPrev.right + 1, rcClient.top,
+            RECT rcArrowRight{
+               rcArrowLeft.right + 1, rcClient.top,
                rcClient.right, rcClient.bottom
             };
+
+            rcArrowPrev = rcArrowLeft;
+            rcArrowNext = rcArrowRight;
          }
          else
          {
-            rcArrowPrev = {
+            RECT rcArrowTop{
                rcClient.left, rcClient.top,
-               rcClient.right, rcClient.bottom - ((rcClient.bottom + 1 - rcClient.top) / 2)
+               rcClient.right, rcClient.bottom - ((rcClient.bottom - rcClient.top + 1) / 2)
             };
 
-            rcArrowNext = {
-               rcClient.left, rcArrowPrev.bottom + 1,
+            RECT rcArrowBottom{
+               rcClient.left, rcArrowTop.bottom + 1,
                rcClient.right, rcClient.bottom
             };
+
+            rcArrowPrev = rcArrowTop;
+            rcArrowNext = rcArrowBottom;
          }
 
          POINT ptCursor{};
@@ -2073,52 +2112,64 @@ namespace NppDarkMode
          bool isHotNext = ::PtInRect(&rcArrowNext, ptCursor);
 
          ::SetBkMode(hdc, TRANSPARENT);
-         ::FillRect(hdc, &rcArrowPrev, isHotPrev ? getHotBackgroundBrush() : getBackgroundBrush());
-         ::FillRect(hdc, &rcArrowNext, isHotNext ? getHotBackgroundBrush() : getBackgroundBrush());
 
-         int roundCornerValue = (hasTheme && isWindows11()) ? scaleDPIX(4) : 0;
-         paintRoundFrameRect(hdc, rcArrowPrev, isHotPrev ? getHotEdgePen() : getEdgePen(), roundCornerValue, roundCornerValue);
-         paintRoundFrameRect(hdc, rcArrowNext, isHotNext ? getHotEdgePen() : getEdgePen(), roundCornerValue, roundCornerValue);
+         if (hasTheme)
+         {
+            //auto statePrev = isHotPrev ? UPS_HOT : UPS_NORMAL;
+            //auto stateNext = isHotNext ? DNS_HOT : DNS_NORMAL;
+            auto statePrev = isHorizontal ? (isHotPrev ? DNHZS_HOT : DNHZS_NORMAL) : (isHotPrev ? UPS_HOT : UPS_NORMAL);
+            auto stateNext = isHorizontal ? (isHotNext ? UPHZS_HOT : UPHZS_NORMAL) : (isHotNext ? DNS_HOT : DNS_NORMAL);
 
-         LOGFONT lf{};
-         auto font = reinterpret_cast<HFONT>(SendMessage(hWnd, WM_GETFONT, 0, 0));
-         ::GetObject(font, sizeof(lf), &lf);
-         lf.lfHeight = (scaleDPIY(16) - 3) * -1;
-         lf.lfWeight = 900;
-         auto holdFont = static_cast<HFONT>(::SelectObject(hdc, CreateFontIndirect(&lf)));
+            ::DrawThemeBackground(pSpinData->hTheme, hdc, isHorizontal ? SPNP_DOWNHORZ : SPNP_UP, statePrev, &rcArrowPrev, nullptr);
+            ::DrawThemeBackground(pSpinData->hTheme, hdc, isHorizontal ? SPNP_UPHORZ : SPNP_DOWN, stateNext, &rcArrowNext, nullptr);
+         }
+         else
+         {
+            ::FillRect(hdc, &rcArrowPrev, isHotPrev ? NppDarkMode::getHotBackgroundBrush() : NppDarkMode::getCtrlBackgroundBrush());
+            ::FillRect(hdc, &rcArrowNext, isHotNext ? NppDarkMode::getHotBackgroundBrush() : NppDarkMode::getCtrlBackgroundBrush());
 
-         const auto arrowTextFlags = DT_NOPREFIX | DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP;
+            const auto arrowTextFlags = DT_NOPREFIX | DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP;
 
-         ::SetTextColor(hdc, isHotPrev ? getTextColor() : getDarkerTextColor());
-         ::DrawText(hdc, isHorizontal ? L"<" : L"˄", -1, &rcArrowPrev, arrowTextFlags);
+            ::SetTextColor(hdc, isHotPrev ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
+            ::DrawText(hdc, isHorizontal ? L"<" : L"˄", -1, &rcArrowPrev, arrowTextFlags);
 
-         ::SetTextColor(hdc, isHotNext ? getTextColor() : getDarkerTextColor());
-         ::DrawText(hdc, isHorizontal ? L">" : L"˅", -1, &rcArrowNext, arrowTextFlags);
+            ::SetTextColor(hdc, isHotNext ? NppDarkMode::getTextColor() : NppDarkMode::getDarkerTextColor());
+            ::DrawText(hdc, isHorizontal ? L">" : L"˅", -1, &rcArrowNext, arrowTextFlags);
+         }
 
-         ::SelectObject(hdc, holdPen);
-         ::SelectObject(hdc, holdFont);
+         const int roundCornerValue = NppDarkMode::isWindows11() ? 4 : 0;
+
+         if (isHotPrev)
+         {
+            NppDarkMode::paintRoundFrameRect(hdc, rcArrowPrev, NppDarkMode::getHotEdgePen(), roundCornerValue, roundCornerValue);
+         }
+
+         if (isHotNext)
+         {
+            NppDarkMode::paintRoundFrameRect(hdc, rcArrowNext, NppDarkMode::getHotEdgePen(), roundCornerValue, roundCornerValue);
+         }
+
          ::EndPaint(hWnd, &ps);
-
          return FALSE;
       }
 
       case WM_DPICHANGED:
       case WM_DPICHANGED_AFTERPARENT:
       {
-         pButtonData->closeTheme();
+         pSpinData->closeTheme();
          return 0;
       }
 
       case WM_THEMECHANGED:
       {
-         pButtonData->closeTheme();
+         pSpinData->closeTheme();
          break;
       }
 
       case WM_NCDESTROY:
       {
          ::RemoveWindowSubclass(hWnd, UpDownSubclass, uIdSubclass);
-         delete pButtonData;
+         delete pSpinData;
          break;
       }
 
@@ -2144,8 +2195,8 @@ namespace NppDarkMode
       GetClassName(hwnd, className, classNameLen);
       if (wcscmp(className, UPDOWN_CLASS) == 0)
       {
-         auto pButtonData = reinterpret_cast<DWORD_PTR>(new ButtonData());
-         SetWindowSubclass(hwnd, UpDownSubclass, g_upDownSubclassID, pButtonData);
+         auto pSpinData = reinterpret_cast<DWORD_PTR>(new SpinData());
+         SetWindowSubclass(hwnd, UpDownSubclass, g_upDownSubclassID, pSpinData);
          setDarkExplorerTheme(hwnd);
          return true;
       }
