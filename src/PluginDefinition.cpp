@@ -127,7 +127,7 @@ HWND GetCurrentScintilla() {
    return (HWND)(NppMessage(NPPM_GETCURRENTVIEW, 0, 0) ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
 }
 
-bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr) {
+bool GetDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr) {
    HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return FALSE;
 

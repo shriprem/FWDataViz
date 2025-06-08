@@ -591,7 +591,7 @@ void DataExtractDialog::extractData() {
    void* sciPtr;
 
    if (getValidLineItems(validLIs, TRUE, TRUE) < 1) return;
-   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
+   if (!GetDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    string fileType{};
    if (!_vizPanel.getDocFileType(fileType) || (initFileType != fileType)) {

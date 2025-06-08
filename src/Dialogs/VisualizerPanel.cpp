@@ -914,7 +914,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
-   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
+   if (!GetDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
    bool useDefaultBackColor{ _configIO.getPreferenceBool(PREF_DEF_BACKGROUND, FALSE) };
    int defaultBackColor{ static_cast<int>(NppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR)) };
@@ -1019,7 +1019,7 @@ int VisualizerPanel::loadLexer() {
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
-   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
+   if (!GetDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
    string fileType;
    if (!getDocFileType(fileType)) {
@@ -1159,7 +1159,7 @@ void VisualizerPanel::applyLexer(const intptr_t startLine, intptr_t endLine) {
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
-   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
+   if (!GetDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    string fileType;
    if (!getDocFileType(fileType)) return;
@@ -2047,7 +2047,7 @@ void VisualizerPanel::applyFolding(string fsType) {
    vector<FoldingInfo> foldingInfoList{};
    _configIO.getFoldStructFoldingInfo(Utils::NarrowToWide(fsType), foldingInfoList);
 
-   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
+   if (!GetDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    const size_t regexedCount{ vRecInfo.size() };
 
@@ -2198,7 +2198,7 @@ void VisualizerPanel::removeFolding() {
    PSCIFUNC_T sciFunc;
    void* sciPtr;
 
-   if (!getDirectScintillaFunc(sciFunc, sciPtr)) return;
+   if (!GetDirectScintillaFunc(sciFunc, sciPtr)) return;
 
    SetCursor(LoadCursor(NULL, IDC_WAIT));
    const intptr_t lineCount{ sciFunc(sciPtr, SCI_GETLINECOUNT, NULL, NULL) };
