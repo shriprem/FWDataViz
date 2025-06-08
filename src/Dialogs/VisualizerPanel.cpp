@@ -551,7 +551,7 @@ void VisualizerPanel::loadListThemes() const {
 void VisualizerPanel::syncListFileTypes() {
    if (!panelMounted) return;
 
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    string fileType;
@@ -630,7 +630,7 @@ void VisualizerPanel::enableThemeList(bool enable) {
 }
 
 void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoFT, bool bSyncFT) {
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    if (bCachedFT) {
@@ -732,7 +732,7 @@ void VisualizerPanel::fieldRight() {
 void VisualizerPanel::fieldCopy() {
    if (caretFieldIndex < 0) return;
 
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    intptr_t leftPos{}, rightPos{};
@@ -835,7 +835,7 @@ void VisualizerPanel::fieldCopy() {
 void VisualizerPanel::fieldPaste() {
    if (caretFieldIndex < 0) return;
 
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    intptr_t leftPos{}, rightPos{};
@@ -892,7 +892,7 @@ void VisualizerPanel::visualizeTheme() {
 
 void VisualizerPanel::clearVisualize(bool sync) {
    if (!fwVizRegexed.empty()) {
-      HWND hScintilla{ getCurrentScintilla() };
+      HWND hScintilla{ GetCurrentScintilla() };
       if (!hScintilla) return;
 
       SendMessage(hScintilla, SCI_STARTSTYLING, 0, NULL);
@@ -1392,7 +1392,7 @@ void VisualizerPanel::applyLexer(const intptr_t startLine, intptr_t endLine) {
 }
 
 void VisualizerPanel::renderScrolledPage(void* view) {
-   bool otherView{ (view != getCurrentScintilla()) };
+   bool otherView{ (view != GetCurrentScintilla()) };
 
    if (otherView)
       NppMessage(NPPM_MENUCOMMAND, 0, (LPARAM)IDM_VIEW_SWITCHTO_OTHER_VIEW);
@@ -1409,7 +1409,7 @@ void VisualizerPanel::renderCurrentPage() {
       return;
    }
 
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    intptr_t linesOnScreen, firstVisible, startLine, endLine;
@@ -1461,7 +1461,7 @@ void VisualizerPanel::onPanelResize(LPARAM lParam) {
 
 int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, const int rightPullback,
    intptr_t& leftPos, intptr_t& rightPos) {
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return -1;
 
    string currFileType{};
@@ -1499,7 +1499,7 @@ int VisualizerPanel::getFieldEdges(const string fileType, const int fieldIdx, co
 }
 
 void VisualizerPanel::moveToFieldEdge(const string fileType, const int fieldIdx, bool jumpTo, bool rightEdge, bool hilite) {
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    intptr_t caretPos{ SendMessage(hScintilla, SCI_GETCURRENTPOS, NULL, NULL) };
@@ -1547,7 +1547,7 @@ void VisualizerPanel::setFieldAlign(bool left) {
 void VisualizerPanel::displayCaretFieldInfo(const intptr_t startLine, const intptr_t endLine) {
    if (!isVisible()) return;
 
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    string fileType;
@@ -1960,7 +1960,7 @@ void VisualizerPanel::setShowCalltip() {
 }
 
 void VisualizerPanel::initCalltipStyle() {
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    SendMessage(hScintilla, SCI_STYLESETFONT, STYLE_CALLTIP, (LPARAM)"Consolas");
@@ -1980,7 +1980,7 @@ void VisualizerPanel::onBufferActivate() {
 }
 
 void VisualizerPanel::setFocusOnEditor() {
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    SendMessage(hScintilla, SCI_GRABFOCUS, 0, 0);
@@ -2222,7 +2222,7 @@ void VisualizerPanel::enableFoldedControls(bool bFolded) {
    EnableWindow(GetDlgItem(_hSelf, IDC_VIZPANEL_FOLDING_REMOVE_BTN), bFolded);
 
    if (bFolded) {
-      HWND hScintilla{ getCurrentScintilla() };
+      HWND hScintilla{ GetCurrentScintilla() };
       if (!hScintilla) return;
 
       SendMessage(hScintilla, SCI_SETMARGINTYPEN, FOLDING_MARGIN, SC_MARGIN_SYMBOL);
@@ -2244,7 +2244,7 @@ void VisualizerPanel::enableFoldedControls(bool bFolded) {
 }
 
 void VisualizerPanel::toggleFolding() {
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    intptr_t currentLine, headerLine;
@@ -2291,7 +2291,7 @@ int VisualizerPanel::foldLevelFromPopup(bool bFold) {
 void VisualizerPanel::expandFoldLevel(bool bExpand, int foldLevel) {
    if (foldLevel < 0) return;
 
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    SetCursor(LoadCursor(NULL, IDC_WAIT));
@@ -2325,7 +2325,7 @@ void VisualizerPanel::showFoldStructDialog() {
 }
 
 DWORD __stdcall VisualizerPanel::threadPositionHighlighter(void*) {
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return FALSE;
 
    // Look for Idem Potency Hold

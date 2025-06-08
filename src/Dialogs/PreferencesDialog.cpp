@@ -187,7 +187,7 @@ void PreferencesDialog::setFoldLineAlpha() {
 }
 
 void PreferencesDialog::applyFoldLineColorAlpha() {
-   HWND hScintilla{ getCurrentScintilla() };
+   HWND hScintilla{ GetCurrentScintilla() };
    if (!hScintilla) return;
 
    int foldColorAlpha{ static_cast<int>(getPreferenceFoldLineColor()) };

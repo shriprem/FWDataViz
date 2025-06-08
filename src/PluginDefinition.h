@@ -74,7 +74,7 @@ bool setCommand(size_t index, const wstring& cmdName, PFUNCPLUGINCMD pFunc, Shor
 
 // Internal/External use functions
 LRESULT NppMessage(UINT messageID, WPARAM wparam = 0, LPARAM lparam = 0);
-HWND getCurrentScintilla();
+HWND GetCurrentScintilla();
 bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr);
 
 void ShowVisualizerPanel(bool show);
