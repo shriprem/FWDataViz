@@ -19,9 +19,9 @@ void SubmenuManager::listSampleFiles() {
    ModifyMenu(hSubMenu, MI_DEMO_MULTI_LINE_FILES, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hMenuMultiLine, MENU_DEMO_MULTI_LINE_FILES);
 
    itemCount = std::size(gSampleFiles);
-   if (!nppMessage(NPPM_ALLOCATECMDID, itemCount, (LPARAM)&itemIDStart)) return;
+   if (!NppMessage(NPPM_ALLOCATECMDID, itemCount, (LPARAM)&itemIDStart)) return;
 
-   nppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)pluginSamplesDir);
+   NppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)pluginSamplesDir);
    PathAppend(pluginSamplesDir, PLUGIN_FOLDER_NAME);
    PathAppend(pluginSamplesDir, L"Samples");
 
@@ -62,7 +62,7 @@ void SubmenuManager::loadSampleFile(WPARAM wParam, LPARAM) const {
    PathCombine(sampleFile, pluginSamplesDir, gSampleFiles[cmdID].file_name.c_str());
    if (!Utils::checkFileExists(sampleFile)) return;
 
-   nppMessage(NPPM_DOOPEN, 0, (LPARAM)sampleFile);
+   NppMessage(NPPM_DOOPEN, 0, (LPARAM)sampleFile);
    ShowVisualizerPanel(TRUE);
 
    _configIO.defaultVizConfig();
@@ -85,7 +85,7 @@ void SubmenuManager::initSamplesPopup(HMENU hPopup) {
 
 
 HMENU SubmenuManager::getPluginSubMenu() {
-   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE);
+   HMENU hPluginMenu = (HMENU)NppMessage(NPPM_GETMENUHANDLE);
    int menuItemCount = GetMenuItemCount(hPluginMenu);
 
    for (int i{}; i < menuItemCount; ++i) {

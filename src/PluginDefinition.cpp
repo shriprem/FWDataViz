@@ -124,7 +124,7 @@ bool setCommand(size_t index, const wstring& cmdName, PFUNCPLUGINCMD pFunc, Shor
 }
 
 HWND getCurrentScintilla() {
-   return (HWND)(nppMessage(NPPM_GETCURRENTVIEW, 0, 0) ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
+   return (HWND)(NppMessage(NPPM_GETCURRENTVIEW, 0, 0) ? nppData._scintillaSecondHandle : nppData._scintillaMainHandle);
 }
 
 bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr) {
@@ -136,21 +136,21 @@ bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr) {
    return TRUE;
 }
 
-LRESULT nppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
+LRESULT NppMessage(UINT messageID, WPARAM wparam, LPARAM lparam) {
    return SendMessage(nppData._nppHandle, messageID, wparam, lparam);
 }
 
 void RegisterDockPanelIcon() {
-   const bool bStandardIcons{ nppMessage(NPPM_GETTOOLBARICONSETCHOICE, 0, 0) == 4 };
+   const bool bStandardIcons{ NppMessage(NPPM_GETTOOLBARICONSETCHOICE, 0, 0) == 4 };
 
-   const UINT iconID = (nppMessage(NPPM_ISDARKMODEENABLED, 0, 0)) ?
+   const UINT iconID = (NppMessage(NPPM_ISDARKMODEENABLED, 0, 0)) ?
       (bStandardIcons ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_DARK_MODE_ICON) :
       (bStandardIcons ? IDI_VIZ_TOOL_BTN_STD_FIELDS : IDI_DOCK_LITE_MODE_ICON);
 
    _dockpanelData.hIconTab = static_cast<HICON>(LoadImage(_gModule, MAKEINTRESOURCE(iconID),
       IMAGE_ICON, 14, 14, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT));
 
-   nppMessage(NPPM_DMMREGASDCKDLG, 0, reinterpret_cast<LPARAM>(&_dockpanelData));
+   NppMessage(NPPM_DMMREGASDCKDLG, 0, reinterpret_cast<LPARAM>(&_dockpanelData));
 }
 
 

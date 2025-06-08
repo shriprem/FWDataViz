@@ -188,11 +188,11 @@ void Utils::addToolbarIcon(int menuIndex, int std, int fluent, int dark) {
    tbIcon.hToolbarIcon = LoadIcon(_gModule, MAKEINTRESOURCE(fluent));
    tbIcon.hToolbarIconDarkMode = LoadIcon(_gModule, MAKEINTRESOURCE(dark));
 
-   nppMessage(NPPM_ADDTOOLBARICON_FORDARKMODE, pluginMenuItems[menuIndex]._cmdID, (LPARAM)&tbIcon);
+   NppMessage(NPPM_ADDTOOLBARICON_FORDARKMODE, pluginMenuItems[menuIndex]._cmdID, (LPARAM)&tbIcon);
 }
 
 void Utils::checkMenuItem(int menuIndex, bool check) {
-   nppMessage(NPPM_SETMENUITEMCHECK, pluginMenuItems[menuIndex]._cmdID, check);
+   NppMessage(NPPM_SETMENUITEMCHECK, pluginMenuItems[menuIndex]._cmdID, check);
 }
 
 void Utils::showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text) {
@@ -208,11 +208,11 @@ void Utils::showEditBalloonTip(HWND hEdit, LPCWSTR title, LPCWSTR text) {
 }
 
 bool Utils::checkBaseOS(winVer os) {
-   return (nppMessage(NPPM_GETWINDOWSVERSION) >= os);
+   return (NppMessage(NPPM_GETWINDOWSVERSION) >= os);
 }
 
 float Utils::getNPPVersion() {
-   long versionNum{ static_cast<long>(nppMessage(NPPM_GETNPPVERSION, TRUE)) };
+   long versionNum{ static_cast<long>(NppMessage(NPPM_GETNPPVERSION, TRUE)) };
 
    return std::stof(to_wstring(HIWORD(versionNum)) + L"." + to_wstring(LOWORD(versionNum)));
 }

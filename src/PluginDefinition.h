@@ -63,17 +63,20 @@ const enum MenuIndex {
 
 typedef LRESULT (*PSCIFUNC_T)(void*, int, WPARAM, LPARAM);
 
+
+// Internal use functions
 void pluginInit(HANDLE hModule);
 void pluginCleanUp();
 void commandMenuInit();
 void commandMenuCleanUp();
 bool setCommand(size_t index, const wstring& cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey* sk = NULL, bool checkOnInit = false);
 
+
+// Internal/External use functions
+LRESULT NppMessage(UINT messageID, WPARAM wparam = 0, LPARAM lparam = 0);
 HWND getCurrentScintilla();
 bool getDirectScintillaFunc(PSCIFUNC_T& fn, void*& ptr);
-LRESULT nppMessage(UINT messageID, WPARAM wparam = 0, LPARAM lparam = 0);
 
-// Plugin Command Functions
 void ShowVisualizerPanel(bool show);
 void ToggleVisualizerPanel();
 void RefreshVisualizerPanel();

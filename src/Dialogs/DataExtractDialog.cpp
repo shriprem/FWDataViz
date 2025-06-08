@@ -708,7 +708,7 @@ void DataExtractDialog::extractData() {
       if (recMatch) extract += L"\n";
    }
 
-   nppMessage(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
+   NppMessage(NPPM_MENUCOMMAND, 0, IDM_FILE_NEW);
    sciFunc(sciPtr, SCI_SETTEXT, NULL, (LPARAM)(Utils::WideToNarrow(extract)).c_str());
 }
 

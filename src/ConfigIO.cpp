@@ -3,10 +3,10 @@
 void ConfigIO::init() {
    TCHAR sPluginDirectory[MAX_PATH]{};
 
-   nppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)sPluginDirectory);
+   NppMessage(NPPM_GETPLUGINHOMEPATH, MAX_PATH, (LPARAM)sPluginDirectory);
    PathAppend(sPluginDirectory, PLUGIN_FOLDER_NAME);
 
-   nppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
+   NppMessage(NPPM_GETPLUGINSCONFIGDIR, MAX_PATH, (LPARAM)pluginConfigDir);
 
    // If no existing config path, create it
    if (!Utils::checkDirectoryExists(pluginConfigDir)) CreateDirectory(pluginConfigDir, NULL);
@@ -162,8 +162,8 @@ void ConfigIO::getFullStyle(const wstring& theme, const string& styleName, Style
    wstring val = getStyleValue(theme, styleName, file);
 
    if (val.length() < 16) {
-      style.backColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR));
-      style.foreColor = static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR));
+      style.backColor = static_cast<int>(NppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR));
+      style.foreColor = static_cast<int>(NppMessage(NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR));
       style.bold = 1;
       style.italics = 1;
       return;

@@ -608,7 +608,7 @@ void VisualizerPanel::enableFieldControls(bool enable) {
    InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_RPAD_LABEL), nullptr, TRUE);
    InvalidateRect(GetDlgItem(_hSelf, IDC_VIZPANEL_PASTE_LPAD_LABEL), nullptr, TRUE);
 
-   HMENU hPluginMenu = (HMENU)nppMessage(NPPM_GETMENUHANDLE);
+   HMENU hPluginMenu = (HMENU)NppMessage(NPPM_GETMENUHANDLE);
 
    UINT recMenu{ static_cast<UINT>(MF_BYCOMMAND | (recEnabled ? MF_ENABLED : MF_DISABLED)) };
    EnableMenuItem(hPluginMenu, (UINT)pluginMenuItems[MI_FIELD_JUMP]._cmdID, recMenu);
@@ -684,7 +684,7 @@ void VisualizerPanel::visualizeFile(string fileType, bool bCachedFT, bool bAutoF
 
 void VisualizerPanel::delDocInfo(intptr_t bufferID) {
    wstring filePath(MAX_PATH, '\0');
-   nppMessage(NPPM_GETFULLPATHFROMBUFFERID, bufferID, (LPARAM)filePath.c_str());
+   NppMessage(NPPM_GETFULLPATHFROMBUFFERID, bufferID, (LPARAM)filePath.c_str());
    filePath = filePath.c_str();
 
    for (size_t i{}; i < vDocInfo.size(); ++i) {
@@ -917,7 +917,7 @@ int VisualizerPanel::loadTheme(const wstring theme) {
    if (!getDirectScintillaFunc(sciFunc, sciPtr)) return -1;
 
    bool useDefaultBackColor{ _configIO.getPreferenceBool(PREF_DEF_BACKGROUND, FALSE) };
-   int defaultBackColor{ static_cast<int>(nppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR)) };
+   int defaultBackColor{ static_cast<int>(NppMessage(NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR)) };
    int styleCount{ Utils::StringtoInt(_configIO.getStyleValue(theme, "Count")) };
 
    // Do not load more than FW_STYLE_THEMES_MAX_ITEMS styles (including EOL styleInfo)
@@ -1395,12 +1395,12 @@ void VisualizerPanel::renderScrolledPage(void* view) {
    bool otherView{ (view != getCurrentScintilla()) };
 
    if (otherView)
-      nppMessage(NPPM_MENUCOMMAND, 0, (LPARAM)IDM_VIEW_SWITCHTO_OTHER_VIEW);
+      NppMessage(NPPM_MENUCOMMAND, 0, (LPARAM)IDM_VIEW_SWITCHTO_OTHER_VIEW);
 
    renderCurrentPage();
 
    if (otherView)
-      nppMessage(NPPM_MENUCOMMAND, 0, (LPARAM)IDM_VIEW_SWITCHTO_OTHER_VIEW);
+      NppMessage(NPPM_MENUCOMMAND, 0, (LPARAM)IDM_VIEW_SWITCHTO_OTHER_VIEW);
 }
 
 void VisualizerPanel::renderCurrentPage() {
@@ -1819,7 +1819,7 @@ bool VisualizerPanel::detectFileTypeByVizConfig(HWND hScintilla, string& fileTyp
 
 const wstring VisualizerPanel::getCurrentFileName() {
    wstring fileName(MAX_PATH, '\0');
-   nppMessage(NPPM_GETFULLCURRENTPATH, MAX_PATH, (LPARAM)fileName.c_str());
+   NppMessage(NPPM_GETFULLCURRENTPATH, MAX_PATH, (LPARAM)fileName.c_str());
    return wstring{ fileName.c_str() };
 }
 
@@ -2001,7 +2001,7 @@ void VisualizerPanel::popupSamplesMenu() {
    int cmd = TrackPopupMenu(hPopupMenu, TPM_RIGHTALIGN | TPM_TOPALIGN | TPM_LEFTBUTTON | TPM_RETURNCMD,
       rc.right, rc.bottom, 0, _hSelf, NULL);
 
-   if (cmd) nppMessage(NPPM_MENUCOMMAND, 0, cmd);
+   if (cmd) NppMessage(NPPM_MENUCOMMAND, 0, cmd);
 
    // Calling RemoveMenu is needed since the appended items are being referenced from the NPP Main menu.
    // In RemoveMenu, zero is used as the position since items shift down with each remove call.
