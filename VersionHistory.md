@@ -1,13 +1,14 @@
 ## Version History
 
-### Version 2.6.4.1 [May 12, 2025]
+### Version 2.6.5.0 [June 16, 2025]
 
-1. New Feature: Dock Panel icon will be rendered with Fluent or Standard icon depending on the selection under `Notepad++ menu: Settings » Preferences... » Toolbar`. [_Note: To see this feature in action, you will need a build of Notepad++ with the new plugin API message: `NPPM_GETTOOLBARICONSETCHOICE`._]
+1. New Feature: Dock Panel icon will be rendered with Fluent or Standard icon depending on the selection under `Notepad++ menu: Settings » Preferences... » Toolbar`.  [Until Notepad++ implements the new *NPPN_TOOLBARICONSETCHANGED* notification message, a restart of Notepad++ will be required for the icon change to occur.]
 
 2. Darkmode Enhancement: Chevron in Dropdown Lists in the plugin updated to match corresponding UI change in Notepad++.
 
 3. Enhancement: Fluent and standard toolbar icons have been tweaked.
-**Release:** [2.6.4.1 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.4.1)
+
+**Release:** [2.6.5.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.5.0)
 
 ---
 
