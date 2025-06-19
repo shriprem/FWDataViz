@@ -2,7 +2,7 @@
 
 ### Version 2.6.5.0 [June 16, 2025]
 
-1. New Feature: Dock Panel icon will be rendered with Fluent or Standard icon depending on the selection under `Notepad++ menu: Settings » Preferences... » Toolbar`.  [Until Notepad++ implements the new *NPPN_TOOLBARICONSETCHANGED* notification message, a restart of Notepad++ will be required for the icon change to occur.]
+1. New Feature: Dock Panel icon will be rendered with Fluent or Standard icon depending on the selection under `Notepad++ menu: Settings » Preferences... » Toolbar`. This feature requires Notepad++ v8.8.2 or later.
 
 2. Darkmode Enhancement: Chevron in Dropdown Lists in the plugin updated to match corresponding UI change in Notepad++.
 
