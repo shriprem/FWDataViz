@@ -1,4 +1,7 @@
 name: CI_build
+permissions:
+  contents: read
+  security-events: write
 
 on: [push, pull_request]
 
