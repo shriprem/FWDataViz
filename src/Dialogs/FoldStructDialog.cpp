@@ -579,7 +579,24 @@ int FoldStructDialog::structEditAccept(bool accept) {
    if (cleanStructVals) return 0;
 
    int idxFS{ getCurrentFoldStructIndex() };
-   if (idxFS == LB_ERR) return -1;
+
+   if (idxFS == LB_ERR) {
+      FoldStructInfo newFS{};
+
+      if (accept) {
+         vFoldStructs.push_back(newFS);
+
+         SendMessage(hFoldStructs, LB_ADDSTRING, NULL, (LPARAM)newFS.fileType.label.c_str());
+         SendMessage(hFoldStructs, LB_SETCURSEL, vFoldStructs.size() - 1, NULL);
+
+         idxFS = getCurrentFoldStructIndex();
+         if (idxFS == LB_ERR) return -1;
+      }
+      else {
+         onFoldStructSelectFill(&newFS);
+         return 0;
+      }
+   }
 
    FoldStructInfo& fsInfo{ vFoldStructs[idxFS] };
 
@@ -606,7 +623,7 @@ int FoldStructDialog::structEditAccept(bool accept) {
 
    cleanStructsFile = FALSE;
    cleanStructVals = TRUE;
-   enableStructSelection();
+   onFoldStructSelect();
 
    return 1;
 }
