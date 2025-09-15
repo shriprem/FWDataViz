@@ -1061,7 +1061,25 @@ int ConfigureDialog::recEditAccept(bool accept) {
    if (idxFT == LB_ERR) return -1;
 
    int idxRec{ getCurrentRecIndex() };
-   if (idxRec == LB_ERR) return -1;
+
+   if (idxRec == LB_ERR) {
+      RecordType newRec{ getNewRec() };
+
+      if (accept) {
+         vector<RecordType>& records{ vFileTypes[idxFT].vRecTypes };
+         records.push_back(newRec);
+
+         SendMessage(hRecsLB, LB_ADDSTRING, NULL, (LPARAM)L"");
+         SendMessage(hRecsLB, LB_SETCURSEL, records.size() - 1, NULL);
+
+         idxRec = getCurrentRecIndex();
+         if (idxRec == LB_ERR) return -1;
+      }
+      else {
+         onRecTypeSelectFill(&newRec);
+         return 0;
+      }
+   }
 
    RecordType& recInfo{ vFileTypes[idxFT].vRecTypes[idxRec] };
 
@@ -1169,7 +1187,24 @@ int ConfigureDialog::fileEditAccept(bool accept) {
    if (cleanFileVals) return 0;
 
    int idxFT{ getCurrentFileTypeIndex() };
-   if (idxFT == LB_ERR) return -1;
+
+   if (idxFT == LB_ERR) {
+      FileType newFile{ getNewFileType() };
+
+      if (accept) {
+         vFileTypes.push_back(newFile);
+
+         SendMessage(hFilesLB, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
+         SendMessage(hFilesLB, LB_SETCURSEL, vFileTypes.size() - 1, NULL);
+
+         idxFT = getCurrentFileTypeIndex();
+         if (idxFT == LB_ERR) return -1;
+      }
+      else {
+         onFileTypeSelectFill(&newFile);
+         return 0;
+      }
+   }
 
    FileType& fileInfo{ vFileTypes[idxFT] };
 
