@@ -585,7 +585,7 @@ int FoldStructDialog::structEditAccept(bool accept) {
 
    if (accept) {
       int index{ static_cast<int>(SendMessage(hFTList, CB_GETCURSEL, 0, 0)) };
-      if (index >= static_cast<int>(vFileTypes.size())) return -1;
+      if (index == LB_ERR || index >= static_cast<int>(vFileTypes.size())) return -1;
 
       fsInfo.fileType.type = vFileTypes[index].type;
       fsInfo.fileType.label = vFileTypes[index].label;
