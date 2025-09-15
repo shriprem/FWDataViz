@@ -872,7 +872,24 @@ void ThemeDialog::themeEditAccept(bool accept) {
    if (cleanThemeVals) return;
 
    int idxFT{ getCurrentThemeIndex() };
-   if (idxFT == LB_ERR) return;
+
+   if (idxFT == LB_ERR) {
+      ThemeType newFile{ getNewTheme() };
+
+      if (accept) {
+         vThemeTypes.push_back(newFile);
+
+         SendMessage(hThemesLB, LB_ADDSTRING, NULL, (LPARAM)newFile.label.c_str());
+         SendMessage(hThemesLB, LB_SETCURSEL, vThemeTypes.size() - 1, NULL);
+
+         idxFT = getCurrentThemeIndex();
+         if (idxFT == LB_ERR) return;
+      }
+      else {
+         onThemeSelectFill(&newFile);
+         return;
+      }
+   }
 
    ThemeType& fileInfo = vThemeTypes[idxFT];
 
@@ -896,7 +913,7 @@ void ThemeDialog::themeEditAccept(bool accept) {
 
    cleanConfigFile = FALSE;
    cleanThemeVals = TRUE;
-   enableThemeSelection();
+   onThemeSelect();
 }
 
 int ThemeDialog::appendThemeConfigs(const wstring& sThemeFile) {
