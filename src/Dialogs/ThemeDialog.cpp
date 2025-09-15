@@ -765,12 +765,13 @@ INT_PTR ThemeDialog::colorPreviewSwatch(WPARAM wParam, LPARAM lParam) {
 }
 
 void ThemeDialog::initPreviewSwatch(int idxStart, int idxEnd) {
+   int styleCount{};
+
    const int idxTheme{ getCurrentThemeIndex() };
-   if (idxTheme == LB_ERR) return;
-   ThemeType& TT = vThemeTypes[idxTheme];
+   if (idxTheme != LB_ERR)
+      styleCount = static_cast<int>(vThemeTypes[idxTheme].vStyleInfo.size());
 
    swatchTopIndex = static_cast<int>(SendDlgItemMessage(_hSelf, IDC_THEME_STYLE_LIST_BOX, LB_GETTOPINDEX, NULL, NULL));
-   int styleCount = static_cast<int>(TT.vStyleInfo.size());
 
    for (int i{ idxStart }; i <= idxEnd; ++i) {
       ShowWindow(GetDlgItem(_hSelf, IDC_THEME_SWATCH_BACK_00 + i), (i + swatchTopIndex <= styleCount));
