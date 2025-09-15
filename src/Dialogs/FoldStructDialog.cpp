@@ -856,7 +856,7 @@ int FoldStructDialog::blockEditAccept(bool accept) {
 
    if (accept) {
       int index{ static_cast<int>(SendMessage(hHdrRTList, CB_GETCURSEL, 0, 0)) };
-      if (index >= static_cast<int>(vRecTypes.size())) return -1;
+      if (index == LB_ERR || index >= static_cast<int>(vRecTypes.size())) return -1;
 
       BI.hdrRec.type = vRecTypes[index].type;
       BI.hdrRec.label = vRecTypes[index].label;
