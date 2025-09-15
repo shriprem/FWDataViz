@@ -1031,7 +1031,7 @@ int FoldStructDialog::endRecEditAccept(bool accept) {
 
    if (accept) {
       int index{ static_cast<int>(SendMessage(hExplRTList, CB_GETCURSEL, 0, 0)) };
-      if (index >= static_cast<int>(vRecTypes.size())) return -1;
+      if (index == LB_ERR || index >= static_cast<int>(vRecTypes.size())) return -1;
 
       TI.type = vRecTypes[index].type;
       TI.label = vRecTypes[index].label;
