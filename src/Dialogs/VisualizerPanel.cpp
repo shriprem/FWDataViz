@@ -2054,7 +2054,7 @@ void VisualizerPanel::applyFolding(string fsType) {
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
 
-   size_t eolMarkerLen, eolMarkerPos, recStartLine{}, startPos, endPos, recStartPos{};
+   size_t eolMarkerLen, recStartLine{}, startPos, endPos, recStartPos{};
    bool newRec{ TRUE };
 
    vector<FoldingInfo> foldStack{ {} };
@@ -2094,19 +2094,14 @@ void VisualizerPanel::applyFolding(string fsType) {
 
       if (eolMarkerLen == 0) {
          newRec = TRUE;
-         eolMarkerPos = endPos;
       }
       else if (lineText.length() > eolMarkerLen &&
          (lineText.substr(lineText.length() - eolMarkerLen) == eolMarker)) {
          newRec = TRUE;
-         eolMarkerPos = endPos - eolMarkerLen;
       }
       else if (currentLine < endLine) {
          newRec = FALSE;
          continue;
-      }
-      else {
-         eolMarkerPos = endPos;
       }
 
       size_t regexIndex{};
