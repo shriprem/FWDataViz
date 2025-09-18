@@ -607,7 +607,7 @@ void DataExtractDialog::extractData() {
    string lineTextCStr(FW_LINE_MAX_LENGTH, '\0');
    string recStartText{}, eolMarker{};
    size_t eolMarkerLen;
-   intptr_t eolMarkerPos, recStartLine{}, startPos, endPos, recStartPos{};
+   intptr_t eolMarkerPos, startPos, endPos, recStartPos{};
    bool newRec{ TRUE };
 
    bool recMatch{};
@@ -635,10 +635,10 @@ void DataExtractDialog::extractData() {
       sciFunc(sciPtr, SCI_GETLINE, currentLine, (LPARAM)lineTextCStr.c_str());
       startPos = sciFunc(sciPtr, SCI_POSITIONFROMLINE, currentLine, NULL);
       endPos = sciFunc(sciPtr, SCI_GETLINEENDPOSITION, currentLine, NULL);
+
       string_view lineText{ lineTextCStr.c_str(), static_cast<size_t>(endPos - startPos)};
 
       if (newRec) {
-         recStartLine = currentLine;
          recStartPos = startPos;
          recStartText = lineText;
       }
