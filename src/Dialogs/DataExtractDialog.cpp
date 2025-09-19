@@ -626,8 +626,7 @@ void DataExtractDialog::extractData() {
    const std::wregex regexTrimSpaces{ std::wregex(L"^\\s+|\\s+$") };
    wstring fieldData{};
 
-   const intptr_t endLine{ lineCount };
-   for (intptr_t currentLine{}; currentLine < endLine; ++currentLine) {
+   for (intptr_t currentLine{}; currentLine < lineCount; ++currentLine) {
       if (sciFunc(sciPtr, SCI_LINELENGTH, currentLine, NULL) > FW_LINE_MAX_LENGTH) {
          continue;
       }
@@ -656,7 +655,7 @@ void DataExtractDialog::extractData() {
          newRec = TRUE;
          eolMarkerPos = endPos - eolMarkerLen;
       }
-      else if (currentLine < endLine) {
+      else if (currentLine < lineCount) {
          newRec = FALSE;
          continue;
       }
