@@ -1,6 +1,6 @@
 ## Version History
 
-### Version 2.6.6.0 [September 22, 2025]
+### Version 2.6.6.0 [September 23, 2025]
 
 #### Enhancements
 
