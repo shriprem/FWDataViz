@@ -17,6 +17,9 @@
 
 2. Fold Structures Editor dialog crashes Notepad++ when 'Accept' button is clicked without selecting a 'Header Record Type' for a new 'Fold Blocks' type. Issue: [#102](https://github.com/shriprem/FWDataViz/issues/102)
 
+3. With plugin panel closed during NPP launch, changing NPP preferences for Dark Mode or Toolbar Icon set will crash Notepad++.
+Issue [#104](https://github.com/shriprem/FWDataViz/issues/104)
+
 
 
 **Release:** [2.6.6.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.6.0)
