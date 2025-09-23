@@ -1,7 +1,7 @@
 /*
  Copyright 2025 Shridhar Kumar <shriprem@gmail.com>
 
- Notepad++ Visualizer plugin is free software: you can redistribute it and/or modify
+ FWDataViz (Fixed Width Data Visualizer) plugin is free software: you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
@@ -17,8 +17,8 @@
 
 #include <windows.h>
 
-#define VERSION_VALUE "2.6.5.0"
-#define VERSION_DIGITALVALUE 2,6,5,0
+#define VERSION_VALUE "2.6.6.0"
+#define VERSION_DIGITALVALUE 2,6,6,0
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION VERSION_DIGITALVALUE

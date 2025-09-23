@@ -1,5 +1,28 @@
 ## Version History
 
+### Version 2.6.6.0 [September 22, 2025]
+
+#### Enhancements
+
+1. In the File Type Metadata editor dialog, within the 'File Types' and 'File Type » Record Types' sections, when the section's selection list box is empty, the 'Accept' button will automatically insert a new (File Type or Record Type) record and then populate that with the field values being entered by the user. See issue: #98
+
+2. In the Themes Editor dialog, within the 'Themes' section, when the section's selection list box is empty, the 'Accept' button will automatically insert a new Theme record and then populate that with the Theme Label value entered by the user. See issue: #101
+
+3. In the Fold Structures Editor dialog, within the 'Fold Structures' section, when the section's selection list box is empty, the 'Accept' button will automatically insert a new Fold Structure record and then populate that with the 'Fold Structure - File Type' value selected by the user. See issue: #100
+
+4. Minor Enhancement: Backgrounds of Up and Down buttons are now transparent.
+
+#### Fixe Issues
+1. Fold Structures Editor dialog crashes Notepad++ when 'Accept' button is clicked without selecting a 'File Type' for a new 'Fold Structure' type. Issue: #99
+
+2. Fold Structures Editor dialog crashes Notepad++ when 'Accept' button is clicked without selecting a 'Header Record Type' for a new 'Fold Blocks' type. Issue: #102
+
+
+
+**Release:** [2.6.6.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.6.0)
+
+---
+
 ### Version 2.6.5.0 [June 16, 2025]
 
 1. New Feature: Dock Panel icon will be rendered with Fluent or Standard icon depending on the selection under `Notepad++ menu: Settings » Preferences... » Toolbar`. This feature requires Notepad++ v8.8.2 or later.
