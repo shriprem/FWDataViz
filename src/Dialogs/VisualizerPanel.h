@@ -50,6 +50,7 @@ public:
 
    void initPanel();
    virtual void display(bool toShow = TRUE);
+   bool isPanelMounted() { return panelMounted; }
    void refreshDarkMode();
    void initMBCharsCheckbox();
    void updateHopRightTip();
