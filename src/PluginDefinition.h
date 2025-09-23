@@ -93,4 +93,3 @@ void ShowDataExtractDialog();
 void ShowAboutDialog();
 
 void RegisterDockPanelIcon();
-void RefreshDarkMode();

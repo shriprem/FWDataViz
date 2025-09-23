@@ -166,13 +166,13 @@ void ShowVisualizerPanel(bool show) {
          _dockpanelData.pszModuleName = _vizPanel.getPluginFileName();
          _dockpanelData.dlgID = MI_FWVIZ_PANEL;
          _dockpanelData.pszName = MENU_PANEL_NAME;
-         RegisterDockPanelIcon();
 
          _vizPanel.initPanel();
       }
    }
 
    _vizPanel.display(show);
+   if (show) RegisterDockPanelIcon();
 }
 
 void ToggleVisualizerPanel() {
@@ -219,9 +219,3 @@ void ShowDataExtractDialog() {
 void ShowAboutDialog() {
    _vizPanel.showAboutDialog();
 }
-
-void RefreshDarkMode() {
-   if (_vizPanel.isCreated())
-      _vizPanel.refreshDarkMode();
-}
-
