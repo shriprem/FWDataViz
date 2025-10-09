@@ -12,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        build_configuration: [Release, Debug]
+        build_configuration: [Release]
         build_platform: [x64, Win32, ARM64]
 
     steps:
