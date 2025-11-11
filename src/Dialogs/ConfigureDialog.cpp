@@ -1,4 +1,5 @@
 #include "ConfigureDialog.h"
+#include "VisualizerPanel.h"
 #include "EximFileTypeDialog.h"
 #include "FieldTypeDialog.h"
 
@@ -6,6 +7,7 @@
 
 extern HINSTANCE _gModule;
 extern ConfigureDialog _configDlg;
+extern VisualizerPanel _vizPanel;
 
 EximFileTypeDialog _eximDlg;
 FieldTypeDialog _fieldTypeDlg;
@@ -94,6 +96,18 @@ void ConfigureDialog::doDialog(HINSTANCE hInst) {
 
    loadConfigInfo();
    fillFileTypes();
+
+   // Set File Type selection to the current file type in the Visualizer panel
+   string fileType{};
+   if (_vizPanel.getDocFileType(fileType)) {
+      wstring fileLabel{ _configIO.getConfigWideChar(fileType, "FileLabel") };
+      int index{ static_cast<int>(SendMessage(hFilesLB, LB_FINDSTRING, (WPARAM)-1, (LPARAM)fileLabel.c_str())) };
+
+      if (index != LB_ERR) {
+         SendMessage(hFilesLB, LB_SETCURSEL, index, 0);
+         onFileTypeSelect();
+      }
+   }
 }
 
 void ConfigureDialog::display(bool toShow) {
