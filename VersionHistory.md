@@ -14,6 +14,7 @@
 
 2. Fold Block Records remain orphaned even after relinking Fold Structure definition to the renamed File Type. See issue: [#109](https://github.com/shriprem/FWDataViz/issues/109)
 
+3. Removed ADFT settings from a few sample data files since those ADFT settings were a little too generic and could therefore be falsely triggered on other files. The affected sample files are: Daily Weather Data, ICD-10 Diagnosis Codes, ICD-10 Order Codes, ICD-10 Procedure Codes, Multiple GSN Daily Weather, ICD-10 Billable-Flagged Order Codes.
 
 **Release:** [2.6.7.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.7.0)
 
