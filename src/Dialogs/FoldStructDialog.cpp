@@ -654,6 +654,20 @@ int FoldStructDialog::structEditAccept(bool accept) {
 
    cleanStructsFile = FALSE;
    cleanStructVals = TRUE;
+
+   if (accept) {
+      vector <BlockInfo>& blockInfoList{ fsInfo.vBlocks };
+
+      for (auto& BI : blockInfoList) {
+         if (BI.hdrRec.type.empty()) continue;
+
+         wstring hdrLabel{ _configIO.getConfigWideChar(fsInfo.fileType.type, (BI.hdrRec.type + "_Label")) };
+
+         if (!hdrLabel.empty())
+            BI.hdrRec.label = hdrLabel;
+      }
+   }
+
    onFoldStructSelect();
 
    return 1;
