@@ -1,10 +1,11 @@
 #include "FoldStructDialog.h"
+#include "VisualizerPanel.h"
 #include "EximFileTypeDialog.h"
 
 #pragma comment(lib, "comctl32.lib")
 
 extern HINSTANCE _gModule;
-
+extern VisualizerPanel _vizPanel;
 extern EximFileTypeDialog _eximDlg;
 
 void FoldStructDialog::doDialog(HINSTANCE hInst) {
@@ -47,6 +48,18 @@ void FoldStructDialog::doDialog(HINSTANCE hInst) {
    loadFileTypesList();
    loadStructsInfo();
    fillFoldStructs();
+
+   // Set File Type selection to the current file type in the Visualizer panel
+   string fileType{};
+   if (_vizPanel.getDocFileType(fileType)) {
+      wstring fileLabel{ _configIO.getConfigWideChar(fileType, "FileLabel") };
+      int index{ static_cast<int>(SendMessage(hFoldStructs, LB_FINDSTRING, (WPARAM)-1, (LPARAM)fileLabel.c_str())) };
+
+      if (index != LB_ERR) {
+         SendMessage(hFoldStructs, LB_SETCURSEL, index, 0);
+         onFoldStructSelect();
+      }
+   }
 }
 
 void FoldStructDialog::resyncFileTypes() {
