@@ -2,12 +2,14 @@
 #include "VisualizerPanel.h"
 #include "EximFileTypeDialog.h"
 #include "FieldTypeDialog.h"
+#include "FoldStructDialog.h"
 
 #pragma comment(lib, "comctl32.lib")
 
 extern HINSTANCE _gModule;
 extern ConfigureDialog _configDlg;
 extern VisualizerPanel _vizPanel;
+extern FoldStructDialog _foldStructDlg;
 
 EximFileTypeDialog _eximDlg;
 FieldTypeDialog _fieldTypeDlg;
@@ -634,7 +636,7 @@ int ConfigureDialog::getFileTypeConfig(size_t idxFT, bool cr_lf, wstring& ftCode
 
    string utf8Code{ Utils::WideToNarrow(FT.label) };
    utf8Code = regex_replace(utf8Code, std::regex("[^\x20-\x7F]"), "");
-   rawCode = Utils::NarrowToWide(regex_replace(utf8Code, std::regex("(,|=|\\[|\\])"), " "));
+   rawCode = Utils::NarrowToWide(regex_replace(utf8Code, std::regex("[\\\\^$.,*+?=()\\[\\]{}|]"), " "));
    rawCode = regex_replace(rawCode, wregex(L"(^( )+)|(( )+$)"), L"");
    rawCode = regex_replace(rawCode, wregex(L"( ){2,}"), L" ");
    rawCode = regex_replace(rawCode, wregex(L" "), L"_").substr(0, 50);
@@ -1430,6 +1432,7 @@ void ConfigureDialog::saveConfigInfo() {
 
    _configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_VIZ));
    _configIO.saveConfigFile(fileData, _configIO.getConfigFile(_configIO.CONFIG_VIZ));
+   _foldStructDlg.resyncFileTypes();
 
    cleanConfigFile = TRUE;
    indicateCleanStatus();

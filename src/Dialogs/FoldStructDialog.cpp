@@ -49,6 +49,37 @@ void FoldStructDialog::doDialog(HINSTANCE hInst) {
    fillFoldStructs();
 }
 
+void FoldStructDialog::resyncFileTypes() {
+   string allFTs{ _configIO.getConfigStringA("Base", "FileTypes") };
+   if (allFTs.empty()) return;
+
+   bool bFSConfigBackup{};
+   string sFSConfig{ Utils::WideToNarrow(_configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS)) };
+
+   char buf[10];
+   string fsFileType{};
+   std::smatch ftMatch{};
+
+   int foldStructCount{ _configIO.getFoldStructCount() };
+
+   for (int i{}; i < foldStructCount; ++i) {
+      snprintf(buf, 6, "FS%03d", i + 1);
+      fsFileType = _configIO.getFoldStructValueA(buf, "FileType");
+
+      if (regex_search(allFTs, std::regex("(?:^|,)" + fsFileType + "(?:,|$)"))) continue;
+
+      regex_search(allFTs, ftMatch, std::regex("(?:^|,)(FT\\d{3}_" + fsFileType.substr(6) + ")(?:,|$)"));
+      if (ftMatch[1].str().empty()) continue;
+
+      if (!bFSConfigBackup) {
+         _configIO.backupConfigFile(_configIO.getConfigFile(_configIO.CONFIG_FOLDSTRUCTS));
+         bFSConfigBackup = true;
+      }
+
+      WritePrivateProfileStringA(buf, "FileType", ftMatch[1].str().c_str(), sFSConfig.c_str());
+   }
+}
+
 void FoldStructDialog::refreshDarkMode() {
    NPPDM_AutoThemeChildControls(_hSelf);
    redraw();

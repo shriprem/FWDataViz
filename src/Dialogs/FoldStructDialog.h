@@ -7,6 +7,7 @@
 #include <vector>
 
 using std::vector;
+using std::regex;
 
 extern NppData nppData;
 extern ConfigIO _configIO;
@@ -15,6 +16,7 @@ class FoldStructDialog : public StaticDialog {
 public:
    FoldStructDialog() : StaticDialog() {};
    void doDialog(HINSTANCE hInst);
+   void resyncFileTypes();
    void refreshDarkMode();
 
 private:
