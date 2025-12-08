@@ -1,5 +1,24 @@
 ## Version History
 
+### Version 2.6.7.0 [December 8, 2025]
+
+#### Enhancements
+1. File Type Metadata Editor dialog will launch with currently active file type. See issue: [#111](https://github.com/shriprem/FWDataViz/issues/111)
+
+2. Fold Structures Editor dialog will launch with currently active file type. See issue: [#110](https://github.com/shriprem/FWDataViz/issues/110)
+
+
+#### Fixed Issues
+
+1. Fold Structure definitions become orphaned when new File Types are added or their listing order is changed. See issue: [#108](https://github.com/shriprem/FWDataViz/issues/108)
+
+2. Fold Block Records remain orphaned even after relinking Fold Structure definition to the renamed File Type. See issue: [#109](https://github.com/shriprem/FWDataViz/issues/109)
+
+
+**Release:** [2.6.7.0 Release](https://github.com/shriprem/FWDataViz/releases/tag/v2.6.7.0)
+
+---
+
 ### Version 2.6.6.0 [September 23, 2025]
 
 #### Enhancements
