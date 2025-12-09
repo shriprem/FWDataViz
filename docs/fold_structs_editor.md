@@ -21,7 +21,6 @@ This editor is organized in a three-level hierarchy:
 
 * Previous configurations are automatically backed up with each save. Use _Load Backup Configuration File_ to load a backup file.
 
-
 ## Fold Structures
 
 ### Fold Structure » File Type
@@ -32,10 +31,7 @@ This selection will link the _Fold Structure_ to one of the _File Types_ defined
 
 Multiple Fold Structures with slightly different settings can be defined on the same _File Type_. In such cases, only the _Fold Structure_ listed first in the _Fold Structures_ list box will become active and get applied on a file of matching _File Type_. Hence the availability of Up & Down buttons below the _Fold Structures_ list box. Otherwise, the ordering of items in this list box does not matter.
 
-> :warning: If the ordinal (_i.e.,_ the sequential positioning in the _File Types_ list) or the _File Label_ for the _File Type_ is modified in the [File Type Metadata Editor](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md), you will need to manually re-associate the _File Type_ with the _Fold Structure_ here.
-
 ### Automatically apply Fold Structure on matching files
-
 
  :book: Related: [Definitions (_INI File_)](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md#Definitions-INI-File) - `FoldLevelAuto`
 
@@ -64,7 +60,6 @@ Multiple Fold Blocks with slightly different settings can be defined on the same
  :book: Related: [Definitions (_INI File_)](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md#Definitions-INI-File) - `RECnnn_Recursive`
 
  This option will specify whether the _Fold Blocks_ with same priority value will nest inside each other. Since most data files are _non-recursive_, this option will need to be enabled very rarerly.
-
 
 ## Fold Block » Implicit Terminators
 
