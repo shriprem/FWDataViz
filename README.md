@@ -14,11 +14,18 @@
 ![image](https://raw.githubusercontent.com/shriprem/FWDataViz/master/images/foldable_orders_file.png)
 **ICD-10 Billable-Flagged Order Codes Sample File, with folding applied.**
 
+Fixed Width Data Visualizer (FWDataViz) is a plugin for visualizing fixed-width data in Notepad++. FWDataViz will turn Notepad++ into Excel for fixed-width data files.
+
+In addition, FWDataViz offers these features: Display cursor position data; Jump to specific fields; Folding Record Blocks; Data Extraction.
+
+FWDataViz plugin has builtin dialogs to configure File-type, Record-type & Field metadata; Themes & Color definitions; and Folding structure.
+
+FWDataViz can handle Homogenous/Mixed, Multi-line records.
 
 ### Features at the Panel
 * Visualization of fields in fixed-width data files with distinct colors and font styles. With or optionally without distinct background colors.
 
-* [Display of record, field and byte information at cursor position](#fixed-width-data-visualizer-panel) on the panel. Also, optionally, inside a calltip within the Notepad++ editor pane.
+* [Display of record, field and byte information at cursor position](#plugin-panel) on the panel. Also, optionally, inside a calltip within the Notepad++ editor pane.
 
 * [Foldable Record Blocks](https://github.com/shriprem/FWDataViz/blob/master/docs/foldable_record_blocks.md) for files with hierarchical data.
 
