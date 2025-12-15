@@ -147,4 +147,15 @@ __Weather Stations List with location wiki and Daily Weather data__ _(A contrive
 * All screen clippings in this repository were made using [FastStone Capture](https://www.faststone.org/FSCaptureDetail.htm). Small-size application with awesome features!
 * The core visualizer algorithm of this plugin was first [protyped](https://github.com/shriprem/FWDataViz/blob/master/docs/Visualizer_prototype.py) in Python using **David Brotherstone's** *Python Script* plugin for Notepad++.
 
+## See Also
+While FWDataViz is for fixed-width data files, NestedDSV is meant for [Nested DSV](https://github.com/shriprem/NestedDSV) data files. The two plugins have similar interfaces with minimal changes. For a comparison of the two file formats, see: [Nested DSV Primer](https://github.com/shriprem/NestedDSV/blob/main/docs/nested_dsv_primer.md)
+
+* NestedDSV has a slightly simpler [File Type Metadata Editor](https://github.com/shriprem/NestedDSV/blob/main/docs/file_type_config_dialog.md) compared to the one in [FWDataViz](https://github.com/shriprem/FWDataViz/blob/master/docs/file_type_config_dialog.md).
+
+* The [sample files](https://github.com/shriprem/NestedDSV?tab=readme-ov-file#sample-nesteddsv-data-files) packaged with NestedDSV are also simpler and much more interesting.
+
+Due to their similarities and minor differences, reviewing the documentation and sample files of both these plugins may benefit some users by reinforcing the underlying concepts.
+
+---
+
 <a href='https://ko-fi.com/S6S417WICS' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
